@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Link } from 'react-router-dom';
+import Drawer from 'material-ui/Drawer';
+import MenuItem from 'material-ui/MenuItem';
 import Dashboard from '../Dashboard';
 import Client from '../Clients';
 import Movement from '../Movements';
@@ -9,7 +11,12 @@ import './index.css';
 
 class App extends Component {
   state = {
-    categories: []
+    categories: [],
+    drawerOpen: false
+  }
+
+  toggleDrawer() {
+    this.setState({drawerOpen: !this.state.drawerOpen});
   }
 
   componentDidMount() {
@@ -22,14 +29,30 @@ class App extends Component {
   }
 
   render() {
-    const { categories } = this.state;
+    const { categories, drawerOpen } = this.state;
 
     return (
       <div className="app">
+        
+        <Drawer
+          docked={false}
+          width={200}
+          open={drawerOpen}
+          onRequestChange={drawerOpen => this.setState({drawerOpen})}>{
+            categories.map(category => (
+              <Link to={`/${category.name}`}>
+                <MenuItem onClick={ _ => this.toggleDrawer()}>
+                  {category.label}
+                </MenuItem>
+              </Link>
+            ))
+          }
+        </Drawer>
+
         <div className="app-content">
 
           <Route path="/" exact render={ _ => (
-            <Dashboard categories={categories}/>
+            <Dashboard categories={categories} closeDrawer={ _ => this.toggleDrawer()}/>
           )}/>
 
           <Route path="/:categoryName" component={ props => {

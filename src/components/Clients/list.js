@@ -1,23 +1,12 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import Header from '../App/header';
+import Header from '../Header';
 import ReactList from 'react-list';
 import Plus from 'react-icons/lib/fa/plus';
 import ArrowLeft from 'react-icons/lib/fa/arrow-left';
-import { Modal } from 'react-overlays';
+import FullscreenDialog from 'material-ui-fullscreen-dialog';
 import ItemNew from './new';
 import './index.css';
-
-const createItemDialogStyle = {
-  position: 'fixed',
-  zIndex: 1040,
-  top: 0,
-  bottom: 0,
-  left: 0,
-  right: 0,
-  background: '#fff',
-  outline: 'none'
-}
 
 class CategoryList extends Component {
   state = {
@@ -28,7 +17,6 @@ class CategoryList extends Component {
     this.setState({ showNewDialog: true});
   }
 
-  closeNewDialog = this.closeNewDialog.bind(this);
   closeNewDialog() {
     this.setState({ showNewDialog: false});
   }
@@ -46,7 +34,7 @@ class CategoryList extends Component {
 
     return (
 
-      <div className="category">
+      <div className="categorylist">
 
         <Header title={category.label} actions={[
           {id:'arrowLeft', icon:ArrowLeft, to:'/'},
@@ -65,14 +53,14 @@ class CategoryList extends Component {
             </div>
           }/>
 
-        <Modal
-          style={createItemDialogStyle}
-          show={showNewDialog}
-          onHide={this._newDialogClosed}>
+        <FullscreenDialog
+          open={showNewDialog}
+          onRequestClose={_ => this._newDialogClosed()}
+          appBarStyle={{display: 'none'}}>
           <ItemNew
             title={`Nuevo ${category.itemLabel}`}
-            closeDialog={this.closeNewDialog}/>
-        </Modal>
+            closeDialog={_ => this.closeNewDialog()}/>
+        </FullscreenDialog>
 
       </div>
     );

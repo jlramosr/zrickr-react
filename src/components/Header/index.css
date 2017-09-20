@@ -1,0 +1,24 @@
+.header-actions {
+  display: flex;
+
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.header-title-text {
+  margin-right: 8px;
+  margin-bottom: 2px;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap; 
+}
+
+.header-title-loading {
+  width: 46px;
+  height: 46px;
+}

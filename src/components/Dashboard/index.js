@@ -1,18 +1,18 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import Header from '../App/header';
-import Calculator from 'react-icons/lib/fa/calculator';
+import Header from '../Header';
+import Menu from 'react-icons/lib/md/menu';
 import './index.css';
 
 class Dashboard extends Component {
   render() {
-    const { categories } = this.props;
+    const { categories, closeDrawer } = this.props;
 
     return (
       <div className="dashboard">
 
         <Header title="ERP" actions={[
-          {id:'calculator', icon: Calculator}
+          {id:'menu', icon: Menu, onClick:closeDrawer}
         ]}/>
 
         {categories.map(category =>

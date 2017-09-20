@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import Header from '../App/header';
+import Header from '../Header';
+import RaisedButton from 'material-ui/RaisedButton';
 import ArrowLeft from 'react-icons/lib/fa/arrow-left';
 import Check from 'react-icons/lib/fa/check';
 import Edit from 'react-icons/lib/md/edit';
@@ -32,14 +33,23 @@ class ItemOverview extends Component {
     const { item, category } = this.props;
 
     return (
-      <div className="newclient">
+
+      
+      <div className="itemoverview">
+
+
+
         <Header title={item ? item.name : ''} actions={[
           {id:'arrowLeft', icon:ArrowLeft, to:`/${category.name}`},
           {id:'check', icon:Check, right: true, onClick: _ => this._updateItem()},
           {id:'edit', icon:Edit, right: true, onClick: _ => this._changeEditMode(true)},
           {id:'trash', icon:Trash, right: true, onClick: _ => this._deleteItem()},
         ]}/>
+
+        <RaisedButton label="Default" />
+
       </div>
+      
     );
   }
 }

@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import IconButton from 'material-ui/IconButton';
 import PropTypes from 'prop-types';
-import './headerAction.css';
+import './action.css';
 
 class HeaderAction extends Component {
   static propTypes = {
@@ -16,22 +17,21 @@ class HeaderAction extends Component {
 
     return (
 
-      <div className="action-content">{
+      <div className="action">{
         action.to ? (
           <Link to={action.to}>
-            <Icon 
-              size={_size}
-              color={_color} 
-              onClick={action.onClick}/>
+            <IconButton>
+              <Icon size={_size} color={_color} onClick={action.onClick}/>
+            </IconButton>
           </Link> 
         ) : (
-          <Icon
-            size={_size}
-            color={_color}
+          <IconButton
+            disableTouchRipple={!action.onClick}
             style={{
-                cursor: action.onClick ? 'pointer' : 'none'
-            }}
-            onClick={action.onClick}/>
+              cursor: action.onClick ? 'pointer' : 'default'
+            }}>
+            <Icon size={_size} color={_color} onClick={action.onClick}/>
+          </IconButton>
         )
       }</div>
 
