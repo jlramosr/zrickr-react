@@ -12,6 +12,7 @@ import './index.css';
 class App extends Component {
   state = {
     categories: [],
+    fields: {},
     drawerOpen: false
   }
 
@@ -40,7 +41,7 @@ class App extends Component {
           open={drawerOpen}
           onRequestChange={drawerOpen => this.setState({drawerOpen})}>{
             categories.map(category => (
-              <Link to={`/${category.name}`}>
+              <Link key={category.name} to={`/${category.name}`}>
                 <MenuItem onClick={ _ => this.toggleDrawer()}>
                   {category.label}
                 </MenuItem>

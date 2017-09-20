@@ -10,6 +10,7 @@ import './index.css';
 
 class CategoryList extends Component {
   state = {
+    tinyItems: [],
     showNewDialog: false
   }
 
@@ -26,11 +27,19 @@ class CategoryList extends Component {
   }
 
   componentDidMount() {
+    this.setState({
+      tinyItems: [
+        {id:'11231', primaryInfo:'Amazon', secondaryInfo: 'Company'},
+        {id:'24124', primaryInfo:'Google', secondaryInfo: 'Company'}
+      ]
+    })
   }
 
   render() {
-    const { showNewDialog } = this.state;
-    const { items, category } = this.props;
+    const { showNewDialog, tinyItems } = this.state;
+    const { category } = this.props;
+
+    console.log(tinyItems[0]);
 
     return (
 
@@ -42,13 +51,13 @@ class CategoryList extends Component {
         ]}/>
 
         <ReactList
-          length={Object.keys(items).length}
+          length={tinyItems.length}
           initialIndex={0}
           type="uniform"
           itemRenderer={ (index, key) =>
             <div key={key}>
-              <Link to={`/${category.name}/${items[index].id}`}>
-                {items[index].name}
+              <Link to={`/${category.name}/${tinyItems[index].id}`}>
+                {tinyItems[index].primaryInfo}
               </Link>
             </div>
           }/>
@@ -59,7 +68,8 @@ class CategoryList extends Component {
           appBarStyle={{display: 'none'}}>
           <ItemNew
             title={`Nuevo ${category.itemLabel}`}
-            closeDialog={_ => this.closeNewDialog()}/>
+            closeDialog={_ => this.closeNewDialog()}
+          />
         </FullscreenDialog>
 
       </div>

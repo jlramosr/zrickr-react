@@ -17,7 +17,7 @@ class HeaderAction extends Component {
 
     return (
 
-      <div className="action">{
+      <div className="action" hidden={action.hidden}>{
         action.to ? (
           <Link to={action.to}>
             <IconButton>

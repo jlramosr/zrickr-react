@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import Header from '../Header';
-import RaisedButton from 'material-ui/RaisedButton';
+import Form from '../Form';
 import ArrowLeft from 'react-icons/lib/fa/arrow-left';
 import Check from 'react-icons/lib/fa/check';
 import Edit from 'react-icons/lib/md/edit';
@@ -8,6 +9,11 @@ import Trash from 'react-icons/lib/ti/trash';
 import './new.css';
 
 class ItemOverview extends Component {
+  static propTypes = {
+    item: PropTypes.object.isRequired,
+    fields: PropTypes.array.isRequired
+  }
+
   state = {
     editMode: false
   }
@@ -29,27 +35,43 @@ class ItemOverview extends Component {
     this.setState({editMode});
   }
 
+  componentDidMount() {
+  }
+
   render() {
-    const { item, category } = this.props;
+    const { category, item, fields } = this.props;
+    const { editMode } = this.state;
+
+    const _item = {...item};
+
+    for (const field of fields) {
+      console.log(fields);
+      if (field.primaryInfo) {
+        _item[field.name] = _item.primaryInfo;
+      } else if (field.secondaryInfo) {
+        _item[field.name] = _item.secondaryInfo;
+      } 
+    }
+    console.log(_item);
 
     return (
-
-      
       <div className="itemoverview">
 
+        <Header 
+          title={item ? item.primaryInfo : ''}
+          backgroundColor="#fff"
+          textColor="#006064"
+          actions={[
+            {id:'arrowLeft', icon:ArrowLeft, color:"#006064", to:`/${category.name}`},
+            {id:'check', icon:Check, right: true, hidden:!editMode, color:"#006064", onClick: _ => this._updateItem()},
+            {id:'edit', icon:Edit, right: true, hidden:editMode, color:"#006064", onClick: _ => this._changeEditMode(true)},
+            {id:'trash', icon:Trash, right: true, hidden:editMode, color:"#006064", onClick: _ => this._deleteItem()},
+          ]}
+        />
 
-
-        <Header title={item ? item.name : ''} actions={[
-          {id:'arrowLeft', icon:ArrowLeft, to:`/${category.name}`},
-          {id:'check', icon:Check, right: true, onClick: _ => this._updateItem()},
-          {id:'edit', icon:Edit, right: true, onClick: _ => this._changeEditMode(true)},
-          {id:'trash', icon:Trash, right: true, onClick: _ => this._deleteItem()},
-        ]}/>
-
-        <RaisedButton label="Default" />
+        <Form fields={fields} item={_item}/>
 
       </div>
-      
     );
   }
 }

@@ -20,7 +20,7 @@ class Actions extends Component {
 
 class Header extends Component {
   render() {
-    const { actions, title, loading } = this.props;
+    const { actions, title, backgroundColor, textColor, loading } = this.props;
     const _loading = loading || false;
 
     return (
@@ -28,12 +28,19 @@ class Header extends Component {
         title={
           <div className="header-title">
             <span className="header-title-text">{title}</span> 
-              <ClipLoader size={40} className="header-title-loading" loading={true}/>
+            <ClipLoader
+              size={40}
+              color={textColor || '#fff'}
+              className="header-title-loading" loading={true}
+            />
           </div>
         }
         style={{
           height: '64px',
-          background: '#00838F'
+          background: backgroundColor || '#00838F'
+        }}
+        titleStyle={{
+          color: textColor || '#fff'
         }}
         iconElementLeft={
           React.createElement(Actions, {
