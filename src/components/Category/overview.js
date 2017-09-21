@@ -52,7 +52,6 @@ class ItemOverview extends Component {
         _item[field.name] = _item.secondaryInfo;
       } 
     }
-    console.log(_item);
 
     return (
       <div className="itemoverview">
@@ -61,7 +60,7 @@ class ItemOverview extends Component {
           title={item ? item.primaryInfo : ''}
           backgroundColor="#fff"
           textColor="#006064"
-          actions={[
+          operations={[
             {id:'arrowLeft', icon:ArrowLeft, color:"#006064", to:`/${category.name}`},
             {id:'check', icon:Check, right: true, hidden:!editMode, color:"#006064", onClick: _ => this._updateItem()},
             {id:'edit', icon:Edit, right: true, hidden:editMode, color:"#006064", onClick: _ => this._changeEditMode(true)},

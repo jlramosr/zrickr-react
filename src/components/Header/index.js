@@ -1,17 +1,22 @@
 import React, { Component } from 'react';
 import AppBar from 'material-ui/AppBar';
-import Action from './action';
+import Operation from './operation';
 import { ClipLoader } from 'react-spinners';
 import './index.css';
 
-class Actions extends Component {
+const headerStyle = {
+  height: "64px",
+  padding: "0 28px"
+}
+
+class Operations extends Component {
 
   render() {
-    const { actions } = this.props;
+    const { operations } = this.props;
     return (
-      <div className="header-actions">
-        {actions && actions.map(action => 
-          <Action key={action.id} action={action}/>
+      <div className="header-operations">
+        {operations && operations.map(operation => 
+          <Operation key={operation.id} operation={operation}/>
         )}
       </div>
     )
@@ -20,7 +25,7 @@ class Actions extends Component {
 
 class Header extends Component {
   render() {
-    const { actions, title, backgroundColor, textColor, loading } = this.props;
+    const { operations, title, backgroundColor, textColor, loading } = this.props;
     const _loading = loading || false;
 
     return (
@@ -35,20 +40,19 @@ class Header extends Component {
             />
           </div>
         }
-        style={{
-          height: '64px',
-          background: backgroundColor || '#00838F'
+        style={{...headerStyle,
+          background: backgroundColor || "#00838F"
         }}
         titleStyle={{
           color: textColor || '#fff'
         }}
         iconElementLeft={
-          React.createElement(Actions, {
-            actions: actions.filter(action => !action.right)})
+          React.createElement(Operations, {
+            operations: operations.filter(operation => !operation.right)})
         }
         iconElementRight={
-          React.createElement(Actions, {
-            actions: actions.filter(action => action.right)})
+          React.createElement(Operations, {
+            operations: operations.filter(operation => operation.right)})
         }
       >
 

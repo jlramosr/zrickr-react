@@ -19,7 +19,7 @@ class ItemNew extends Component {
     return (
       <div className="itemnew">
 
-        <Header title={this.props.title} actions={[
+        <Header title={this.props.title} operations={[
           {id:'close', icon:Close, onClick: _ => closeDialog()},
           {id:'check', icon:Check, right: true, onClick: _ => this._createItem()}
         ]}/>

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import TextField from 'material-ui/TextField';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
-import RaisedButton from 'material-ui/RaisedButton';
+import Toggle from 'material-ui/Toggle';
 import './index.css';
 
 class Form extends Component {
@@ -34,7 +34,7 @@ class Form extends Component {
                   </SelectField>
                 );
               case 'boolean':
-                return <RaisedButton/>
+                return <Toggle key={field.name}/>
               default: 
                 return <TextField key={field.name} hintText={field.label} value={item[field.name]}/>;
             }

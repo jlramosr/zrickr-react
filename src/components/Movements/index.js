@@ -1,20 +1,9 @@
-import React, { Component } from 'react';
-import './index.css';
+import React from 'react';
+import Category from '../Category';
+import fields from './data/fields';
+import items from './data/items';
 
-class Movement extends Component {
-  state = {
-  }
-
-  componentDidMount() {
-  }
-
-  render() {
-    return (
-      <div className="app-content">
-        MovementSSSSSSSSSS
-      </div>
-    );
-  }
+export default class extends Category {
+  render = _ => 
+    <Category category={this.props.category} fields={fields} items={items}/>
 }
-
-export default Movement;
