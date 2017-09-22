@@ -6,7 +6,7 @@ import ArrowLeft from 'react-icons/lib/fa/arrow-left';
 import Check from 'react-icons/lib/fa/check';
 import Edit from 'react-icons/lib/md/edit';
 import Trash from 'react-icons/lib/ti/trash';
-import './new.css';
+import './overview.css';
 
 class ItemOverview extends Component {
   static propTypes = {
@@ -54,7 +54,7 @@ class ItemOverview extends Component {
     }
 
     return (
-      <div className="itemoverview">
+      <div>
 
         <Header 
           title={item ? item.primaryInfo : ''}

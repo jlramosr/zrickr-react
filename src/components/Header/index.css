@@ -9,8 +9,7 @@
 }
 
 .header-title-text {
-  margin-right: 8px;
-  margin-bottom: 2px;
+  margin: 0 8px 0 2px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap; 

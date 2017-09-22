@@ -121,11 +121,15 @@ class CategoryList extends Component {
             placeholder="Buscar"
             value={searchQuery}
             onChange={ event => this._updateSearchQuery(event.target.value) }/>
-          <div className="search-bar-showing" hidden={!(searchQuery && showingItems.length !== 0 && showingItems.length !== items.length)}>
-            {`Showing ${showingItems.length} results`}
+          <div className="search-bar-showing" hidden={
+            !(searchQuery && showingItems.length !== 0 && showingItems.length !== items.length)
+          }>
+            {`Mostrando ${showingItems.length} resultados`}
           </div>
-          <div className="search-bar-showing" hidden={!(searchQuery && showingItems.length === 0)}>
-            No results found
+          <div className="search-bar-showing" hidden={
+            !(searchQuery && showingItems.length === 0)
+          }>
+            No se han encontrado coincidencias
           </div>
         </div>
 

@@ -1,2 +1,10 @@
 .form {
+  padding: 12px 26px;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.form-field {
+  padding: 0 6px;
 }
