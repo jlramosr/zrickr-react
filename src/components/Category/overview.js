@@ -68,7 +68,12 @@ class ItemOverview extends Component {
           ]}
         />
 
-        <Form fields={fields} item={_item}/>
+        <Form
+          type="formView" 
+          cols={6}
+          fields={fields}
+          item={_item}
+        />
 
       </div>
     );

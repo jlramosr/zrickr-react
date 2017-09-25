@@ -1,8 +1,84 @@
 export default [
-  {"name":"name", "primaryInfo": true, "label":"Nombre"},
-  {"name":"lastname", "label":"Apellidos"},
-  {"name":"address", "secondaryInfo": true, "label":"Direccion"},
-  {"name":"isCompany", "label":"Empresa", "type":"boolean"}
+  {
+    "name":"name",
+    "primaryInfo": true,
+    "label":"Nombre",
+    "formView": {
+      "x": 2,
+      "y": 1
+    }
+  },
+  {
+    "name":"lastname",
+    "label":"Apellidos",
+    "formView": {
+      "colStart": 11,
+      "cols": 2,
+      "colEnd": 13,
+      "rowStart": 2,
+    }
+  },
+  {
+    "name":"address",
+    "label":"Direccion",
+    "secondaryInfo": true,
+    "formView": {
+      "colStart": 9,
+      "cols": 1,
+      "rowStart": 1,
+      "rows": 8
+    }
+  },
+  {
+    "name":"isCompany",
+    "type":"boolean",
+    "label":"Empresa",
+    "formView": {
+      "x": 6,
+      "y": 3,
+      "xs": 1,
+      "ys": 1
+    }
+  },
+  {
+    "name":"name2",
+    "primaryInfo": true,
+    "label":"Nombre",
+    "formView": {
+      "x": 2,
+      "y": 6,
+    }
+  },
+  {
+    "name":"lastname2",
+    "label":"Apellidos",
+    "formView": {
+      "colStart": 11,
+      "cols": 2,
+      "colEnd": 13,
+      "rowStart": 2,
+    }
+  },
+  {
+    "name":"address2",
+    "label":"Direccion",
+    "secondaryInfo": true,
+    "formView": {
+      "colStart": 9,
+      "cols": 1,
+      "rowStart": 1,
+      "rows": 8
+    }
+  },
+  {
+    "name":"isCompany2",
+    "type":"boolean",
+    "label":"Empresa",
+    "formView": {
+      "y": 2,
+      "ys": 2
+    }
+  }
 ]
 
 
