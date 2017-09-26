@@ -2,7 +2,10 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import IconButton from 'material-ui/IconButton';
 import PropTypes from 'prop-types';
-import './operation.css';
+
+const _operationStyle = {
+  height: '100%'
+}
 
 class HeaderOperation extends Component {
   static propTypes = {
@@ -17,7 +20,7 @@ class HeaderOperation extends Component {
 
     return (
 
-      <div className="operation" hidden={operation.hidden}>{
+      <div style={_operationStyle} hidden={operation.hidden}>{
         operation.to ? (
           <Link to={operation.to}>
             <IconButton>

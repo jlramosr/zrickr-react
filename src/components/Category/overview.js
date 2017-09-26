@@ -6,7 +6,6 @@ import ArrowLeft from 'react-icons/lib/fa/arrow-left';
 import Check from 'react-icons/lib/fa/check';
 import Edit from 'react-icons/lib/md/edit';
 import Trash from 'react-icons/lib/ti/trash';
-import './overview.css';
 
 class ItemOverview extends Component {
   static propTypes = {
@@ -39,25 +38,14 @@ class ItemOverview extends Component {
   }
 
   render() {
-    const { category, item, fields } = this.props;
+    const { category, item, fields, primaryField } = this.props;
     const { editMode } = this.state;
-
-    const _item = {...item};
-
-    for (const field of fields) {
-      console.log(fields);
-      if (field.primaryInfo) {
-        _item[field.name] = _item.primaryInfo;
-      } else if (field.secondaryInfo) {
-        _item[field.name] = _item.secondaryInfo;
-      } 
-    }
 
     return (
       <div>
 
         <Header 
-          title={item ? item.primaryInfo : ''}
+          title={item ? item[primaryField] : ''}
           backgroundColor="#fff"
           textColor="#006064"
           operations={[
@@ -69,10 +57,9 @@ class ItemOverview extends Component {
         />
 
         <Form
-          type="formView" 
-          cols={6}
+          view="overview"
           fields={fields}
-          item={_item}
+          item={item}
         />
 
       </div>

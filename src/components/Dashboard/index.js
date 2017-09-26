@@ -4,7 +4,6 @@ import Header from '../Header';
 import {List, ListItem} from 'material-ui/List';
 import Avatar from 'material-ui/Avatar';
 import Menu from 'react-icons/lib/md/menu';
-import './index.css';
 
 const listStyle = {
   padding: "10px", 

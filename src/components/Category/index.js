@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Route } from 'react-router-dom';
 import CategoryList from './list';
 import ItemOverview from './overview';
-import './index.css';
 
 
 class Category extends Component {
@@ -15,18 +14,23 @@ class Category extends Component {
   render() {
     const { category, fields, items } = this.props;
 
-    return (
+    const primaryFields = fields.filter(field => field.primaryInfo);
+    const secondaryFields = fields.filter(field => field.secondaryInfo);
 
-      <div className="category">
+    const primaryField = primaryFields.length ? primaryFields[0].name : '';
+    const secondaryField = secondaryFields.length ? secondaryFields[0].name : '';
+
+    return (
+      <div>
 
         <Route path={`/${category.name}`} exact render={ _ => (
-          React.createElement(CategoryList, { category, items, fields })
+          React.createElement(CategoryList, { category, items, fields, primaryField, secondaryField })
         )}/>
 
         <Route path={`/${category.name}/:id`} render={ props => {
           const itemId = props.match.params.id;
           const item = items.filter(it => it.id === itemId)[0] || {};
-          return React.createElement(ItemOverview, { category, item, fields });
+          return React.createElement(ItemOverview, { category, item, fields, primaryField });
         }}/>
 
       </div>

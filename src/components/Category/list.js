@@ -86,14 +86,14 @@ class CategoryList extends Component {
 
   render() {
     const { showNewDialog, searchQuery } = this.state;
-    const { category, items } = this.props;
+    const { category, items, primaryField, secondaryField } = this.props;
 
     let showingItems;
     if (searchQuery) {
       const cleanQuery = removeDiacritics(searchQuery.trim());
       const match = new RegExp(escapeRegExp(cleanQuery), 'i');
       showingItems = items.filter(item => (
-        match.test(removeDiacritics(item.primaryInfo))
+        match.test(removeDiacritics(item[primaryField]))
       ))
     } else {
       showingItems = items;
@@ -143,8 +143,8 @@ class CategoryList extends Component {
             >
               
               <ListItem
-                primaryText={item.primaryInfo}
-                secondaryText={item.secondaryInfo}
+                primaryText={item[primaryField]}
+                secondaryText={item[secondaryField]}
                 leftAvatar={
                   <Avatar src={item.photo}/>
                 }

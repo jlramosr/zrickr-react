@@ -2,7 +2,10 @@ import React, { Component } from 'react';
 import Header from '../Header';
 import Close from 'react-icons/lib/fa/close';
 import Check from 'react-icons/lib/fa/check';
-import './new.css';
+
+const _itemStyle = {
+  outline: 'none'
+}
 
 class ItemNew extends Component {
   state = {
@@ -17,7 +20,7 @@ class ItemNew extends Component {
     const { closeDialog } = this.props;
 
     return (
-      <div className="itemnew">
+      <div style={_itemStyle}>
 
         <Header title={this.props.title} operations={[
           {id:'close', icon:Close, onClick: _ => closeDialog()},
@@ -26,7 +29,6 @@ class ItemNew extends Component {
       
         
 
-        
 
       </div>
 

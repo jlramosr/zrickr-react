@@ -4,9 +4,19 @@ import Operation from './operation';
 import { ClipLoader } from 'react-spinners';
 import './index.css';
 
-const headerStyle = {
-  height: "64px",
-  padding: "0 28px"
+const styles = {
+  header: backgroundColor => ({
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    height: '64px',
+    padding: '0 28px',
+    background: backgroundColor || '#00838F'
+  }),
+  
+  title: textColor => ({
+    color: textColor || '#fff'
+  })
 }
 
 class Operations extends Component {
@@ -30,6 +40,7 @@ class Header extends Component {
 
     return (
       <AppBar
+        className="header"
         title={
           <div className="header-title">
             <span className="header-title-text">{title}</span> 
@@ -40,12 +51,8 @@ class Header extends Component {
             />
           </div>
         }
-        style={{...headerStyle,
-          background: backgroundColor || "#00838F"
-        }}
-        titleStyle={{
-          color: textColor || '#fff'
-        }}
+        style={styles.header(backgroundColor)}
+        titleStyle={styles.title(textColor)}
         iconElementLeft={
           React.createElement(Operations, {
             operations: operations.filter(operation => !operation.right)})
@@ -55,9 +62,7 @@ class Header extends Component {
             operations: operations.filter(operation => operation.right)})
         }
       >
-
-
-          
+  
       </AppBar>
     );
   }

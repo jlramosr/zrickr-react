@@ -1,3 +1,7 @@
+.header + * {
+  margin-top: 64px;
+}
+
 .header-operations {
   display: flex;
 }
