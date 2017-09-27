@@ -1,7 +1,21 @@
 import React, { Component } from 'react';
-import Media from 'react-media';
 import Field from './field';
+import TextField from 'material-ui/TextField';
+import SelectField from 'material-ui/SelectField';
+import MenuItem from 'material-ui/MenuItem';
+import Toggle from 'material-ui/Toggle';
+import Media from 'react-media';
 import PropTypes from 'prop-types';
+
+const commonStyles = {
+  label: {
+    color: '#99c3aF'
+  },
+
+  underline: {
+    borderColor: '#99c3aF',
+  }
+}
 
 const styles = {
   formContainer: (cols) => ({
@@ -36,6 +50,46 @@ const styles = {
       ${rightBottomY || (ys ? `span ${ys}` : `span ${cols+1}`)}
     `;
     return formFieldStyle;
+  },
+
+  textField: {
+    height: '50px',
+  },
+
+  input: {
+    marginTop: '4px',
+  },
+
+  inputUnderline: {
+    ...commonStyles.underline
+  },
+
+  textLabel: {
+    ...commonStyles.label,
+    marginTop: '-20px',
+    top: '40px',
+  },
+
+  toggle: {
+    alignSelf: 'center',
+  },
+
+  toggleLabel: {
+    ...commonStyles.label,
+    top: '-2px'
+  },
+
+  thumbOff: {
+    backgroundColor: '#aaa',
+  },
+  trackOff: {
+    backgroundColor: '#ddd',
+  },
+  thumbSwitched: {
+    backgroundColor: '#004545',
+  },
+  trackSwitched: {
+    backgroundColor: '#00c3cF',
   },
 }
 
@@ -83,8 +137,8 @@ class Form extends Component {
     item: null
   }
 
-  _getFieldLabel(label, fieldView) {
-    return fieldView.nolabel ? '' : label;
+  _getFieldLabel(field, fieldView) {
+    return fieldView.nolabel ? '' : field.label;
   }
 
   _getFieldValue(field) {
@@ -92,13 +146,12 @@ class Form extends Component {
     return item ? item[field.name] || '' : '';
   }
 
-  handleFieldChange(field, value) {
+  _handleFieldChange(field, value) {
     this.setState(prevState => {
       let item = prevState.item;
       item[field] = value;
       return item; 
     })
-    console.log("FORM", this.state.item);
   }
 
   componentDidMount() {
@@ -112,6 +165,63 @@ class Form extends Component {
     this.setState({item});
   }
 
+  _renderField(field, fieldView) {
+    switch(field.type) {
+      case 'select':
+        return (
+          <SelectField
+            key={field.name}
+            name={field.name}
+            floatingLabelText={this._getFieldLabel(field, fieldView)}
+            value={this._getFieldValue(field)}
+            onChange={ (event, value) => this._handleFieldChange(event.target.name, value)}
+          >
+            {
+              field.options && field.options.map(option => (
+                <MenuItem
+                  key={option.name}
+                  value={option.name}
+                  primaryText={option.label}
+                />
+              ))
+            }
+          </SelectField>
+        );
+      case 'boolean':
+        return (
+          <Toggle
+            key={field.name}
+            name={field.name}
+            style={styles.toggle}
+            thumbStyle={styles.thumbOff}
+            trackStyle={styles.trackOff}
+            thumbSwitchedStyle={styles.thumbSwitched}
+            trackSwitchedStyle={styles.trackSwitched}
+            label={this._getFieldLabel(field, fieldView)}
+            labelStyle={styles.toggleLabel}
+            toggled={Boolean(this._getFieldValue(field))}
+            onToggle={ (event, value) => this._handleFieldChange(event.target.name, value) }
+          />
+        )
+      default: 
+        return (
+          <TextField
+            key={field.name}
+            name={field.name}
+            style={styles.textField}
+            inputStyle={styles.input}
+            floatingLabelStyle={styles.textLabel}
+            floatingLabelText={this._getFieldLabel(field, fieldView)}
+            underlineStyle={styles.inputUnderline}
+            underlineFocusStyle={styles.inputUnderline}
+            fullWidth={true}
+            value={this._getFieldValue(field)}
+            onChange={ (event, value) => this._handleFieldChange(event.target.name, value)}
+          />
+        )
+    }
+  };
+
   _renderFormContainer(size) {
     const { view, cols, fields } = this.props;
     const { item } = this.state;
@@ -123,7 +233,7 @@ class Form extends Component {
             if (fieldView && size in fieldView) {
               fieldView = fieldView[size];
             }
-            console.log(item, field.name, item ? item[field.name] : '');
+            const {views, ...tinyField} = field;
             return (
               fieldView &&
                 <div
@@ -131,16 +241,7 @@ class Form extends Component {
                   style={styles.formField(item, fieldView, field.name, cols)}
                 >
                   { 
-                    <Field
-                      name={field.name}
-                      type={field.type}
-                      label={this._getFieldLabel(field.label, fieldView)}
-                      options={field.options}
-                      value={item ? item[field.name] : ''}
-                      handleFormFieldChange={ (fieldName, value) => 
-                        this.handleFieldChange(fieldName, value)
-                      }
-                    />
+                    this._renderField(tinyField, fieldView)
                   }
                 </div>
             )

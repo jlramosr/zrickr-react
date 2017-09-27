@@ -1,7 +1,7 @@
 export default [
-  { id: '11231', primaryInfo:'Amazon', secondaryInfo: 'C/Federico' }, 
-  { id: '24124', primaryInfo:'Google', secondaryInfo: 'C/Magnolias'},
-  { id: '21319', primaryInfo:'Julián', lastname:'Sánchez', secondaryInfo: 'C/Ferraz'}
+  { id: '011231', clientId: '11231', price:50.12 }, 
+  { id: '024124', clientId: '11231', price:51.13 },
+  { id: '021319', clientId: '11231', price:52.14 },
 ]
 
 

@@ -13,8 +13,9 @@ import MenuItem from 'material-ui/MenuItem';
 import IconButton from 'material-ui/IconButton';
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import ItemNew from './new';
-import escapeRegExp from "escape-string-regexp";
-import removeDiacritics from "remove-diacritics";
+import escapeRegExp from 'escape-string-regexp';
+import removeDiacritics from 'remove-diacritics';
+import { getInfo } from './helpers';
 import './list.css';
 
 const menuItemStyle = {
@@ -81,19 +82,16 @@ class CategoryList extends Component {
     this.searchInput.focus();
   }
 
-  componentDidMount() {
-  }
-
   render() {
     const { showNewDialog, searchQuery } = this.state;
-    const { category, items, primaryField, secondaryField } = this.props;
+    const { category, settings, items } = this.props;
 
     let showingItems;
     if (searchQuery) {
       const cleanQuery = removeDiacritics(searchQuery.trim());
       const match = new RegExp(escapeRegExp(cleanQuery), 'i');
       showingItems = items.filter(item => (
-        match.test(removeDiacritics(item[primaryField]))
+        match.test(removeDiacritics(getInfo(settings.primaryFields, item)))
       ))
     } else {
       showingItems = items;
@@ -143,8 +141,8 @@ class CategoryList extends Component {
             >
               
               <ListItem
-                primaryText={item[primaryField]}
-                secondaryText={item[secondaryField]}
+                primaryText={getInfo(settings.primaryFields, item)}
+                secondaryText={getInfo(settings.secondaryFields, item)}
                 leftAvatar={
                   <Avatar src={item.photo}/>
                 }

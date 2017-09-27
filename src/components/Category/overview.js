@@ -6,6 +6,7 @@ import ArrowLeft from 'react-icons/lib/fa/arrow-left';
 import Check from 'react-icons/lib/fa/check';
 import Edit from 'react-icons/lib/md/edit';
 import Trash from 'react-icons/lib/ti/trash';
+import { getInfo } from './helpers';
 
 class ItemOverview extends Component {
   static propTypes = {
@@ -38,15 +39,15 @@ class ItemOverview extends Component {
   }
 
   render() {
-    const { category, item, fields, primaryField } = this.props;
+    const { category, settings, item, fields } = this.props;
     const { editMode } = this.state;
 
     return (
       <div>
 
         <Header 
-          title={item ? item[primaryField] : ''}
-          backgroundColor="#fff"
+          title={item ? getInfo(settings.primaryFields, item) : ''}
+          backgroundColor={settings.color || '#fff'}
           textColor="#006064"
           operations={[
             {id:'arrowLeft', icon:ArrowLeft, color:"#006064", to:`/${category.name}`},
@@ -59,7 +60,7 @@ class ItemOverview extends Component {
         <Form
           view="overview"
           fields={fields}
-          item={item}
+          values={item}
         />
 
       </div>

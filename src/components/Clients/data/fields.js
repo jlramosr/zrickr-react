@@ -3,6 +3,7 @@ export default [
     "name":"isCompany",
     "type":"boolean",
     "label":"Empresa",
+    "default": true,
     "views": {
       "overview": {
         "nolabel":true,
@@ -13,10 +14,10 @@ export default [
   {
     "name":"name",
     "label":"Nombre",
-    "primaryInfo": true,
     "views": {
       "overview": {
         "x":2,"y":1,"ys":6,
+        "nolabel": true,
         "small":{"x":2}
       }
     } 
@@ -24,18 +25,22 @@ export default [
   {
     "name":"lastname",
     "label":"Apellidos",
+    "default": "POR DEFECTO",
     "views": {
       "overview": {
-        "x":2,"ys":6,
-        "when":"!isCompany",
-        "small":{"x":3}
+        "x":2,
+        "ys":6,
+        "when":"!this.isCompany",
+        "small": {
+          "x":3,
+          "when":"!this.isCompany"
+        }
       }
     } 
   },
   {
     "name":"address",
     "label":"Direccion",
-    "secondaryInfo": true,
     "views": {
       "overview": {
         "x":3,
@@ -90,6 +95,18 @@ export default [
       "overview": {
         "x":5,
         "small": {"x":9}
+      }
+    }
+  },
+  {
+    "name": "movements",
+    "type": "list",
+    "items": "movements",
+    "label": "Movimientos",
+    "views": {
+      "overview": {
+        "x": 6,
+        "small": {"x":10}
       }
     }
   }
