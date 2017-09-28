@@ -34,7 +34,9 @@ class App extends Component {
           open={drawerOpen}
           onRequestChange={drawerOpen => this.setState({drawerOpen})}>{
             categories.map(category => (
-              <Link key={category.name} to={`/${category.name}`}>
+              <Link
+                key={category.name.toLowerCase()}
+                to={`/${category.name.toLowerCase()}`}>
                 <MenuItem onClick={ _ => this.toggleDrawer()}>
                   {category.label}
                 </MenuItem>
@@ -51,7 +53,9 @@ class App extends Component {
 
           <Route path="/:categoryName" component={ props => {
             const categoryName = props.match.params.categoryName;
-            const category = categories.filter( category => category.name === categoryName)[0];
+            const category = categories.find(
+              category => category.name.toLowerCase() === categoryName.toLowerCase()
+            );
             const CategoryComponent = category ? category.component : null;
             return category ?
               React.createElement(CategoryComponent, { category }) :

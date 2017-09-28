@@ -47,7 +47,9 @@ class Dashboard extends Component {
 
         <List style={listStyle}> {
           categories && categories.map(category =>
-            <Link key={category.name} to={`/${category.name}`}>
+            <Link
+              key={category.name.toLowerCase()}
+              to={`/${category.name.toLowerCase()}`}>
               <ListItem
                 primaryText={category.label}
                 leftAvatar={

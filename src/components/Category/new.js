@@ -3,8 +3,10 @@ import Header from '../Header';
 import Close from 'react-icons/lib/fa/close';
 import Check from 'react-icons/lib/fa/check';
 
-const _itemStyle = {
-  outline: 'none'
+const styles = {
+  item: {
+    outline: 'none'
+  }
 }
 
 class ItemNew extends Component {
@@ -20,7 +22,7 @@ class ItemNew extends Component {
     const { closeDialog } = this.props;
 
     return (
-      <div style={_itemStyle}>
+      <div style={styles.item}>
 
         <Header title={this.props.title} operations={[
           {id:'close', icon:Close, onClick: _ => closeDialog()},

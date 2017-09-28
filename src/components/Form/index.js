@@ -1,3 +1,4 @@
+/*eslint-disable no-eval*/
 import React, { Component } from 'react';
 import Media from 'react-media';
 import Field from './field';
@@ -45,6 +46,7 @@ class Item {
     Object.assign(this, item);
   }
 
+  /*jslint evil: true */
   evalCondition(condition, fieldName) {
     let fulfilledCondition = false;
     try {
@@ -66,17 +68,11 @@ class Form extends Component {
     cols: PropTypes.number,
     view: PropTypes.string.isRequired,
     fields: PropTypes.array.isRequired,
-    values: PropTypes.object.isRequired,
-    nameFields: (props, propName, componentName) => {
-      for (const field of props.fields) {
-        if (!field.name) {
-          return new Error(
-            'Invalid prop `' + propName + '` supplied to' +
-            ' `' + componentName + '`. Not field name provided.'
-          );
-        }
-      }
-    },
+    values: PropTypes.object.isRequired
+  }
+
+  static defaultProps = {
+    cols: 10
   }
 
   state = {
@@ -96,9 +92,13 @@ class Form extends Component {
     this.setState(prevState => {
       let item = prevState.item;
       item[field] = value;
-      return item; 
+      return item;
     })
-    console.log("FORM", this.state.item);
+  }
+
+  handleSubmit(event) {
+    console.log("SUBMIT", this.state.item);
+    event.preventDefault();
   }
 
   componentDidMount() {
@@ -108,7 +108,7 @@ class Form extends Component {
       if (field.default && !(field.name in values)) {
         item[field.name] = field.default;
       }
-    } 
+    }
     this.setState({item});
   }
 
@@ -123,7 +123,6 @@ class Form extends Component {
             if (fieldView && size in fieldView) {
               fieldView = fieldView[size];
             }
-            console.log(item, field.name, item ? item[field.name] : '');
             return (
               fieldView &&
                 <div
@@ -136,6 +135,7 @@ class Form extends Component {
                       type={field.type}
                       label={this._getFieldLabel(field.label, fieldView)}
                       options={field.options}
+                      relation={field.relation}
                       value={item ? item[field.name] : ''}
                       handleFormFieldChange={ (fieldName, value) => 
                         this.handleFieldChange(fieldName, value)
@@ -144,15 +144,16 @@ class Form extends Component {
                   }
                 </div>
             )
-          })  
+          })
         }
+        <input type="submit" value="HOLA" style={{display:''}}/>  
       </div>
     );
   };
 
   render() {
     return (
-      <div id="form">
+      <form onSubmit={ (event) => this.handleSubmit(event)}>
         <Media query="(max-width:700px)" render={ _ => (
           this._renderFormContainer('small')
         )}/>
@@ -162,14 +163,9 @@ class Form extends Component {
         <Media query="(min-width:1225px)" render={ _ => (
           this._renderFormContainer('large')
         )}/>
-
-      </div>
+      </form>
     );
   }
-};
-
-Form.defaultProps = {
-  cols: 12
 };
 
 export default Form;

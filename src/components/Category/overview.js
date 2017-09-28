@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { BrowserHistory, Router, Route, Link } from 'react-router'
 import PropTypes from 'prop-types';
 import Header from '../Header';
 import Form from '../Form';
@@ -35,12 +36,11 @@ class ItemOverview extends Component {
     this.setState({editMode});
   }
 
-  componentDidMount() {
-  }
-
   render() {
-    const { category, settings, item, fields } = this.props;
+    const { category, settings, item, fields, prevPath } = this.props;
     const { editMode } = this.state;
+
+    console.log(prevPath)
 
     return (
       <div>
@@ -50,7 +50,7 @@ class ItemOverview extends Component {
           backgroundColor={settings.color || '#fff'}
           textColor="#006064"
           operations={[
-            {id:'arrowLeft', icon:ArrowLeft, color:"#006064", to:`/${category.name}`},
+            {id:'arrowLeft', icon:ArrowLeft, color:"#006064", to: prevPath || `/${category.name}`},
             {id:'check', icon:Check, right: true, hidden:!editMode, color:"#006064", onClick: _ => this._updateItem()},
             {id:'edit', icon:Edit, right: true, hidden:editMode, color:"#006064", onClick: _ => this._changeEditMode(true)},
             {id:'trash', icon:Trash, right: true, hidden:editMode, color:"#006064", onClick: _ => this._deleteItem()},
@@ -58,6 +58,7 @@ class ItemOverview extends Component {
         />
 
         <Form
+          cols={12}
           view="overview"
           fields={fields}
           values={item}

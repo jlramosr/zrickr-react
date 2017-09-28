@@ -5,10 +5,12 @@ import ItemOverview from './overview';
 
 class Category extends Component {
   state = {
+    prevPath: ''
   }
 
   render() {
     const { category, settings, fields, items } = this.props;
+    const { prevPath } = this.state;
 
     return (
       <div>
@@ -20,7 +22,8 @@ class Category extends Component {
         <Route path={`/${category.name}/:id`} render={ props => {
           const itemId = props.match.params.id;
           const item = items.filter(it => it.id === itemId)[0] || {};
-          return React.createElement(ItemOverview, { category, settings, item, fields });
+          return React.createElement(
+            ItemOverview, { category, settings, item, fields, prevPath });
         }}/>
 
       </div>

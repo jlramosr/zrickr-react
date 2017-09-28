@@ -101,8 +101,7 @@ export default [
   {
     "name": "movements",
     "type": "list",
-    "items": "movements",
-    "label": "Movimientos",
+    "relation": "movements",
     "views": {
       "overview": {
         "x": 6,
