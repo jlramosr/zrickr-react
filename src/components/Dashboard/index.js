@@ -1,11 +1,61 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import Header from '../Header';
-import {List, ListItem} from 'material-ui/List';
+import List, { ListItem, ListItemText } from 'material-ui/List';
+import Icon from 'material-ui/Icon';
 import Avatar from 'material-ui/Avatar';
-import Menu from 'react-icons/lib/md/menu';
+import MenuIcon from 'material-ui-icons/Menu';
+import { withStyles } from 'material-ui/styles';
 
-const listStyle = {
+const styles = theme => ({
+  primaryText: {
+    background: theme.palette.background.primary,
+    padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
+    color: theme.palette.primary[100],
+  },
+});
+
+const Dashboard = props => {
+  const { theme, classes, categories, closeDrawer } = props;
+
+  return (
+    <div>
+      <Header title="ERP" operations={[
+        {id:'menu', icon: MenuIcon, onClick:closeDrawer},
+      ]}/>
+      <List>
+        {
+          categories && categories.map(category =>
+            <Link
+              key={category.name.toLowerCase()}
+              to={`/${category.name.toLowerCase()}`}>
+              <ListItem button>
+                <Avatar>
+                  <Icon>{React.createElement(category.icon)}</Icon>
+                </Avatar>
+                <ListItemText primary={category.label}/>
+              </ListItem>
+            </Link>
+          )
+        }
+      </List>
+    </div>
+  )
+};
+
+Dashboard.propTypes = {
+  classes: PropTypes.object.isRequired,
+  categories: PropTypes.array.isRequired,
+  closeDrawer: PropTypes.func
+};
+
+export default withStyles(styles)(Dashboard);
+
+
+
+
+/*const listStyle = {
   padding: "10px", 
   display: "flex",
   flexDirection: "row",
@@ -27,19 +77,9 @@ const itemStyle = {
 
 const avatarStyle = {
   background:"transparent"
-}
+}*/
 
-class Dashboard extends Component {
-
-  render() {
-    const { categories, closeDrawer } = this.props;
-    /*
-
-    MIRAR http://www.material-ui.com/#/components/grid-list
-
-    */
-    return (
-      <div className="dashboard">
+/*
 
         <Header title="ERP" operations={[
           {id:'menu', icon: Menu, onClick:closeDrawer}
@@ -50,29 +90,14 @@ class Dashboard extends Component {
             <Link
               key={category.name.toLowerCase()}
               to={`/${category.name.toLowerCase()}`}>
-              <ListItem
-                primaryText={category.label}
-                leftAvatar={
-                  category.icon ?
-                    <Avatar
-                      style={avatarStyle}
-                      color="#00838F"
-                      size={44}
-                      icon={React.createElement(category.icon)}
-                    /> :
-                    <Avatar/>
-                }
-                style={itemStyle}
-                hoverColor="#B2DFDB"
-              />
+              <ListItem button style={itemStyle}>
+                <Avatar style={avatarStyle}>
+                  <Icon>{React.createElement(category.icon)}</Icon>
+                </Avatar>
+                <ListItemText primary={category.label} secondary="Jan 9, 2016" />
+              </ListItem>
             </Link>
           )
         }</List>
 
-      </div>
-
-    );
-  }
-}
-
-export default Dashboard;
+*/

@@ -6,8 +6,54 @@ import registerServiceWorker from './registerServiceWorker';
 import { createStore, applyMiddleware, compose } from 'redux';
 import reducer from './reducers';
 import { Provider } from 'react-redux';
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import { createMuiTheme, MuiThemeProvider } from 'material-ui/styles';
+import purple from 'material-ui/colors/purple';
+import green from 'material-ui/colors/green';
+import red from 'material-ui/colors/red';
+
 import './index.css';
+
+const theme = createMuiTheme({
+  background: {
+    default: 'red'
+  },
+
+  palette: {
+    primary: purple,
+    secondary: {
+      ...green,
+      A400: '#00e677',
+    },
+    error: red,
+  },
+
+  mixins: {
+    toolbar: {
+      minHeight: 56,
+      "@media (min-width:0px) and (orientation: landscape)": {
+        minHeight: 56
+      },
+      "@media (min-width:600px)": {
+        minHeight: 56
+      }
+    }
+  },
+
+  header: {
+    height: 56
+  },
+
+  typography: {
+    fontFamily:
+      '-apple-system,system-ui,BlinkMacSystemFont,' +
+      '"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif',
+    button: {
+      fontStyle: 'italic',
+    },
+  },
+
+});
+
 
 const logger = store => next => action => {
   console.group(action.type);
@@ -29,11 +75,11 @@ const store = createStore(
 
 ReactDOM.render(
   <Provider store={store}>
-    <BrowserRouter>
-      <MuiThemeProvider>
+    <MuiThemeProvider theme={theme}>
+      <BrowserRouter>
         <App/>
-      </MuiThemeProvider>
-    </BrowserRouter>
+      </BrowserRouter>
+    </MuiThemeProvider>
   </Provider>,
   document.getElementById('root')
 )

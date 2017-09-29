@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import TextField from 'material-ui/TextField';
-import SelectField from 'material-ui/SelectField';
-import MenuItem from 'material-ui/MenuItem';
-import Toggle from 'material-ui/Toggle';
+import Select from 'material-ui/Select';
+import Menu, { MenuItem } from 'material-ui/Menu';
+import Switch from 'material-ui/Switch';
 import {List, ListItem} from 'material-ui/List';
 import { Link } from 'react-router-dom';
 import Divider from 'material-ui/Divider';
-import Subheader from 'material-ui/Subheader';
 import { getInfo, capitalize } from './helpers'
 import CategoryList from '../Category/list';
 import Paper from 'material-ui/Paper';
@@ -59,11 +58,11 @@ const styles = {
     padding: '6px'
   },
 
-  toggle: {
+  switch: {
     alignSelf: 'center',
   },
 
-  toggleLabel: {
+  switchLabel: {
     ...commonStyles.label,
     top: '-2px'
   },
@@ -124,7 +123,7 @@ class Field extends Component {
 
       case 'select':
         return (
-          <SelectField
+          <Select
             key={name}
             name={name}
             floatingLabelText={label}
@@ -142,23 +141,23 @@ class Field extends Component {
                 />
               ))
             }
-          </SelectField>
+          </Select>
         );
 
       case 'boolean':
         return (
-          <Toggle
+          <Switch
             key={name}
             name={name}
-            style={styles.toggle}
+            style={styles.switch}
             thumbStyle={styles.thumbOff}
             trackStyle={styles.trackOff}
             thumbSwitchedStyle={styles.thumbSwitched}
             trackSwitchedStyle={styles.trackSwitched}
             label={label}
-            labelStyle={styles.toggleLabel}
-            toggled={Boolean(value)}
-            onToggle={ (event, value) => 
+            labelStyle={styles.switchLabel}
+            checked={Boolean(value)}
+            onChange={ (event, value) => 
               this.props.handleFormFieldChange(this.props.name, value)
             }
           />
@@ -172,7 +171,7 @@ class Field extends Component {
               relation ? (
                 <Paper zDepth={1}>
                   <CategoryList
-                    form={true}
+                    relationMode={true}
                     category={
                       require(`../App/data/categories`).default
                         .find(category => 

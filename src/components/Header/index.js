@@ -1,104 +1,99 @@
-import React, { Component } from 'react';
-import AppBar from 'material-ui/AppBar';
-import CircularProgress from 'material-ui/CircularProgress';
-import Operation from './operation';
+import React from 'react';
 import PropTypes from 'prop-types';
-import './index.css';
+import Operation from './operation';
+import { withStyles } from 'material-ui/styles';
+import AppBar from 'material-ui/AppBar';
+import Toolbar from 'material-ui/Toolbar';
+import Typography from 'material-ui/Typography';
+import CircularProgress from 'material-ui/Progress/CircularProgress';
+import Button from 'material-ui/Button';
+import IconButton from 'material-ui/IconButton';
+import MenuIcon from 'material-ui-icons/Menu';
 
-const styles = {
-  header: (height, backgroundColor) => ({
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    height: `${height}px`,
-    padding: '0 28px',
-    background: backgroundColor,
-  }),
-  
-  title: textColor => ({
+const styles = theme => ({
+  root: {
+    width: '100%',
+    marginTop: theme.spacing.unit * 3,
+    marginBottom: theme.mixins.toolbar.minHeight,
+  },
+
+  title: {
+    flex: 1,
     display: 'flex',
     height: '100%',
     alignItems: 'center',
-    color: textColor,
-  }),
+  },
 
   titleText: {
-    margin: '0 14px 0 2px',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
+    marginRight: 8,
+    marginBottom: 2,
   },
-
-  titleLoading: loading => ({
-    display: loading ? 'block' : 'none',
-  }),
 
   operations: {
     display: 'flex',
-  }
-}
+  },
 
-class Operations extends Component {
+});
 
-  render() {
-    const { operations } = this.props;
-    return (
-      <div style={styles.operations}>
-        {operations && operations.map(operation => 
-          <Operation key={operation.id} operation={operation}/>
-        )}
-      </div>
-    )
-  }
-}
+const Operations = props => {
+  const { operations, classes } = props;
 
-class Header extends Component {
-  static propTypes = {
-    operations: PropTypes.array,
-    title: PropTypes.string,
-    backgroundColor: PropTypes.string,
-    textColor: PropTypes.string,
-    height: PropTypes.number,
-    loading: PropTypes.bool
-  }
+  return (
+    <div className={classes.operations}>
+      {operations && operations.map(operation => 
+        <Operation
+          key={operation.id}
+          id={operation.id}
+          icon={operation.icon}
+          hidden={operation.hidden}
+          to={operation.to}
+          onClick={operation.onClick}
+        />
+      )}
+    </div>
+  )
+};
 
-  static defaultProps = {
-    height: 64,
-    backgroundColor: '#00838F',
-    textColor: '#fff',
-    loading: true
-  }
+Operations.propTypes = {
+  classes: PropTypes.object.isRequired,
+  operations: PropTypes.array.isRequired,
+};
 
-  render() {
-    const { operations, title, backgroundColor, textColor, height, loading } = this.props;
-    const _loading = loading || false;
+Operations = withStyles(styles)(Operations);
 
-    return (
-      <AppBar
-        className="header"
-        title={
-          <div style={styles.title(textColor)}>
-            <span style={styles.titleText}>{title}</span> 
-            <CircularProgress
-              color={textColor}
-              style={styles.titleLoading(_loading)}
-            />
+const Header = props => {
+  const { classes, operations, title, loading } = props;
+  const _loading = loading || false;
+
+  return (
+    <div className={classes.root}>
+      <AppBar position="fixed">
+        <Toolbar>
+          {
+            React.createElement(Operations, {
+              operations: operations.filter(operation => !operation.right)})
+          }
+          <div className={classes.title}>
+            <Typography className={classes.titleText} type="title" color="inherit">
+              {title}
+            </Typography>
+            <CircularProgress/>
           </div>
-        }
-        style={styles.header(height, backgroundColor)}
-        titleStyle={styles.title(textColor)}
-        iconElementLeft={
-          React.createElement(Operations, {
-            operations: operations.filter(operation => !operation.right)})
-        }
-        iconElementRight={
-          React.createElement(Operations, {
-            operations: operations.filter(operation => operation.right)})
-        }
-      >
+          {
+            React.createElement(Operations, {
+              operations: operations.filter(operation => operation.right)})
+          }
+        </Toolbar>
       </AppBar>
-    );
-  }
-}
+    </div>
+  );
+};
 
-export default Header;
+Header.propTypes = {
+  classes: PropTypes.object.isRequired,
+};
+
+export default withStyles(styles)(Header);

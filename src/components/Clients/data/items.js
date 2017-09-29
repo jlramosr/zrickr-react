@@ -1,5 +1,25 @@
 export default [
   { id: '11231', name:'Acciona', address: 'C/Federico', movements: ['011231','024124'] }, 
   { id: '24124', name:'Google', address: 'C/Magnolias', movements: ['021319'] },
-  { id: '21319', name:'Julián', lastname:'Sánchez', address: 'C/Ferraz'}
+  { id: '21319', name:'Julián', lastname:'Sánchez', address: 'C/Ferraz'},
+  { id: '21320', name:'Iberdrola', address: 'C/Ferraz'},
+  { id: '21321', name:'Amazon', address: 'C/Ferraz'},
+  { id: '21322', name:'112 Asturias', address: 'C/Ferraz'},
+  { id: '21323', name:'Aerogeneradores del Sur', address: 'C/Ferraz'},
+  { id: '21324', name:'Act Wind', address: 'C/Ferraz'},
+  { id: '21325', name:'Wind Energy', address: 'C/Ferraz'},
+  { id: '21326', name:'Statoil', address: 'C/Ferraz'},
+  { id: '21327', name:'Socaire', address: 'C/Ferraz'},
+  { id: '21328', name:'Potelu Solar SRL', address: 'C/Ferraz'},
+  { id: '21329', name:'Norvind', address: 'C/Ferraz'},
+  { id: '21330', name:'Repsol', address: 'C/Ferraz'},
+  { id: '21331', name:'MVV Energie AG', address: 'C/Ferraz'},
+  { id: '21332', name:'Infinis', address: 'C/Ferraz'},
+  { id: '21333', name:'Petronor', address: 'C/Ferraz'},
+  { id: '21334', name:'Parque Eólico do Pisco S.A.', address: 'C/Ferraz'},
+  { id: '21335', name:'Highland North LLC', address: 'C/Ferraz'},
+  { id: '21336', name:'Frontal Project', address: 'C/Ferraz'},
+  { id: '21337', name:'Golden Hill Gate Co. Ltd', address: 'C/Ferraz'},
+  { id: '21338', name:'Eólica de Lillo S.L.', address: 'C/Ferraz'},
+  { id: '21339', name:'ESB', address: 'C/Ferraz'}
 ]

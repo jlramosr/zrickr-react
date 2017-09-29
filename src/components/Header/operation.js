@@ -1,45 +1,51 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import IconButton from 'material-ui/IconButton';
 import PropTypes from 'prop-types';
+import { withStyles } from 'material-ui/styles';
+import IconButton from 'material-ui/IconButton';
 
-const _operationStyle = {
-  height: '100%'
-}
+const styles = theme => {
 
-class HeaderOperation extends Component {
-  static propTypes = {
-    operation: PropTypes.object.isRequired
-  }
+};
 
-  render() {
-    const { operation } = this.props;
-    const Icon = operation.icon;
-    const _size = operation.size || 20;
-    const _color = operation.color || '#fff';
+const HeaderOperation = props => {
+  const { classes, id, icon, hidden, to, onClick } = props;
+  const Icon = icon;
 
-    return (
-
-      <div style={_operationStyle} hidden={operation.hidden}>{
-        operation.to ? (
-          <Link to={operation.to}>
+  console.log(classes, props);
+  return (
+    <div hidden={hidden}>
+      {
+        to ? (
+          <Link to={to}>
             <IconButton>
-              <Icon size={_size} color={_color} onClick={operation.onClick}/>
+              <Icon aria-label={id} onClick={onClick}/>
             </IconButton>
           </Link> 
         ) : (
           <IconButton
-            disableTouchRipple={!operation.onClick}
             style={{
-              cursor: operation.onClick ? 'pointer' : 'default'
+              cursor: onClick ? 'pointer' : 'default'
             }}>
-            <Icon size={_size} color={_color} onClick={operation.onClick}/>
+            <Icon aria-label={id} onClick={onClick}/>
           </IconButton>
         )
-      }</div>
+      }
+    </div>
+  );
+};
 
-    );
-  }
-}
+HeaderOperation.propTypes = {
+  id: PropTypes.string.isRequired,
+  icon: PropTypes.func.isRequired,
+  hidden: PropTypes.bool.isRequired,
+  right: PropTypes.bool.isRequired,
+  to: PropTypes.bool,
+  onClick: PropTypes.func,
+};
 
-export default HeaderOperation;
+HeaderOperation.defaultProps = {
+  hidden: false,
+};
+
+export default withStyles(styles)(HeaderOperation);
