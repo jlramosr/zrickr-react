@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import Media from 'react-media';
 import Field from './field';
+import { capitalize } from './helpers';
 import PropTypes from 'prop-types';
 
 const styles = {
@@ -80,7 +81,11 @@ class Form extends Component {
   }
 
   _getFieldLabel(label, fieldView) {
-    return fieldView.nolabel ? '' : label;
+    return fieldView.nolabel ? ' ' : label;
+  }
+
+  _getFieldDescription(description, fieldView) {
+    return fieldView.nodescription ? '' : description || '';
   }
 
   _getFieldValue(field) {
@@ -115,6 +120,7 @@ class Form extends Component {
   _renderFormContainer(size) {
     const { view, cols, fields } = this.props;
     const { item } = this.state;
+
     return (
       <div id="formContainer" style={styles.formContainer(cols)}>
         {
@@ -123,6 +129,25 @@ class Form extends Component {
             if (fieldView && size in fieldView) {
               fieldView = fieldView[size];
             }
+
+            let category, categoryName, categoryItems, categorySettings, categoryFields;
+            if (field.relation) {
+              categoryName = field.relation;
+              category =
+                require(`../App/data/categories`).default
+                  .find(category => 
+                    category.name.toLowerCase() === categoryName.toLowerCase()
+                  );
+              categorySettings =
+                require(`../${capitalize(categoryName)}/data/settings`).default;
+              categoryItems =
+                require(`../${capitalize(categoryName)}/data/items`).default;
+                  /*.filter(item => value.includes(item.id))*/
+              categoryFields =
+                require(`../${capitalize(categoryName)}/data/fields`).default;
+            }
+
+
             return (
               fieldView &&
                 <div
@@ -134,9 +159,13 @@ class Form extends Component {
                       name={field.name}
                       type={field.type}
                       label={this._getFieldLabel(field.label, fieldView)}
-                      options={field.options}
-                      relation={field.relation}
+                      description={this._getFieldDescription(field.description, fieldView)}
+                      required={field.required}
                       value={item ? item[field.name] : ''}
+                      items={categoryItems || field.items}
+                      category={category}
+                      categorySettings={categorySettings}
+                      categoryFields={categoryFields}
                       handleFormFieldChange={ (fieldName, value) => 
                         this.handleFieldChange(fieldName, value)
                       }
@@ -145,8 +174,7 @@ class Form extends Component {
                 </div>
             )
           })
-        }
-        <input type="submit" value="HOLA" style={{display:''}}/>  
+        } 
       </div>
     );
   };

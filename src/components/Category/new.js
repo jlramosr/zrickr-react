@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Header from '../Header';
-import Close from 'react-icons/lib/fa/close';
-import Check from 'react-icons/lib/fa/check';
+import Close from 'material-ui-icons/Close';
+import Check from 'material-ui-icons/Check';
 
 const styles = {
   item: {

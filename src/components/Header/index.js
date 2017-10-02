@@ -6,9 +6,6 @@ import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
 import Typography from 'material-ui/Typography';
 import CircularProgress from 'material-ui/Progress/CircularProgress';
-import Button from 'material-ui/Button';
-import IconButton from 'material-ui/IconButton';
-import MenuIcon from 'material-ui-icons/Menu';
 
 const styles = theme => ({
   root: {
@@ -38,7 +35,7 @@ const styles = theme => ({
 
 });
 
-const Operations = props => {
+let Operations = props => {
   const { operations, classes } = props;
 
   return (
@@ -65,12 +62,12 @@ Operations.propTypes = {
 Operations = withStyles(styles)(Operations);
 
 const Header = props => {
-  const { classes, operations, title, loading } = props;
+  const { classes, operations, title, position, loading } = props;
   const _loading = loading || false;
 
   return (
     <div className={classes.root}>
-      <AppBar position="fixed">
+      <AppBar position={position}>
         <Toolbar>
           {
             React.createElement(Operations, {
@@ -94,6 +91,11 @@ const Header = props => {
 
 Header.propTypes = {
   classes: PropTypes.object.isRequired,
+  position: PropTypes.string.isRequired,
+};
+
+Header.defaultProps = {
+  position: 'fixed',
 };
 
 export default withStyles(styles)(Header);

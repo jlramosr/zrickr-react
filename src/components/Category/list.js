@@ -3,20 +3,13 @@ import Header from '../Header';
 import { Link } from 'react-router-dom';
 import {List, ListItem} from 'material-ui/List';
 import Divider from 'material-ui/Divider';
-import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
-import {
-  Table,
-  TableBody,
-  TableHeader,
-  TableHeaderColumn,
-  TableRow,
-  TableRowColumn,
-  TableFooter
-} from 'material-ui/Table';
+import Table, { TableBody, TableCell, TableHead, TableRow, TableFooter, TableSortLabel } from 'material-ui/Table';
+import Checkbox from 'material-ui/Checkbox';
+import Tooltip from 'material-ui/Tooltip';
 import Avatar from 'material-ui/Avatar';
-import Plus from 'react-icons/lib/fa/plus';
-import ArrowLeft from 'react-icons/lib/fa/arrow-left';
-import Search from 'react-icons/lib/fa/search';
+import Add from 'material-ui-icons/Add';
+import ArrowBack from 'material-ui-icons/ArrowBack';
+import Search from 'material-ui-icons/Search';
 import Dialog from 'material-ui/Dialog';
 import Icon from 'material-ui/Icon';
 import IconButton from 'material-ui/IconButton';
@@ -56,8 +49,8 @@ const styles = {
   }),
   
   searchBarIcon: {
-    cursor: 'pointer',
-    padding: '0 26px',
+    paddingLeft: 36,
+    paddingRight: 14,
   },
   
   searchBarInput: relationMode => ({
@@ -130,53 +123,69 @@ const rightIconMenu = (
 );
 
 class CategoryList extends Component {
-  static propTypes = {
-    category: PropTypes.any,
-    settings: PropTypes.object,
-    items: PropTypes.array,
-    operations: PropTypes.array,
-    relationMode: PropTypes.bool,
-    showAvatar: PropTypes.bool,
-  }
-
-  static defaultProps = {
-    relationMode: false,
-    showAvatar: false,
-  }
-
   state = {
     searchQuery: '',
     showNewDialog: false,
     tableMode: true,
+    itemsSelected: new Set([]),
+    order: 'asc',
+    orderBy: 'name',
   }
 
-  _openNewDialog() {
-    this.setState({ showNewDialog: true});
-  }
+  _openNewDialog = _ => this.setState({ showNewDialog: true});
 
-  closeNewDialog() {
-    this.setState({ showNewDialog: false});
-  }
+  _newDialogClosed = _ => this.closeNewDialog();
 
-  _newDialogClosed() {
-    this.closeNewDialog();
-  }
+  closeNewDialog = _ => this.setState({ showNewDialog: false});
 
-  _tableCellClicked(item) {
-    window.location.assign(`/${this.props.category.name.toLowerCase()}/${item.id}`);
-  }
+  _updateSearchQuery = searchQuery => this.setState({searchQuery});
 
-  _updateSearchQuery(searchQuery) {
-    this.setState({searchQuery});
-  }
+  _focusSearchInput = _ => this.searchInput.focus();
 
-  _focusSearchInput() {
-    this.searchInput.focus();
-  }
+  _tableSelectAllClick = (event, checked) =>
+    this.setState({itemsSelected: new Set(checked ? this.props.items.map(item => item.id) : [])});
+
+  _tableSelectRowClick = (event, id) => {
+    this.setState(prevState => {
+      let itemsSelected = prevState.itemsSelected;
+      let isRowSelected = itemsSelected.delete(id);
+      return { itemsSelected: isRowSelected ? itemsSelected : itemsSelected.add(id) }
+    })
+  };
+
+  _tableRowClick = (event, id) => {
+    const { category, history } = this.props;
+    history.push(`${category.name}/${id}`)
+  };
+
+  _tableRowKeyDown = (event, id) => {
+    /*if (keycode(event) === 'space') {
+      console.log("HOLA");
+      this._tableRowClick(event, id);
+    }*/
+  };
+
+  _isSelected = id => this.state.itemsSelected.has(id);
+
+  _createSortHandler = property => event => {
+    const orderBy = property;
+    let order = 'asc';
+
+    if (this.state.orderBy === property && this.state.order === 'asc') {
+      order = 'desc';
+    }
+
+    const items =
+      order === 'asc'
+        ? this.props.items.sort((a, b) => (a[orderBy] < b[orderBy] ? -1 : 1))
+        : this.props.items.sort((a, b) => (b[orderBy] < a[orderBy] ? -1 : 1));
+
+    this.setState({ items, order, orderBy });
+  };
 
   render() {
     const { category, settings, items, fields, operations, relationMode, showAvatar } = this.props;
-    const { showNewDialog, searchQuery, tableMode } = this.state;
+    const { showNewDialog, searchQuery, tableMode, itemsSelected, order, orderBy } = this.state;
 
     let showingItems;
     if (searchQuery) {
@@ -194,30 +203,19 @@ class CategoryList extends Component {
         {
           // Header.
           relationMode ? (
-
-            <Toolbar style={styles.relationModeToolbar}>
-              <ToolbarGroup>
-                <ToolbarTitle style={styles.relationModeToolbarText} text={category.label}/>
-              </ToolbarGroup>
-              <ToolbarGroup lastChild={true}>
-                <IconButton style={styles.relationModeToolbarIcon}>
-                  <IconButton>
-                    <Plus
-                      size={16}
-                      color={'#fff'}
-                      onClick={_ => this._openNewDialog()}
-                    />
-                  </IconButton>
-                </IconButton>
-              </ToolbarGroup>
-            </Toolbar>
+            <Header
+              title={category.label}
+              position="static"
+              operations={operations || [
+                {id:'add', icon:Add, right: true, onClick: _ => this._openNewDialog()}
+            ]}/>
             
           ) : (
             <Header
               title={category.label}
               operations={operations || [
-                {id:'arrowLeft', icon:ArrowLeft, to:'/'},
-                {id:'plus', icon:Plus, right: true, onClick: _ => this._openNewDialog()}
+                {id:'arrowBack', icon:ArrowBack, to:'/'},
+                {id:'add', icon:Add, right: true, onClick: _ => this._openNewDialog()}
             ]}/>
           )
         }
@@ -228,12 +226,11 @@ class CategoryList extends Component {
             size={20}
             color={"#999"}
             style={styles.searchBarIcon}
-            onClick={ _ => this._focusSearchInput()}
           />
           <input
           style={styles.searchBarInput(relationMode)}
             ref={searchInput => this.searchInput = searchInput}
-            type="text"
+            type="search"
             placeholder="Buscar"
             value={searchQuery}
             onChange={ event => this._updateSearchQuery(event.target.value) }/>
@@ -251,58 +248,81 @@ class CategoryList extends Component {
 
         {
           // List.
-          tableMode ? ( <div>hola</div>
-/*
-            <Table
-              multiSelectable={true}
-              fixedHeader={true}
-              fixedFooter={true}
-              height={'300px'}
-              onCellClick={ (row, column) => this._tableCellClicked(showingItems[row])}
-            >
-              <TableHeader
-                displaySelectAll={true}
-                enableSelectAll={true}
-              >
-              <TableRow>
+          tableMode ? (
+
+            <Table height={'300px'}>
+              <TableHead>
+                <TableRow>
+                  <TableCell checkbox>
+                    <Checkbox
+                      indeterminate={itemsSelected.size > 0 && itemsSelected.size < showingItems.length}
+                      checked={itemsSelected.size === showingItems.length}
+                      onChange={this._tableSelectAllClick}
+                    />
+                  </TableCell>
                   {
                     fields.map(field =>
-                      <TableHeaderColumn key={field.name}>
-                        
-                          {field.label}
-                        
-                      </TableHeaderColumn>
+                      <TableCell key={field.name} disablePadding>
+                        <Tooltip title="Ordenar" placement="bottom-start" enterDelay={300}>
+                          <TableSortLabel
+                            active={orderBy === field.name}
+                            direction={order}
+                            onClick={this._createSortHandler(field.name)}
+                          >
+                            {field.label}
+                          </TableSortLabel>
+                        </Tooltip>
+                      </TableCell>
                     )
                   }
                 </TableRow>
-              </TableHeader>
-              <TableBody showRowHover={true} style={{cursor:'pointer'}}>
+              </TableHead>
+              <TableBody>
                 {
-                  showingItems.map(item =>
-                    <TableRow key={item.id} style={{height:'12px'}}>    
-                      {
-                        fields.map(field =>
-                          <TableRowColumn
-                            key={`${item.id}${field.name}`}
-                          >
-                            {item[field.name]}
-                          </TableRowColumn>
-                        )
-                      }  
-                    </TableRow>
-                  )
+                  showingItems.map(item => {
+                    const isSelected = this._isSelected(item.id);
+                    return (
+                      <TableRow
+                        key={item.id}
+                        hover
+                        role="checkbox"
+                        aria-checked={isSelected}
+                        tabIndex={-1}
+                        selected={isSelected}
+                      >
+                        <TableCell checkbox>
+                          <Checkbox
+                            checked={isSelected}
+                            onClick={event => this._tableSelectRowClick(event, item.id)}
+                          />
+                        </TableCell>
+                        {
+                          fields.map(field =>      
+                            <TableCell
+                              key={`${item.id}${field.name}`}
+                              style={{cursor:'pointer', padding: 0}}
+                              onClick={event => this._tableRowClick(event, item.id)}
+                              onKeyDown={event => this._tableRowKeyDown(event, item.id)}
+                            >
+                              {item[field.name]}
+                            </TableCell>
+                          )
+                        }  
+                      </TableRow>
+                    )
+                  })
                 }
               </TableBody>
               <TableFooter>
                 <TableRow>
                   {
                     fields.map(field =>
-                      <TableHeaderColumn key={field.name}>{field.label}</TableHeaderColumn>
+                      <TableCell key={field.name}>{field.label}</TableCell>
                     )
                   }
                 </TableRow>
               </TableFooter>
-            </Table>*/
+            </Table>
 
           ) : (
 
@@ -336,11 +356,11 @@ class CategoryList extends Component {
           )
         }
 
+        {/* New Item Dialog. */}
         <Dialog
           fullScreen
           open={showNewDialog}
           onRequestClose={_ => this._newDialogClosed()}
-          appBarStyle={{display: 'none'}}
         >
           <ItemNew
             title={`Nuevo ${category.itemLabel}`}
@@ -351,6 +371,20 @@ class CategoryList extends Component {
       </div>
     );
   }
+}
+
+CategoryList.propTypes = {
+  category: PropTypes.any,
+  settings: PropTypes.object,
+  items: PropTypes.array,
+  operations: PropTypes.array,
+  relationMode: PropTypes.bool,
+  showAvatar: PropTypes.bool,
+}
+
+CategoryList.defaultProps = {
+  relationMode: false,
+  showAvatar: false,
 }
 
 export default CategoryList;

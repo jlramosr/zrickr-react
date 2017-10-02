@@ -9,10 +9,9 @@ const styles = theme => {
 };
 
 const HeaderOperation = props => {
-  const { classes, id, icon, hidden, to, onClick } = props;
+  const { id, icon, hidden, to, onClick } = props;
   const Icon = icon;
 
-  console.log(classes, props);
   return (
     <div hidden={hidden}>
       {
@@ -36,11 +35,11 @@ const HeaderOperation = props => {
 };
 
 HeaderOperation.propTypes = {
+  classes: PropTypes.object.isRequired,
   id: PropTypes.string.isRequired,
   icon: PropTypes.func.isRequired,
   hidden: PropTypes.bool.isRequired,
-  right: PropTypes.bool.isRequired,
-  to: PropTypes.bool,
+  to: PropTypes.string,
   onClick: PropTypes.func,
 };
 

@@ -5,11 +5,11 @@ import Dashboard from '../Dashboard';
 import NotFound from '../NotFound';
 import categories from './data/categories';
 import Drawer from 'material-ui/Drawer';
-import Menu, { MenuItem } from 'material-ui/Menu';
+import { MenuItem } from 'material-ui/Menu';
 import Divider from 'material-ui/Divider';
 import IconButton from 'material-ui/IconButton';
 import ChevronLeftIcon from 'material-ui-icons/ChevronLeft';
-import { withTheme, withStyles } from 'material-ui/styles';
+import { withStyles } from 'material-ui/styles';
 
 const styles = theme => ({
   drawerPaper: {

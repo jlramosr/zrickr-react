@@ -1,15 +1,12 @@
 import React, { Component } from 'react';
 import TextField from 'material-ui/TextField';
-import Select from 'material-ui/Select';
-import Menu, { MenuItem } from 'material-ui/Menu';
+import { MenuItem } from 'material-ui/Menu';
 import Switch from 'material-ui/Switch';
-import {List, ListItem} from 'material-ui/List';
-import { Link } from 'react-router-dom';
+import {ListItem} from 'material-ui/List';
 import Divider from 'material-ui/Divider';
-import { getInfo, capitalize } from './helpers'
 import CategoryList from '../Category/list';
+import { getInfo } from './helpers';
 import Paper from 'material-ui/Paper';
-import Plus from 'react-icons/lib/fa/plus';
 import PropTypes from 'prop-types';
 
 const commonStyles = {
@@ -86,62 +83,51 @@ const styles = {
 }
 
 class Field extends Component {
-  static propTypes = {
-    name: PropTypes.string.isRequired,
-    type: PropTypes.string.isRequired,
-    label: PropTypes.string,
-    options: PropTypes.array,
-    category: PropTypes.string,
-    value: PropTypes.any,
-    handleFormFieldChange: PropTypes.func,
-    optionsSelect: (props, propName, componentName) => {
-      if (props.type === 'select' && !props.options) {
-        return new Error(
-          `${propName} ${componentName}: Select field must to have an array of options.`
-        );
-      }
-    },
-    nameOptions: (props, propName, componentName) => {
-      for (const option of props.options || []) {
-        if (!option.name) {
-          return new Error(
-            `${propName} ${componentName}: Not option name provided on select field.`
-          );
-        }
-      }
-    },
-  }
-
-  static defaultProps = {
-    type: 'string'
-  };
-
   render() {
-    const { name, type, label, options, relation, value } = this.props;
+    const { 
+      name,
+      type,
+      label,
+      description,
+      items,
+      required,
+      value,
+      category,
+      categorySettings,
+      categoryFields,
+    } = this.props;
 
     switch(type) {
 
       case 'select':
         return (
-          <Select
+          <TextField
             key={name}
             name={name}
-            floatingLabelText={label}
-            value={value}
-            onChange={ (event, value) => 
-              this.props.handleFormFieldChange(this.props.name, value)
+            select
+            fullWidth
+            label={label}
+            value={value || ''}
+            onChange={ event => 
+              this.props.handleFormFieldChange(this.props.name, event.target.value)
             }
           >
             {
-              options && options.map(option => (
+              items && items.map(item => (
                 <MenuItem
-                  key={option.name}
-                  value={option.name}
-                  primaryText={option.label}
-                />
+                  key={item.id}
+                  value={item.id}
+                >
+                  {item.label || getInfo(categorySettings.primaryFields, item)}
+                </MenuItem>
               ))
             }
-          </Select>
+          </TextField>
+        );
+
+      case 'radio': 
+        return (
+          <TextField value={value}/>
         );
 
       case 'boolean':
@@ -150,12 +136,7 @@ class Field extends Component {
             key={name}
             name={name}
             style={styles.switch}
-            thumbStyle={styles.thumbOff}
-            trackStyle={styles.trackOff}
-            thumbSwitchedStyle={styles.thumbSwitched}
-            trackSwitchedStyle={styles.trackSwitched}
             label={label}
-            labelStyle={styles.switchLabel}
             checked={Boolean(value)}
             onChange={ (event, value) => 
               this.props.handleFormFieldChange(this.props.name, value)
@@ -164,33 +145,17 @@ class Field extends Component {
         )
 
       case 'list':
-        const categoryName = relation;
         return (
           <div>
             { 
-              relation ? (
-                <Paper zDepth={1}>
+              category ? (
+                <Paper>
                   <CategoryList
                     relationMode={true}
-                    category={
-                      require(`../App/data/categories`).default
-                        .find(category => 
-                          category.name.toLowerCase() === categoryName.toLowerCase()
-                        )
-                    }
-                    settings={
-                      require(`../${capitalize(categoryName)}/data/settings`).default
-                    }
-                    items={
-                      require(`../${capitalize(categoryName)}/data/items`).default
-                        .filter(item => value.includes(item.id))
-                    }
-                    fields={
-                      require(`../${capitalize(categoryName)}/data/fields`).default
-                    }
-                    operations={[
-                      {id:'plus', icon:Plus, right: true, onClick: _ => this._openNewDialog()}
-                    ]}
+                    category={category}
+                    settings={categorySettings}
+                    items={items}
+                    fields={categoryFields}
                   />
                 </Paper>
               ) : (
@@ -211,21 +176,55 @@ class Field extends Component {
           <TextField
             key={name}
             name={name}
-            style={styles.textField}
-            inputStyle={styles.input}
-            floatingLabelStyle={styles.textLabel}
-            floatingLabelText={label}
-            underlineStyle={styles.inputUnderline}
-            underlineFocusStyle={styles.inputUnderline}
-            fullWidth={true}
+            multiline={type==='text'}
+            rowsMax="10"
+            rows="10"
+            fullWidth
+            required={required}
+            type={type === 'number' ? 'number' : 'text'}
+            label={label}
+            helperText={description}
             value={value || ''}
-            onChange={ (event, value) => 
-              this.props.handleFormFieldChange(this.props.name, value)
+            onChange={ event => 
+              this.props.handleFormFieldChange(this.props.name, event.target.value)
             }
           />
         )
       }
   }
+};
+
+Field.propTypes = {
+  name: PropTypes.string.isRequired,
+  type: PropTypes.string.isRequired,
+  label: PropTypes.string,
+  description: PropTypes.string,
+  required: PropTypes.bool,
+  items: PropTypes.array,
+  categorySettings: PropTypes.object,
+  categoryFields: PropTypes.array,
+  value: PropTypes.any,
+  handleFormFieldChange: PropTypes.func,
+  itemsSelect: (props, propName, componentName) => {
+    if (props.type === 'select' && !props.items) {
+      return new Error(
+        `${propName} ${componentName}: Select field must to have an array of items or a relation name.`
+      );
+    }
+  },
+  idItems: (props, propName, componentName) => {
+    for (const item of props.items || []) {
+      if (!item.id) {
+        return new Error(
+          `${propName} ${componentName}: Not item id provided on select/list field.`
+        );
+      }
+    }
+  },
+};
+
+Field.defaultProps = {
+  type: 'string'
 };
 
 export default Field;

@@ -17,7 +17,7 @@ const styles = theme => ({
 });
 
 const Dashboard = props => {
-  const { theme, classes, categories, closeDrawer } = props;
+  const { categories, closeDrawer } = props;
 
   return (
     <div>

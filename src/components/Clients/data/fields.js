@@ -14,10 +14,10 @@ export default [
   {
     "name":"name",
     "label":"Nombre",
+    "required": true,
     "views": {
       "overview": {
         "x":2,"y":1,"ys":6,
-        "nolabel": true,
         "small":{"x":2}
       }
     } 
@@ -41,9 +41,11 @@ export default [
   {
     "name":"address",
     "label":"Direccion",
+    "description": "Dirección fiscal de la empresa/individuo",
     "views": {
       "overview": {
         "x":3,
+        "nodescription": true,
         "small":{"x":4}
       }
     }
@@ -51,6 +53,7 @@ export default [
   {
     "name":"zip",
     "label":"Cod.Postal",
+    "type": "number",
     "views": {
       "overview": {
         "x":4,"y":1,"ys":2,
@@ -61,6 +64,11 @@ export default [
   {
     "name":"city",
     "label":"Ciudad",
+    "type":"select",
+    "items": [
+      {"id": "madrid", "label": "Madrid"},
+      {"id": "barcelona", "label": "Bacelona"}
+    ],
     "views": {
       "overview": {
         "x":4,"y":3,"ys":5,
@@ -108,5 +116,65 @@ export default [
         "small": {"x":10}
       }
     }
-  }
+  },
+  {
+    "name": "description",
+    "label": "Descripción",
+    "type": "text",
+    "views": {
+      "overview": {
+        "x": 7, "xs":3, "ys": 10,
+        "small": {"x":11}
+      }
+    }
+  },
+  {
+    "name": "edad",
+    "label": "Edad",
+    "type": "number",
+    "views": {
+      "overview": {
+        "x": 7, "ys": 2,
+        "small": {"x":12}
+      }
+    }
+  },
+  {
+    "name": "raza",
+    "label": "Raza",
+    "views": {
+      "overview": {
+        "x": 8, "ys": 2,
+        "small": {"x":13}
+      }
+    }
+  },
+  {
+    "name": "religion",
+    "label": "Religión",
+    "type": "select",
+    "items": [
+      {"id": "catolica", "label": "Católica"},
+      {"id": "musulmana", "label": "Musulmana"},
+      {"id": "budista", "label": "Budista"},
+    ],
+    "views": {
+      "overview": {
+        "x": 9, "ys": 2,
+        "small": {"x":14}
+      }
+    }
+  },
+  {
+    "name": "cliente_asociado",
+    "label": "Cliente Asociado",
+    "type": "select",
+    "relation": "clients",
+    "views": {
+      "overview": {
+        "x": 10,
+        "small": {"x":15}
+      }
+    }
+  },
 ]
