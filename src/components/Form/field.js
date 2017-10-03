@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import TextField from 'material-ui/TextField';
 import { MenuItem } from 'material-ui/Menu';
 import Switch from 'material-ui/Switch';
-import {ListItem} from 'material-ui/List';
+import { ListItem } from 'material-ui/List';
 import Divider from 'material-ui/Divider';
 import CategoryList from '../Category/list';
 import { getInfo } from './helpers';
 import Paper from 'material-ui/Paper';
-import PropTypes from 'prop-types';
 
 const commonStyles = {
   label: {
@@ -102,14 +102,19 @@ class Field extends Component {
       case 'select':
         return (
           <TextField
+            error={required && !value}
             key={name}
             name={name}
             select
             fullWidth
+            margin="normal"
+            style={{
+              marginBottom: 14
+            }}
             label={label}
             value={value || ''}
             onChange={ event => 
-              this.props.handleFormFieldChange(this.props.name, event.target.value)
+              this.props.handleFormFieldChange(name, event.target.value)
             }
           >
             {
@@ -139,7 +144,7 @@ class Field extends Component {
             label={label}
             checked={Boolean(value)}
             onChange={ (event, value) => 
-              this.props.handleFormFieldChange(this.props.name, value)
+              this.props.handleFormFieldChange(name, value)
             }
           />
         )
@@ -174,19 +179,20 @@ class Field extends Component {
       default: 
         return (
           <TextField
+            error={required && !value}
             key={name}
             name={name}
             multiline={type==='text'}
             rowsMax="10"
             rows="10"
-            fullWidth
+            fullWidth 
             required={required}
             type={type === 'number' ? 'number' : 'text'}
             label={label}
             helperText={description}
             value={value || ''}
             onChange={ event => 
-              this.props.handleFormFieldChange(this.props.name, event.target.value)
+              this.props.handleFormFieldChange(name, event.target.value)
             }
           />
         )

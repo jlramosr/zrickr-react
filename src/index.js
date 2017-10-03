@@ -14,6 +14,22 @@ import red from 'material-ui/colors/red';
 import './index.css';
 
 const theme = createMuiTheme({
+  overrides: {
+    MuiToolbar: {
+      gutters: {
+        paddingLeft: 8,
+        paddingRight: 8,
+      }
+    },
+    MuiListItem: {
+      gutters: {
+        paddingLeft: 28,
+        paddingRight: 28,
+        height: 36
+      }
+    },
+  },
+
   background: {
     default: 'red'
   },

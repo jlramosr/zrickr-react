@@ -2178,8 +2178,8 @@ views:
     medium:
     large:
 
-      x: (overview, search)
-      y: (overview)
+      x: (overview)
+      y: (overview, search)
       xs: (overview)
       ys: (overview)
       nolabel:

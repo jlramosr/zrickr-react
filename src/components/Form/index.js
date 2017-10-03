@@ -1,9 +1,9 @@
 /*eslint-disable no-eval*/
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import Media from 'react-media';
 import Field from './field';
 import { capitalize } from './helpers';
-import PropTypes from 'prop-types';
 
 const styles = {
   formContainer: (cols) => ({

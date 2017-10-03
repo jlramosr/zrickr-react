@@ -13,7 +13,13 @@ class Category extends Component {
 
         <Route path={`/${category.name}`} exact render={ props => (
           React.createElement(CategoryList, { 
-            category, settings, items, fields, history:props.history
+            category,
+            settings,
+            items,
+            fields: fields
+              .filter(field => field.views.list)
+              .sort((a, b) => (a.views.list.y < b.views.list.y ? -1 : 1)),
+            history: props.history
           })
         )}/>
 
@@ -21,7 +27,17 @@ class Category extends Component {
           const itemId = props.match.params.id;
           const item = items.find(it => it.id === itemId);
           return React.createElement(ItemOverview, {
-            category, settings, item, fields
+            category,
+            settings,
+            item,
+            fields: fields
+              .filter(field => field.views.overview)
+              .sort((a, b) => (
+                a.views.overview.x < b.views.overview.x ? -1 : (
+                  (a.views.overview.x === b.views.overview.x) &&
+                  (a.views.overview.y < b.views.overview.y) ? -1 : 1
+                ))
+              ),
           });
         }}/>
 

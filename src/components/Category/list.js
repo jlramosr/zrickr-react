@@ -1,19 +1,21 @@
 import React, { Component } from 'react';
 import Header from '../Header';
 import { Link } from 'react-router-dom';
-import {List, ListItem} from 'material-ui/List';
+import List, { ListItem, ListItemSecondaryAction, ListItemText } from 'material-ui/List';
 import Divider from 'material-ui/Divider';
 import Table, { TableBody, TableCell, TableHead, TableRow, TableFooter, TableSortLabel } from 'material-ui/Table';
 import Checkbox from 'material-ui/Checkbox';
 import Tooltip from 'material-ui/Tooltip';
 import Avatar from 'material-ui/Avatar';
 import Add from 'material-ui-icons/Add';
+import ViewList from 'material-ui-icons/ViewList';
+import ViewAgenda from 'material-ui-icons/ViewAgenda';
 import ArrowBack from 'material-ui-icons/ArrowBack';
-import Search from 'material-ui-icons/Search';
+import MoreVert from 'material-ui-icons/MoreVert';
 import Dialog from 'material-ui/Dialog';
 import Icon from 'material-ui/Icon';
 import IconButton from 'material-ui/IconButton';
-import { MenuItem } from 'material-ui/Menu';
+import Menu, { MenuItem } from 'material-ui/Menu';
 import ItemNew from './new';
 import escapeRegExp from 'escape-string-regexp';
 import removeDiacritics from 'remove-diacritics';
@@ -23,114 +25,74 @@ import PropTypes from 'prop-types';
 const styles = {
   relationModeToolbar: {
     background: '#004545',
-    height: '32px',
-    lineHeight: '20px',
-    marginTop: '20px',
+    height: 32,
+    lineHeight: 20,
+    marginTop: 20,
   },
 
   relationModeToolbarText: {
     color: '#fff',
-    fontSize: '16px'
+    fontSize: 16,
   },
 
   relationModeToolbarIcon: {
     margin: '-22px 25px 0 0'
   },
-
-  searchBar: relationMode => ({
-    width: '100%',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    boxShadow: 
-      relationMode ?
-        '-6px 8px 46px -13px rgba(0,0,0,0.75)' :
-        '0 10px 20px rgba(0,0,0,0.19), 0 0 6px rgba(0,0,0,0.23)',
-  }),
-  
-  searchBarIcon: {
-    paddingLeft: 36,
-    paddingRight: 14,
-  },
-  
-  searchBarInput: relationMode => ({
-    flex: 1,
-    height: relationMode ? '30px' : '40px',
-    outline: 'none',
-    border: 'none',
-    fontSize: '16px',
-  }),
-  
-  searchBarResults: {
-    padding: '0 30px',
-    alignContent: 'right',
-    color: '#999',
-  },
-
-  list: relationMode => ({
-    padding: relationMode ? '0' : '8px 0',
-  }),
   
   listLink: {
     outline: 'none',
   },
 
-  listItem : showAvatar => ({
-    paddingLeft: showAvatar ? '72px': '28px'
-  }),
-
-  menuItem:{
-    color: "#00838F",
-    fontSize: "14px"
-  },
-
   listMenuItem: {
     display: 'flex',
     flexDirection: 'row',
-    padding: "8px",
+    padding: 8,
+  },
+
+  menuItemOperation:{
+    fontSize: 12,
+    height: 12
   },
 
   iconMenu: {
-    paddingRight: "8px"
+    paddingRight: 8,
   },
 
-  avatar: showAvatar => ({
-    display: showAvatar ? 'block' : 'none',
-  })
-
 }
-
-const iconButtonElement = (
-  <IconButton tabIndex={-1}>
-    <Icon color={"#999"}>more_vert_icon</Icon>
-  </IconButton>
-);
-
-const rightIconMenu = (
-  <Icon
-    autoWidth={false}
-    onClick={ event => {
-      event.preventDefault();
-    }}
-    style={styles.iconMenu}
-    listStyle={styles.listMenuItem}
-    iconButtonElement={iconButtonElement}
-  >
-    <MenuItem style={styles.menuItem}>View</MenuItem>
-    <MenuItem style={styles.menuItem}>Edit</MenuItem>
-    <MenuItem style={styles.menuItem}>Delete</MenuItem>
-  </Icon>
-);
 
 class CategoryList extends Component {
   state = {
     searchQuery: '',
+    showingItems: [],
     showNewDialog: false,
-    tableMode: true,
+    tableMode: false,
     itemsSelected: new Set([]),
     order: 'asc',
-    orderBy: 'name',
+    orderBy: '',
+    showMenuItem: false,
+    itemMenuClicked: null,
+    anchorEl: null,
   }
+
+  updateSearchQuery = searchQuery => {
+    const { settings, items } = this.props;
+    let showingItems = items;
+    let itemsSelected = this.state.itemsSelected;
+    if (searchQuery) {
+      const cleanQuery = removeDiacritics(searchQuery.trim());
+      const match = new RegExp(escapeRegExp(cleanQuery), 'i');
+      showingItems = items.filter(item => (
+        match.test(removeDiacritics(getInfo(settings.primaryFields, item)))
+      ))
+      itemsSelected = new Set(showingItems
+        .filter(item => this._isSelected(item.id))
+        .map(item => item.id)
+      );
+    }
+    this.setState({showingItems, searchQuery, itemsSelected})
+  };
+
+  _changeView = view => this.setState({tableMode: view === 'list', itemsSelected:new Set([])});
 
   _openNewDialog = _ => this.setState({ showNewDialog: true});
 
@@ -138,12 +100,10 @@ class CategoryList extends Component {
 
   closeNewDialog = _ => this.setState({ showNewDialog: false});
 
-  _updateSearchQuery = searchQuery => this.setState({searchQuery});
-
   _focusSearchInput = _ => this.searchInput.focus();
 
   _tableSelectAllClick = (event, checked) =>
-    this.setState({itemsSelected: new Set(checked ? this.props.items.map(item => item.id) : [])});
+    this.setState({itemsSelected: new Set(checked ? this.state.showingItems.map(item => item.id) : [])});
 
   _tableSelectRowClick = (event, id) => {
     this.setState(prevState => {
@@ -151,52 +111,51 @@ class CategoryList extends Component {
       let isRowSelected = itemsSelected.delete(id);
       return { itemsSelected: isRowSelected ? itemsSelected : itemsSelected.add(id) }
     })
-  };
+  }
 
   _tableRowClick = (event, id) => {
     const { category, history } = this.props;
     history.push(`${category.name}/${id}`)
-  };
+  }
 
   _tableRowKeyDown = (event, id) => {
     /*if (keycode(event) === 'space') {
       console.log("HOLA");
       this._tableRowClick(event, id);
     }*/
-  };
+  }
 
   _isSelected = id => this.state.itemsSelected.has(id);
 
-  _createSortHandler = property => event => {
+  _updateSortColumn = property => event => {
     const orderBy = property;
     let order = 'asc';
-
     if (this.state.orderBy === property && this.state.order === 'asc') {
       order = 'desc';
     }
-
-    const items =
+    const showingItems =
       order === 'asc'
-        ? this.props.items.sort((a, b) => (a[orderBy] < b[orderBy] ? -1 : 1))
-        : this.props.items.sort((a, b) => (b[orderBy] < a[orderBy] ? -1 : 1));
+        ? this.state.showingItems.sort((a, b) => (a[orderBy] < b[orderBy] ? -1 : 1))
+        : this.state.showingItems.sort((a, b) => (b[orderBy] < a[orderBy] ? -1 : 1));
+    this.setState({showingItems, order, orderBy});
+  }
 
-    this.setState({ items, order, orderBy });
+  _handleMenuItemClick = (event, itemId) => {
+    event.preventDefault();
+    this.setState({ showMenuItem: true, anchorEl: event.currentTarget, itemMenuClicked: itemId });
   };
 
-  render() {
-    const { category, settings, items, fields, operations, relationMode, showAvatar } = this.props;
-    const { showNewDialog, searchQuery, tableMode, itemsSelected, order, orderBy } = this.state;
+  _handleMenuItemClose = () => {
+    this.setState({ showMenuItem: false, itemMenuClicked: null });
+  };
 
-    let showingItems;
-    if (searchQuery) {
-      const cleanQuery = removeDiacritics(searchQuery.trim());
-      const match = new RegExp(escapeRegExp(cleanQuery), 'i');
-      showingItems = items.filter(item => (
-        match.test(removeDiacritics(getInfo(settings.primaryFields, item)))
-      ))
-    } else {
-      showingItems = items;
-    }
+  componentDidMount() {
+    this.setState({showingItems: this.props.items});
+  }
+
+  render() {
+    const { category, settings, fields, operations, relationMode, showAvatar } = this.props;
+    const { showNewDialog, showingItems, tableMode, itemsSelected, order, orderBy } = this.state;
 
     return (
       <div>
@@ -208,43 +167,44 @@ class CategoryList extends Component {
               position="static"
               operations={operations || [
                 {id:'add', icon:Add, right: true, onClick: _ => this._openNewDialog()}
-            ]}/>
+              ]}
+            />
             
           ) : (
             <Header
               title={category.label}
+              updateSearchQuery={this.updateSearchQuery}
               operations={operations || [
-                {id:'arrowBack', icon:ArrowBack, to:'/'},
-                {id:'add', icon:Add, right: true, onClick: _ => this._openNewDialog()}
-            ]}/>
+                { 
+                  id:'arrowBack',
+                  icon:ArrowBack,
+                  to:'/'
+                },
+                {
+                  id:'viewAgenda',
+                  icon:ViewAgenda,
+                  description:'Vista agenda',
+                  hidden:!tableMode,
+                  right: true,
+                  onClick: _ => this._changeView('agenda'),
+                },
+                {
+                  id:'viewList',
+                  icon:ViewList,
+                  description:'Vista tabla',
+                  hidden:tableMode,
+                  right: true,
+                  onClick: _ => this._changeView('list'),
+                },
+                {
+                  id:'add',
+                  icon:Add,
+                  description:`Nuevo ${category.itemLabel}`,
+                  right: true, onClick: _ => this._openNewDialog()},
+              ]}
+            />
           )
         }
-
-        {/* Search Bar. */}
-        <div style={styles.searchBar(relationMode)}>
-          <Search
-            size={20}
-            color={"#999"}
-            style={styles.searchBarIcon}
-          />
-          <input
-          style={styles.searchBarInput(relationMode)}
-            ref={searchInput => this.searchInput = searchInput}
-            type="search"
-            placeholder="Buscar"
-            value={searchQuery}
-            onChange={ event => this._updateSearchQuery(event.target.value) }/>
-          <div style={styles.searchBarResults} hidden={
-            !(searchQuery && showingItems.length !== 0 && showingItems.length !== items.length)
-          }>
-            {`Mostrando ${showingItems.length} resultados`}
-          </div>
-          <div style={styles.searchBarResults} hidden={
-            !(searchQuery && showingItems.length === 0)
-          }>
-            No se han encontrado coincidencias
-          </div>
-        </div>
 
         {
           // List.
@@ -263,11 +223,11 @@ class CategoryList extends Component {
                   {
                     fields.map(field =>
                       <TableCell key={field.name} disablePadding>
-                        <Tooltip title="Ordenar" placement="bottom-start" enterDelay={300}>
+                        <Tooltip title="Ordenar" enterDelay={300}>
                           <TableSortLabel
                             active={orderBy === field.name}
                             direction={order}
-                            onClick={this._createSortHandler(field.name)}
+                            onClick={this._updateSortColumn(field.name)}
                           >
                             {field.label}
                           </TableSortLabel>
@@ -326,33 +286,60 @@ class CategoryList extends Component {
 
           ) : (
 
-            <List style={styles.list(relationMode)}> 
-              {
-                showingItems.map(item =>
-                  <Link
-                    key={item.id}
-                    tabIndex={-1}
-                    style={styles.listLink}
-                    to={`/${category.name.toLowerCase()}/${item.id}`}
-                  >
-                    
-                    <ListItem
-                      innerDivStyle={styles.listItem(showAvatar)}
-                      primaryText={getInfo(settings.primaryFields, item)}
-                      secondaryText={getInfo(settings.secondaryFields, item)}
-                      leftAvatar={ 
-                        <Avatar style={styles.avatar(showAvatar)} src={item.photo}/>
-                      }
-                      hoverColor="#E0F2F1"
-                      rightIconButton={rightIconMenu}
-                    />
-                    <Divider inset={false}/>
-                    
-                  </Link>
-                )
-              }
-            </List>
-
+            <div>
+              <List>
+                {
+                  showingItems.map(item =>
+                    <Link
+                      key={item.id}
+                      tabIndex={-1}
+                      style={styles.listLink}
+                      to={`/${category.name.toLowerCase()}/${item.id}`}
+                    >
+                      <ListItem button>
+                        { 
+                          showAvatar &&
+                            <Avatar>
+                              <Icon>{React.createElement(category.icon)}</Icon>
+                            </Avatar>
+                        }
+                        <ListItemText
+                          primary={getInfo(settings.primaryFields, item)}
+                          secondary={getInfo(settings.secondaryFields, item)}
+                        />
+                        <ListItemSecondaryAction>
+                          <IconButton aria-label="Item Menu">
+                            <MoreVert
+                              style={styles.iconMenu}
+                              onClick={ event => this._handleMenuItemClick(event, item.id)}
+                            />
+                          </IconButton>
+                        </ListItemSecondaryAction>
+                      </ListItem>
+                      <Divider/>
+                    </Link>
+                  )
+                }
+              </List>
+              <Menu
+                elevation={4}
+                transformOrigin={{ vertical: 'top', horizontal: 'left',}}
+                anchorEl={this.state.anchorEl}
+                open={this.state.showMenuItem}
+                onRequestClose={this._handleMenuItemClose}
+                style={styles.listMenuItem}
+              >
+                <MenuItem style={styles.menuItemOperation} onClick={this._handleMenuItemClose}>
+                  View
+                </MenuItem>
+                <MenuItem style={styles.menuItemOperation} onClick={this._handleMenuItemClose}>
+                  Edit
+                </MenuItem>
+                <MenuItem style={styles.menuItemOperation} onClick={this._handleMenuItemClose}>
+                  Delete
+                </MenuItem>
+              </Menu>
+            </div>
           )
         }
 
