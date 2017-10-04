@@ -3,7 +3,7 @@ import { Route, Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Dashboard from '../Dashboard';
 import NotFound from '../NotFound';
-import categories from './data/categories';
+import categories from '../../categories';
 import Drawer from 'material-ui/Drawer';
 import { MenuItem } from 'material-ui/Menu';
 import Divider from 'material-ui/Divider';
@@ -31,7 +31,7 @@ class App extends Component {
     this.setState({categories});
   }
 
-  render() {
+  render = _ => {
     const { categories, drawerOpen} = this.state;
     const { classes } = this.props;
 

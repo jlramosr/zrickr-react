@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import Header from '../Header';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import Header from '../Header';
 import List, { ListItem, ListItemSecondaryAction, ListItemText } from 'material-ui/List';
 import Divider from 'material-ui/Divider';
 import Table, { TableBody, TableCell, TableHead, TableRow, TableFooter, TableSortLabel } from 'material-ui/Table';
@@ -16,13 +17,13 @@ import Dialog from 'material-ui/Dialog';
 import Icon from 'material-ui/Icon';
 import IconButton from 'material-ui/IconButton';
 import Menu, { MenuItem } from 'material-ui/Menu';
-import ItemNew from './new';
 import escapeRegExp from 'escape-string-regexp';
 import removeDiacritics from 'remove-diacritics';
-import { getInfo } from './helpers';
-import PropTypes from 'prop-types';
+import ItemNew from './new';
+import { getInfo } from '../../utils/helpers';
+import { withStyles } from 'material-ui/styles';
 
-const styles = {
+const styles = theme => ({
   relationModeToolbar: {
     background: '#004545',
     height: 32,
@@ -57,8 +58,7 @@ const styles = {
   iconMenu: {
     paddingRight: 8,
   },
-
-}
+})
 
 class CategoryList extends Component {
   state = {
@@ -149,11 +149,11 @@ class CategoryList extends Component {
     this.setState({ showMenuItem: false, itemMenuClicked: null });
   };
 
-  componentDidMount() {
+  componentDidMount = _ => {
     this.setState({showingItems: this.props.items});
   }
 
-  render() {
+  render = _ => {
     const { category, settings, fields, operations, relationMode, showAvatar } = this.props;
     const { showNewDialog, showingItems, tableMode, itemsSelected, order, orderBy } = this.state;
 
@@ -199,7 +199,7 @@ class CategoryList extends Component {
                 {
                   id:'add',
                   icon:Add,
-                  description:`Nuevo ${category.itemLabel}`,
+                  description:`Nuevo ${settings.itemLabel || 'Item'}`,
                   right: true, onClick: _ => this._openNewDialog()},
               ]}
             />
@@ -350,7 +350,7 @@ class CategoryList extends Component {
           onRequestClose={_ => this._newDialogClosed()}
         >
           <ItemNew
-            title={`Nuevo ${category.itemLabel}`}
+            title={`Nuevo ${settings.itemLabel || 'Item'}`}
             closeDialog={_ => this.closeNewDialog()}
           />
         </Dialog>
@@ -374,4 +374,4 @@ CategoryList.defaultProps = {
   showAvatar: false,
 }
 
-export default CategoryList;
+export default withStyles(styles)(CategoryList);

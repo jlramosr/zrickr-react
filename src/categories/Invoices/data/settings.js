@@ -1,5 +1,6 @@
 export default {
   "primaryFields": ['clientId'],
   "secondaryFields": ['price'],
-  "color": "#eee"
+  "color": "#eee",
+  "itemLabel": 'Factura',
 }

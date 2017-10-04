@@ -5,7 +5,7 @@ import CategoryList from './list';
 import ItemOverview from './overview';
 
 class Category extends Component {
-  render() {
+  render = _ => {
     const { category, settings, fields, items } = this.props;
 
     return (
@@ -46,9 +46,9 @@ class Category extends Component {
   }
 }
 
-Category.defaultProps = {
+Category.propTypes = {
   category: PropTypes.object.isRequired,
-  settings: PropTypes.array.isRequired,
+  settings: PropTypes.object.isRequired,
   fields: PropTypes.array.isRequired,
   items: PropTypes.array.isRequired,
 }

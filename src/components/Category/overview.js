@@ -6,36 +6,31 @@ import ArrowBack from 'material-ui-icons/ArrowBack';
 import Check from 'material-ui-icons/Check';
 import Edit from 'material-ui-icons/Edit';
 import Delete from 'material-ui-icons/Delete';
-import { getInfo } from './helpers';
+import { getInfo } from '../../utils/helpers';
 
-class ItemOverview extends Component {
-  static propTypes = {
-    item: PropTypes.object.isRequired,
-    fields: PropTypes.array.isRequired
-  }
-
+class CategoryItemOverview extends Component {
   state = {
     editMode: false
   }
 
-  _updateItem() {
+  _updateItem = _ => {
     console.log("UPDATE ITEM");
     this._changeEditMode(false);
   }
 
-  _deleteItem() {
+  _deleteItem = _ => {
     console.log("DELETE ITEM");
     /*TODO:
       return to list
     */
   }
 
-  _changeEditMode(editMode) {
+  _changeEditMode = editMode => {
     console.log("EDIT MODE", editMode);
     this.setState({editMode});
   }
 
-  render() {
+  render = _ => {
     const { category, settings, item, fields } = this.props;
     const { editMode } = this.state;
 
@@ -59,10 +54,14 @@ class ItemOverview extends Component {
           values={item}
         />
 
-
       </div>
     );
   }
 }
 
-export default ItemOverview;
+CategoryItemOverview.propTypes = {
+  item: PropTypes.object.isRequired,
+  fields: PropTypes.array.isRequired
+}
+
+export default CategoryItemOverview;

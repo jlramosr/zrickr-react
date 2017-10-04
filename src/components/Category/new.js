@@ -1,28 +1,21 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import Header from '../Header';
 import Close from 'material-ui-icons/Close';
 import Check from 'material-ui-icons/Check';
 
-const styles = {
-  item: {
-    outline: 'none'
-  }
-}
+class CategoryItemNew extends Component {
 
-class ItemNew extends Component {
-  state = {
-  }
-
-  _createItem() {
+  _createItem = _ => {
     console.log("CREAR ITEM");
     this.props.closeDialog();
   }
 
-  render() {
+  render = _ => {
     const { closeDialog } = this.props;
 
     return (
-      <div style={styles.item}>
+      <div>
 
         <Header title={this.props.title} operations={[
           {id:'close', icon:Close, onClick: _ => closeDialog()},
@@ -38,4 +31,8 @@ class ItemNew extends Component {
   }
 }
 
-export default ItemNew;
+CategoryItemNew.propTypes = {
+  closeDialog: PropTypes.func.isRequired,
+}
+
+export default CategoryItemNew;

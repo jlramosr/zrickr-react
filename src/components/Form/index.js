@@ -3,7 +3,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Media from 'react-media';
 import Field from './field';
-import { capitalize } from './helpers';
+import { capitalize } from '../../utils/helpers';
+import { withStyles } from 'material-ui/styles';
 
 const styles = {
   formContainer: (cols) => ({
@@ -41,14 +42,13 @@ const styles = {
   },
 }
 
-
 class Item {
   constructor(item) {
     Object.assign(this, item);
   }
 
   /*jslint evil: true */
-  evalCondition(condition, fieldName) {
+  evalCondition = (condition, fieldName) => {
     let fulfilledCondition = false;
     try {
       fulfilledCondition = eval(condition);
@@ -64,36 +64,25 @@ class Item {
   }
 }
 
-class Form extends Component {
-  static propTypes = {
-    cols: PropTypes.number,
-    view: PropTypes.string.isRequired,
-    fields: PropTypes.array.isRequired,
-    values: PropTypes.object.isRequired
-  }
-
-  static defaultProps = {
-    cols: 10
-  }
-
+class FormContainer extends Component {
   state = {
-    item: null
+    item: null,
   }
 
-  _getFieldLabel(label, fieldView) {
-    return fieldView.nolabel ? ' ' : label;
+  _getFieldLabel = (label, fieldView) => fieldView.nolabel ? ' ' : label;
+  
+  _getFieldDescription = (description, fieldView) => 
+    fieldView.nodescription ? '' : description || '';
+
+  _getFieldValue = (field) =>
+    this.state.item && field.name ? this.state.item[field.name] : '';
+
+  _handleSubmit = event => {
+    console.log("SUBMIT", this.state.item);
+    event.preventDefault();
   }
 
-  _getFieldDescription(description, fieldView) {
-    return fieldView.nodescription ? '' : description || '';
-  }
-
-  _getFieldValue(field) {
-    const { item } = this.state;
-    return item ? item[field.name] || '' : '';
-  }
-
-  handleFieldChange(field, value) {
+  handleFieldChange = (field, value) => {
     this.setState(prevState => {
       let item = prevState.item;
       item[field] = value;
@@ -101,12 +90,7 @@ class Form extends Component {
     })
   }
 
-  handleSubmit(event) {
-    console.log("SUBMIT", this.state.item);
-    event.preventDefault();
-  }
-
-  componentDidMount() {
+  componentDidMount = _ => {
     let item = new Item(this.props.values)
     const { fields, values } = this.props;
     for (const field of fields) {
@@ -117,12 +101,15 @@ class Form extends Component {
     this.setState({item});
   }
 
-  _renderFormContainer(size) {
-    const { view, cols, fields } = this.props;
+  render = _ => {
+    const { size, view, cols, fields } = this.props;
     const { item } = this.state;
 
     return (
-      <div id="formContainer" style={styles.formContainer(cols)}>
+      <form 
+        onSubmit={ event => this._handleSubmit(event)}
+        style={styles.formContainer(cols)}
+      >
         {
           fields.map(field => {
             let fieldView = field.views ? field.views[view] : null;
@@ -134,19 +121,18 @@ class Form extends Component {
             if (field.relation) {
               categoryName = field.relation;
               category =
-                require(`../App/data/categories`).default
+                require(`../../categories`).default
                   .find(category => 
                     category.name.toLowerCase() === categoryName.toLowerCase()
                   );
               categorySettings =
-                require(`../${capitalize(categoryName)}/data/settings`).default;
+                require(`../../categories/${capitalize(categoryName)}/data/settings`).default;
               categoryItems =
-                require(`../${capitalize(categoryName)}/data/items`).default;
+                require(`../../categories/${capitalize(categoryName)}/data/items`).default;
                   /*.filter(item => value.includes(item.id))*/
               categoryFields =
-                require(`../${capitalize(categoryName)}/data/fields`).default;
+                require(`../../categories/${capitalize(categoryName)}/data/fields`).default;
             }
-
 
             return (
               fieldView &&
@@ -175,25 +161,64 @@ class Form extends Component {
             )
           })
         } 
-      </div>
-    );
-  };
-
-  render() {
-    return (
-      <form onSubmit={ (event) => this.handleSubmit(event)}>
-        <Media query="(max-width:700px)" render={ _ => (
-          this._renderFormContainer('small')
-        )}/>
-        <Media query="(min-width:701px) and (max-width:1224px)" render={ _ => (
-          this._renderFormContainer('medium')
-        )}/>
-        <Media query="(min-width:1225px)" render={ _ => (
-          this._renderFormContainer('large')
-        )}/>
       </form>
-    );
-  }
+    )
+  };
 };
+
+FormContainer.propTypes = {
+  cols: PropTypes.number.isRequired,
+  view: PropTypes.string.isRequired,
+  fields: PropTypes.array.isRequired,
+  values: PropTypes.object.isRequired
+}
+
+FormContainer = withStyles(styles)(FormContainer);
+
+const Form = props => {
+  const { view, cols, fields, values } = props;
+  return (
+    <div>
+      <Media query="(max-width:700px)" render={ _ => (
+        <FormContainer
+          size="small"
+          view={view}
+          cols={cols}
+          fields={fields}
+          values={values}
+        />
+      )}/>
+      <Media query="(min-width:701px) and (max-width:1224px)"  render={ _ => (
+        <FormContainer
+          size="medium"
+          view={view}
+          cols={cols}
+          fields={fields}
+          values={values}
+        />
+      )}/>
+      <Media query="(min-width:1225px)"  render={ _ => (
+        <FormContainer
+          size="large"
+          view={view}
+          cols={cols}
+          fields={fields}
+          values={values}
+        />
+      )}/>
+    </div>
+  );
+};
+
+Form.propTypes = {
+  cols: PropTypes.number,
+  view: PropTypes.string.isRequired,
+  fields: PropTypes.array.isRequired,
+  values: PropTypes.object.isRequired
+}
+
+Form.defaultProps = {
+  cols: 10
+}
 
 export default Form;
