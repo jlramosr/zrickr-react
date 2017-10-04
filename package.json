@@ -1,9 +1,10 @@
 {
   "name": "tinyerp",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "dependencies": {
     "escape-string-regexp": "^1.0.5",
+    "firebase": "^4.5.0",
     "history": "^4.7.2",
     "keycode": "^2.1.9",
     "material-ui": "^1.0.0-beta.12",

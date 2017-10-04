@@ -3,12 +3,14 @@ import { Route, Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Dashboard from '../Dashboard';
 import NotFound from '../NotFound';
-import categories from '../../categories';
+//import categories from '../../categories';
+import { getAll } from '../../utils/api_firebase';
 import Drawer from 'material-ui/Drawer';
 import { MenuItem } from 'material-ui/Menu';
 import Divider from 'material-ui/Divider';
 import IconButton from 'material-ui/IconButton';
 import ChevronLeftIcon from 'material-ui-icons/ChevronLeft';
+
 import { withStyles } from 'material-ui/styles';
 
 const styles = theme => ({
@@ -28,7 +30,16 @@ class App extends Component {
   }
 
   componentDidMount = _ => {
-    this.setState({categories});
+    console.log("HOLA");
+    getAll('categories').then(categories => {
+      console.log(categories);
+      for (let category of categories) {
+        category['component'] = require('../../categories')[category.name];
+        category['icon'] = require('material-ui-icons')[category.icon];
+      }
+      console.log(categories);
+      this.setState({categories});
+    })
   }
 
   render = _ => {
