@@ -41,13 +41,14 @@ const styles = theme => ({
     alignItems: 'center',
     marginLeft: 8,
     marginRight: 8,
-    background: 'transparent',
+    background: theme.palette.primary[400],
   },
   
   searchBarIcon: {
     position: 'absolute',
     top: 5,
-    left: 0,
+    left: 5,
+    zIndex: 5,
   },
   
   searchBarInput: {
@@ -57,16 +58,16 @@ const styles = theme => ({
     fontSize: 16,
     background: 'transparent',
     color: '#fff',
-    paddingLeft: 28,
+    paddingLeft: 34,
     paddingRight: 20,
   },
 
   searchBarInputSingleline: {
-    
   },
 
   searchBarInputFocused: {
-
+    background: theme.palette.primary[300],
+    width: 'calc(100% + 20px)',
   },
 
   searchBarCloseIcon: {
@@ -74,7 +75,7 @@ const styles = theme => ({
     width: 20,
     height: 20,
     top: 7,
-    right: 0,
+    right: 3,
     cursor: 'pointer',
   },
   
@@ -165,8 +166,7 @@ class Header extends Component {
                       underline:classes.searchBarInputSingleline,
                       focused:classes.searchBarInputFocused,
                     }}
-                    
-                    placeholder="Buscar"
+                    disableUnderline
                     value={searchQuery}
                     onChange={ event => this._updateSearchQuery(event.target.value) }
                   />

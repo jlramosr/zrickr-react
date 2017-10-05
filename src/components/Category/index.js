@@ -1,12 +1,26 @@
 import React, { Component } from 'react';
 import { Route } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { getDocument } from '../../utils/api_firebase';
 import CategoryList from './list';
 import ItemOverview from './overview';
 
 class Category extends Component {
+  state = {
+    settings: {},
+    loading: true,
+  }
+
+  componentDidMount = _ => {
+    getDocument('categories_settings', this.props.category.id).then(settings => {
+      this.setState({settings, loading: false});
+    })
+  }
+
+
   render = _ => {
-    const { category, settings, fields, items } = this.props;
+    const { settings } = this.state;
+    const { category, fields, items } = this.props;
 
     return (
       <div>
@@ -48,7 +62,6 @@ class Category extends Component {
 
 Category.propTypes = {
   category: PropTypes.object.isRequired,
-  settings: PropTypes.object.isRequired,
   fields: PropTypes.array.isRequired,
   items: PropTypes.array.isRequired,
 }

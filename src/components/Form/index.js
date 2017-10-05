@@ -120,18 +120,14 @@ class FormContainer extends Component {
             let category, categoryName, categoryItems, categorySettings, categoryFields;
             if (field.relation) {
               categoryName = field.relation;
-              category =
-                require(`../../categories`).default
-                  .find(category => 
-                    category.name.toLowerCase() === categoryName.toLowerCase()
-                  );
+              category = {label: categoryName};
               categorySettings =
-                require(`../../categories/${capitalize(categoryName)}/data/settings`).default;
+                require(`../../categories/${capitalize(categoryName)}settings`).default;
               categoryItems =
-                require(`../../categories/${capitalize(categoryName)}/data/items`).default;
+                require(`../../categories/${capitalize(categoryName)}items`).default;
                   /*.filter(item => value.includes(item.id))*/
               categoryFields =
-                require(`../../categories/${capitalize(categoryName)}/data/fields`).default;
+                require(`../../categories/${capitalize(categoryName)}fields`).default;
             }
 
             return (
@@ -148,10 +144,10 @@ class FormContainer extends Component {
                       description={this._getFieldDescription(field.description, fieldView)}
                       required={field.required}
                       value={item ? item[field.name] : ''}
-                      items={categoryItems || field.items}
                       category={category}
                       categorySettings={categorySettings}
                       categoryFields={categoryFields}
+                      items={categoryItems || field.items}
                       handleFormFieldChange={ (fieldName, value) => 
                         this.handleFieldChange(fieldName, value)
                       }

@@ -1,0 +1,6 @@
+{
+  "primaryFields": ["name", "lastname"],
+  "secondaryFields": ["address"],
+  "color": "#ddd",
+  "itemLabel": "cliente"
+}

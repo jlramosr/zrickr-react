@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { Route, Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import Category from '../Category';
 import Dashboard from '../Dashboard';
 import NotFound from '../NotFound';
-//import categories from '../../categories';
-import { getAll } from '../../utils/api_firebase';
+import { capitalize } from '../../utils/helpers';
+import { getCollection } from '../../utils/api_firebase';
 import Drawer from 'material-ui/Drawer';
 import { MenuItem } from 'material-ui/Menu';
 import Divider from 'material-ui/Divider';
@@ -23,6 +24,7 @@ class App extends Component {
   state = {
     categories: [],
     drawerOpen: false,
+    loading: true,
   }
 
   toggleDrawer = _ => {
@@ -30,20 +32,22 @@ class App extends Component {
   }
 
   componentDidMount = _ => {
-    console.log("HOLA");
-    getAll('categories').then(categories => {
-      console.log(categories);
+    getCollection('categories').then(categories => {
       for (let category of categories) {
-        category['component'] = require('../../categories')[category.name];
-        category['icon'] = require('material-ui-icons')[category.icon];
+        category['icon'] = category.icon ?
+          require('material-ui-icons')[category.icon] :
+          null
       }
-      console.log(categories);
-      this.setState({categories});
+      this.setState({categories, loading: false});
     })
   }
 
+  componentDidCatch(error, info) {
+    console.log("ERROR", error, info);
+  }
+
   render = _ => {
-    const { categories, drawerOpen} = this.state;
+    const { categories, drawerOpen, loading} = this.state;
     const { classes } = this.props;
 
     return (
@@ -77,6 +81,7 @@ class App extends Component {
 
         <Route path="/" exact render={ _ => (
           <Dashboard
+            loading={loading}
             categories={categories}
             closeDrawer={ _ => this.toggleDrawer()}
           />    
@@ -86,9 +91,12 @@ class App extends Component {
           const category = categories.find(
             category => category.name.toLowerCase() === categoryName.toLowerCase()
           );
-          const CategoryComponent = category ? category.component : null;
-          return category ?
-            React.createElement(CategoryComponent, { category }) :
+          return category ? 
+            React.createElement(Category, { 
+              category,
+              fields: require(`../../categories/${capitalize(category.name)}/fields`).default,
+              items: require(`../../categories/${capitalize(category.name)}/items`).default,
+            }) : 
             React.createElement(NotFound, {title: 'Not Found'})
         }}/>
 

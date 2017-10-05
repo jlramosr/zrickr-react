@@ -14,20 +14,38 @@ firebase.initializeApp(config);
 
 const database = firebase.database();
 
-export const getAll = table => {
-  return database.ref(table).once('value')
-    .then( snapshot => {
-      let all = [];
-      snapshot.forEach( register => all.push(register.val()) )
-      return all;
-    })
-    .then(data => data);
+//https://ilikekillnerds.com/2017/05/convert-firebase-database-snapshotcollection-array-javascript/
+const snapshotToArray = snapshot =>
+  Object.entries(snapshot.val()).map(e =>
+    Object.assign(e[1], { id: e[0] })
+  );
+
+export const getCollection = collection =>
+  database.ref(collection).once('value')
+    .then( snapshot => snapshotToArray(snapshot))
+
+export const getDocument = (collection, documentId) =>
+  database.ref(`${collection}/${documentId}`).once('value')
+    .then( snapshot => snapshot.val());
+
+export const addNew = (collection, newDocument) => {
+  const ref = database.ref().child(collection);
+  const newDocumentId = ref.push().key;
+  let updates = {};
+  updates[`${newDocumentId}`] = newDocument;
+  ref.update(updates);
 }
 
-export const add = (table, newRecord) => {
-  const ref = database.ref(table);
-  const newRegisterKey = database.ref().child(table).push().key;
+export const addDocument = (collection, collectionId, newDocument) => {
+  const ref = database.ref().child(collection);
   let updates = {};
-  updates[`/${table}/${newRegisterKey}`] = newRecord;
-  database().ref().update(updates);
+  updates[`${collectionId}`] = newDocument;
+  ref.update(updates);
 }
+
+/*addDocument('categories_settings', '-KvboYj33C3djwkBU3Kj', {
+  "primaryFields": ['name', 'lastname'],
+  "secondaryFields": ['address'],
+  "color": "#ddd",
+  "itemLabel": 'Cliente',
+})*/

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "clients",
+    "icon": "Work",
+    "label": "Clientes",
+    "name": "clients"
+  },
+  {
+    "id": "movements",
+    "icon": "CreditCard",
+    "label": "Movimientos",
+    "name": "movements"
+  },
+  {
+    "id": "invoices",
+    "icon": "PictureAsPdf",
+    "label": "Facturas",
+    "name": "invoices"
+  }
+]

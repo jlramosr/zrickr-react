@@ -17,11 +17,11 @@ const styles = theme => ({
 });
 
 const Dashboard = props => {
-  const { categories, closeDrawer } = props;
+  const { categories, closeDrawer, loading } = props;
 
   return (
     <div>
-      <Header title="ERP" operations={[
+      <Header title="ERP" loading={loading} operations={[
         {id:'menu', icon: MenuIcon, onClick:closeDrawer},
       ]}/>
       <List>
@@ -47,7 +47,8 @@ const Dashboard = props => {
 Dashboard.propTypes = {
   classes: PropTypes.object.isRequired,
   categories: PropTypes.array.isRequired,
-  closeDrawer: PropTypes.func
+  closeDrawer: PropTypes.func,
+  loading: PropTypes.bool.isRequired,
 };
 
 export default withStyles(styles)(Dashboard);
