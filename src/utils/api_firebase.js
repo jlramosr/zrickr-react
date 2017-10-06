@@ -28,24 +28,52 @@ export const getDocument = (collection, documentId) =>
   database.ref(`${collection}/${documentId}`).once('value')
     .then( snapshot => snapshot.val());
 
-export const addNew = (collection, newDocument) => {
+export const addDocument = 
+({collection, collectionId='', generateDocumentId=false, documentId='', document}) => {
   const ref = database.ref().child(collection);
-  const newDocumentId = ref.push().key;
+  const _collectionId = collectionId ? `${collectionId}/` : '';
+  const _documentId = documentId || (generateDocumentId ? ref.push().key : '');
+  const path = `${_collectionId}${_documentId}`;
   let updates = {};
-  updates[`${newDocumentId}`] = newDocument;
+  updates[`${path}`] = document;
   ref.update(updates);
 }
 
-export const addDocument = (collection, collectionId, newDocument) => {
+/*export const addDocumentsId = (collection, collectionId='', newDocumentId='', newDocuments) => {
   const ref = database.ref().child(collection);
   let updates = {};
-  updates[`${collectionId}`] = newDocument;
-  ref.update(updates);
+  if (!Array.isArray(newDocuments)) {
+    newDocuments = [newDocuments];
+  }
+  newDocuments.forEach(newDocument => {
+    const newDocumentId = ref.push().key;
+    const path = collectionId ? `${collectionId}/${newDocumentId}` : `${newDocumentId}`
+    updates[`${path}`] = newDocument;
+    ref.update(updates);
+  })
 }
 
-/*addDocument('categories_settings', '-KvboYj33C3djwkBU3Kj', {
-  "primaryFields": ['name', 'lastname'],
-  "secondaryFields": ['address'],
-  "color": "#ddd",
-  "itemLabel": 'Cliente',
-})*/
+export const addDocuments = (collection, collectionId, newDocuments) => {
+  const ref = database.ref().child(collection);
+  let updates = {};
+  updates[`${collectionId}`] = newDocuments;
+  ref.update(updates);
+}*/
+
+const document = {
+  "default" : true,
+  "label" : "Empresa",
+  "name" : "isCompany",
+  "type" : "boolean",
+  "views" : {
+    "overview" : {
+      "nolabel" : true,
+      "x" : 1,
+      "y" : 12,
+      "ys" : 1
+    }
+  }
+}
+addDocument({
+  collection:'categories_fields', collectionId:'clients', documentId:'isCompany', document
+});

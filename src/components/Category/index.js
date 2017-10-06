@@ -17,7 +17,6 @@ class Category extends Component {
     })
   }
 
-
   render = _ => {
     const { settings } = this.state;
     const { category, fields, items } = this.props;

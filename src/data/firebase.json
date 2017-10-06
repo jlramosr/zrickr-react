@@ -1,0 +1,57 @@
+{
+  "categories" : {
+    "-KvboYj33C3djwkBU3Kj" : {
+      "icon" : "Work",
+      "label" : "Clientes",
+      "name" : "clients"
+    },
+    "-KvbolEB1Bei674aE-Vw" : {
+      "icon" : "CreditCard",
+      "label" : "Movimientos",
+      "name" : "movements"
+    },
+    "-KvgVMXZ98Md8s9Csrzc" : {
+      "icon" : "PictureAsPdf",
+      "label" : "Facturas",
+      "name" : "invoices"
+    }
+  },
+  "categories_fields" : {
+    "-KvboYj33C3djwkBU3Kj" : {
+      "-Kvkujm8YfygDXjvpUwy" : {
+        "default" : true,
+        "label" : "Empresa",
+        "name" : "isCompany",
+        "type" : "boolean",
+        "views" : {
+          "overview" : {
+            "nolabel" : true,
+            "x" : 1,
+            "y" : 12,
+            "ys" : 1
+          }
+        }
+      }
+    }
+  },
+  "categories_settings" : {
+    "-KvboYj33C3djwkBU3Kj" : {
+      "color" : "#eee",
+      "itemLabel" : "Cliente",
+      "primaryFields" : [ "name", "lastname" ],
+      "secondaryFields" : [ "address" ]
+    },
+    "-KvbolEB1Bei674aE-Vw" : {
+      "color" : "#eee",
+      "itemLabel" : "Movimiento",
+      "primaryFields" : [ "clientId" ],
+      "secondaryFields" : [ "price" ]
+    },
+    "-KvgVMXZ98Md8s9Csrzc" : {
+      "color" : "#eee",
+      "itemLabel" : "Factura",
+      "primaryFields" : [ "clientId" ],
+      "secondaryFields" : [ "price" ]
+    }
+  }
+}
