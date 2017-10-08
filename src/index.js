@@ -7,69 +7,61 @@ import registerServiceWorker from './registerServiceWorker';
 import { createStore, applyMiddleware, compose } from 'redux';
 import reducer from './reducers';
 import { createMuiTheme, MuiThemeProvider } from 'material-ui/styles';
-import purple from 'material-ui/colors/purple';
-import green from 'material-ui/colors/green';
+import indigo from 'material-ui/colors/indigo';
+import amber from 'material-ui/colors/amber';
 import red from 'material-ui/colors/red';
-
-
 import './index.css';
 
-const theme = createMuiTheme({
-  overrides: {
-    MuiToolbar: {
-      gutters: {
-        paddingLeft: 8,
-        paddingRight: 8,
-      }
+let theme = createMuiTheme({
+  standards: {
+    colors: {
+      primary: indigo,
+      secondary: amber,
+      error: red,
     },
-    MuiListItem: {
-      gutters: {
-        paddingLeft: 28,
-        paddingRight: 28,
-        height: 36
-      }
+    toolbarHeights: {
+      mobilePortrait: 56,
+      mobileLandscape: 48,
+      tabletDesktop: 64,
     },
-  },
-
-  background: {
-    default: 'red'
-  },
-
-  palette: {
-    primary: purple,
-    secondary: {
-      ...green,
-      A400: '#00e677',
-    },
-    error: red,
-  },
-
-  mixins: {
-    toolbar: {
-      minHeight: 56,
-      "@media (min-width:0px) and (orientation: landscape)": {
-        minHeight: 56
-      },
-      "@media (min-width:600px)": {
-        minHeight: 56
-      }
-    }
-  },
-
-  header: {
-    height: 56
-  },
-
-  typography: {
+    drawerWidth: 240,
     fontFamily:
       '-apple-system,system-ui,BlinkMacSystemFont,' +
       '"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif',
-    button: {
-      fontStyle: 'italic',
+  }
+});
+
+theme = {
+  ...theme,
+  overrides: {
+    ...theme.overrides,
+    MuiDrawer: {
+      paper: {
+        width: theme.standards.drawerWidth,
+      }
     },
   },
-
-});
+  palette: {
+    ...theme.palette,
+    ...theme.standards.colors,
+  },
+  typography: {
+    ...theme.typography,
+    fontFamily: theme.standards.fontFamily,
+  },
+  mixins: {
+    ...theme.mixins,
+    toolbar: {
+      minHeight: theme.standards.toolbarHeights.mobilePortrait,
+      [`${theme.breakpoints.up('xs')} and (orientation: landscape)`]: {
+        minHeight: theme.standards.toolbarHeights.mobileLandscape,
+      },
+      [theme.breakpoints.up('sm')]: {
+        minHeight: theme.standards.toolbarHeights.tabletDesktop,
+      },
+    },
+  },
+}
 
 
 const logger = store => next => action => {

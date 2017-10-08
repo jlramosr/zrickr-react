@@ -1,46 +1,67 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import Header from '../Header';
-import List, { ListItem, ListItemText } from 'material-ui/List';
-import Icon from 'material-ui/Icon';
-import Avatar from 'material-ui/Avatar';
+import HeaderLayout from '../HeaderLayout';
+import { GridList, GridListTile, GridListTileBar } from 'material-ui/GridList';
+import IconButton from 'material-ui/IconButton';
+import InfoIcon from 'material-ui-icons/Info';
 import MenuIcon from 'material-ui-icons/Menu';
 import { withStyles } from 'material-ui/styles';
 
 const styles = theme => ({
-  primaryText: {
-    background: theme.palette.background.primary,
-    padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
-    color: theme.palette.primary[100],
+  gridContainer: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    justifyContent: 'space-around',
+    overflow: 'hidden',
   },
+  gridList: {
+    maxWidth: 700,
+  },
+  gridImage: {
+    width: 250,
+    height: 250,
+    objectFit: 'cover',
+  }
 });
 
 const Dashboard = props => {
-  const { categories, closeDrawer, loading } = props;
+  const { categories, closeDrawer, loading, classes } = props;
 
   return (
-    <div>
-      <Header title="ERP" loading={loading} operations={[
+    <HeaderLayout
+      title="ERP"
+      loading={loading}
+      operations={[
         {id:'menu', icon: MenuIcon, onClick:closeDrawer},
-      ]}/>
-      <List>
-        {
-          categories && categories.map(category =>
-            <Link
-              key={category.name.toLowerCase()}
-              to={`/${category.name.toLowerCase()}`}>
-              <ListItem button>
-                <Avatar>
-                  <Icon>{React.createElement(category.icon)}</Icon>
-                </Avatar>
-                <ListItemText primary={category.label}/>
-              </ListItem>
-            </Link>
-          )
-        }
-      </List>
-    </div>
+      ]}
+    >
+
+      <div className={classes.gridContainer}>
+        <GridList cols={1} spacing={16} className={classes.gridList}>
+          {categories.map(category => (
+            <GridListTile key={category.id}>
+              <Link
+                key={category.id}
+                to={`/${category.id}`}
+              >
+                <img className={classes.gridImage} src={category.image || "https://blogs.ntu.edu.sg/files/2014/07/change_default_category.jpg"} alt={category.label} />
+                <GridListTileBar
+                  title={category.label}
+                  subtitle={<span>{category.description}</span>}
+                  actionIcon={
+                    <IconButton>
+                      <InfoIcon color="rgba(255, 255, 255, 0.54)" />
+                    </IconButton>
+                  }
+                />
+              </Link>
+            </GridListTile>
+          ))}
+        </GridList>
+      </div>
+
+    </HeaderLayout>
   )
 };
 

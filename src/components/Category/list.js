@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import Header from '../Header';
+import HeaderLayout from '../HeaderLayout';
 import List, { ListItem, ListItemSecondaryAction, ListItemText } from 'material-ui/List';
 import Divider from 'material-ui/Divider';
 import Table, { TableBody, TableCell, TableHead, TableRow, TableFooter, TableSortLabel } from 'material-ui/Table';
@@ -25,38 +25,23 @@ import { withStyles } from 'material-ui/styles';
 
 const styles = theme => ({
   relationModeToolbar: {
-    background: '#004545',
-    height: 32,
-    lineHeight: 20,
-    marginTop: 20,
   },
-
   relationModeToolbarText: {
-    color: '#fff',
-    fontSize: 16,
   },
-
   relationModeToolbarIcon: {
-    margin: '-22px 25px 0 0'
   },
-  
+
   listLink: {
-    outline: 'none',
   },
-
   listMenuItem: {
-    display: 'flex',
-    flexDirection: 'row',
-    padding: 8,
   },
-
+  tableCell: {
+    padding: 0,
+    cursor: 'pointer',
+  },
   menuItemOperation:{
-    fontSize: 12,
-    height: 12
   },
-
   iconMenu: {
-    paddingRight: 8,
   },
 })
 
@@ -154,208 +139,187 @@ class CategoryList extends Component {
   }
 
   render = _ => {
-    const { category, settings, fields, operations, relationMode, showAvatar } = this.props;
+    const { category, settings, fields, operations, relationMode, showAvatar, classes } = this.props;
     const { showNewDialog, showingItems, tableMode, itemsSelected, order, orderBy } = this.state;
 
     return (
-      <div>
-        {
-          // Header.
-          relationMode ? (
-            <Header
-              title={category.label}
-              position="static"
-              operations={operations || [
-                {id:'add', icon:Add, right: true, onClick: _ => this._openNewDialog()}
-              ]}
-            />
-            
-          ) : (
-            <Header
-              title={category.label}
-              updateSearchQuery={this.updateSearchQuery}
-              operations={operations || [
-                { 
-                  id:'arrowBack',
-                  icon:ArrowBack,
-                  to:'/'
-                },
-                {
-                  id:'viewAgenda',
-                  icon:ViewAgenda,
-                  description:'Vista agenda',
-                  hidden:!tableMode,
-                  right: true,
-                  onClick: _ => this._changeView('agenda'),
-                },
-                {
-                  id:'viewList',
-                  icon:ViewList,
-                  description:'Vista tabla',
-                  hidden:tableMode,
-                  right: true,
-                  onClick: _ => this._changeView('list'),
-                },
-                {
-                  id:'add',
-                  icon:Add,
-                  description:`Nuevo ${settings.itemLabel || 'Item'}`,
-                  right: true, onClick: _ => this._openNewDialog()},
-              ]}
-            />
-          )
-        }
-
-        {
-          // List.
-          tableMode ? (
-
-            <Table height={'300px'}>
-              <TableHead>
-                <TableRow>
-                  <TableCell checkbox>
-                    <Checkbox
-                      indeterminate={itemsSelected.size > 0 && itemsSelected.size < showingItems.length}
-                      checked={itemsSelected.size === showingItems.length}
-                      onChange={this._tableSelectAllClick}
-                    />
-                  </TableCell>
-                  {
-                    fields.map(field =>
-                      <TableCell key={field.name} disablePadding>
-                        <Tooltip title="Ordenar" enterDelay={300}>
-                          <TableSortLabel
-                            active={orderBy === field.name}
-                            direction={order}
-                            onClick={this._updateSortColumn(field.name)}
-                          >
-                            {field.label}
-                          </TableSortLabel>
-                        </Tooltip>
-                      </TableCell>
-                    )
-                  }
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {
-                  showingItems.map(item => {
-                    const isSelected = this._isSelected(item.id);
-                    return (
-                      <TableRow
-                        key={item.id}
-                        hover
-                        role="checkbox"
-                        aria-checked={isSelected}
-                        tabIndex={-1}
-                        selected={isSelected}
-                      >
-                        <TableCell checkbox>
-                          <Checkbox
-                            checked={isSelected}
-                            onClick={event => this._tableSelectRowClick(event, item.id)}
-                          />
-                        </TableCell>
-                        {
-                          fields.map(field =>      
-                            <TableCell
-                              key={`${item.id}${field.name}`}
-                              style={{cursor:'pointer', padding: 0}}
-                              onClick={event => this._tableRowClick(event, item.id)}
-                              onKeyDown={event => this._tableRowKeyDown(event, item.id)}
-                            >
-                              {item[field.name]}
-                            </TableCell>
-                          )
-                        }  
-                      </TableRow>
-                    )
-                  })
-                }
-              </TableBody>
-              <TableFooter>
-                <TableRow>
-                  {
-                    fields.map(field =>
-                      <TableCell key={field.name}>{field.label}</TableCell>
-                    )
-                  }
-                </TableRow>
-              </TableFooter>
-            </Table>
-
-          ) : (
-
-            <div>
-              <List>
-                {
-                  showingItems.map(item =>
-                    <Link
-                      key={item.id}
-                      tabIndex={-1}
-                      style={styles.listLink}
-                      to={`/${category.name.toLowerCase()}/${item.id}`}
+      <HeaderLayout
+        title={category.label}
+        position={relationMode ? "static" : "fixed"}
+        updateSearchQuery={relationMode ? null : this.updateSearchQuery}
+        operations={operations || [ 
+          relationMode ? 
+            {
+              id:'add',
+              icon:Add,
+              right: true,
+              onClick: _ => this._openNewDialog()
+            }
+          :
+            { 
+              id:'arrowBack',
+              icon:ArrowBack,
+              to:'/'
+            },
+            {
+              id:'viewAgenda',
+              icon:ViewAgenda,
+              description:'Vista agenda',
+              hidden:!tableMode,
+              right: true,
+              onClick: _ => this._changeView('agenda'),
+            },
+            {
+              id:'viewList',
+              icon:ViewList,
+              description:'Vista tabla',
+              hidden:tableMode,
+              right: true,
+              onClick: _ => this._changeView('list'),
+            },
+            {
+              id:'add',
+              icon:Add,
+              description:`Nuevo ${settings.itemLabel || 'Item'}`,
+              right: true, onClick: _ => this._openNewDialog()
+            },
+        ]}
+      >
+        
+      {tableMode ? (
+        <Table height={'300px'}>
+          <TableHead>
+            <TableRow>
+              <TableCell checkbox>
+                <Checkbox
+                  indeterminate={itemsSelected.size > 0 && itemsSelected.size < showingItems.length}
+                  checked={itemsSelected.size === showingItems.length}
+                  onChange={this._tableSelectAllClick}
+                />
+              </TableCell>
+              {fields.map(field =>
+                <TableCell key={field.name} disablePadding>
+                  <Tooltip title="Ordenar" enterDelay={300}>
+                    <TableSortLabel
+                      active={orderBy === field.name}
+                      direction={order}
+                      onClick={this._updateSortColumn(field.name)}
                     >
-                      <ListItem button>
-                        { 
-                          showAvatar &&
-                            <Avatar>
-                              <Icon>{React.createElement(category.icon)}</Icon>
-                            </Avatar>
-                        }
-                        <ListItemText
-                          primary={getInfo(settings.primaryFields, item)}
-                          secondary={getInfo(settings.secondaryFields, item)}
-                        />
-                        <ListItemSecondaryAction>
-                          <IconButton aria-label="Item Menu">
-                            <MoreVert
-                              style={styles.iconMenu}
-                              onClick={ event => this._handleMenuItemClick(event, item.id)}
-                            />
-                          </IconButton>
-                        </ListItemSecondaryAction>
-                      </ListItem>
-                      <Divider/>
-                    </Link>
-                  )
-                }
-              </List>
-              <Menu
-                elevation={4}
-                transformOrigin={{ vertical: 'top', horizontal: 'left',}}
-                anchorEl={this.state.anchorEl}
-                open={this.state.showMenuItem}
-                onRequestClose={this._handleMenuItemClose}
-                style={styles.listMenuItem}
+                      {field.label}
+                    </TableSortLabel>
+                  </Tooltip>
+                </TableCell>
+              )}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+          {showingItems.map(item => {
+            const isSelected = this._isSelected(item.id);
+            return (
+              <TableRow
+                key={item.id}
+                hover
+                role="checkbox"
+                aria-checked={isSelected}
+                tabIndex={-1}
+                selected={isSelected}
               >
-                <MenuItem style={styles.menuItemOperation} onClick={this._handleMenuItemClose}>
-                  View
-                </MenuItem>
-                <MenuItem style={styles.menuItemOperation} onClick={this._handleMenuItemClose}>
-                  Edit
-                </MenuItem>
-                <MenuItem style={styles.menuItemOperation} onClick={this._handleMenuItemClose}>
-                  Delete
-                </MenuItem>
-              </Menu>
-            </div>
-          )
-        }
+                <TableCell checkbox>
+                  <Checkbox
+                    checked={isSelected}
+                    onClick={event => this._tableSelectRowClick(event, item.id)}
+                  />
+                </TableCell>
+                {fields.map(field =>      
+                  <TableCell
+                    key={`${item.id}${field.name}`}
+                    className={classes.tableCell}
+                    onClick={event => this._tableRowClick(event, item.id)}
+                    onKeyDown={event => this._tableRowKeyDown(event, item.id)}
+                  >
+                    {item[field.name]}
+                  </TableCell>
+                )}  
+              </TableRow>
+            )
+          })}
+          </TableBody>
+          <TableFooter>
+            <TableRow>
+            {fields.map(field =>
+              <TableCell key={field.name}>{field.label}</TableCell>
+            )}
+            </TableRow>
+          </TableFooter>
+        </Table>
 
-        {/* New Item Dialog. */}
-        <Dialog
-          fullScreen
-          open={showNewDialog}
-          onRequestClose={_ => this._newDialogClosed()}
-        >
-          <ItemNew
-            title={`Nuevo ${settings.itemLabel || 'Item'}`}
-            closeDialog={_ => this.closeNewDialog()}
-          />
-        </Dialog>
+      ) : (
 
-      </div>
+        <div>
+          <List>
+          {showingItems.map(item =>
+            <Link
+              key={item.id}
+              tabIndex={-1}
+              className={classes.listLink}
+              to={`/${category.name.toLowerCase()}/${item.id}`}
+            >
+              <ListItem button>
+                {showAvatar &&
+                  <Avatar>
+                    <Icon>{React.createElement(category.icon)}</Icon>
+                  </Avatar>
+                }
+                <ListItemText
+                  primary={getInfo(settings.primaryFields, item)}
+                  secondary={getInfo(settings.secondaryFields, item)}
+                />
+                <ListItemSecondaryAction>
+                  <IconButton aria-label="Item Menu">
+                    <MoreVert
+                      className={classes.iconMenu}
+                      onClick={ event => this._handleMenuItemClick(event, item.id)}
+                    />
+                  </IconButton>
+                </ListItemSecondaryAction>
+              </ListItem>
+              <Divider/>
+            </Link>
+          )}
+          </List>
+          <Menu
+            elevation={4}
+            transformOrigin={{ vertical: 'top', horizontal: 'left',}}
+            anchorEl={this.state.anchorEl}
+            open={this.state.showMenuItem}
+            onRequestClose={this._handleMenuItemClose}
+            className={classes.listMenuItem}
+          >
+            <MenuItem className={classes.menuItemOperation} onClick={this._handleMenuItemClose}>
+              View
+            </MenuItem>
+            <MenuItem className={classes.menuItemOperation} onClick={this._handleMenuItemClose}>
+              Edit
+            </MenuItem>
+            <MenuItem className={classes.menuItemOperation} onClick={this._handleMenuItemClose}>
+              Delete
+            </MenuItem>
+          </Menu>
+        </div>
+      )}
+
+      <Dialog
+        fullScreen
+        open={showNewDialog}
+        onRequestClose={_ => this._newDialogClosed()}
+      >
+        <ItemNew
+          title={`Nuevo ${settings.itemLabel || 'Item'}`}
+          closeDialog={_ => this.closeNewDialog()}
+        />
+      </Dialog>
+
+    </HeaderLayout>
     );
   }
 }

@@ -121,13 +121,13 @@ class FormContainer extends Component {
             if (field.relation) {
               categoryName = field.relation;
               category = {label: categoryName};
-              categorySettings =
-                require(`../../categories/${capitalize(categoryName)}settings`).default;
-              categoryItems =
-                require(`../../categories/${capitalize(categoryName)}items`).default;
+              categorySettings = {}
+                //require(`../../categories/${capitalize(categoryName)}settings`).default;
+              categoryItems = []
+                //require(`../../categories/${capitalize(categoryName)}items`).default;
                   /*.filter(item => value.includes(item.id))*/
-              categoryFields =
-                require(`../../categories/${capitalize(categoryName)}fields`).default;
+              categoryFields = []
+                //require(`../../categories/${capitalize(categoryName)}fields`).default;
             }
 
             return (
@@ -136,23 +136,21 @@ class FormContainer extends Component {
                   key={field.name}
                   style={styles.formField(item, fieldView, field.name, cols)}
                 >
-                  { 
-                    <Field
-                      name={field.name}
-                      type={field.type}
-                      label={this._getFieldLabel(field.label, fieldView)}
-                      description={this._getFieldDescription(field.description, fieldView)}
-                      required={field.required}
-                      value={item ? item[field.name] : ''}
-                      category={category}
-                      categorySettings={categorySettings}
-                      categoryFields={categoryFields}
-                      items={categoryItems || field.items}
-                      handleFormFieldChange={ (fieldName, value) => 
-                        this.handleFieldChange(fieldName, value)
-                      }
-                    />
-                  }
+                  <Field
+                    name={field.name}
+                    type={field.type}
+                    label={this._getFieldLabel(field.label, fieldView)}
+                    description={this._getFieldDescription(field.description, fieldView)}
+                    required={field.required}
+                    value={item ? item[field.name] : ''}
+                    category={category}
+                    categorySettings={categorySettings}
+                    categoryFields={categoryFields}
+                    items={categoryItems || field.items}
+                    handleFormFieldChange={ (fieldName, value) => 
+                      this.handleFieldChange(fieldName, value)
+                    }
+                  />
                 </div>
             )
           })

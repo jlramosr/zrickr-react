@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Header from '../Header';
+import HeaderLayout from '../HeaderLayout';
 import Form from '../Form';
 import ArrowBack from 'material-ui-icons/ArrowBack';
 import Check from 'material-ui-icons/Check';
@@ -35,26 +35,23 @@ class CategoryItemOverview extends Component {
     const { editMode } = this.state;
 
     return (
-      <div>
-
-        <Header 
-          title={item ? getInfo(settings.primaryFields, item) : ''}
-          operations={[
-            {id:'arrowBack', icon:ArrowBack, color:"#006064", to:`/${category.name}`},
-            {id:'check', icon:Check, right: true, hidden:!editMode, color:"#006064", onClick: _ => this._updateItem()},
-            {id:'edit', icon:Edit, right: true, hidden:editMode, color:"#006064", onClick: _ => this._changeEditMode(true)},
-            {id:'delete', icon:Delete, right: true, hidden:editMode, color:"#006064", onClick: _ => this._deleteItem()},
-          ]}
-        />
-
+      <HeaderLayout 
+        title={item ?
+        getInfo(settings.primaryFields, item) : ''}
+        operations={[
+          {id:'arrowBack', icon:ArrowBack, color:"#006064", to:`/${category.name}`},
+          {id:'check', icon:Check, right: true, hidden:!editMode, color:"#006064", onClick: _ => this._updateItem()},
+          {id:'edit', icon:Edit, right: true, hidden:editMode, color:"#006064", onClick: _ => this._changeEditMode(true)},
+          {id:'delete', icon:Delete, right: true, hidden:editMode, color:"#006064", onClick: _ => this._deleteItem()},
+        ]}
+      >
         <Form
           cols={12}
           view="overview"
           fields={fields}
           values={item}
         />
-
-      </div>
+      </HeaderLayout>
     );
   }
 }

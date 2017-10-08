@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Route, Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
 import Category from '../Category';
 import Dashboard from '../Dashboard';
 import NotFound from '../NotFound';
@@ -12,13 +11,6 @@ import Divider from 'material-ui/Divider';
 import IconButton from 'material-ui/IconButton';
 import ChevronLeftIcon from 'material-ui-icons/ChevronLeft';
 
-import { withStyles } from 'material-ui/styles';
-
-const styles = theme => ({
-  drawerPaper: {
-    width: 240,
-  },
-});
 
 class App extends Component {
   state = {
@@ -48,35 +40,26 @@ class App extends Component {
 
   render = _ => {
     const { categories, drawerOpen, loading} = this.state;
-    const { classes } = this.props;
 
     return (
       <div>
 
-        <Drawer
-          type="persistent"
-          classes={{
-            paper: classes.drawerPaper,
-          }}
-          open={drawerOpen}
-        >
-          <div className={classes.drawerHeader}>
+        <Drawer type="persistent" open={drawerOpen}>
+          <div>
             <IconButton onClick={this.toggleDrawer}>
               <ChevronLeftIcon />
             </IconButton>
           </div>
           <Divider />
-          {
-            categories.map(category => (
-              <Link
-                key={category.name.toLowerCase()}
-                to={`/${category.name.toLowerCase()}`}>
-                <MenuItem onClick={ _ => this.toggleDrawer()}>
-                  {category.label}
-                </MenuItem>
-              </Link>
-            ))
-          }
+          {categories.map(category => (
+            <Link
+              key={category.name.toLowerCase()}
+              to={`/${category.name.toLowerCase()}`}>
+              <MenuItem onClick={ _ => this.toggleDrawer()}>
+                {category.label}
+              </MenuItem>
+            </Link>
+          ))}
         </Drawer>
 
         <Route path="/" exact render={ _ => (
@@ -105,8 +88,4 @@ class App extends Component {
   }
 }
 
-App.propTypes = {
-  classes: PropTypes.object.isRequired,
-};
-
-export default withStyles(styles)(App);
+export default App;
