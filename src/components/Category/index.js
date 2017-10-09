@@ -1,38 +1,42 @@
 import React, { Component } from 'react';
 import { Route } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { getDocument } from '../../utils/api_firebase';
+import { getCollection } from '../../utils/api_firebase';
+import { getDocument } from '../../utils/api_local';
 import CategoryList from './list';
 import ItemOverview from './overview';
 
 class Category extends Component {
   state = {
     settings: {},
+    fields: [],
     loading: true,
   }
 
   componentDidMount = _ => {
     getDocument('categories_settings', this.props.category.id).then(settings => {
-      this.setState({settings, loading: false});
-    })
+      getCollection('categories_fields', this.props.category.id).then(fields => {
+        this.setState({settings, fields, loading: false});
+      });
+    });
   }
 
   render = _ => {
-    const { settings } = this.state;
-    const { category, fields, items } = this.props;
+    const { settings, fields, loading } = this.state;
+    const { category, items } = this.props;
 
     return (
       <div>
 
         <Route path={`/${category.name}`} exact render={ props => (
-          React.createElement(CategoryList, { 
+          React.createElement(CategoryList, {
             category,
             settings,
             items,
+            loading,
             fields: fields
               .filter(field => field.views.list)
               .sort((a, b) => (a.views.list.y < b.views.list.y ? -1 : 1)),
-            history: props.history
           })
         )}/>
 
@@ -43,6 +47,7 @@ class Category extends Component {
             category,
             settings,
             item,
+            loading,
             fields: fields
               .filter(field => field.views.overview)
               .sort((a, b) => (
@@ -61,7 +66,6 @@ class Category extends Component {
 
 Category.propTypes = {
   category: PropTypes.object.isRequired,
-  fields: PropTypes.array.isRequired,
   items: PropTypes.array.isRequired,
 }
 

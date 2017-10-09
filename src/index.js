@@ -7,7 +7,7 @@ import registerServiceWorker from './registerServiceWorker';
 import { createStore, applyMiddleware, compose } from 'redux';
 import reducer from './reducers';
 import { createMuiTheme, MuiThemeProvider } from 'material-ui/styles';
-import indigo from 'material-ui/colors/indigo';
+import grey from 'material-ui/colors/grey';
 import amber from 'material-ui/colors/amber';
 import red from 'material-ui/colors/red';
 import './index.css';
@@ -15,7 +15,7 @@ import './index.css';
 let theme = createMuiTheme({
   standards: {
     colors: {
-      primary: indigo,
+      primary: grey,
       secondary: amber,
       error: red,
     },
@@ -28,7 +28,7 @@ let theme = createMuiTheme({
     fontFamily:
       '-apple-system,system-ui,BlinkMacSystemFont,' +
       '"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif',
-  }
+  },
 });
 
 theme = {

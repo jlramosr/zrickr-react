@@ -31,13 +31,14 @@ class CategoryItemOverview extends Component {
   }
 
   render = _ => {
-    const { category, settings, item, fields } = this.props;
+    const { category, settings, item, fields, loading } = this.props;
     const { editMode } = this.state;
 
     return (
       <HeaderLayout 
         title={item ?
         getInfo(settings.primaryFields, item) : ''}
+        loading={loading}
         operations={[
           {id:'arrowBack', icon:ArrowBack, color:"#006064", to:`/${category.name}`},
           {id:'check', icon:Check, right: true, hidden:!editMode, color:"#006064", onClick: _ => this._updateItem()},
@@ -58,7 +59,8 @@ class CategoryItemOverview extends Component {
 
 CategoryItemOverview.propTypes = {
   item: PropTypes.object.isRequired,
-  fields: PropTypes.array.isRequired
+  fields: PropTypes.array.isRequired,
+  loading: PropTypes.bool.isRequired
 }
 
 export default CategoryItemOverview;

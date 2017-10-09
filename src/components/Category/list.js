@@ -139,7 +139,7 @@ class CategoryList extends Component {
   }
 
   render = _ => {
-    const { category, settings, fields, operations, relationMode, showAvatar, classes } = this.props;
+    const { category, settings, fields, operations, relationMode, showAvatar, classes, loading } = this.props;
     const { showNewDialog, showingItems, tableMode, itemsSelected, order, orderBy } = this.state;
 
     return (
@@ -147,10 +147,11 @@ class CategoryList extends Component {
         title={category.label}
         position={relationMode ? "static" : "fixed"}
         updateSearchQuery={relationMode ? null : this.updateSearchQuery}
+        loading={loading}
         operations={operations || [ 
           relationMode ? 
             {
-              id:'add',
+              id:'addRelation',
               icon:Add,
               right: true,
               onClick: _ => this._openNewDialog()
@@ -178,7 +179,7 @@ class CategoryList extends Component {
               onClick: _ => this._changeView('list'),
             },
             {
-              id:'add',
+              id:'addItem',
               icon:Add,
               description:`Nuevo ${settings.itemLabel || 'Item'}`,
               right: true, onClick: _ => this._openNewDialog()
@@ -331,11 +332,13 @@ CategoryList.propTypes = {
   operations: PropTypes.array,
   relationMode: PropTypes.bool,
   showAvatar: PropTypes.bool,
+  loading: PropTypes.bool.isRequired,
 }
 
 CategoryList.defaultProps = {
   relationMode: false,
   showAvatar: false,
+  loading: true,
 }
 
 export default withStyles(styles)(CategoryList);

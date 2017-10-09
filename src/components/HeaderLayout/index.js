@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Operation from './operation';
 import { withStyles, withTheme } from 'material-ui/styles';
+import Hidden from 'material-ui/Hidden';
 import AppBar from 'material-ui/AppBar';
 import Input from 'material-ui/Input';
 import Toolbar from 'material-ui/Toolbar';
@@ -13,42 +14,80 @@ import CircularProgress from 'material-ui/Progress/CircularProgress';
 const styles = theme => ({
   layout: {
     width: '100%',
-    alignItems: 'strecht',
+  },
+  leftOperations: {
+    order: 1,
+    display: 'flex',
+    justifyContent: 'flex-start',
+  },
+  title: {
+    order: 2,
+    display: 'flex',
+    overflow: 'hidden',
+  },
+  loading: {
+    order: 3,
+    marginLeft: 8,
+    marginRight: 8,
+  },
+  search: {
+    order: 4,
+    display: 'none',
+    flex: 0,
+    [theme.breakpoints.up('sm')]: {
+      flex: 1,
+      display: 'flex',
+      justifyContent: 'center',
+      marginLeft: 32,
+      marginRight: 32,
+    },
+  },
+  miniSearch: {
+    position: 'absolute',
+    left: 16,
+    top: '50%',
+    transform: 'translate(0, -50%)',
+    width: '50%',
+    zIndex: 5,
+    [theme.breakpoints.up('sm')]: {
+      display: 'none',
+    },
+  },
+  rightOperations: {
+    order: 5,
+    flex: 1,
+    display: 'flex',
+    justifyContent: 'flex-end',
+    [theme.breakpoints.up('sm')]: {
+      flex: 0,
+    },
   },
   operations: {
     display: 'flex',
   },
-  title: {
-    display: 'flex',
-    alignItems: 'center',
-    boxSizing: 'inherit',
-  },
   titleText: {
+    marginBottom: 2,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
-    marginRight: 8,
-    marginLeft: 8,
-    marginBottom: 2,
-  },
-  gap: {
-    flex: 1,
-    display: 'block',
   },
   searchBar: {
     display: 'flex',
     position: 'relative',
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 8,
-    marginRight: 8,
+    maxWidth: 720,
     background: theme.palette.primary[400],
+    width: '100%',
   },
-  searchBarIcon: {
+  searchBarSearchIcon: {
     position: 'absolute',
-    top: 5,
-    left: 5,
+    left: 0,
+    top: '50%',
+    transform: 'translate(0, -50%)',
     zIndex: 5,
+    paddingLeft: 12,
+    paddingRight: 12,
   },
   searchBarInput: {
     flex: 1,
@@ -56,21 +95,20 @@ const styles = theme => ({
     border: 'none',
     fontSize: 16,
     background: 'transparent',
-    color: '#fff',
-    paddingLeft: 34,
-    paddingRight: 20,
-  },
-  searchBarInputSingleline: {
+    paddingLeft: 48,
+    paddingRight: 42,
   },
   searchBarInputFocused: {
     background: theme.palette.primary[300],
   },
   searchBarCloseIcon: {
     position: 'absolute',
+    right: 0,
+    top: '50%',
+    transform: 'translate(0, -50%)',
+    paddingRight: 12,
     width: 20,
     height: 20,
-    top: 7,
-    right: 3,
     cursor: 'pointer',
   },
   searchBarResults: {
@@ -78,6 +116,9 @@ const styles = theme => ({
     alignContent: 'right',
   },
   content: {
+    maxWidth: '100%',
+    flex: '1 1 100%',
+    margin: '0 auto',
     paddingTop: theme.standards.toolbarHeights.mobilePortrait,
     [`${theme.breakpoints.up('xs')} and (orientation: landscape)`]: {
       paddingTop: theme.standards.toolbarHeights.mobileLandscape,
@@ -93,7 +134,7 @@ let Operations = props => {
 
   return (
     <div className={classes.operations}>
-    {operations && operations.map(operation => 
+    {operations.map(operation => 
       <Operation
         key={operation.id}
         id={operation.id}
@@ -118,6 +159,11 @@ Operations = withStyles(styles)(Operations);
 class HeaderLayout extends Component {
   state = {
     searchQuery: '',
+    showMiniSearch: false,
+  }
+
+  _openMiniSearch = _ => {
+    this.setState({showMiniSearch: !this.state.showMiniSearch});
   }
 
   _updateSearchQuery = searchQuery => {
@@ -126,42 +172,47 @@ class HeaderLayout extends Component {
   }
 
   render = _ => {
-    const { operations, title, position, updateSearchQuery, loading, children, classes } = this.props;
-    const { searchQuery } = this.state;
+    const { operations, title, position, updateSearchQuery, children, classes, loading } = this.props;
+    const { searchQuery, showMiniSearch } = this.state;
 
     return (
       <div className={classes.layout}>
         <AppBar position={position}>
           <Toolbar>
 
-            {React.createElement(Operations, {
-              operations: operations.filter(operation => !operation.right)})
-            }
+            <div className={classes.leftOperations}>
+              {React.createElement(Operations, {
+                operations: operations.filter(operation => !operation.right)})
+              }
+            </div>
 
             <div className={classes.title}>
               <Typography className={classes.titleText} type="title" color="inherit">
                 {title}
               </Typography>
-              {loading &&
-                <CircularProgress color="accent"/>
-              }
+            </div>
+            
+            <div className={classes.loading}>
+            {loading &&
+              <CircularProgress color="accent"/>
+            }
             </div>
 
-            <div className={classes.gap}></div>
-
+            <div className={classes.search}>
             {updateSearchQuery &&
               <div className={classes.searchBar}>
                 <Search
                   size={20}
                   color="inherit"
-                  className={classes.searchBarIcon}
+                  className={classes.searchBarSearchIcon}
                 />
                 <Input
                   classes={{
                     root:classes.searchBarInput,
-                    underline:classes.searchBarInputSingleline,
                     focused:classes.searchBarInputFocused,
                   }}
+                  color="contrast"
+                  placeholder="Buscar"
                   disableUnderline
                   value={searchQuery}
                   onChange={ event => this._updateSearchQuery(event.target.value) }
@@ -175,6 +226,39 @@ class HeaderLayout extends Component {
                   />
                 }
               </div>
+            }
+            </div>
+
+            {updateSearchQuery && showMiniSearch &&
+              <div className={classes.miniSearch}>
+                <div className={classes.searchBar}>
+                  <Search
+                    size={20}
+                    color="inherit"
+                    className={classes.searchBarSearchIcon}
+                  />
+                  <Input
+                    classes={{
+                      root:classes.searchBarInput,
+                      focused:classes.searchBarInputFocused,
+                    }}
+                    color="contrast"
+                    placeholder="Buscar"
+                    disableUnderline
+                    value={searchQuery}
+                    onChange={ event => this._updateSearchQuery(event.target.value) }
+                  />
+                  {searchQuery && 
+                    <Close
+                      size={20}
+                      color="inherit"
+                      className={classes.searchBarCloseIcon}
+                      onClick={ event => this._updateSearchQuery('')}
+                    />
+                  }
+                </div>
+              </div>
+              
             }
 
             {/*
@@ -190,9 +274,20 @@ class HeaderLayout extends Component {
               </div>
             */}
 
-            {React.createElement(Operations, {
-              operations: operations.filter(operation => operation.right)})
-            }
+            <div className={classes.rightOperations}>
+              <Hidden smUp>
+                <Operation
+                  id="search-small"
+                  icon={Search}
+                  color={showMiniSearch ? 'accent' : 'contrast'}
+                  hidden={!updateSearchQuery}
+                  onClick={this._openMiniSearch}
+                />
+              </Hidden>
+              {React.createElement(Operations, {
+                operations: operations.filter(operation => operation.right)
+              })}
+            </div>
 
           </Toolbar>
         </AppBar>
@@ -219,7 +314,7 @@ HeaderLayout.propTypes = {
 
 HeaderLayout.defaultProps = {
   position: 'fixed',
-  loading: true,
+  loading: false,
 };
 
 export default withTheme(withStyles(styles)(HeaderLayout));

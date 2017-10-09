@@ -77,7 +77,6 @@ class App extends Component {
           return category ? 
             React.createElement(Category, { 
               category,
-              fields: require(`../../categories/${capitalize(category.name)}/fields`).default,
               items: require(`../../categories/${capitalize(category.name)}/items`).default,
             }) : 
             React.createElement(NotFound, {title: 'Not Found'})

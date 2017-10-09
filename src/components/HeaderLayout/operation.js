@@ -5,26 +5,26 @@ import IconButton from 'material-ui/IconButton';
 import Tooltip from 'material-ui/Tooltip';
 
 const HeaderOperation = props => {
-  const { id, icon, hidden, to, description, onClick } = props;
+  const { id, icon, color, hidden, to, description, onClick } = props;
   const Icon = icon;
 
   return (
     <div hidden={hidden}>
     {to ? (
       <Link to={to}>
-        <IconButton color="contrast">
+        <IconButton color={color}>
           <Icon aria-label={id} onClick={onClick}/>
         </IconButton>
       </Link> 
     ) : (
       description ? (
         <Tooltip title={description} placement="bottom" enterDelay={200}>
-          <IconButton color="contrast" style={{cursor: onClick ? 'pointer' : 'default'}}>
+          <IconButton color={color} style={{cursor: onClick ? 'pointer' : 'default'}}>
             <Icon aria-label={id} onClick={onClick}/>
           </IconButton>
         </Tooltip>
       ) : (
-        <IconButton color="contrast" style={{cursor: onClick ? 'pointer' : 'default'}}>
+        <IconButton color={color} style={{cursor: onClick ? 'pointer' : 'default'}}>
           <Icon aria-label={id} onClick={onClick}/>
         </IconButton>
       )
@@ -36,6 +36,7 @@ const HeaderOperation = props => {
 HeaderOperation.propTypes = {
   id: PropTypes.string.isRequired,
   icon: PropTypes.func.isRequired,
+  color: PropTypes.string.isRequired,
   hidden: PropTypes.bool.isRequired,
   to: PropTypes.string,
   description: PropTypes.string,
@@ -44,6 +45,7 @@ HeaderOperation.propTypes = {
 
 HeaderOperation.defaultProps = {
   hidden: false,
+  color: "contrast",
 };
 
 export default HeaderOperation;

@@ -17,11 +17,11 @@ const styles = {
     alignItems: 'center'
   }),
 
-  formField: (item, fieldView, fieldName, cols) => {
+  formField: (item, fieldView, fieldId, cols) => {
     if (!item) {
       return {};
     }
-    if (fieldView.when && item.evalCondition(fieldView.when, fieldName)) {
+    if (fieldView.when && item.evalCondition(fieldView.when, fieldId)) {
       return {display: 'none'};
     }
 
@@ -48,7 +48,7 @@ class Item {
   }
 
   /*jslint evil: true */
-  evalCondition = (condition, fieldName) => {
+  evalCondition = (condition, fieldId) => {
     let fulfilledCondition = false;
     try {
       fulfilledCondition = eval(condition);
@@ -56,7 +56,7 @@ class Item {
     catch (e) {
       if (e instanceof EvalError || e instanceof SyntaxError) {
         console.warn(
-          `${e.name} evaluating "${fieldName}" field showing condition: ${e.message} "${condition}"`
+          `${e.name} evaluating "${fieldId}" field showing condition: ${e.message} "${condition}"`
         );
       }
     }
@@ -75,17 +75,17 @@ class FormContainer extends Component {
     fieldView.nodescription ? '' : description || '';
 
   _getFieldValue = (field) =>
-    this.state.item && field.name ? this.state.item[field.name] : '';
+    this.state.item && field.id ? this.state.item[field.id] : '';
 
   _handleSubmit = event => {
     console.log("SUBMIT", this.state.item);
     event.preventDefault();
   }
 
-  handleFieldChange = (field, value) => {
+  handleFieldChange = (fieldId, value) => {
     this.setState(prevState => {
       let item = prevState.item;
-      item[field] = value;
+      item[fieldId] = value;
       return item;
     })
   }
@@ -94,8 +94,8 @@ class FormContainer extends Component {
     let item = new Item(this.props.values)
     const { fields, values } = this.props;
     for (const field of fields) {
-      if (field.default && !(field.name in values)) {
-        item[field.name] = field.default;
+      if (field.default && !(field.id in values)) {
+        item[field.id] = field.default;
       }
     }
     this.setState({item});
@@ -133,22 +133,22 @@ class FormContainer extends Component {
             return (
               fieldView &&
                 <div
-                  key={field.name}
-                  style={styles.formField(item, fieldView, field.name, cols)}
+                  key={field.id}
+                  style={styles.formField(item, fieldView, field.id, cols)}
                 >
                   <Field
-                    name={field.name}
+                    id={field.id}
                     type={field.type}
                     label={this._getFieldLabel(field.label, fieldView)}
                     description={this._getFieldDescription(field.description, fieldView)}
                     required={field.required}
-                    value={item ? item[field.name] : ''}
+                    value={item ? item[field.id] : ''}
                     category={category}
                     categorySettings={categorySettings}
                     categoryFields={categoryFields}
                     items={categoryItems || field.items}
-                    handleFormFieldChange={ (fieldName, value) => 
-                      this.handleFieldChange(fieldName, value)
+                    handleFormFieldChange={ (fieldId, value) => 
+                      this.handleFieldChange(fieldId, value)
                     }
                   />
                 </div>

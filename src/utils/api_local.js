@@ -1,9 +1,19 @@
 var dataPath = 'data';
 
-export const getCollection = collection => 
-  new Promise( resolve => resolve(
-    require(`../${dataPath}/${collection}/${collection}.json`))
-  );
+export const getCollection = (collection, collectionId) => {
+  const collectionSplit = collection.split('_');
+  return new Promise( resolve => {
+    if (collectionId) {
+      resolve(
+        require(`../${dataPath}/${collectionSplit[0]}/${collectionId}/${collectionSplit[1]}.json`)
+      )
+    } else {
+      resolve(
+        require(`../${dataPath}/${collectionSplit[0]}/${collectionSplit[0]}.json`)
+      )
+    }
+  });
+}
 
 export const getDocument = (collection, documentId) => {
   const collectionSplit = collection.split('_');

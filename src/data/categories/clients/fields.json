@@ -1,6 +1,6 @@
-export default [
-  {
-    "name":"isCompany",
+[
+  { 
+    "id": "isCompany",
     "type":"boolean",
     "label":"Empresa",
     "default": true,
@@ -11,8 +11,8 @@ export default [
       }
     }
   },
-  {
-    "name":"name",
+  { 
+    "id": "name",
     "label":"Nombre",
     "required": true,
     "views": {
@@ -25,8 +25,8 @@ export default [
       }
     }
   },
-  {
-    "name":"lastname",
+  { 
+    "id": "lastname",
     "label":"Apellidos",
     "default": "POR DEFECTO",
     "views": {
@@ -42,10 +42,10 @@ export default [
       "list": {
         "y":2
       } 
-    } 
+    }
   },
-  {
-    "name":"address",
+  { 
+    "id": "address",
     "label":"Direccion",
     "description": "Dirección fiscal de la empresa/individuo",
     "views": {
@@ -56,8 +56,8 @@ export default [
       }
     }
   },
-  {
-    "name":"zip",
+  { 
+    "id": "zip",
     "label":"Cod.Postal",
     "type": "number",
     "views": {
@@ -70,8 +70,8 @@ export default [
       }
     }
   },
-  {
-    "name":"city",
+  { 
+    "id": "city",
     "label":"Ciudad",
     "type":"select",
     "items": [
@@ -88,8 +88,8 @@ export default [
       }
     }
   },
-  {
-    "name":"province",
+  { 
+    "id": "province",
     "label":"Provincia",
     "views": {
       "overview": {
@@ -101,8 +101,8 @@ export default [
       }
     }
   },
-  {
-    "name":"phone",
+  { 
+    "id": "phone",
     "label":"Teléfono",
     "views": {
       "overview": {
@@ -114,8 +114,8 @@ export default [
       }
     }
   },
-  {
-    "name":"email",
+  { 
+    "id": "email",
     "label":"Email",
     "views": {
       "overview": {
@@ -127,8 +127,8 @@ export default [
       }
     }
   },
-  {
-    "name": "movements",
+  { 
+    "id": "movements",
     "type": "list",
     "relation": "movements",
     "views": {
@@ -141,8 +141,8 @@ export default [
       }
     }
   },
-  {
-    "name": "description",
+  { 
+    "id": "description",
     "label": "Descripción",
     "type": "text",
     "views": {
@@ -155,8 +155,8 @@ export default [
       }
     }
   },
-  {
-    "name": "edad",
+  { 
+    "id": "edad",
     "label": "Edad",
     "type": "number",
     "views": {
@@ -169,8 +169,8 @@ export default [
       }
     }
   },
-  {
-    "name": "raza",
+  { 
+    "id": "raza",
     "label": "Raza",
     "views": {
       "overview": {
@@ -179,14 +179,14 @@ export default [
       }
     }
   },
-  {
-    "name": "religion",
+  { 
+    "id": "religion",
     "label": "Religión",
     "type": "select",
     "items": [
       {"id": "catolica", "label": "Católica"},
       {"id": "musulmana", "label": "Musulmana"},
-      {"id": "budista", "label": "Budista"},
+      {"id": "budista", "label": "Budista"}
     ],
     "views": {
       "overview": {
@@ -195,8 +195,8 @@ export default [
       }
     }
   },
-  {
-    "name": "cliente_asociado",
+  { 
+    "id": "cliente_asociado",
     "label": "Cliente Asociado",
     "type": "select",
     "relation": "clients",
@@ -206,5 +206,5 @@ export default [
         "small": {"x":15}
       }
     }
-  },
+  }
 ]

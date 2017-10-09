@@ -85,7 +85,7 @@ const styles = {
 class Field extends Component {
   render() {
     const { 
-      name,
+      id,
       type,
       label,
       description,
@@ -103,8 +103,8 @@ class Field extends Component {
         return (
           <TextField
             error={required && !value}
-            key={name}
-            name={name}
+            key={id}
+            name={id}
             select
             fullWidth
             margin="normal"
@@ -114,7 +114,7 @@ class Field extends Component {
             label={label}
             value={value || ''}
             onChange={ event => 
-              this.props.handleFormFieldChange(name, event.target.value)
+              this.props.handleFormFieldChange(id, event.target.value)
             }
           >
             {
@@ -138,13 +138,13 @@ class Field extends Component {
       case 'boolean':
         return (
           <Switch
-            key={name}
-            name={name}
+            key={id}
+            name={id}
             style={styles.switch}
             label={label}
             checked={Boolean(value)}
             onChange={ (event, value) => 
-              this.props.handleFormFieldChange(name, value)
+              this.props.handleFormFieldChange(id, value)
             }
           />
         )
@@ -180,8 +180,8 @@ class Field extends Component {
         return (
           <TextField
             error={required && !value}
-            key={name}
-            name={name}
+            key={id}
+            name={id}
             multiline={type==='text'}
             rowsMax="10"
             rows="10"
@@ -192,7 +192,7 @@ class Field extends Component {
             helperText={description}
             value={value || ''}
             onChange={ event => 
-              this.props.handleFormFieldChange(name, event.target.value)
+              this.props.handleFormFieldChange(id, event.target.value)
             }
           />
         )
@@ -201,7 +201,7 @@ class Field extends Component {
 };
 
 Field.propTypes = {
-  name: PropTypes.string.isRequired,
+  id: PropTypes.string.isRequired,
   type: PropTypes.string.isRequired,
   label: PropTypes.string,
   description: PropTypes.string,
