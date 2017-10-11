@@ -3,10 +3,31 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Media from 'react-media';
 import Field from './field';
-import { capitalize } from '../../utils/helpers';
 import { withStyles } from 'material-ui/styles';
 
-const styles = {
+class Item {
+  constructor(item) {
+    Object.assign(this, item);
+  }
+
+  /*jslint evil: true */
+  evalCondition = (condition, fieldId) => {
+    let fulfilledCondition = false;
+    try {
+      fulfilledCondition = eval(condition);
+    }
+    catch (e) {
+      if (e instanceof EvalError || e instanceof SyntaxError) {
+        console.warn(
+          `${e.name} evaluating "${fieldId}" field showing condition: ${e.message} "${condition}"`
+        );
+      }
+    }
+    return fulfilledCondition;
+  }
+}
+
+const formContainerStyles = {
   formContainer: (cols) => ({
     padding: '20px',
     display: 'grid',
@@ -42,28 +63,6 @@ const styles = {
   },
 }
 
-class Item {
-  constructor(item) {
-    Object.assign(this, item);
-  }
-
-  /*jslint evil: true */
-  evalCondition = (condition, fieldId) => {
-    let fulfilledCondition = false;
-    try {
-      fulfilledCondition = eval(condition);
-    }
-    catch (e) {
-      if (e instanceof EvalError || e instanceof SyntaxError) {
-        console.warn(
-          `${e.name} evaluating "${fieldId}" field showing condition: ${e.message} "${condition}"`
-        );
-      }
-    }
-    return fulfilledCondition;
-  }
-}
-
 class FormContainer extends Component {
   state = {
     item: null,
@@ -90,9 +89,9 @@ class FormContainer extends Component {
     })
   }
 
-  componentDidMount = _ => {
-    let item = new Item(this.props.values)
-    const { fields, values } = this.props;
+  componentWillReceiveProps = props => {
+    const { fields, values } = props;
+    let item = new Item(values)
     for (const field of fields) {
       if (field.default && !(field.id in values)) {
         item[field.id] = field.default;
@@ -108,7 +107,7 @@ class FormContainer extends Component {
     return (
       <form 
         onSubmit={ event => this._handleSubmit(event)}
-        style={styles.formContainer(cols)}
+        style={formContainerStyles.formContainer(cols)}
       >
         {
           fields.map(field => {
@@ -117,10 +116,9 @@ class FormContainer extends Component {
               fieldView = fieldView[size];
             }
 
-            let category, categoryName, categoryItems, categorySettings, categoryFields;
+            let categoryId, categoryItems, categorySettings, categoryFields;
             if (field.relation) {
-              categoryName = field.relation;
-              category = {label: categoryName};
+              categoryId = field.relation;
               categorySettings = {}
                 //require(`../../categories/${capitalize(categoryName)}settings`).default;
               categoryItems = []
@@ -134,7 +132,7 @@ class FormContainer extends Component {
               fieldView &&
                 <div
                   key={field.id}
-                  style={styles.formField(item, fieldView, field.id, cols)}
+                  style={formContainerStyles.formField(item, fieldView, field.id, cols)}
                 >
                   <Field
                     id={field.id}
@@ -143,7 +141,8 @@ class FormContainer extends Component {
                     description={this._getFieldDescription(field.description, fieldView)}
                     required={field.required}
                     value={item ? item[field.id] : ''}
-                    category={category}
+                    categoryId={categoryId}
+                    categoryLabel={categoryId}
                     categorySettings={categorySettings}
                     categoryFields={categoryFields}
                     items={categoryItems || field.items}
@@ -165,13 +164,19 @@ FormContainer.propTypes = {
   view: PropTypes.string.isRequired,
   fields: PropTypes.array.isRequired,
   values: PropTypes.object.isRequired
-}
+};
 
-FormContainer = withStyles(styles)(FormContainer);
+const formStyles = theme => {
+
+};
 
 const Form = props => {
   const { view, cols, fields, values } = props;
+  const size = 'large';
   return (
+    <FormContainer size={size} view={view} cols={cols} fields={fields} values={values}/>
+  );
+  /*return (
     <div>
       <Media query="(max-width:700px)" render={ _ => (
         <FormContainer
@@ -201,10 +206,11 @@ const Form = props => {
         />
       )}/>
     </div>
-  );
+  );*/
 };
 
 Form.propTypes = {
+  classes: PropTypes.object.isRequired,
   cols: PropTypes.number,
   view: PropTypes.string.isRequired,
   fields: PropTypes.array.isRequired,
@@ -215,4 +221,5 @@ Form.defaultProps = {
   cols: 10
 }
 
-export default Form;
+export default withStyles(formStyles)(Form);
+

@@ -2,6 +2,6 @@
   "color": "#eee",
   "icon": "PicturaAsPdf",
   "itemLabel": "Factura",
-  "primaryFields": ["clientId"],
+  "primaryFields": ["nombre"],
   "secondaryFields": ["price"]
 }

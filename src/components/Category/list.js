@@ -30,7 +30,6 @@ const styles = theme => ({
   },
   relationModeToolbarIcon: {
   },
-
   listLink: {
   },
   listMenuItem: {
@@ -99,8 +98,8 @@ class CategoryList extends Component {
   }
 
   _tableRowClick = (event, id) => {
-    const { category, history } = this.props;
-    history.push(`${category.name}/${id}`)
+    /*const { category, history } = this.props;
+    history.push(`${categoryId}/${id}`)*/
   }
 
   _tableRowKeyDown = (event, id) => {
@@ -134,17 +133,17 @@ class CategoryList extends Component {
     this.setState({ showMenuItem: false, itemMenuClicked: null });
   };
 
-  componentDidMount = _ => {
-    this.setState({showingItems: this.props.items});
+  componentWillReceiveProps = props => {
+    this.setState({showingItems: props.items});
   }
 
   render = _ => {
-    const { category, settings, fields, operations, relationMode, showAvatar, classes, loading } = this.props;
+    const { categoryId, categoryLabel, settings, fields, operations, relationMode, showAvatar, classes, loading } = this.props;
     const { showNewDialog, showingItems, tableMode, itemsSelected, order, orderBy } = this.state;
 
     return (
       <HeaderLayout
-        title={category.label}
+        title={categoryLabel}
         position={relationMode ? "static" : "fixed"}
         updateSearchQuery={relationMode ? null : this.updateSearchQuery}
         loading={loading}
@@ -199,12 +198,12 @@ class CategoryList extends Component {
                 />
               </TableCell>
               {fields.map(field =>
-                <TableCell key={field.name} disablePadding>
+                <TableCell key={field.id} disablePadding>
                   <Tooltip title="Ordenar" enterDelay={300}>
                     <TableSortLabel
-                      active={orderBy === field.name}
+                      active={orderBy === field.id}
                       direction={order}
-                      onClick={this._updateSortColumn(field.name)}
+                      onClick={this._updateSortColumn(field.id)}
                     >
                       {field.label}
                     </TableSortLabel>
@@ -233,12 +232,12 @@ class CategoryList extends Component {
                 </TableCell>
                 {fields.map(field =>      
                   <TableCell
-                    key={`${item.id}${field.name}`}
+                    key={`${item.id}${field.id}`}
                     className={classes.tableCell}
                     onClick={event => this._tableRowClick(event, item.id)}
                     onKeyDown={event => this._tableRowKeyDown(event, item.id)}
                   >
-                    {item[field.name]}
+                    {item[field.id]}
                   </TableCell>
                 )}  
               </TableRow>
@@ -248,7 +247,7 @@ class CategoryList extends Component {
           <TableFooter>
             <TableRow>
             {fields.map(field =>
-              <TableCell key={field.name}>{field.label}</TableCell>
+              <TableCell key={field.id}>{field.label}</TableCell>
             )}
             </TableRow>
           </TableFooter>
@@ -263,12 +262,12 @@ class CategoryList extends Component {
               key={item.id}
               tabIndex={-1}
               className={classes.listLink}
-              to={`/${category.name.toLowerCase()}/${item.id}`}
+              to={`/${categoryId}/${item.id}`}
             >
               <ListItem button>
                 {showAvatar &&
                   <Avatar>
-                    <Icon>{React.createElement(category.icon)}</Icon>
+                    <Icon>{settings.icon && React.createElement(settings.icon)}</Icon>
                   </Avatar>
                 }
                 <ListItemText
@@ -326,7 +325,8 @@ class CategoryList extends Component {
 }
 
 CategoryList.propTypes = {
-  category: PropTypes.any,
+  categoryId: PropTypes.string.isRequired,
+  categoryLabel: PropTypes.string.isRequired,
   settings: PropTypes.object,
   items: PropTypes.array,
   operations: PropTypes.array,
@@ -337,7 +337,7 @@ CategoryList.propTypes = {
 
 CategoryList.defaultProps = {
   relationMode: false,
-  showAvatar: false,
+  showAvatar: true,
   loading: true,
 }
 

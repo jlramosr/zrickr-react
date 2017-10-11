@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Operation from './operation';
-import { withStyles, withTheme } from 'material-ui/styles';
-import Hidden from 'material-ui/Hidden';
+import { withStyles } from 'material-ui/styles';
 import AppBar from 'material-ui/AppBar';
 import Input from 'material-ui/Input';
 import Toolbar from 'material-ui/Toolbar';
@@ -25,13 +24,8 @@ const styles = theme => ({
     display: 'flex',
     overflow: 'hidden',
   },
-  loading: {
-    order: 3,
-    marginLeft: 8,
-    marginRight: 8,
-  },
   search: {
-    order: 4,
+    order: 3,
     display: 'none',
     flex: 0,
     [theme.breakpoints.up('sm')]: {
@@ -53,6 +47,11 @@ const styles = theme => ({
       display: 'none',
     },
   },
+  loading: {
+    order: 4,
+    marginLeft: 8,
+    marginRight: 8,
+  },
   rightOperations: {
     order: 5,
     flex: 1,
@@ -67,6 +66,7 @@ const styles = theme => ({
   },
   titleText: {
     marginBottom: 2,
+    textTransform: 'capitalize',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
@@ -114,6 +114,11 @@ const styles = theme => ({
   searchBarResults: {
     padding: '0 30px',
     alignContent: 'right',
+  },
+  searchOperation: {
+    [theme.breakpoints.up('sm')]: {
+      display: 'none',
+    },
   },
   content: {
     maxWidth: '100%',
@@ -191,12 +196,6 @@ class HeaderLayout extends Component {
                 {title}
               </Typography>
             </div>
-            
-            <div className={classes.loading}>
-            {loading &&
-              <CircularProgress color="accent"/>
-            }
-            </div>
 
             <div className={classes.search}>
             {updateSearchQuery &&
@@ -226,6 +225,12 @@ class HeaderLayout extends Component {
                   />
                 }
               </div>
+            }
+            </div>
+
+            <div className={classes.loading}>
+            {loading &&
+              <CircularProgress size={30} color="accent"/>
             }
             </div>
 
@@ -275,7 +280,7 @@ class HeaderLayout extends Component {
             */}
 
             <div className={classes.rightOperations}>
-              <Hidden smUp>
+              <div className={classes.searchOperation}>
                 <Operation
                   id="search-small"
                   icon={Search}
@@ -283,7 +288,7 @@ class HeaderLayout extends Component {
                   hidden={!updateSearchQuery}
                   onClick={this._openMiniSearch}
                 />
-              </Hidden>
+              </div>
               {React.createElement(Operations, {
                 operations: operations.filter(operation => operation.right)
               })}
@@ -303,7 +308,6 @@ class HeaderLayout extends Component {
 
 HeaderLayout.propTypes = {
   classes: PropTypes.object.isRequired,
-  theme: PropTypes.object.isRequired,
   children: PropTypes.node,
   operations: PropTypes.array,
   title: PropTypes.string,
@@ -317,4 +321,4 @@ HeaderLayout.defaultProps = {
   loading: false,
 };
 
-export default withTheme(withStyles(styles)(HeaderLayout));
+export default withStyles(styles)(HeaderLayout);

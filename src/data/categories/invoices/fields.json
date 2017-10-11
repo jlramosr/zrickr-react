@@ -1,6 +1,5 @@
-[
-  {
-    "name":"clientId",
+{
+  "clientId": {
     "type":"number",
     "label":"Cliente",
     "views": {
@@ -10,8 +9,7 @@
       }
     } 
   },
-  {
-    "name":"price",
+  "price": {
     "type":"number",
     "label":"Precio",
     "default": 0.0,
@@ -21,8 +19,7 @@
       }
     }
   },
-  {
-    "name":"date",
+  "date": {
     "type":"date",
     "label":"Fecha",
     "default": 0.0,
@@ -32,8 +29,7 @@
       }
     }
   },
-  {
-    "name":"hour",
+  "hour": {
     "type":"hour",
     "label":"Hora",
     "views": {
@@ -42,8 +38,7 @@
       }
     }
   },
-  {
-    "name":"charged",
+  "charged": {
     "type":"boolean",
     "label":"Cobrado",
     "views": {
@@ -52,4 +47,4 @@
       }
     }
   }
-]
+}

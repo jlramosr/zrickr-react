@@ -1,20 +1,18 @@
-[
-  {
-    "id": "clients",
+{
+  "clients": {
     "icon": "Work",
-    "label": "Clientes",
-    "name": "clients"
+    "label": "clientes"
   },
-  {
-    "id": "movements",
-    "icon": "CreditCard",
-    "label": "Movimientos",
-    "name": "movements"
+  "ge": {
+    "icon": "Work",
+    "label": "grupos empresariales"
   },
-  {
-    "id": "invoices",
+  "invoices": {
     "icon": "PictureAsPdf",
-    "label": "Facturas",
-    "name": "invoices"
+    "label": "facturas"
+  },
+  "movements": {
+    "icon": "CreditCard",
+    "label": "movimientos"
   }
-]
+}

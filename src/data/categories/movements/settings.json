@@ -1,6 +1,7 @@
 {
-  "primaryFields": ["clientId"],
-  "secondaryFields": ["price"],
   "color": "#eee",
-  "itemLabel": "Movimiento"
+  "itemLabel": "Movimiento",
+  "icon": "CreaditCard",
+  "primaryFields": ["clientId"],
+  "secondaryFields": ["price"]
 }

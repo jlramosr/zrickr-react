@@ -1,6 +1,5 @@
-[
-  { 
-    "id": "isCompany",
+{
+  "isCompany": {
     "type":"boolean",
     "label":"Empresa",
     "default": true,
@@ -11,8 +10,7 @@
       }
     }
   },
-  { 
-    "id": "name",
+  "name": {
     "label":"Nombre",
     "required": true,
     "views": {
@@ -25,8 +23,7 @@
       }
     }
   },
-  { 
-    "id": "lastname",
+  "lastname": {
     "label":"Apellidos",
     "default": "POR DEFECTO",
     "views": {
@@ -44,8 +41,7 @@
       } 
     }
   },
-  { 
-    "id": "address",
+  "address": {
     "label":"Direccion",
     "description": "Dirección fiscal de la empresa/individuo",
     "views": {
@@ -56,8 +52,7 @@
       }
     }
   },
-  { 
-    "id": "zip",
+  "zip": {
     "label":"Cod.Postal",
     "type": "number",
     "views": {
@@ -70,8 +65,7 @@
       }
     }
   },
-  { 
-    "id": "city",
+  "city": {
     "label":"Ciudad",
     "type":"select",
     "items": [
@@ -88,8 +82,7 @@
       }
     }
   },
-  { 
-    "id": "province",
+  "province": {
     "label":"Provincia",
     "views": {
       "overview": {
@@ -101,8 +94,7 @@
       }
     }
   },
-  { 
-    "id": "phone",
+  "phone": {
     "label":"Teléfono",
     "views": {
       "overview": {
@@ -114,8 +106,7 @@
       }
     }
   },
-  { 
-    "id": "email",
+  "email": {
     "label":"Email",
     "views": {
       "overview": {
@@ -127,9 +118,9 @@
       }
     }
   },
-  { 
-    "id": "movements",
+  "movements": {
     "type": "list",
+    "label": "Movimientos",
     "relation": "movements",
     "views": {
       "overview": {
@@ -141,8 +132,7 @@
       }
     }
   },
-  { 
-    "id": "description",
+  "description": {
     "label": "Descripción",
     "type": "text",
     "views": {
@@ -155,8 +145,7 @@
       }
     }
   },
-  { 
-    "id": "edad",
+  "edad": {
     "label": "Edad",
     "type": "number",
     "views": {
@@ -169,8 +158,7 @@
       }
     }
   },
-  { 
-    "id": "raza",
+  "raza": {
     "label": "Raza",
     "views": {
       "overview": {
@@ -179,8 +167,7 @@
       }
     }
   },
-  { 
-    "id": "religion",
+  "religion": {
     "label": "Religión",
     "type": "select",
     "items": [
@@ -195,8 +182,7 @@
       }
     }
   },
-  { 
-    "id": "cliente_asociado",
+  "cliente_asociado": {
     "label": "Cliente Asociado",
     "type": "select",
     "relation": "clients",
@@ -207,4 +193,4 @@
       }
     }
   }
-]
+}

@@ -17,6 +17,7 @@ const styles = theme => ({
   },
   gridList: {
     maxWidth: 700,
+    textTransform: 'capitalize',
   },
   gridImage: {
     width: 250,

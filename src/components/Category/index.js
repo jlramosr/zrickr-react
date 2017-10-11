@@ -1,36 +1,52 @@
 import React, { Component } from 'react';
 import { Route } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { getCollection } from '../../utils/api_firebase';
-import { getDocument } from '../../utils/api_local';
+import API from '../../utils/api';
 import CategoryList from './list';
-import ItemOverview from './overview';
+import CategoryItemOverview from './overview';
 
 class Category extends Component {
   state = {
     settings: {},
     fields: [],
+    items: [],
     loading: true,
   }
 
+  _getData = _ => {
+    Promise.all([
+      API('local').getDocument('categories_settings', this.props.id),
+      API('local').getCollection('categories_fields', this.props.id),
+      API('local').getCollection('categories_items', this.props.id),
+    ])
+      .then(values => {
+        const [settings, fields, items] = values;
+        const icon = settings.icon;
+        settings['icon'] = icon  ?
+          (typeof icon === 'string' ? require('material-ui-icons')[icon] : icon) : 
+          null
+        this.setState({settings, fields, items, loading: false});
+      })
+      .catch(error => {
+        console.log("ERROR PIDIENDO DATOS CATEGORIA", error);
+      })
+  }
+
   componentDidMount = _ => {
-    getDocument('categories_settings', this.props.category.id).then(settings => {
-      getCollection('categories_fields', this.props.category.id).then(fields => {
-        this.setState({settings, fields, loading: false});
-      });
-    });
+    this._getData();
   }
 
   render = _ => {
-    const { settings, fields, loading } = this.state;
-    const { category, items } = this.props;
+    const { settings, fields, items, loading } = this.state;
+    const { id, label } = this.props;
 
     return (
       <div>
 
-        <Route path={`/${category.name}`} exact render={ props => (
+        <Route path={`/${id}`} exact render={ props => (
           React.createElement(CategoryList, {
-            category,
+            categoryId: id,
+            categoryLabel: label,
             settings,
             items,
             loading,
@@ -40,13 +56,12 @@ class Category extends Component {
           })
         )}/>
 
-        <Route path={`/${category.name}/:id`} render={ props => {
-          const itemId = props.match.params.id;
-          const item = items.find(it => it.id === itemId);
-          return React.createElement(ItemOverview, {
-            category,
+        <Route path={`/${id}/:itemId`} render={ props => {
+          const itemId = props.match.params.itemId;
+          return React.createElement(CategoryItemOverview, {
+            id: itemId.toString(),
+            categoryId: id,
             settings,
-            item,
             loading,
             fields: fields
               .filter(field => field.views.overview)
@@ -65,8 +80,8 @@ class Category extends Component {
 }
 
 Category.propTypes = {
-  category: PropTypes.object.isRequired,
-  items: PropTypes.array.isRequired,
+  id: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
 }
 
 export default Category;

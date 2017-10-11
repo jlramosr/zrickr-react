@@ -92,7 +92,7 @@ class Field extends Component {
       items,
       required,
       value,
-      category,
+      categoryId,
       categorySettings,
       categoryFields,
     } = this.props;
@@ -153,11 +153,12 @@ class Field extends Component {
         return (
           <div>
             { 
-              category ? (
+              categoryId ? (
                 <Paper>
                   <CategoryList
                     relationMode={true}
-                    category={category}
+                    categoryId={categoryId}
+                    categoryLabel={label}
                     settings={categorySettings}
                     items={items}
                     fields={categoryFields}
@@ -166,7 +167,6 @@ class Field extends Component {
               ) : (
                 <div>
                   <ListItem
-                    primaryText={'hola'}
                     disabled
                   />
                   <Divider/>
@@ -207,6 +207,8 @@ Field.propTypes = {
   description: PropTypes.string,
   required: PropTypes.bool,
   items: PropTypes.array,
+  categoryId: PropTypes.string,
+  categoryLabel: PropTypes.string,
   categorySettings: PropTypes.object,
   categoryFields: PropTypes.array,
   value: PropTypes.any,
@@ -230,7 +232,7 @@ Field.propTypes = {
 };
 
 Field.defaultProps = {
-  type: 'string'
+  type: 'string',
 };
 
 export default Field;

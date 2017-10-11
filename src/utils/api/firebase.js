@@ -1,4 +1,6 @@
-var firebase = require("firebase/app");
+import { snapshotToArray } from '../helpers';
+
+const firebase = require("firebase/app");
 require("firebase/database");
 
 const config = {
@@ -14,60 +16,58 @@ firebase.initializeApp(config);
 
 const database = firebase.database();
 
-//https://ilikekillnerds.com/2017/05/convert-firebase-database-snapshotcollection-array-javascript/
-const snapshotToArray = snapshot =>
-  Object.entries(snapshot.val()).map(e =>
-    Object.assign(e[1], { id: e[0] })
-  );
+export default class firebaseAPI {
 
-export const getCollection = (collection, collectionId) => {
-  const ref = collectionId ? database.ref(collection).child(collectionId): database.ref(collection);
-  return ref.once('value')
-    .then( snapshot => snapshotToArray(snapshot))
-}
+  static getCollection = (collection, collectionId) => {
+    const ref = collectionId ? database.ref(collection).child(collectionId): database.ref(collection);
+    return ref.once('value')
+      .then( snapshot => snapshotToArray(snapshot.val()))
+  }
 
-export const getDocument = (collection, documentId) =>
-  database.ref(`${collection}/${documentId}`).once('value')
-    .then( snapshot => snapshot.val());
+  static getDocument = (collection, documentId) =>
+    database.ref(`${collection}/${documentId}`).once('value')
+      .then( snapshot => snapshot.val());
 
-export const updateCollection = 
-({collection, collectionId='', generateDocumentId=false, documentId='', document}) => {
-  const ref = database.ref().child(collection);
-  const _collectionId = collectionId ? `${collectionId}/` : '';
-  const _documentId = documentId || (generateDocumentId ? ref.push().key : '');
-  const path = `${_collectionId}${_documentId}`;
-  if (path) {
+  static updateCollection = 
+  ({collection, collectionId='', generateDocumentId=false, documentId='', document}) => {
+    const ref = database.ref().child(collection);
+    const _collectionId = collectionId ? `${collectionId}/` : '';
+    const _documentId = documentId || (generateDocumentId ? ref.push().key : '');
+    const path = `${_collectionId}${_documentId}`;
+    if (path) {
+      let updates = {};
+      updates[`${path}`] = document;
+      ref.update(updates);
+    }
+    else {
+      ref.update(document);
+    }
+  }
+
+  /*static addDocumentsId = (collection, collectionId='', newDocumentId='', newDocuments) => {
+    const ref = database.ref().child(collection);
     let updates = {};
-    updates[`${path}`] = document;
+    if (!Array.isArray(newDocuments)) {
+      newDocuments = [newDocuments];
+    }
+    newDocuments.forEach(newDocument => {
+      const newDocumentId = ref.push().key;
+      const path = collectionId ? `${collectionId}/${newDocumentId}` : `${newDocumentId}`
+      updates[`${path}`] = newDocument;
+      ref.update(updates);
+    })
+  }
+
+  static addDocuments = (collection, collectionId, newDocuments) => {
+    const ref = database.ref().child(collection);
+    let updates = {};
+    updates[`${collectionId}`] = newDocuments;
     ref.update(updates);
-  }
-  else {
-    ref.update(document);
-  }
+  }*/
+
 }
 
-/*export const addDocumentsId = (collection, collectionId='', newDocumentId='', newDocuments) => {
-  const ref = database.ref().child(collection);
-  let updates = {};
-  if (!Array.isArray(newDocuments)) {
-    newDocuments = [newDocuments];
-  }
-  newDocuments.forEach(newDocument => {
-    const newDocumentId = ref.push().key;
-    const path = collectionId ? `${collectionId}/${newDocumentId}` : `${newDocumentId}`
-    updates[`${path}`] = newDocument;
-    ref.update(updates);
-  })
-}
-
-export const addDocuments = (collection, collectionId, newDocuments) => {
-  const ref = database.ref().child(collection);
-  let updates = {};
-  updates[`${collectionId}`] = newDocuments;
-  ref.update(updates);
-}*/
-
-const document = {
+/*const document = {
   "isCompany": {
     "type":"boolean",
     "label":"Empresa",
@@ -264,4 +264,4 @@ const document = {
 }
 updateCollection({
   collection:'categories_fields', collectionId: 'clients', document
-});
+});*/
