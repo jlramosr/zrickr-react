@@ -68,7 +68,7 @@
   "city": {
     "label":"Ciudad",
     "type":"select",
-    "items": [
+    "options": [
       {"id": "madrid", "label": "Madrid"},
       {"id": "barcelona", "label": "Bacelona"}
     ],
@@ -170,7 +170,7 @@
   "religion": {
     "label": "Religión",
     "type": "select",
-    "items": [
+    "options": [
       {"id": "catolica", "label": "Católica"},
       {"id": "musulmana", "label": "Musulmana"},
       {"id": "budista", "label": "Budista"}

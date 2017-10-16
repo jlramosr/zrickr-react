@@ -19,14 +19,18 @@ const database = firebase.database();
 export default class firebaseAPI {
 
   static getCollection = (collection, collectionId) => {
-    const ref = collectionId ? database.ref(collection).child(collectionId): database.ref(collection);
+    let ref = database.ref(collection)
+    if (collectionId) ref = ref.child(collectionId);
     return ref.once('value')
       .then( snapshot => snapshotToArray(snapshot.val()))
   }
 
-  static getDocument = (collection, documentId) =>
-    database.ref(`${collection}/${documentId}`).once('value')
+  static getDocument = (collection, collectionId, documentId='') => {
+    let ref = database.ref(collection).child(collectionId);
+    if (documentId) ref = ref.child(documentId);
+    return ref.once('value')
       .then( snapshot => snapshot.val());
+  }
 
   static updateCollection = 
   ({collection, collectionId='', generateDocumentId=false, documentId='', document}) => {

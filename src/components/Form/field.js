@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import API from '../../utils/api';
 import TextField from 'material-ui/TextField';
 import { MenuItem } from 'material-ui/Menu';
 import Switch from 'material-ui/Switch';
@@ -83,19 +84,77 @@ const styles = {
 }
 
 class Field extends Component {
+  state = {
+    relationSettings: {},
+    relationFields: [],
+    relationItems: [],
+    relationLoading: true,
+  }
+
+  _getData = relationId => {
+    let { value, type } = this.props;
+    let getItemsPromises = [];
+    value = value || {};
+    if (type === 'list') {
+      getItemsPromises = Object.keys(value).map(relationItemId =>
+        API('local').getDocument('categories_items', relationId, relationItemId)
+      )
+    } else if (type === 'select') {
+      getItemsPromises.push(
+        API('local').getCollection('categories_items', relationId)
+      )
+    }
+    Promise.all([
+      API('local').getDocument('categories_settings', relationId),
+      API('local').getCollection('categories_fields', relationId),
+      ...getItemsPromises,
+    ])
+      .then(values => {
+        let [relationSettings, relationFields, ...relationItems] = values;
+        if (relationItems.length === 1 && Array.isArray(relationItems[0])) {
+          relationItems = relationItems[0];
+        }
+        const icon = relationSettings.icon;
+        relationSettings['icon'] = icon  ?
+          (typeof icon === 'string' ? require('material-ui-icons')[icon] : icon) : 
+          null
+        this.setState({
+          relationSettings,
+          relationFields,
+          relationItems,
+          relationLoading: false
+        });
+      })
+      .catch(error => {
+        console.log("ERROR PIDIENDO DATOS RELACIÓN", error);
+      })
+  }
+
+  componentDidMount = _ => {
+    const { relationId } = this.props;
+    if (relationId) {
+      this._getData(relationId);
+    }
+  }
+
   render() {
-    const { 
+    const {
       id,
       type,
       label,
       description,
-      items,
+      options,
       required,
       value,
-      categoryId,
-      categorySettings,
-      categoryFields,
+      relationId
     } = this.props;
+
+    const {
+      relationSettings,
+      relationFields,
+      relationItems,
+      relationLoading,
+    } = this.state;
 
     switch(type) {
 
@@ -108,25 +167,31 @@ class Field extends Component {
             select
             fullWidth
             margin="normal"
-            style={{
-              marginBottom: 14
-            }}
             label={label}
             value={value || ''}
             onChange={ event => 
               this.props.handleFormFieldChange(id, event.target.value)
             }
           >
-            {
-              items && items.map(item => (
+            {relationId ? (
+              relationItems.map(item => (
                 <MenuItem
                   key={item.id}
                   value={item.id}
                 >
-                  {item.label || getInfo(categorySettings.primaryFields, item)}
+                  {getInfo(relationSettings.primaryFields, item)}
                 </MenuItem>
               ))
-            }
+            ) : (
+              options.map(item => (
+                <MenuItem
+                  key={item.id}
+                  value={item.id}
+                >
+                  {item.label}
+                </MenuItem>
+              ))
+            )}
           </TextField>
         );
 
@@ -153,15 +218,17 @@ class Field extends Component {
         return (
           <div>
             { 
-              categoryId ? (
+              relationId ? (
                 <Paper>
                   <CategoryList
                     relationMode={true}
-                    categoryId={categoryId}
+                    categoryId={relationId}
                     categoryLabel={label}
-                    settings={categorySettings}
-                    items={items}
-                    fields={categoryFields}
+                    settings={relationSettings}
+                    items={relationItems}
+                    fields={relationFields}
+                    loading={relationLoading}
+                    showAvatar={false}
                   />
                 </Paper>
               ) : (
@@ -206,27 +273,38 @@ Field.propTypes = {
   label: PropTypes.string,
   description: PropTypes.string,
   required: PropTypes.bool,
-  items: PropTypes.array,
-  categoryId: PropTypes.string,
-  categoryLabel: PropTypes.string,
-  categorySettings: PropTypes.object,
-  categoryFields: PropTypes.array,
+  options: PropTypes.array,
+  relationId: PropTypes.string,
   value: PropTypes.any,
   handleFormFieldChange: PropTypes.func,
   itemsSelect: (props, propName, componentName) => {
-    if (props.type === 'select' && !props.items) {
+    if (props.type === 'select' && !props.options && !props.relationId) {
       return new Error(
-        `${propName} ${componentName}: Select field must to have an array of items or a relation name.`
+        `${propName} ${componentName}: Select field must to have an array of options or a relation name.`
       );
     }
   },
-  idItems: (props, propName, componentName) => {
-    for (const item of props.items || []) {
-      if (!item.id) {
+  optionsId: (props, propName, componentName) => {
+    for (const option of props.options || []) {
+      if (!option.id) {
         return new Error(
-          `${propName} ${componentName}: Not item id provided on select/list field.`
+          `${propName} ${componentName}: Not option id provided on select/list field.`
         );
       }
+    }
+  },
+  valueSelectRelation: (props, propName, componentName) => {
+    if (props.relationId && props.type === 'select' && props.value && typeof props.value !== 'string') {
+      return new Error(
+        `${propName} ${componentName}: Value of relation field must be an id key`
+      );
+    }
+  },
+  valueListRelation: (props, propName, componentName) => {
+    if (props.relationId && props.type === 'list' && props.value && typeof props.value !== 'object') {
+      return new Error(
+        `${propName} ${componentName}: Value of relation field must be an id key`
+      );
     }
   },
 };

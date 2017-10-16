@@ -1,7 +1,6 @@
 /*eslint-disable no-eval*/
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Media from 'react-media';
 import Field from './field';
 import { withStyles } from 'material-ui/styles';
 
@@ -27,45 +26,14 @@ class Item {
   }
 }
 
-const formContainerStyles = {
-  formContainer: (cols) => ({
-    padding: '20px',
-    display: 'grid',
-    gridAutoFlow: 'row',
-    gridTemplateColumns: `repeat(${cols}, 1fr)`,
-    gridGap: '0px 0px',
-    justifyContent: 'stretch',
-    alignItems: 'center'
-  }),
+const styles = theme => ({
 
-  formField: (item, fieldView, fieldId, cols) => {
-    if (!item) {
-      return {};
-    }
-    if (fieldView.when && item.evalCondition(fieldView.when, fieldId)) {
-      return {display: 'none'};
-    }
+});
 
-    let formFieldStyle = {padding: '0 10px'}
-    const { x, y, xs, ys } = fieldView;
-    let rightBottomX = (xs + x) || 0;
-    let rightBottomY = (ys + y) || 0;
-    if (rightBottomY > cols+1) {
-      rightBottomY = cols+1;
-    } 
-    formFieldStyle['gridArea'] = `
-      ${x || 'auto'}/
-      ${y || 'auto'}/
-      ${rightBottomX || (xs ? `span ${xs}` : 'span 1')}/
-      ${rightBottomY || (ys ? `span ${ys}` : `span ${cols+1}`)}
-    `;
-    return formFieldStyle;
-  },
-}
-
-class FormContainer extends Component {
+class Form extends Component {
   state = {
     item: null,
+    size: '',
   }
 
   _getFieldLabel = (label, fieldView) => fieldView.nolabel ? ' ' : label;
@@ -81,6 +49,19 @@ class FormContainer extends Component {
     event.preventDefault();
   }
 
+  _resize = (theme) => {
+    const width = window.innerWidth;
+    let size = 'small';
+    if (width > theme.breakpoints.values['lg']) {
+      size = 'large';
+    } else if (width > theme.breakpoints.values['sm']) {
+      size = 'medium';
+    }
+    if (size !== this.state.size) {
+      this.setState({size});
+    }
+  }
+
   handleFieldChange = (fieldId, value) => {
     this.setState(prevState => {
       let item = prevState.item;
@@ -89,25 +70,75 @@ class FormContainer extends Component {
     })
   }
 
+  componentDidMount = _ => {
+    window.addEventListener('resize', event =>
+      this._resize(this.props.theme)
+    );
+  }
+
+  componentWillUnmount = _ => {
+    window.removeEventListener('resize', event =>
+      this._resize(this.props.theme)
+    );
+  }
+
   componentWillReceiveProps = props => {
-    const { fields, values } = props;
+    const { fields, values, theme } = props;
     let item = new Item(values)
     for (const field of fields) {
       if (field.default && !(field.id in values)) {
         item[field.id] = field.default;
       }
     }
+    this._resize(theme);
     this.setState({item});
   }
 
   render = _ => {
-    const { size, view, cols, fields } = this.props;
-    const { item } = this.state;
+    const { view, cols, fields, theme } = this.props;
+    const { item, size } = this.state;
+
+    const formStyle = cols => ({
+      padding: theme.spacing.unit*2,
+      display: 'grid',
+      gridAutoFlow: 'row',
+      gridTemplateColumns: `repeat(${cols}, 1fr)`,
+      gridGap: '0px 0px',
+      justifyContent: 'stretch',
+      alignItems: 'center',
+    });
+
+    const formFieldStyle = (item, fieldView, fieldId, cols) => {
+      if (!item) {
+        return {};
+      }
+      if (fieldView.when && item.evalCondition(fieldView.when, fieldId)) {
+        return {display: 'none'};
+      }
+  
+      let formFieldStyle = {
+        paddingLeft: theme.spacing.unit,
+        paddingRight: theme.spacing.unit,
+      }
+      const { x, y, xs, ys } = fieldView;
+      let rightBottomX = (xs + x) || 0;
+      let rightBottomY = (ys + y) || 0;
+      if (rightBottomY > cols+1) {
+        rightBottomY = cols+1;
+      } 
+      formFieldStyle['gridArea'] = `
+        ${x || 'auto'}/
+        ${y || 'auto'}/
+        ${rightBottomX || (xs ? `span ${xs}` : 'span 1')}/
+        ${rightBottomY || (ys ? `span ${ys}` : `span ${cols+1}`)}
+      `;
+      return formFieldStyle;
+    };
 
     return (
       <form 
         onSubmit={ event => this._handleSubmit(event)}
-        style={formContainerStyles.formContainer(cols)}
+        style={formStyle(cols)}
       >
         {
           fields.map(field => {
@@ -116,23 +147,11 @@ class FormContainer extends Component {
               fieldView = fieldView[size];
             }
 
-            let categoryId, categoryItems, categorySettings, categoryFields;
-            if (field.relation) {
-              categoryId = field.relation;
-              categorySettings = {}
-                //require(`../../categories/${capitalize(categoryName)}settings`).default;
-              categoryItems = []
-                //require(`../../categories/${capitalize(categoryName)}items`).default;
-                  /*.filter(item => value.includes(item.id))*/
-              categoryFields = []
-                //require(`../../categories/${capitalize(categoryName)}fields`).default;
-            }
-
             return (
               fieldView &&
                 <div
                   key={field.id}
-                  style={formContainerStyles.formField(item, fieldView, field.id, cols)}
+                  style={formFieldStyle(item, fieldView, field.id, cols)}
                 >
                   <Field
                     id={field.id}
@@ -141,11 +160,8 @@ class FormContainer extends Component {
                     description={this._getFieldDescription(field.description, fieldView)}
                     required={field.required}
                     value={item ? item[field.id] : ''}
-                    categoryId={categoryId}
-                    categoryLabel={categoryId}
-                    categorySettings={categorySettings}
-                    categoryFields={categoryFields}
-                    items={categoryItems || field.items}
+                    options={field.options}
+                    relationId={field.relation}
                     handleFormFieldChange={ (fieldId, value) => 
                       this.handleFieldChange(fieldId, value)
                     }
@@ -159,58 +175,9 @@ class FormContainer extends Component {
   };
 };
 
-FormContainer.propTypes = {
-  cols: PropTypes.number.isRequired,
-  view: PropTypes.string.isRequired,
-  fields: PropTypes.array.isRequired,
-  values: PropTypes.object.isRequired
-};
-
-const formStyles = theme => {
-
-};
-
-const Form = props => {
-  const { view, cols, fields, values } = props;
-  const size = 'large';
-  return (
-    <FormContainer size={size} view={view} cols={cols} fields={fields} values={values}/>
-  );
-  /*return (
-    <div>
-      <Media query="(max-width:700px)" render={ _ => (
-        <FormContainer
-          size="small"
-          view={view}
-          cols={cols}
-          fields={fields}
-          values={values}
-        />
-      )}/>
-      <Media query="(min-width:701px) and (max-width:1224px)"  render={ _ => (
-        <FormContainer
-          size="medium"
-          view={view}
-          cols={cols}
-          fields={fields}
-          values={values}
-        />
-      )}/>
-      <Media query="(min-width:1225px)"  render={ _ => (
-        <FormContainer
-          size="large"
-          view={view}
-          cols={cols}
-          fields={fields}
-          values={values}
-        />
-      )}/>
-    </div>
-  );*/
-};
-
 Form.propTypes = {
   classes: PropTypes.object.isRequired,
+  theme: PropTypes.object.isRequired,
   cols: PropTypes.number,
   view: PropTypes.string.isRequired,
   fields: PropTypes.array.isRequired,
@@ -221,5 +188,5 @@ Form.defaultProps = {
   cols: 10
 }
 
-export default withStyles(formStyles)(Form);
+export default withStyles(styles, {withTheme:true})(Form);
 

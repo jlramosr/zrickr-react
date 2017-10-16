@@ -145,45 +145,48 @@ class CategoryList extends Component {
       <HeaderLayout
         title={categoryLabel}
         position={relationMode ? "static" : "fixed"}
-        updateSearchQuery={relationMode ? null : this.updateSearchQuery}
+        updateSearchQuery={this.updateSearchQuery}
         loading={loading}
-        operations={operations || [ 
+        operations={operations || 
           relationMode ? 
-            {
-              id:'addRelation',
-              icon:Add,
-              right: true,
-              onClick: _ => this._openNewDialog()
-            }
-          :
-            { 
-              id:'arrowBack',
-              icon:ArrowBack,
-              to:'/'
-            },
-            {
-              id:'viewAgenda',
-              icon:ViewAgenda,
-              description:'Vista agenda',
-              hidden:!tableMode,
-              right: true,
-              onClick: _ => this._changeView('agenda'),
-            },
-            {
-              id:'viewList',
-              icon:ViewList,
-              description:'Vista tabla',
-              hidden:tableMode,
-              right: true,
-              onClick: _ => this._changeView('list'),
-            },
-            {
-              id:'addItem',
-              icon:Add,
-              description:`Nuevo ${settings.itemLabel || 'Item'}`,
-              right: true, onClick: _ => this._openNewDialog()
-            },
-        ]}
+            [
+              {
+                id:'addRelation',
+                icon:Add,
+                right: true,
+                onClick: _ => this._openNewDialog()
+              }
+            ]
+          : [
+              { 
+                id:'arrowBack',
+                icon:ArrowBack,
+                to:'/'
+              },
+              {
+                id:'viewAgenda',
+                icon:ViewAgenda,
+                description:'Vista agenda',
+                hidden:!tableMode,
+                right: true,
+                onClick: _ => this._changeView('agenda'),
+              },
+              {
+                id:'viewList',
+                icon:ViewList,
+                description:'Vista tabla',
+                hidden:tableMode,
+                right: true,
+                onClick: _ => this._changeView('list'),
+              },
+              {
+                id:'addItem',
+                icon:Add,
+                description:`Nuevo ${settings.itemLabel || 'Item'}`,
+                right: true, onClick: _ => this._openNewDialog()
+              },
+            ]
+        }
       >
         
       {tableMode ? (
@@ -325,6 +328,7 @@ class CategoryList extends Component {
 }
 
 CategoryList.propTypes = {
+  classes: PropTypes.object.isRequired,
   categoryId: PropTypes.string.isRequired,
   categoryLabel: PropTypes.string.isRequired,
   settings: PropTypes.object,

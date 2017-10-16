@@ -1,27 +1,117 @@
 {
   "categories" : {
-    "-KvboYj33C3djwkBU3Kj" : {
-      "icon" : "Work",
-      "label" : "Clientes",
-      "name" : "clients"
+    "clients" : {
+      "label" : "clientes"
     },
-    "-KvbolEB1Bei674aE-Vw" : {
-      "icon" : "CreditCard",
-      "label" : "Movimientos",
-      "name" : "movements"
+    "invoices" : {
+      "label" : "facturas"
     },
-    "-KvgVMXZ98Md8s9Csrzc" : {
-      "icon" : "PictureAsPdf",
-      "label" : "Facturas",
-      "name" : "invoices"
+    "movements" : {
+      "label" : "movimientos"
     }
   },
   "categories_fields" : {
-    "-KvboYj33C3djwkBU3Kj" : {
-      "-Kvkujm8YfygDXjvpUwy" : {
+    "clients" : {
+      "address" : {
+        "description" : "Dirección fiscal de la empresa/individuo",
+        "label" : "Direccion",
+        "views" : {
+          "overview" : {
+            "nodescription" : true,
+            "small" : {
+              "x" : 4
+            },
+            "x" : 3
+          }
+        }
+      },
+      "city" : {
+        "options" : [ {
+          "id" : "madrid",
+          "label" : "Madrid"
+        }, {
+          "id" : "barcelona",
+          "label" : "Bacelona"
+        } ],
+        "label" : "Ciudad",
+        "type" : "select",
+        "views" : {
+          "list" : {
+            "y" : 4
+          },
+          "overview" : {
+            "small" : {
+              "x" : 6
+            },
+            "x" : 4,
+            "y" : 1,
+            "ys" : 2
+          }
+        }
+      },
+      "cliente_asociado" : {
+        "label" : "Cliente Asociado",
+        "relation" : "clients",
+        "type" : "select",
+        "views" : {
+          "overview" : {
+            "small" : {
+              "x" : 15
+            },
+            "x" : 10
+          }
+        }
+      },
+      "description" : {
+        "label" : "Descripción",
+        "type" : "text",
+        "views" : {
+          "list" : {
+            "y" : 9
+          },
+          "overview" : {
+            "small" : {
+              "x" : 11
+            },
+            "x" : 7,
+            "xs" : 3,
+            "ys" : 10
+          }
+        }
+      },
+      "edad" : {
+        "label" : "Edad",
+        "type" : "number",
+        "views" : {
+          "list" : {
+            "y" : 10
+          },
+          "overview" : {
+            "small" : {
+              "x" : 12
+            },
+            "x" : 7,
+            "ys" : 2
+          }
+        }
+      },
+      "email" : {
+        "label" : "Email",
+        "views" : {
+          "list" : {
+            "y" : 7
+          },
+          "overview" : {
+            "small" : {
+              "x" : 9
+            },
+            "x" : 5
+          }
+        }
+      },
+      "isCompany" : {
         "default" : true,
         "label" : "Empresa",
-        "name" : "isCompany",
         "type" : "boolean",
         "views" : {
           "overview" : {
@@ -31,27 +121,254 @@
             "ys" : 1
           }
         }
+      },
+      "lastname" : {
+        "default" : "POR DEFECTO",
+        "label" : "Apellidos",
+        "views" : {
+          "list" : {
+            "y" : 2
+          },
+          "overview" : {
+            "small" : {
+              "when" : "!this.isCompany",
+              "x" : 3
+            },
+            "when" : "!this.isCompany",
+            "x" : 2,
+            "ys" : 6
+          }
+        }
+      },
+      "movements" : {
+        "relation" : "movements",
+        "type" : "list",
+        "views" : {
+          "list" : {
+            "y" : 8
+          },
+          "overview" : {
+            "small" : {
+              "x" : 10
+            },
+            "x" : 6
+          }
+        }
+      },
+      "name" : {
+        "label" : "Nombre",
+        "required" : true,
+        "views" : {
+          "list" : {
+            "y" : 1
+          },
+          "overview" : {
+            "small" : {
+              "x" : 2
+            },
+            "x" : 2,
+            "y" : 1,
+            "ys" : 6
+          }
+        }
+      },
+      "phone" : {
+        "label" : "Teléfono",
+        "views" : {
+          "list" : {
+            "y" : 6
+          },
+          "overview" : {
+            "small" : {
+              "x" : 8
+            },
+            "x" : 5,
+            "y" : 1,
+            "ys" : 4
+          }
+        }
+      },
+      "province" : {
+        "label" : "Provincia",
+        "views" : {
+          "list" : {
+            "y" : 5
+          },
+          "overview" : {
+            "small" : {
+              "x" : 7
+            },
+            "x" : 4,
+            "y" : 8,
+            "ys" : 6
+          }
+        }
+      },
+      "raza" : {
+        "label" : "Raza",
+        "views" : {
+          "overview" : {
+            "small" : {
+              "x" : 13
+            },
+            "x" : 8,
+            "ys" : 2
+          }
+        }
+      },
+      "religion" : {
+        "options" : [ {
+          "id" : "catolica",
+          "label" : "Católica"
+        }, {
+          "id" : "musulmana",
+          "label" : "Musulmana"
+        }, {
+          "id" : "budista",
+          "label" : "Budista"
+        } ],
+        "label" : "Religión",
+        "type" : "select",
+        "views" : {
+          "overview" : {
+            "small" : {
+              "x" : 14
+            },
+            "x" : 9,
+            "ys" : 2
+          }
+        }
+      },
+      "zip" : {
+        "label" : "Cod.Postal",
+        "type" : "number",
+        "views" : {
+          "list" : {
+            "y" : 3
+          },
+          "overview" : {
+            "small" : {
+              "x" : 5
+            },
+            "x" : 4,
+            "y" : 3,
+            "ys" : 5
+          }
+        }
+      }
+    }
+  },
+  "categories_items" : {
+    "clients" : {
+      "11231" : {
+        "address" : "C/Federico",
+        "movements" : {
+          "011231" : true,
+          "024124" : true
+        },
+        "name" : "Acciona"
+      },
+      "21319" : {
+        "address" : "C/Ferraz",
+        "lastname" : "Sánchez",
+        "name" : "Julián"
+      },
+      "21320" : {
+        "address" : "C/Ferraz",
+        "name" : "Iberdrola"
+      },
+      "21321" : {
+        "address" : "C/Ferraz",
+        "name" : "Amazon"
+      },
+      "21322" : {
+        "address" : "C/Ferraz",
+        "name" : "112 Asturias"
+      },
+      "21323" : {
+        "address" : "C/Ferraz",
+        "name" : "Aerogeneradores del Sur"
+      },
+      "21324" : {
+        "address" : "C/Ferraz",
+        "name" : "Act Wind"
+      },
+      "21325" : {
+        "address" : "C/Ferraz",
+        "name" : "Wind Energy"
+      },
+      "21326" : {
+        "address" : "C/Ferraz",
+        "name" : "Statoil"
+      },
+      "21327" : {
+        "address" : "C/Ferraz",
+        "name" : "Socaire"
+      },
+      "21328" : {
+        "address" : "C/Ferraz",
+        "name" : "Potelu Solar SRL"
+      },
+      "21329" : {
+        "address" : "C/Ferraz",
+        "name" : "Norvind"
+      },
+      "21330" : {
+        "address" : "C/Ferraz",
+        "name" : "Repsol"
+      },
+      "21331" : {
+        "address" : "C/Ferraz",
+        "name" : "MVV Energie AG"
+      },
+      "21332" : {
+        "address" : "C/Ferraz",
+        "name" : "Infinis"
+      },
+      "21333" : {
+        "address" : "C/Ferraz",
+        "name" : "Petronor"
+      },
+      "21334" : {
+        "address" : "C/Ferraz",
+        "name" : "Parque Eólico do Pisco S.A."
+      },
+      "21335" : {
+        "address" : "C/Ferraz",
+        "name" : "Highland North LLC"
+      },
+      "21336" : {
+        "address" : "C/Ferraz",
+        "name" : "Frontal Project"
+      },
+      "21337" : {
+        "address" : "C/Ferraz",
+        "name" : "Golden Hill Gate Co. Ltd"
+      },
+      "21338" : {
+        "address" : "C/Ferraz",
+        "name" : "Eólica de Lillo S.L."
+      },
+      "21339" : {
+        "address" : "C/Ferraz",
+        "name" : "ESB"
+      },
+      "24124" : {
+        "address" : "C/Magnolias",
+        "movements" : {
+          "021319" : true
+        },
+        "name" : "Google"
       }
     }
   },
   "categories_settings" : {
-    "-KvboYj33C3djwkBU3Kj" : {
+    "clients" : {
       "color" : "#eee",
-      "itemLabel" : "Cliente",
+      "icon" : "Work",
+      "itemLabel" : "cliente",
       "primaryFields" : [ "name", "lastname" ],
       "secondaryFields" : [ "address" ]
-    },
-    "-KvbolEB1Bei674aE-Vw" : {
-      "color" : "#eee",
-      "itemLabel" : "Movimiento",
-      "primaryFields" : [ "clientId" ],
-      "secondaryFields" : [ "price" ]
-    },
-    "-KvgVMXZ98Md8s9Csrzc" : {
-      "color" : "#eee",
-      "itemLabel" : "Factura",
-      "primaryFields" : [ "clientId" ],
-      "secondaryFields" : [ "price" ]
     }
   }
 }

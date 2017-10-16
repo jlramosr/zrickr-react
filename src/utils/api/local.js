@@ -4,7 +4,7 @@ var dataPath = 'data';
 
 export default class localAPI {
 
-  static getCollection = (collection, collectionId) => {
+  static getCollection = (collection, collectionId='') => {
     const collectionSplit = collection.split('_');
     return new Promise( resolve => {
       const collection = collectionId ?
@@ -14,12 +14,12 @@ export default class localAPI {
     });
   }
   
-  static getDocument = (collection, documentId1, documentId2) => {
+  static getDocument = (collection, collectionId, documentId='') => {
     const collectionSplit = collection.split('_');
     return new Promise( resolve => {
-      const document = documentId2 ?
-        require(`../../${dataPath}/${collectionSplit[0]}/${documentId1}/${collectionSplit[1]}.json`)[documentId2] :
-        require(`../../${dataPath}/${collectionSplit[0]}/${documentId1}/${collectionSplit[1]}.json`)
+      const document = documentId ?
+        {id: documentId, ...require(`../../${dataPath}/${collectionSplit[0]}/${collectionId}/${collectionSplit[1]}.json`)[documentId]} :
+        require(`../../${dataPath}/${collectionSplit[0]}/${collectionId}/${collectionSplit[1]}.json`)
       resolve(document);
     });
   }

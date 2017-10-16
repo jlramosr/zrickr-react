@@ -23,6 +23,7 @@ const styles = theme => ({
     order: 2,
     display: 'flex',
     overflow: 'hidden',
+    marginRight: theme.spacing.unit*4,
   },
   search: {
     order: 3,
@@ -32,13 +33,13 @@ const styles = theme => ({
       flex: 1,
       display: 'flex',
       justifyContent: 'center',
-      marginLeft: 32,
-      marginRight: 32,
+      marginLeft: theme.spacing.unit*4,
+      marginRight: theme.spacing.unit*4,
     },
   },
   miniSearch: {
     position: 'absolute',
-    left: 16,
+    left: theme.spacing.unit*2,
     top: '50%',
     transform: 'translate(0, -50%)',
     width: '50%',
@@ -48,12 +49,13 @@ const styles = theme => ({
     },
   },
   loading: {
-    order: 4,
-    marginLeft: 8,
-    marginRight: 8,
+    display: 'flex',
+    alignItems: 'center',
+    marginLeft: theme.spacing.unit,
+    marginRight: theme.spacing.unit,
   },
   rightOperations: {
-    order: 5,
+    order: 4,
     flex: 1,
     display: 'flex',
     justifyContent: 'flex-end',
@@ -86,8 +88,8 @@ const styles = theme => ({
     top: '50%',
     transform: 'translate(0, -50%)',
     zIndex: 5,
-    paddingLeft: 12,
-    paddingRight: 12,
+    paddingLeft: theme.spacing.unit,
+    paddingRight: theme.spacing.unit,
   },
   searchBarInput: {
     flex: 1,
@@ -95,8 +97,8 @@ const styles = theme => ({
     border: 'none',
     fontSize: 16,
     background: 'transparent',
-    paddingLeft: 48,
-    paddingRight: 42,
+    paddingLeft: theme.spacing.unit*5,
+    paddingRight: theme.spacing.unit*4,
   },
   searchBarInputFocused: {
     background: theme.palette.primary[300],
@@ -106,7 +108,7 @@ const styles = theme => ({
     right: 0,
     top: '50%',
     transform: 'translate(0, -50%)',
-    paddingRight: 12,
+    paddingRight: theme.spacing.unit,
     width: 20,
     height: 20,
     cursor: 'pointer',
@@ -123,14 +125,14 @@ const styles = theme => ({
   content: {
     maxWidth: '100%',
     flex: '1 1 100%',
-    margin: '0 auto',
+    margin: '0 auto', 
     paddingTop: theme.standards.toolbarHeights.mobilePortrait,
     [`${theme.breakpoints.up('xs')} and (orientation: landscape)`]: {
       paddingTop: theme.standards.toolbarHeights.mobileLandscape,
     },
     [theme.breakpoints.up('sm')]: {
       paddingTop: theme.standards.toolbarHeights.tabletDesktop,
-    },    
+    },
   },
 });
 
@@ -177,8 +179,30 @@ class HeaderLayout extends Component {
   }
 
   render = _ => {
-    const { operations, title, position, updateSearchQuery, children, classes, loading } = this.props;
+    const { operations, title, position, updateSearchQuery, children, theme, classes, loading } = this.props;
     const { searchQuery, showMiniSearch } = this.state;
+
+    let contentStyle = {
+      maxWidth: '100%',
+      flex: '1 1 100%',
+      margin: '0 auto', 
+    }
+
+    console.log(theme.breakpoints.up('xs'));
+
+    if (position === 'fixed') {
+      contentStyle = {
+        ...contentStyle, 
+        paddingTop: theme.standards.toolbarHeights.mobilePortrait,
+        [`@media (minWidth:360px) and (orientation: landscape)`]: {
+          paddingTop: theme.standards.toolbarHeights.mobileLandscape,
+        },
+        [`@media (minWidth:600px)`]: {
+          paddingTop: theme.standards.toolbarHeights.tabletDesktop,
+        },
+      }
+      console.log("HOLA", position, contentStyle); 
+    }
 
     return (
       <div className={classes.layout}>
@@ -228,12 +252,6 @@ class HeaderLayout extends Component {
             }
             </div>
 
-            <div className={classes.loading}>
-            {loading &&
-              <CircularProgress size={30} color="accent"/>
-            }
-            </div>
-
             {updateSearchQuery && showMiniSearch &&
               <div className={classes.miniSearch}>
                 <div className={classes.searchBar}>
@@ -280,6 +298,11 @@ class HeaderLayout extends Component {
             */}
 
             <div className={classes.rightOperations}>
+              <div className={classes.loading}>
+              {loading &&
+                <CircularProgress size={30} color="accent"/>
+              }
+              </div>
               <div className={classes.searchOperation}>
                 <Operation
                   id="search-small"
@@ -307,6 +330,7 @@ class HeaderLayout extends Component {
 };
 
 HeaderLayout.propTypes = {
+  theme: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
   children: PropTypes.node,
   operations: PropTypes.array,
@@ -321,4 +345,4 @@ HeaderLayout.defaultProps = {
   loading: false,
 };
 
-export default withStyles(styles)(HeaderLayout);
+export default withStyles(styles, {withTheme: true})(HeaderLayout);
