@@ -12,7 +12,11 @@ import CircularProgress from 'material-ui/Progress/CircularProgress';
 
 const styles = theme => ({
   layout: {
-    width: '100%',
+  },
+  appBar: {
+    width: '-webkit-fill-available',
+  },
+  toolbar: {
   },
   leftOperations: {
     order: 1,
@@ -29,6 +33,7 @@ const styles = theme => ({
     order: 3,
     display: 'none',
     flex: 0,
+    height: '100%',
     [theme.breakpoints.up('sm')]: {
       flex: 1,
       display: 'flex',
@@ -123,9 +128,6 @@ const styles = theme => ({
     },
   },
   content: {
-    maxWidth: '100%',
-    flex: '1 1 100%',
-    margin: '0 auto', 
     paddingTop: theme.standards.toolbarHeights.mobilePortrait,
     [`${theme.breakpoints.up('xs')} and (orientation: landscape)`]: {
       paddingTop: theme.standards.toolbarHeights.mobileLandscape,
@@ -136,7 +138,7 @@ const styles = theme => ({
   },
 });
 
-let Operations = props => {
+let HeaderLayoutOperations = props => {
   const { operations, classes } = props;
 
   return (
@@ -156,12 +158,12 @@ let Operations = props => {
   )
 };
 
-Operations.propTypes = {
+HeaderLayoutOperations.propTypes = {
   classes: PropTypes.object.isRequired,
   operations: PropTypes.array.isRequired,
 };
 
-Operations = withStyles(styles)(Operations);
+HeaderLayoutOperations = withStyles(styles)(HeaderLayoutOperations);
 
 class HeaderLayout extends Component {
   state = {
@@ -179,38 +181,16 @@ class HeaderLayout extends Component {
   }
 
   render = _ => {
-    const { operations, title, position, updateSearchQuery, children, theme, classes, loading } = this.props;
+    const { operations, title, headerPosition, updateSearchQuery, children, classes, loading } = this.props;
     const { searchQuery, showMiniSearch } = this.state;
-
-    let contentStyle = {
-      maxWidth: '100%',
-      flex: '1 1 100%',
-      margin: '0 auto', 
-    }
-
-    console.log(theme.breakpoints.up('xs'));
-
-    if (position === 'fixed') {
-      contentStyle = {
-        ...contentStyle, 
-        paddingTop: theme.standards.toolbarHeights.mobilePortrait,
-        [`@media (minWidth:360px) and (orientation: landscape)`]: {
-          paddingTop: theme.standards.toolbarHeights.mobileLandscape,
-        },
-        [`@media (minWidth:600px)`]: {
-          paddingTop: theme.standards.toolbarHeights.tabletDesktop,
-        },
-      }
-      console.log("HOLA", position, contentStyle); 
-    }
 
     return (
       <div className={classes.layout}>
-        <AppBar position={position}>
-          <Toolbar>
+        <AppBar className={classes.appBar} position={headerPosition}>
+          <Toolbar className={classes.toolbar}>
 
             <div className={classes.leftOperations}>
-              {React.createElement(Operations, {
+              {React.createElement(HeaderLayoutOperations, {
                 operations: operations.filter(operation => !operation.right)})
               }
             </div>
@@ -312,7 +292,7 @@ class HeaderLayout extends Component {
                   onClick={this._openMiniSearch}
                 />
               </div>
-              {React.createElement(Operations, {
+              {React.createElement(HeaderLayoutOperations, {
                 operations: operations.filter(operation => operation.right)
               })}
             </div>
@@ -335,13 +315,13 @@ HeaderLayout.propTypes = {
   children: PropTypes.node,
   operations: PropTypes.array,
   title: PropTypes.string,
-  position: PropTypes.string.isRequired,
+  headerPosition: PropTypes.string.isRequired,
   updateSearchQuery: PropTypes.func,
   loading: PropTypes.bool.isRequired,
 };
 
 HeaderLayout.defaultProps = {
-  position: 'fixed',
+  headerPosition: 'fixed',
   loading: false,
 };
 

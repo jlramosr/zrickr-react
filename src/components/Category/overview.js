@@ -4,6 +4,7 @@ import API from '../../utils/api';
 import HeaderLayout from '../HeaderLayout';
 import Form from '../Form';
 import ArrowBack from 'material-ui-icons/ArrowBack';
+import Close from 'material-ui-icons/Close';
 import Check from 'material-ui-icons/Check';
 import Edit from 'material-ui-icons/Edit';
 import Delete from 'material-ui-icons/Delete';
@@ -48,17 +49,18 @@ class CategoryItemOverview extends Component {
   }
 
   render = _ => {
-    const { categoryId, settings, fields } = this.props;
+    const { categoryId, settings, fields, closeDialog } = this.props;
     const { item, editMode, loading } = this.state;
     return (
       <HeaderLayout 
         title={item ? getInfo(settings.primaryFields, item) : ''}
         loading={loading}
         operations={[
-          {id:'arrowBack', icon:ArrowBack, color:"#006064", to:`/${categoryId}`},
-          {id:'check', icon:Check, right: true, hidden:!editMode, color:"#006064", onClick: _ => this._updateItem()},
+          {id:'arrowBack', icon:ArrowBack, hidden:Boolean(closeDialog), color:"#006064", to:`/${categoryId}`},
+          {id:'close', icon:Close, hidden:!Boolean(closeDialog), color:"#006064", onClick:closeDialog},
+          {id:'check', icon:Check, right: true, hidden:!editMode, color:"#006064", onClick:this._updateItem},
           {id:'edit', icon:Edit, right: true, hidden:editMode, color:"#006064", onClick: _ => this._changeEditMode(true)},
-          {id:'delete', icon:Delete, right: true, hidden:editMode, color:"#006064", onClick: _ => this._deleteItem()},
+          {id:'delete', icon:Delete, right: true, hidden:editMode, color:"#006064", onClick:this._deleteItem},
         ]}
       >
         <Form
@@ -77,6 +79,11 @@ CategoryItemOverview.propTypes = {
   categoryId: PropTypes.string.isRequired,
   settings: PropTypes.object.isRequired,
   fields: PropTypes.array.isRequired,
+  closeDialog: PropTypes.func,
+}
+
+CategoryItemOverview.defaultProps = {
+
 }
 
 export default CategoryItemOverview;

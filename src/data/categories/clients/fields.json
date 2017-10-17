@@ -124,7 +124,7 @@
     "relation": "movements",
     "views": {
       "overview": {
-        "x": 6,
+        "x": 6, "xs": 2,
         "small": {"x":10}
       },
       "list": {
@@ -137,7 +137,7 @@
     "type": "text",
     "views": {
       "overview": {
-        "x": 7, "xs":3, "ys": 10,
+        "x": 8, "xs":3, "ys": 10,
         "small": {"x":11}
       },
       "list": {
@@ -150,7 +150,7 @@
     "type": "number",
     "views": {
       "overview": {
-        "x": 7, "ys": 2,
+        "x": 8, "ys": 2,
         "small": {"x":12}
       },
       "list": {
@@ -162,7 +162,7 @@
     "label": "Raza",
     "views": {
       "overview": {
-        "x": 8, "ys": 2,
+        "x": 9, "ys": 2,
         "small": {"x":13}
       }
     }
@@ -177,7 +177,7 @@
     ],
     "views": {
       "overview": {
-        "x": 9, "ys": 2,
+        "x": 10, "ys": 2,
         "small": {"x":14}
       }
     }
@@ -188,7 +188,7 @@
     "relation": "clients",
     "views": {
       "overview": {
-        "x": 10,
+        "x": 11,
         "small": {"x":15}
       }
     }

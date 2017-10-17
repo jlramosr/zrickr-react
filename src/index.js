@@ -24,6 +24,10 @@ let theme = createMuiTheme({
       mobileLandscape: 48,
       tabletDesktop: 64,
     },
+    denseListCell: {
+      height: 20,
+      lineHeight: '14px',
+    },
     drawerWidth: 240,
     fontFamily:
       '-apple-system,system-ui,BlinkMacSystemFont,' +
@@ -38,6 +42,19 @@ theme = {
     MuiDrawer: {
       paper: {
         width: theme.standards.drawerWidth,
+      }
+    },
+    MuiListItem: {
+      root: {
+        outline: 'none',
+      },
+      dense: {
+        height: theme.standards.denseListCell.height,
+      }
+    },
+    MuiListItemText: {
+      textDense: {
+        lineHeight: theme.standards.denseListCell.lineHeight,
       }
     },
   },

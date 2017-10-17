@@ -1,6 +1,21 @@
 {
-  "11231": {"name":"Acciona", "address": "C/Federico", "movements": {"011231": true,"024124": true} }, 
-  "24124": {"name":"Google", "address": "C/Magnolias", "movements": {"021319": true} },
+  "11231": {"name":"Acciona", "address": "C/Federico", "movements": {
+    "011231": true,
+    "024124": true,
+    "021319": true,
+    "011231": true, 
+    "024144": true,
+    "021339": true,
+    "011221": true, 
+    "024124": true,
+    "021219": true,
+    "013231": true, 
+    "224124": true,
+    "321319": true
+  }}, 
+  "24124": {"name":"Google", "address": "C/Magnolias", "movements": {
+    "021319": true
+  }},
   "21319": {"name":"Julián", "lastname":"Sánchez", "cliente_asociado": "021319", "address": "C/Ferraz"},
   "21320": {"name":"Iberdrola", "address": "C/Ferraz"},
   "21321": {"name":"Amazon", "address": "C/Ferraz"},

@@ -6,7 +6,6 @@ import { MenuItem } from 'material-ui/Menu';
 import Switch from 'material-ui/Switch';
 import { ListItem } from 'material-ui/List';
 import Divider from 'material-ui/Divider';
-import Paper from 'material-ui/Paper';
 import CategoryList from '../Category/list';
 import { getInfo } from '../../utils/helpers';
 
@@ -216,31 +215,25 @@ class Field extends Component {
 
       case 'list':
         return (
-          <div>
-            { 
-              relationId ? (
-                <Paper>
-                  <CategoryList
-                    relationMode={true}
-                    categoryId={relationId}
-                    categoryLabel={label}
-                    settings={relationSettings}
-                    items={relationItems}
-                    fields={relationFields}
-                    loading={relationLoading}
-                    showAvatar={false}
-                  />
-                </Paper>
-              ) : (
-                <div>
-                  <ListItem
-                    disabled
-                  />
-                  <Divider/>
-                </div>
-              )
-            }
-          </div>
+          relationId ? (
+            <CategoryList
+              relationMode={true}
+              categoryId={relationId}
+              categoryLabel={label}
+              settings={relationSettings}
+              items={relationItems}
+              fields={relationFields}
+              loading={relationLoading}
+              showAvatar={false}
+            />
+          ) : (
+            <div>
+              <ListItem
+                disabled
+              />
+              <Divider/>
+            </div>
+          )
         )
 
       default: 

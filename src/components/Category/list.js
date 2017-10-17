@@ -7,6 +7,7 @@ import Divider from 'material-ui/Divider';
 import Table, { TableBody, TableCell, TableHead, TableRow, TableFooter, TableSortLabel } from 'material-ui/Table';
 import Checkbox from 'material-ui/Checkbox';
 import Tooltip from 'material-ui/Tooltip';
+import Typography from 'material-ui/Typography';
 import Avatar from 'material-ui/Avatar';
 import Add from 'material-ui-icons/Add';
 import ViewList from 'material-ui-icons/ViewList';
@@ -17,39 +18,28 @@ import Dialog from 'material-ui/Dialog';
 import Icon from 'material-ui/Icon';
 import IconButton from 'material-ui/IconButton';
 import Menu, { MenuItem } from 'material-ui/Menu';
+import Paper from 'material-ui/Paper';
+import AppBar from 'material-ui/AppBar';
+import Toolbar from 'material-ui/Toolbar';
 import escapeRegExp from 'escape-string-regexp';
 import removeDiacritics from 'remove-diacritics';
+import ItemOverview from './overview';
 import ItemNew from './new';
 import { getInfo } from '../../utils/helpers';
 import { withStyles } from 'material-ui/styles';
 
-const styles = theme => ({
-  relationModeToolbar: {
-  },
-  relationModeToolbarText: {
-  },
-  relationModeToolbarIcon: {
-  },
-  listLink: {
-  },
-  listMenuItem: {
-  },
+const containerStyles = theme => ({
   tableCell: {
     padding: 0,
     cursor: 'pointer',
   },
-  menuItemOperation:{
-  },
-  iconMenu: {
+  menu: {
   },
 })
 
-class CategoryList extends Component {
+class CategoryListContainer extends Component {
   state = {
-    searchQuery: '',
     showingItems: [],
-    showNewDialog: false,
-    tableMode: false,
     itemsSelected: new Set([]),
     order: 'asc',
     orderBy: '',
@@ -58,7 +48,7 @@ class CategoryList extends Component {
     anchorEl: null,
   }
 
-  updateSearchQuery = searchQuery => {
+  _updateSearchQuery = searchQuery => {
     const { settings, items } = this.props;
     let showingItems = items;
     let itemsSelected = this.state.itemsSelected;
@@ -73,21 +63,11 @@ class CategoryList extends Component {
         .map(item => item.id)
       );
     }
-    this.setState({showingItems, searchQuery, itemsSelected})
+    this.setState({showingItems, itemsSelected})
   };
 
-  _changeView = view => this.setState({tableMode: view === 'list', itemsSelected:new Set([])});
-
-  _openNewDialog = _ => this.setState({ showNewDialog: true});
-
-  _newDialogClosed = _ => this.closeNewDialog();
-
-  closeNewDialog = _ => this.setState({ showNewDialog: false});
-
-  _focusSearchInput = _ => this.searchInput.focus();
-
   _tableSelectAllClick = (event, checked) =>
-    this.setState({itemsSelected: new Set(checked ? this.state.showingItems.map(item => item.id) : [])});
+  this.setState({itemsSelected: new Set(checked ? this.state.showingItems.map(item => item.id) : [])});
 
   _tableSelectRowClick = (event, id) => {
     this.setState(prevState => {
@@ -95,6 +75,14 @@ class CategoryList extends Component {
       let isRowSelected = itemsSelected.delete(id);
       return { itemsSelected: isRowSelected ? itemsSelected : itemsSelected.add(id) }
     })
+  }
+
+  _itemClick(event, relationMode, id) {
+    if (relationMode) {
+      event.preventDefault();
+      this.props.openOverviewDialog(id);
+      
+    }
   }
 
   _tableRowClick = (event, id) => {
@@ -134,63 +122,20 @@ class CategoryList extends Component {
   };
 
   componentWillReceiveProps = props => {
-    this.setState({showingItems: props.items});
+    if (this.props.searchQuery !== props.searchQuery) {
+      this._updateSearchQuery(props.searchQuery);
+    } else {
+      this.setState({showingItems: props.items});
+    }
   }
 
   render = _ => {
-    const { categoryId, categoryLabel, settings, fields, operations, relationMode, showAvatar, classes, loading } = this.props;
-    const { showNewDialog, showingItems, tableMode, itemsSelected, order, orderBy } = this.state;
+    const { classes, categoryId, tableMode, settings, fields, showAvatar, dense, relationMode } = this.props;
+    const { showingItems, itemsSelected, order, orderBy } = this.state;
 
     return (
-      <HeaderLayout
-        title={categoryLabel}
-        position={relationMode ? "static" : "fixed"}
-        updateSearchQuery={this.updateSearchQuery}
-        loading={loading}
-        operations={operations || 
-          relationMode ? 
-            [
-              {
-                id:'addRelation',
-                icon:Add,
-                right: true,
-                onClick: _ => this._openNewDialog()
-              }
-            ]
-          : [
-              { 
-                id:'arrowBack',
-                icon:ArrowBack,
-                to:'/'
-              },
-              {
-                id:'viewAgenda',
-                icon:ViewAgenda,
-                description:'Vista agenda',
-                hidden:!tableMode,
-                right: true,
-                onClick: _ => this._changeView('agenda'),
-              },
-              {
-                id:'viewList',
-                icon:ViewList,
-                description:'Vista tabla',
-                hidden:tableMode,
-                right: true,
-                onClick: _ => this._changeView('list'),
-              },
-              {
-                id:'addItem',
-                icon:Add,
-                description:`Nuevo ${settings.itemLabel || 'Item'}`,
-                right: true, onClick: _ => this._openNewDialog()
-              },
-            ]
-        }
-      >
-        
-      {tableMode ? (
-        <Table height={'300px'}>
+      tableMode ? (
+        <Table>
           <TableHead>
             <TableRow>
               <TableCell checkbox>
@@ -240,7 +185,7 @@ class CategoryList extends Component {
                     onClick={event => this._tableRowClick(event, item.id)}
                     onKeyDown={event => this._tableRowKeyDown(event, item.id)}
                   >
-                    {item[field.id]}
+                    {typeof item[field.id] === 'object' ? JSON.stringify(item[field.id]) : item[field.id]}
                   </TableCell>
                 )}  
               </TableRow>
@@ -259,35 +204,36 @@ class CategoryList extends Component {
       ) : (
 
         <div>
-          <List>
+          <List dense={dense}>
           {showingItems.map(item =>
-            <Link
-              key={item.id}
-              tabIndex={-1}
-              className={classes.listLink}
-              to={`/${categoryId}/${item.id}`}
-            >
-              <ListItem button>
-                {showAvatar &&
-                  <Avatar>
-                    <Icon>{settings.icon && React.createElement(settings.icon)}</Icon>
-                  </Avatar>
-                }
-                <ListItemText
-                  primary={getInfo(settings.primaryFields, item)}
-                  secondary={getInfo(settings.secondaryFields, item)}
-                />
-                <ListItemSecondaryAction>
-                  <IconButton aria-label="Item Menu">
-                    <MoreVert
-                      className={classes.iconMenu}
-                      onClick={ event => this._handleMenuItemClick(event, item.id)}
-                    />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
+            <div key={item.id}>
+              <Link
+                key={item.id}
+                tabIndex={-1}
+                to={`/${categoryId}/${item.id}`}
+                onClick={ event => this._itemClick(event, relationMode, item.id)}
+              >
+                <ListItem button>
+                  {showAvatar &&
+                    <Avatar>
+                      <Icon>{settings.icon && React.createElement(settings.icon)}</Icon>
+                    </Avatar>
+                  }
+                  <ListItemText
+                    primary={getInfo(settings.primaryFields, item)}
+                    secondary={getInfo(settings.secondaryFields, item)}
+                  />
+                  <ListItemSecondaryAction>
+                    <IconButton aria-label="Item Menu">
+                      <MoreVert
+                        onClick={ event => this._handleMenuItemClick(event, item.id)}
+                      />
+                    </IconButton>
+                  </ListItemSecondaryAction>
+                </ListItem> 
+              </Link>
               <Divider/>
-            </Link>
+            </div>
           )}
           </List>
           <Menu
@@ -296,35 +242,200 @@ class CategoryList extends Component {
             anchorEl={this.state.anchorEl}
             open={this.state.showMenuItem}
             onRequestClose={this._handleMenuItemClose}
-            className={classes.listMenuItem}
+            className={classes.menu}
           >
-            <MenuItem className={classes.menuItemOperation} onClick={this._handleMenuItemClose}>
+            <MenuItem onClick={this._handleMenuItemClose}>
               View
             </MenuItem>
-            <MenuItem className={classes.menuItemOperation} onClick={this._handleMenuItemClose}>
+            <MenuItem onClick={this._handleMenuItemClose}>
               Edit
             </MenuItem>
-            <MenuItem className={classes.menuItemOperation} onClick={this._handleMenuItemClose}>
+            <MenuItem onClick={this._handleMenuItemClose}>
               Delete
             </MenuItem>
           </Menu>
         </div>
-      )}
-
-      <Dialog
-        fullScreen
-        open={showNewDialog}
-        onRequestClose={_ => this._newDialogClosed()}
-      >
-        <ItemNew
-          title={`Nuevo ${settings.itemLabel || 'Item'}`}
-          closeDialog={_ => this.closeNewDialog()}
-        />
-      </Dialog>
-
-    </HeaderLayout>
+      )
     );
   }
+}
+
+CategoryListContainer.propTypes = {
+  classes: PropTypes.object.isRequired,
+  categoryId: PropTypes.string.isRequired,
+  settings: PropTypes.object.isRequired,
+  dense: PropTypes.bool,
+  items: PropTypes.array.isRequired,
+  fields: PropTypes.array.isRequired,
+  showAvatar: PropTypes.bool,
+  relationMode: PropTypes.bool,
+}
+
+CategoryListContainer.defaultProps = {
+  showAvatar: true,
+  dense: false,
+  relationMode: false,
+}
+
+CategoryListContainer = withStyles(containerStyles)(CategoryListContainer);
+
+const listStyles = theme => ({
+  appBar: { 
+    display: 'flex',
+    justifyContent: 'center',
+    height: 30,
+    background: theme.palette.primary[800],
+  },
+  toolbar: { 
+    padding: theme.spacing.unit*2,
+  },
+  typography: { 
+    color: theme.palette.secondary[400],
+  },
+  paper: { 
+    height: 300,
+    overflowX: 'auto',
+  }
+});
+
+class CategoryList extends Component {
+  state = {
+    searchQuery: '',
+    showNewDialog: false,
+    showOverviewDialog: false,
+    overviewItemId: '',
+    tableMode: false,
+  }
+
+  _updateSearchQuery = searchQuery => this.setState({searchQuery});
+
+  //, itemsSelected:new Set([])
+  _changeView = view => this.setState({tableMode: view === 'list'});
+
+  _openNewDialog = _ => this.setState({ showNewDialog: true});
+
+  _newDialogClosed = _ => this.closeNewDialog();
+
+  closeNewDialog = _ => this.setState({ showNewDialog: false});
+
+  openOverviewDialog = itemId => this.setState({ showOverviewDialog: true, overviewItemId: itemId});
+  
+  overviewDialogClosed = _ => this.closeOverviewDialog();
+  
+  closeOverviewDialog = _ => this.setState({ showOverviewDialog: false});
+
+  render = _ => {
+    const { classes, categoryId, categoryLabel, settings, items, fields, operations, relationMode, showAvatar, loading } = this.props;
+    const { searchQuery, showNewDialog, showOverviewDialog, overviewItemId, tableMode } = this.state;
+
+    return (
+      <div>
+        {relationMode ? (
+          <div>
+            <AppBar position="static" className={classes.appBar}>
+              <Toolbar disableGutters className={classes.toolbar}>
+                <Typography className={classes.typography} type="subheading">
+                  {categoryLabel}
+               </Typography>
+              </Toolbar>
+            </AppBar>
+            <Paper className={classes.paper}>
+              <CategoryListContainer
+                dense
+                relationMode
+                openOverviewDialog={this.openOverviewDialog}
+                overviewDialogClosed={this.overviewDialogClosed}
+                closeOverviewDialog={this.closeOverviewDialog}
+                categoryId={categoryId}
+                settings={settings}
+                items={items}
+                fields={fields}
+                tableMode={tableMode}
+                showAvatar={showAvatar}
+                searchQuery={searchQuery}
+              >
+              </CategoryListContainer>
+            </Paper>
+          </div>
+        ) : (
+          <HeaderLayout
+            title={categoryLabel}
+            headerPosition="fixed"
+            updateSearchQuery={this._updateSearchQuery}
+            loading={loading}
+            operations={operations || [
+              { 
+                id:'arrowBack',
+                icon:ArrowBack,
+                to:'/'
+              },
+              {
+                id:'viewAgenda',
+                icon:ViewAgenda,
+                description:'Vista agenda',
+                hidden:!tableMode,
+                right: true,
+                onClick: _ => this._changeView('agenda'),
+              },
+              {
+                id:'viewList',
+                icon:ViewList,
+                description:'Vista tabla',
+                hidden:tableMode,
+                right: true,
+                onClick: _ => this._changeView('list'),
+              },
+              {
+                id:'addItem',
+                icon:Add,
+                description:`Nuevo ${settings.itemLabel || 'Item'}`,
+                right: true, onClick: this._openNewDialog
+              },
+            ]}
+          >
+            
+            <CategoryListContainer
+              categoryId={categoryId}
+              settings={settings}
+              items={items}
+              fields={fields}
+              tableMode={tableMode}
+              showAvatar={showAvatar}
+              searchQuery={searchQuery}
+            >
+            </CategoryListContainer>
+
+          </HeaderLayout>
+        )}
+
+        <Dialog
+          fullScreen
+          open={showNewDialog}
+          onRequestClose={_ => this._newDialogClosed()}
+        >
+          <ItemNew
+            title={`Nuevo ${settings.itemLabel || 'Item'}`}
+            closeDialog={_ => this.closeNewDialog()}
+          />
+        </Dialog>
+
+        <Dialog
+          fullScreen
+          open={showOverviewDialog}
+          onRequestClose={_ => this.overviewDialogClosed()}
+        >
+          <ItemOverview
+            closeDialog={this.closeOverviewDialog}
+            id={overviewItemId}
+            categoryId={categoryId}
+            settings={settings}
+            fields={fields}
+          />
+        </Dialog>
+
+      </div>
+    )
+  };
 }
 
 CategoryList.propTypes = {
@@ -332,10 +443,11 @@ CategoryList.propTypes = {
   categoryId: PropTypes.string.isRequired,
   categoryLabel: PropTypes.string.isRequired,
   settings: PropTypes.object,
+  fields: PropTypes.array,
   items: PropTypes.array,
   operations: PropTypes.array,
-  relationMode: PropTypes.bool,
-  showAvatar: PropTypes.bool,
+  relationMode: PropTypes.bool.isRequired,
+  showAvatar: PropTypes.bool.isRequired,
   loading: PropTypes.bool.isRequired,
 }
 
@@ -345,4 +457,4 @@ CategoryList.defaultProps = {
   loading: true,
 }
 
-export default withStyles(styles)(CategoryList);
+export default withStyles(listStyles)(CategoryList);
