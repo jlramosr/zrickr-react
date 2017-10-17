@@ -11,8 +11,6 @@ import Close from 'material-ui-icons/Close';
 import CircularProgress from 'material-ui/Progress/CircularProgress';
 
 const styles = theme => ({
-  layout: {
-  },
   appBar: {
     width: '-webkit-fill-available',
   },
@@ -42,23 +40,6 @@ const styles = theme => ({
       marginRight: theme.spacing.unit*4,
     },
   },
-  miniSearch: {
-    position: 'absolute',
-    left: theme.spacing.unit*2,
-    top: '50%',
-    transform: 'translate(0, -50%)',
-    width: '50%',
-    zIndex: 5,
-    [theme.breakpoints.up('sm')]: {
-      display: 'none',
-    },
-  },
-  loading: {
-    display: 'flex',
-    alignItems: 'center',
-    marginLeft: theme.spacing.unit,
-    marginRight: theme.spacing.unit,
-  },
   rightOperations: {
     order: 4,
     flex: 1,
@@ -70,6 +51,17 @@ const styles = theme => ({
   },
   operations: {
     display: 'flex',
+  },
+  miniSearch: {
+    position: 'absolute',
+    left: theme.spacing.unit*2,
+    top: '50%',
+    transform: 'translate(0, -50%)',
+    width: '50%',
+    zIndex: 5,
+    [theme.breakpoints.up('sm')]: {
+      display: 'none',
+    },
   },
   titleText: {
     marginBottom: 2,
@@ -118,24 +110,17 @@ const styles = theme => ({
     height: 20,
     cursor: 'pointer',
   },
-  searchBarResults: {
-    padding: '0 30px',
-    alignContent: 'right',
-  },
   searchOperation: {
     [theme.breakpoints.up('sm')]: {
       display: 'none',
     },
   },
-  content: {
-    paddingTop: theme.standards.toolbarHeights.mobilePortrait,
-    [`${theme.breakpoints.up('xs')} and (orientation: landscape)`]: {
-      paddingTop: theme.standards.toolbarHeights.mobileLandscape,
-    },
-    [theme.breakpoints.up('sm')]: {
-      paddingTop: theme.standards.toolbarHeights.tabletDesktop,
-    },
-  },
+  loading: {
+    display: 'flex',
+    alignItems: 'center',
+    marginLeft: theme.spacing.unit,
+    marginRight: theme.spacing.unit,
+  }
 });
 
 let HeaderLayoutOperations = props => {
@@ -181,28 +166,58 @@ class HeaderLayout extends Component {
   }
 
   render = _ => {
-    const { operations, title, headerPosition, updateSearchQuery, children, classes, loading } = this.props;
+    const { operations, title, position, updateSearchQuery, classes, loading } = this.props;
     const { searchQuery, showMiniSearch } = this.state;
 
     return (
-      <div className={classes.layout}>
-        <AppBar className={classes.appBar} position={headerPosition}>
-          <Toolbar className={classes.toolbar}>
+      <AppBar className={classes.appBar} position={position}>
+        <Toolbar className={classes.toolbar}>
 
-            <div className={classes.leftOperations}>
-              {React.createElement(HeaderLayoutOperations, {
-                operations: operations.filter(operation => !operation.right)})
+          <div className={classes.leftOperations}>
+            {React.createElement(HeaderLayoutOperations, {
+              operations: operations.filter(operation => !operation.right)})
+            }
+          </div>
+
+          <div className={classes.title}>
+            <Typography className={classes.titleText} type="title" color="inherit">
+              {title}
+            </Typography>
+          </div>
+
+          <div className={classes.search}>
+          {updateSearchQuery &&
+            <div className={classes.searchBar}>
+              <Search
+                size={20}
+                color="inherit"
+                className={classes.searchBarSearchIcon}
+              />
+              <Input
+                classes={{
+                  root:classes.searchBarInput,
+                  focused:classes.searchBarInputFocused,
+                }}
+                color="contrast"
+                placeholder="Buscar"
+                disableUnderline
+                value={searchQuery}
+                onChange={ event => this._updateSearchQuery(event.target.value) }
+              />
+              {searchQuery && 
+                <Close
+                  size={20}
+                  color="inherit"
+                  className={classes.searchBarCloseIcon}
+                  onClick={ event => this._updateSearchQuery('')}
+                />
               }
             </div>
+          }
+          </div>
 
-            <div className={classes.title}>
-              <Typography className={classes.titleText} type="title" color="inherit">
-                {title}
-              </Typography>
-            </div>
-
-            <div className={classes.search}>
-            {updateSearchQuery &&
+          {updateSearchQuery && showMiniSearch &&
+            <div className={classes.miniSearch}>
               <div className={classes.searchBar}>
                 <Search
                   size={20}
@@ -229,82 +244,32 @@ class HeaderLayout extends Component {
                   />
                 }
               </div>
+            </div>
+            
+          }
+
+          <div className={classes.rightOperations}>
+            <div className={classes.loading}>
+            {loading &&
+              <CircularProgress size={30} color="accent"/>
             }
             </div>
-
-            {updateSearchQuery && showMiniSearch &&
-              <div className={classes.miniSearch}>
-                <div className={classes.searchBar}>
-                  <Search
-                    size={20}
-                    color="inherit"
-                    className={classes.searchBarSearchIcon}
-                  />
-                  <Input
-                    classes={{
-                      root:classes.searchBarInput,
-                      focused:classes.searchBarInputFocused,
-                    }}
-                    color="contrast"
-                    placeholder="Buscar"
-                    disableUnderline
-                    value={searchQuery}
-                    onChange={ event => this._updateSearchQuery(event.target.value) }
-                  />
-                  {searchQuery && 
-                    <Close
-                      size={20}
-                      color="inherit"
-                      className={classes.searchBarCloseIcon}
-                      onClick={ event => this._updateSearchQuery('')}
-                    />
-                  }
-                </div>
-              </div>
-              
-            }
-
-            {/*
-              <div className={classes.searchBarResults} hidden={
-                !(searchQuery && showingItems.length !== 0 && showingItems.length !== items.length)
-              }>
-                {`Mostrando ${showingItems.length} resultados`}
-              </div>
-              <div className={classes.searchBarResults} hidden={
-                !(searchQuery && showingItems.length === 0)
-              }>
-                No se han encontrado coincidencias
-              </div>
-            */}
-
-            <div className={classes.rightOperations}>
-              <div className={classes.loading}>
-              {loading &&
-                <CircularProgress size={30} color="accent"/>
-              }
-              </div>
-              <div className={classes.searchOperation}>
-                <Operation
-                  id="search-small"
-                  icon={Search}
-                  color={showMiniSearch ? 'accent' : 'contrast'}
-                  hidden={!updateSearchQuery}
-                  onClick={this._openMiniSearch}
-                />
-              </div>
-              {React.createElement(HeaderLayoutOperations, {
-                operations: operations.filter(operation => operation.right)
-              })}
+            <div className={classes.searchOperation}>
+              <Operation
+                id="search-small"
+                icon={Search}
+                color={showMiniSearch ? 'accent' : 'contrast'}
+                hidden={!updateSearchQuery}
+                onClick={this._openMiniSearch}
+              />
             </div>
+            {React.createElement(HeaderLayoutOperations, {
+              operations: operations.filter(operation => operation.right)
+            })}
+          </div>
 
-          </Toolbar>
-        </AppBar>
-
-        <div className={classes.content}>
-          {children}
-        </div>
-        
-      </div>
+        </Toolbar>
+      </AppBar>
     )
   }
 };
@@ -312,16 +277,15 @@ class HeaderLayout extends Component {
 HeaderLayout.propTypes = {
   theme: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
-  children: PropTypes.node,
   operations: PropTypes.array,
   title: PropTypes.string,
-  headerPosition: PropTypes.string.isRequired,
+  position: PropTypes.string.isRequired,
   updateSearchQuery: PropTypes.func,
   loading: PropTypes.bool.isRequired,
 };
 
 HeaderLayout.defaultProps = {
-  headerPosition: 'fixed',
+  position: 'fixed',
   loading: false,
 };
 

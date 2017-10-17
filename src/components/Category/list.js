@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import HeaderLayout from '../HeaderLayout';
+import Toolbar from '../HeaderLayout/toolbar';
+import Content from '../HeaderLayout/content';
 import List, { ListItem, ListItemSecondaryAction, ListItemText } from 'material-ui/List';
 import Divider from 'material-ui/Divider';
 import Table, { TableBody, TableCell, TableHead, TableRow, TableFooter, TableSortLabel } from 'material-ui/Table';
 import Checkbox from 'material-ui/Checkbox';
 import Tooltip from 'material-ui/Tooltip';
-import Typography from 'material-ui/Typography';
 import Avatar from 'material-ui/Avatar';
 import Add from 'material-ui-icons/Add';
 import ViewList from 'material-ui-icons/ViewList';
@@ -19,8 +19,6 @@ import Icon from 'material-ui/Icon';
 import IconButton from 'material-ui/IconButton';
 import Menu, { MenuItem } from 'material-ui/Menu';
 import Paper from 'material-ui/Paper';
-import AppBar from 'material-ui/AppBar';
-import Toolbar from 'material-ui/Toolbar';
 import escapeRegExp from 'escape-string-regexp';
 import removeDiacritics from 'remove-diacritics';
 import ItemOverview from './overview';
@@ -81,7 +79,6 @@ class CategoryListContainer extends Component {
     if (relationMode) {
       event.preventDefault();
       this.props.openOverviewDialog(id);
-      
     }
   }
 
@@ -269,6 +266,7 @@ CategoryListContainer.propTypes = {
   fields: PropTypes.array.isRequired,
   showAvatar: PropTypes.bool,
   relationMode: PropTypes.bool,
+  openOverviewDialog: PropTypes.func,
 }
 
 CategoryListContainer.defaultProps = {
@@ -294,7 +292,7 @@ const listStyles = theme => ({
   },
   paper: { 
     height: 300,
-    overflowX: 'auto',
+    overflow: 'auto',
   }
 });
 
@@ -332,20 +330,41 @@ class CategoryList extends Component {
       <div>
         {relationMode ? (
           <div>
-            <AppBar position="static" className={classes.appBar}>
-              <Toolbar disableGutters className={classes.toolbar}>
-                <Typography className={classes.typography} type="subheading">
-                  {categoryLabel}
-               </Typography>
-              </Toolbar>
-            </AppBar>
+            <Toolbar
+              title={categoryLabel}
+              position="static"
+              updateSearchQuery={this._updateSearchQuery}
+              loading={loading}
+              operations={operations || [
+                {
+                  id:'viewAgenda',
+                  icon:ViewAgenda,
+                  description:'Vista agenda',
+                  hidden:!tableMode,
+                  right: true,
+                  onClick: _ => this._changeView('agenda'),
+                },
+                {
+                  id:'viewList',
+                  icon:ViewList,
+                  description:'Vista tabla',
+                  hidden:tableMode,
+                  right: true,
+                  onClick: _ => this._changeView('list'),
+                },
+                {
+                  id:'addItem',
+                  icon:Add,
+                  description:`Nuevo ${settings.itemLabel || 'Item'}`,
+                  right: true, onClick: this._openNewDialog
+                },
+              ]}
+            />
             <Paper className={classes.paper}>
               <CategoryListContainer
                 dense
                 relationMode
                 openOverviewDialog={this.openOverviewDialog}
-                overviewDialogClosed={this.overviewDialogClosed}
-                closeOverviewDialog={this.closeOverviewDialog}
                 categoryId={categoryId}
                 settings={settings}
                 items={items}
@@ -358,71 +377,72 @@ class CategoryList extends Component {
             </Paper>
           </div>
         ) : (
-          <HeaderLayout
-            title={categoryLabel}
-            headerPosition="fixed"
-            updateSearchQuery={this._updateSearchQuery}
-            loading={loading}
-            operations={operations || [
-              { 
-                id:'arrowBack',
-                icon:ArrowBack,
-                to:'/'
-              },
-              {
-                id:'viewAgenda',
-                icon:ViewAgenda,
-                description:'Vista agenda',
-                hidden:!tableMode,
-                right: true,
-                onClick: _ => this._changeView('agenda'),
-              },
-              {
-                id:'viewList',
-                icon:ViewList,
-                description:'Vista tabla',
-                hidden:tableMode,
-                right: true,
-                onClick: _ => this._changeView('list'),
-              },
-              {
-                id:'addItem',
-                icon:Add,
-                description:`Nuevo ${settings.itemLabel || 'Item'}`,
-                right: true, onClick: this._openNewDialog
-              },
-            ]}
-          >
-            
-            <CategoryListContainer
-              categoryId={categoryId}
-              settings={settings}
-              items={items}
-              fields={fields}
-              tableMode={tableMode}
-              showAvatar={showAvatar}
-              searchQuery={searchQuery}
-            >
-            </CategoryListContainer>
+          <div>
+            <Toolbar
+              title={categoryLabel}
+              updateSearchQuery={this._updateSearchQuery}
+              loading={loading}
+              operations={operations || [
+                { 
+                  id:'arrowBack',
+                  icon:ArrowBack,
+                  to:'/'
+                },
+                {
+                  id:'viewAgenda',
+                  icon:ViewAgenda,
+                  description:'Vista agenda',
+                  hidden:!tableMode,
+                  right: true,
+                  onClick: _ => this._changeView('agenda'),
+                },
+                {
+                  id:'viewList',
+                  icon:ViewList,
+                  description:'Vista tabla',
+                  hidden:tableMode,
+                  right: true,
+                  onClick: _ => this._changeView('list'),
+                },
+                {
+                  id:'addItem',
+                  icon:Add,
+                  description:`Nuevo ${settings.itemLabel || 'Item'}`,
+                  right: true, onClick: this._openNewDialog
+                },
+              ]}
+            />
 
-          </HeaderLayout>
+            <Content>
+              <CategoryListContainer
+                categoryId={categoryId}
+                settings={settings}
+                items={items}
+                fields={fields}
+                tableMode={tableMode}
+                showAvatar={showAvatar}
+                searchQuery={searchQuery}
+              >
+              </CategoryListContainer>
+            </Content>
+          </div>
         )}
 
         <Dialog
           fullScreen
           open={showNewDialog}
-          onRequestClose={_ => this._newDialogClosed()}
+          onRequestClose={this._newDialogClosed}
         >
           <ItemNew
-            title={`Nuevo ${settings.itemLabel || 'Item'}`}
-            closeDialog={_ => this.closeNewDialog()}
+            closeDialog={this.closeNewDialog}
+            itemLabel={settings.itemLabel}
           />
         </Dialog>
 
         <Dialog
           fullScreen
           open={showOverviewDialog}
-          onRequestClose={_ => this.overviewDialogClosed()}
+          onRequestClose={this.overviewDialogClosed}
         >
           <ItemOverview
             closeDialog={this.closeOverviewDialog}
