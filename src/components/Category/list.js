@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import Toolbar from '../HeaderLayout/toolbar';
-import Content from '../HeaderLayout/content';
+import HeaderLayout from '../HeaderLayout';
 import List, { ListItem, ListItemSecondaryAction, ListItemText } from 'material-ui/List';
 import Divider from 'material-ui/Divider';
 import Table, { TableBody, TableCell, TableHead, TableRow, TableFooter, TableSortLabel } from 'material-ui/Table';
@@ -18,7 +17,6 @@ import Dialog from 'material-ui/Dialog';
 import Icon from 'material-ui/Icon';
 import IconButton from 'material-ui/IconButton';
 import Menu, { MenuItem } from 'material-ui/Menu';
-import Paper from 'material-ui/Paper';
 import escapeRegExp from 'escape-string-regexp';
 import removeDiacritics from 'remove-diacritics';
 import ItemOverview from './overview';
@@ -301,7 +299,7 @@ class CategoryList extends Component {
     searchQuery: '',
     showNewDialog: false,
     showOverviewDialog: false,
-    overviewItemId: '',
+    dialogItemId: '',
     tableMode: false,
   }
 
@@ -316,144 +314,76 @@ class CategoryList extends Component {
 
   closeNewDialog = _ => this.setState({ showNewDialog: false});
 
-  openOverviewDialog = itemId => this.setState({ showOverviewDialog: true, overviewItemId: itemId});
+  openOverviewDialog = itemId => this.setState({ showOverviewDialog: true, dialogItemId: itemId});
   
   overviewDialogClosed = _ => this.closeOverviewDialog();
   
   closeOverviewDialog = _ => this.setState({ showOverviewDialog: false});
 
   render = _ => {
-    const { classes, categoryId, categoryLabel, settings, items, fields, operations, relationMode, showAvatar, loading } = this.props;
-    const { searchQuery, showNewDialog, showOverviewDialog, overviewItemId, tableMode } = this.state;
+    const { categoryId, categoryLabel, settings, items, fields, operations, relationMode, showAvatar, loading } = this.props;
+    const { searchQuery, showNewDialog, showOverviewDialog, dialogItemId, tableMode } = this.state;
 
     return (
-      <div>
-        {relationMode ? (
-          <div>
-            <Toolbar
-              title={categoryLabel}
-              position="static"
-              updateSearchQuery={this._updateSearchQuery}
-              loading={loading}
-              operations={operations || [
-                {
-                  id:'viewAgenda',
-                  icon:ViewAgenda,
-                  description:'Vista agenda',
-                  hidden:!tableMode,
-                  right: true,
-                  onClick: _ => this._changeView('agenda'),
-                },
-                {
-                  id:'viewList',
-                  icon:ViewList,
-                  description:'Vista tabla',
-                  hidden:tableMode,
-                  right: true,
-                  onClick: _ => this._changeView('list'),
-                },
-                {
-                  id:'addItem',
-                  icon:Add,
-                  description:`Nuevo ${settings.itemLabel || 'Item'}`,
-                  right: true, onClick: this._openNewDialog
-                },
-              ]}
-            />
-            <Paper className={classes.paper}>
-              <CategoryListContainer
-                dense
-                relationMode
-                openOverviewDialog={this.openOverviewDialog}
-                categoryId={categoryId}
-                settings={settings}
-                items={items}
-                fields={fields}
-                tableMode={tableMode}
-                showAvatar={showAvatar}
-                searchQuery={searchQuery}
-              >
-              </CategoryListContainer>
-            </Paper>
-          </div>
-        ) : (
-          <div>
-            <Toolbar
-              title={categoryLabel}
-              updateSearchQuery={this._updateSearchQuery}
-              loading={loading}
-              operations={operations || [
-                { 
-                  id:'arrowBack',
-                  icon:ArrowBack,
-                  to:'/'
-                },
-                {
-                  id:'viewAgenda',
-                  icon:ViewAgenda,
-                  description:'Vista agenda',
-                  hidden:!tableMode,
-                  right: true,
-                  onClick: _ => this._changeView('agenda'),
-                },
-                {
-                  id:'viewList',
-                  icon:ViewList,
-                  description:'Vista tabla',
-                  hidden:tableMode,
-                  right: true,
-                  onClick: _ => this._changeView('list'),
-                },
-                {
-                  id:'addItem',
-                  icon:Add,
-                  description:`Nuevo ${settings.itemLabel || 'Item'}`,
-                  right: true, onClick: this._openNewDialog
-                },
-              ]}
-            />
+      <HeaderLayout
+        miniToolbar={relationMode}
+        relative={relationMode}
+        relativeHeight={relationMode ? 200 : null}
+        title={categoryLabel}
+        updateSearchQuery={this._updateSearchQuery}
+        loading={loading}
+        operations={operations || [
+          { 
+            id:'arrowBack',
+            icon:ArrowBack,
+            hidden:relationMode,
+            to:'/',
+          },
+          {
+            id:'viewAgenda',
+            icon:ViewAgenda,
+            description:'Vista agenda',
+            hidden:!tableMode,
+            right: true,
+            onClick: _ => this._changeView('agenda'),
+          },
+          {
+            id:'viewList',
+            icon:ViewList,
+            description:'Vista tabla',
+            hidden:tableMode,
+            right: true,
+            onClick: _ => this._changeView('list'),
+          },
+          {
+            id:'addItem',
+            icon:Add,
+            description:`Nuevo ${settings.itemLabel || 'Item'}`,
+            right: true, onClick: this._openNewDialog
+          },
+        ]}
+      >
+        {React.createElement(CategoryListContainer, {
+          dense: relationMode,
+          openOverviewDialog: relationMode ? this.openOverviewDialog : null,
+          relationMode, categoryId, settings, items, fields, tableMode, showAvatar, searchQuery
+        })}
 
-            <Content>
-              <CategoryListContainer
-                categoryId={categoryId}
-                settings={settings}
-                items={items}
-                fields={fields}
-                tableMode={tableMode}
-                showAvatar={showAvatar}
-                searchQuery={searchQuery}
-              >
-              </CategoryListContainer>
-            </Content>
-          </div>
-        )}
-
-        <Dialog
-          fullScreen
-          open={showNewDialog}
-          onRequestClose={this._newDialogClosed}
-        >
-          <ItemNew
-            closeDialog={this.closeNewDialog}
-            itemLabel={settings.itemLabel}
-          />
+        <Dialog fullScreen open={showNewDialog} onRequestClose={this._newDialogClosed}>
+          <ItemNew closeDialog={this.closeNewDialog} itemLabel={settings.itemLabel}/>
         </Dialog>
 
-        <Dialog
-          fullScreen
-          open={showOverviewDialog}
-          onRequestClose={this.overviewDialogClosed}
-        >
+        <Dialog fullWidth maxWidth="md" open={showOverviewDialog} onRequestClose={this.overviewDialogClosed}>
           <ItemOverview
+            dialog
             closeDialog={this.closeOverviewDialog}
-            id={overviewItemId}
+            id={dialogItemId}
             categoryId={categoryId}
             settings={settings}
             fields={fields}
           />
         </Dialog>
-
-      </div>
+      </HeaderLayout>
     )
   };
 }

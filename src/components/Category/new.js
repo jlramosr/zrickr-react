@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Toolbar from '../HeaderLayout/toolbar';
+import HeaderLayout from '../HeaderLayout';
 import Close from 'material-ui-icons/Close';
 import Check from 'material-ui-icons/Check';
 
@@ -15,13 +15,14 @@ class CategoryItemNew extends Component {
     const { closeDialog, itemLabel } = this.props;
 
     return (
-      <Toolbar
+      <HeaderLayout
         title={`Nuevo ${itemLabel}`} 
         operations={[
           {id:'close', icon:Close, onClick:closeDialog},
           {id:'check', icon:Check, right: true, onClick:this._createItem}
         ]}
-      /> 
+      >
+      </HeaderLayout>
     );
   }
 }

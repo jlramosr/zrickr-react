@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import IconButton from 'material-ui/IconButton';
 import Tooltip from 'material-ui/Tooltip';
 
-const ToolbarOperation = props => {
+const Operation = props => {
   const { id, icon, color, hidden, to, description, onClick } = props;
   const Icon = icon;
 
@@ -33,7 +33,7 @@ const ToolbarOperation = props => {
   );
 };
 
-ToolbarOperation.propTypes = {
+Operation.propTypes = {
   id: PropTypes.string.isRequired,
   icon: PropTypes.func.isRequired,
   color: PropTypes.string.isRequired,
@@ -43,9 +43,9 @@ ToolbarOperation.propTypes = {
   onClick: PropTypes.func,
 };
 
-ToolbarOperation.defaultProps = {
+Operation.defaultProps = {
   hidden: false,
   color: "contrast",
 };
 
-export default ToolbarOperation;
+export default Operation;

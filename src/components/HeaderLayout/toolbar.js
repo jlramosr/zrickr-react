@@ -11,10 +11,8 @@ import Close from 'material-ui-icons/Close';
 import CircularProgress from 'material-ui/Progress/CircularProgress';
 
 const styles = theme => ({
-  appBar: {
+  root: {
     width: '-webkit-fill-available',
-  },
-  toolbar: {
   },
   leftOperations: {
     order: 1,
@@ -123,7 +121,7 @@ const styles = theme => ({
   }
 });
 
-let HeaderLayoutOperations = props => {
+let Operations = props => {
   const { operations, classes } = props;
 
   return (
@@ -143,14 +141,14 @@ let HeaderLayoutOperations = props => {
   )
 };
 
-HeaderLayoutOperations.propTypes = {
+Operations.propTypes = {
   classes: PropTypes.object.isRequired,
   operations: PropTypes.array.isRequired,
 };
 
-HeaderLayoutOperations = withStyles(styles)(HeaderLayoutOperations);
+Operations = withStyles(styles)(Operations);
 
-class HeaderLayout extends Component {
+class CustomToolbar extends Component {
   state = {
     searchQuery: '',
     showMiniSearch: false,
@@ -166,21 +164,41 @@ class HeaderLayout extends Component {
   }
 
   render = _ => {
-    const { operations, title, position, updateSearchQuery, classes, loading } = this.props;
+    const { operations, title, updateSearchQuery, classes, theme, miniToolbar, loading } = this.props;
     const { searchQuery, showMiniSearch } = this.state;
 
+    const miniToolbarHeight = 40;
+
     return (
-      <AppBar className={classes.appBar} position={position}>
-        <Toolbar className={classes.toolbar}>
+      <AppBar
+        className={classes.root}
+        style={
+          miniToolbar ? {
+            height: miniToolbarHeight,
+            background: theme.palette.primary[300],
+          } : {
+          }
+        }
+        position="static"
+      >
+        <Toolbar style={
+          miniToolbar ? {
+            minHeight: miniToolbarHeight
+          } : { 
+        }}>
 
           <div className={classes.leftOperations}>
-            {React.createElement(HeaderLayoutOperations, {
-              operations: operations.filter(operation => !operation.right)})
-            }
+            {React.createElement(Operations, {
+              operations: operations.filter(operation => !operation.right)
+            })}
           </div>
 
           <div className={classes.title}>
-            <Typography className={classes.titleText} type="title" color="inherit">
+            <Typography
+              className={classes.titleText}
+              type={miniToolbar ? "subheading" : "title"}
+              color="inherit"
+            >
               {title}
             </Typography>
           </div>
@@ -190,7 +208,7 @@ class HeaderLayout extends Component {
             <div className={classes.searchBar}>
               <Search
                 size={20}
-                color="inherit"
+                color="contrast"
                 className={classes.searchBarSearchIcon}
               />
               <Input
@@ -263,7 +281,7 @@ class HeaderLayout extends Component {
                 onClick={this._openMiniSearch}
               />
             </div>
-            {React.createElement(HeaderLayoutOperations, {
+            {React.createElement(Operations, {
               operations: operations.filter(operation => operation.right)
             })}
           </div>
@@ -274,19 +292,19 @@ class HeaderLayout extends Component {
   }
 };
 
-HeaderLayout.propTypes = {
+CustomToolbar.propTypes = {
   theme: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
   operations: PropTypes.array,
   title: PropTypes.string,
-  position: PropTypes.string.isRequired,
   updateSearchQuery: PropTypes.func,
   loading: PropTypes.bool.isRequired,
+  miniToolbar: PropTypes.bool,
 };
 
-HeaderLayout.defaultProps = {
-  position: 'fixed',
+CustomToolbar.defaultProps = {
   loading: false,
+  miniToolbar: false,
 };
 
-export default withStyles(styles, {withTheme: true})(HeaderLayout);
+export default withStyles(styles, {withTheme: true})(CustomToolbar);

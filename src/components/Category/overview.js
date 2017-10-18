@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import API from '../../utils/api';
-import Toolbar from '../HeaderLayout/toolbar';
-import Content from '../HeaderLayout/content';
+import HeaderLayout from '../HeaderLayout';
 import Form from '../Form';
 import ArrowBack from 'material-ui-icons/ArrowBack';
 import Close from 'material-ui-icons/Close';
@@ -50,30 +49,23 @@ class CategoryItemOverview extends Component {
   }
 
   render = _ => {
-    const { categoryId, settings, fields, closeDialog } = this.props;
+    const { categoryId, settings, fields, dialog, closeDialog } = this.props;
     const { item, editMode, loading } = this.state;
     return (
-      <div>
-        <Toolbar 
-          title={item ? getInfo(settings.primaryFields, item) : ''}
-          loading={loading}
-          operations={[
-            {id:'arrowBack', icon:ArrowBack, hidden:Boolean(closeDialog), color:"#006064", to:`/${categoryId}`},
-            {id:'close', icon:Close, hidden:!Boolean(closeDialog), color:"#006064", onClick:closeDialog},
-            {id:'check', icon:Check, right: true, hidden:!editMode, color:"#006064", onClick:this._updateItem},
-            {id:'edit', icon:Edit, right: true, hidden:editMode, color:"#006064", onClick: _ => this._changeEditMode(true)},
-            {id:'delete', icon:Delete, right: true, hidden:editMode, color:"#006064", onClick:this._deleteItem},
-          ]}
-        />
-        <Content>
-          <Form
-            cols={12}
-            view="overview"
-            fields={fields}
-            values={item}
-          />
-        </Content>
-      </div>
+      <HeaderLayout
+        relative={dialog}
+        title={item ? getInfo(settings.primaryFields, item) : ''}
+        loading={loading}
+        operations={[
+          {id:'arrowBack', icon:ArrowBack, hidden:dialog, to:`/${categoryId}`},
+          {id:'close', icon:Close, hidden:!dialog, onClick:closeDialog},
+          {id:'check', icon:Check, right: true, hidden:!editMode, onClick:this._updateItem},
+          {id:'edit', icon:Edit, right: true, hidden:editMode, onClick: _ => this._changeEditMode(true)},
+          {id:'delete', icon:Delete, right: true, hidden:editMode, onClick:this._deleteItem},
+        ]}
+      >
+        <Form cols={12} view="overview" fields={fields} values={item}/>
+      </HeaderLayout>
     );
   }
 }
@@ -83,11 +75,19 @@ CategoryItemOverview.propTypes = {
   categoryId: PropTypes.string.isRequired,
   settings: PropTypes.object.isRequired,
   fields: PropTypes.array.isRequired,
+  dialog: PropTypes.bool.isRequired,
   closeDialog: PropTypes.func,
+  closeDialogRequired: (props, propName, componentName) => {
+    if (props.dialog && !props.closeDialog) {
+      return new Error(
+        `${propName} ${componentName}: An overview dialog must be a closeDialog function.`
+      );
+    }
+  },
 }
 
 CategoryItemOverview.defaultProps = {
-
+  dialog: false,
 }
 
 export default CategoryItemOverview;

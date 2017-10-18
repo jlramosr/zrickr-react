@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { withStyles } from 'material-ui/styles';
 import API from '../../utils/api';
+import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
 import { MenuItem } from 'material-ui/Menu';
 import Switch from 'material-ui/Switch';
@@ -9,78 +11,20 @@ import Divider from 'material-ui/Divider';
 import CategoryList from '../Category/list';
 import { getInfo } from '../../utils/helpers';
 
-const commonStyles = {
-  label: {
-    color: '#99c3aF'
-  },
-
-  underline: {
-    backgroundColor: '#99c3aF',
-    borderColor: '#99c3aF',
-  }
-}
-
-const styles = {
+const styles = theme => ({
   textField: {
-    height: '50px',
-  },
 
-  input: {
-    marginTop: '4px',
   },
+  select: {
 
-  inputUnderline: {
-    ...commonStyles.underline
   },
-
-  textLabel: {
-    ...commonStyles.label,
-    marginTop: '-20px',
-    top: '40px',
+  list: {
+    marginTop: theme.spacing.unit*2,
   },
+  toogle: {
 
-  textHeaderList: {
-    ...commonStyles.underline,
-    color: '#fff',
-    padding: '6px',
-    lineHeight: '20px',
-    marginTop: '20px',
   },
-
-  underlineHeaderList: {
-    ...commonStyles.underline,
-  },
-
-  listItems: {
-    padding: '6px'
-  },
-
-  switch: {
-    alignSelf: 'center',
-  },
-
-  switchLabel: {
-    ...commonStyles.label,
-    top: '-2px'
-  },
-
-  thumbOff: {
-    backgroundColor: '#aaa',
-  },
-
-  trackOff: {
-    backgroundColor: '#ddd',
-  },
-
-  thumbSwitched: {
-    backgroundColor: '#004545',
-  },
-
-  trackSwitched: {
-    backgroundColor: '#00c3cF',
-  },
-
-}
+});
 
 class Field extends Component {
   state = {
@@ -145,7 +89,8 @@ class Field extends Component {
       options,
       required,
       value,
-      relationId
+      relationId,
+      classes,
     } = this.props;
 
     const {
@@ -160,6 +105,7 @@ class Field extends Component {
       case 'select':
         return (
           <TextField
+            className={classes.select}
             error={required && !value}
             key={id}
             name={id}
@@ -204,7 +150,7 @@ class Field extends Component {
           <Switch
             key={id}
             name={id}
-            style={styles.switch}
+            className={classes.switch}
             label={label}
             checked={Boolean(value)}
             onChange={ (event, value) => 
@@ -216,16 +162,18 @@ class Field extends Component {
       case 'list':
         return (
           relationId ? (
-            <CategoryList
-              relationMode={true}
-              categoryId={relationId}
-              categoryLabel={label}
-              settings={relationSettings}
-              items={relationItems}
-              fields={relationFields}
-              loading={relationLoading}
-              showAvatar={false}
-            />
+            <Paper elevation={4} className={classes.list}>
+              <CategoryList
+                relationMode={true}
+                categoryId={relationId}
+                categoryLabel={label}
+                settings={relationSettings}
+                items={relationItems}
+                fields={relationFields}
+                loading={relationLoading}
+                showAvatar={false}
+              />
+            </Paper>
           ) : (
             <div>
               <ListItem
@@ -239,6 +187,7 @@ class Field extends Component {
       default: 
         return (
           <TextField
+            className={classes.textField}
             error={required && !value}
             key={id}
             name={id}
@@ -306,4 +255,4 @@ Field.defaultProps = {
   type: 'string',
 };
 
-export default Field;
+export default withStyles(styles)(Field);

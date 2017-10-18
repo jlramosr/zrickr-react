@@ -25,12 +25,14 @@
   },
   "lastname": {
     "label":"Apellidos",
+    "description": "Apellidos del individuo",
     "default": "POR DEFECTO",
     "views": {
       "overview": {
         "x":2,
         "ys":6,
         "when":"!this.isCompany",
+        "nodescription": true,
         "small": {
           "x":3,
           "when":"!this.isCompany"
@@ -47,7 +49,6 @@
     "views": {
       "overview": {
         "x":3,
-        "nodescription": true,
         "small":{"x":4}
       }
     }

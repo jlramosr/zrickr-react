@@ -42,7 +42,7 @@ theme = {
     MuiDrawer: {
       paper: {
         width: theme.standards.drawerWidth,
-      }
+      },
     },
     MuiListItem: {
       root: {
@@ -50,7 +50,7 @@ theme = {
       },
       dense: {
         height: theme.standards.denseListCell.height,
-      }
+      },
     },
     MuiListItemText: {
       textDense: {
