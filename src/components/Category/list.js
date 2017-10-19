@@ -4,9 +4,32 @@ import { Link } from 'react-router-dom';
 import HeaderLayout from '../HeaderLayout';
 import List, { ListItem, ListItemSecondaryAction, ListItemText } from 'material-ui/List';
 import Divider from 'material-ui/Divider';
-import Table, { TableBody, TableCell, TableHead, TableRow, TableFooter, TableSortLabel } from 'material-ui/Table';
-import Checkbox from 'material-ui/Checkbox';
-import Tooltip from 'material-ui/Tooltip';
+import {
+  DataTypeProvider,
+  SelectionState,
+  PagingState,
+  LocalPaging,
+  SortingState,
+  LocalSorting,
+  GroupingState,
+  LocalGrouping,
+  FilteringState,
+  LocalFiltering,
+  ColumnOrderState,
+  TableColumnResizing,
+} from '@devexpress/dx-react-grid';
+import {
+  Grid,
+  TableView,
+  TableHeaderRow,
+  TableFilterRow,
+  TableGroupRow,
+  TableSelection,
+  PagingPanel,
+  DragDropContext,
+  GroupingPanel,
+} from '@devexpress/dx-react-grid-material-ui';
+import { LinearProgress } from 'material-ui/Progress';
 import Avatar from 'material-ui/Avatar';
 import Add from 'material-ui-icons/Add';
 import ViewList from 'material-ui-icons/ViewList';
@@ -25,23 +48,20 @@ import { getInfo } from '../../utils/helpers';
 import { withStyles } from 'material-ui/styles';
 
 const containerStyles = theme => ({
-  tableCell: {
-    padding: 0,
-    cursor: 'pointer',
-  },
-  menu: {
-  },
 })
 
 class CategoryListContainer extends Component {
   state = {
     showingItems: [],
-    itemsSelected: new Set([]),
-    order: 'asc',
-    orderBy: '',
     showMenuItem: false,
     itemMenuClicked: null,
     anchorEl: null,
+    currentPage: 0,
+    pageSize: 10,
+    allowedPageSizes: [10,20,50,200,500,0],
+    columnOrder: null,
+    columnWidths: null,
+    itemsSelected: new Set([]),
   }
 
   _updateSearchQuery = searchQuery => {
@@ -62,8 +82,16 @@ class CategoryListContainer extends Component {
     this.setState({showingItems, itemsSelected})
   };
 
+  _changeCurrentPage = currentPage => this.setState({ currentPage });
+  
+  _changePageSize = pageSize => this.setState({ pageSize });
+
+  _changeColumnOrder = columnOrder => this.setState({ columnOrder });
+
+  _changeColumnWidths = columnWidths => this.setState({ columnWidths });
+
   _tableSelectAllClick = (event, checked) =>
-  this.setState({itemsSelected: new Set(checked ? this.state.showingItems.map(item => item.id) : [])});
+    this.setState({itemsSelected: new Set(checked ? this.state.showingItems.map(item => item.id) : [])});
 
   _tableSelectRowClick = (event, id) => {
     this.setState(prevState => {
@@ -94,19 +122,6 @@ class CategoryListContainer extends Component {
 
   _isSelected = id => this.state.itemsSelected.has(id);
 
-  _updateSortColumn = property => event => {
-    const orderBy = property;
-    let order = 'asc';
-    if (this.state.orderBy === property && this.state.order === 'asc') {
-      order = 'desc';
-    }
-    const showingItems =
-      order === 'asc'
-        ? this.state.showingItems.sort((a, b) => (a[orderBy] < b[orderBy] ? -1 : 1))
-        : this.state.showingItems.sort((a, b) => (b[orderBy] < a[orderBy] ? -1 : 1));
-    this.setState({showingItems, order, orderBy});
-  }
-
   _handleMenuItemClick = (event, itemId) => {
     event.preventDefault();
     this.setState({ showMenuItem: true, anchorEl: event.currentTarget, itemMenuClicked: itemId });
@@ -124,78 +139,121 @@ class CategoryListContainer extends Component {
     }
   }
 
+
+
   render = _ => {
     const { classes, categoryId, tableMode, settings, fields, showAvatar, dense, relationMode } = this.props;
-    const { showingItems, itemsSelected, order, orderBy } = this.state;
+    const { showingItems, currentPage, pageSize, allowedPageSizes, columnOrder, columnWidths, itemsSelected } = this.state;
+    
+    const defaultOrder = fields.map(field => field.id);
+    const defaultColumnWidths = fields.reduce(
+      (accumulator, currentField) => (
+        {...accumulator, [currentField.id]: 180}),
+      {}
+    );
 
     return (
       tableMode ? (
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell checkbox>
-                <Checkbox
-                  indeterminate={itemsSelected.size > 0 && itemsSelected.size < showingItems.length}
-                  checked={itemsSelected.size === showingItems.length}
-                  onChange={this._tableSelectAllClick}
-                />
-              </TableCell>
-              {fields.map(field =>
-                <TableCell key={field.id} disablePadding>
-                  <Tooltip title="Ordenar" enterDelay={300}>
-                    <TableSortLabel
-                      active={orderBy === field.id}
-                      direction={order}
-                      onClick={this._updateSortColumn(field.id)}
-                    >
-                      {field.label}
-                    </TableSortLabel>
-                  </Tooltip>
-                </TableCell>
-              )}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-          {showingItems.map(item => {
-            const isSelected = this._isSelected(item.id);
-            return (
-              <TableRow
-                key={item.id}
-                hover
-                role="checkbox"
-                aria-checked={isSelected}
-                tabIndex={-1}
-                selected={isSelected}
-                style={{height:12}}
-              >
-                <TableCell checkbox>
-                  <Checkbox
-                    checked={isSelected}
-                    onClick={event => this._tableSelectRowClick(event, item.id)}
-                  />
-                </TableCell>
-                {fields.map(field =>      
-                  <TableCell
-                    key={`${item.id}${field.id}`}
-                    className={classes.tableCell}
-                    onClick={event => this._tableRowClick(event, item.id)}
-                    onKeyDown={event => this._tableRowKeyDown(event, item.id)}
-                  >
-                    {typeof item[field.id] === 'object' ? JSON.stringify(item[field.id]) : item[field.id]}
-                  </TableCell>
-                )}  
-              </TableRow>
-            )
+        <Grid
+          rows={showingItems}
+          columns={fields.map(field => {
+            //https://devexpress.github.io/devextreme-reactive/react/grid/docs/guides/getting-started/
+            return {
+              title: field.label,
+              name: field.id,
+              dataType: field.type || 'string',
+              align: field.type === 'number' ? 'right' : 'left',
+            };
           })}
-          </TableBody>
-          <TableFooter>
-            <TableRow>
-            {fields.map(field =>
-              <TableCell key={field.id}>{field.label}</TableCell>
-            )}
-            </TableRow>
-          </TableFooter>
-        </Table>
+          getCellValue={ (row, columnName) => {
+            const value = row[columnName];
+            if (typeof value === 'object') {
+              return Object.keys(value).toString();
+            }
+            return value;
+          }}
+        >
+          <DataTypeProvider
+            type="string"
+            formatterTemplate={({ value }) => 
+              <span style={{ color: 'darkblue' }}>{value}</span>
+            }
+          />
+          <DataTypeProvider
+            type="progress"
+            formatterTemplate={({ value }) => 
+              <LinearProgress color="accent" mode="determinate" value={value} />
+            }
+          />
+          <DataTypeProvider
+            type="currency"
+            formatterTemplate={({ value }) => 
+              value ? 
+                <span style={{ color: 'darkblue' }}>${value}</span> :
+                null
+            }
+          />
+          <DataTypeProvider
+            type="date"
+            formatterTemplate={({ value }) =>
+              value.replace(/(\d{4})-(\d{2})-(\d{2})/, '$3.$2.$1')}
+          />
+          <ColumnOrderState
+            defaultOrder={defaultOrder}
+            order={columnOrder || defaultOrder}
+            onOrderChange={this._changeColumnOrder}
+          />
+          <DragDropContext />
+          <SortingState
+            defaultSorting={[]}
+          />
+          <LocalSorting />
+          <GroupingState
+            defaultGroups={[]}
+          />
+          <LocalGrouping />
+          <PagingState 
+            defaultCurrentPage={0}
+            currentPage={currentPage}
+            onCurrentPageChange={this._changeCurrentPage}
+            pageSize={pageSize}
+            onPageSizeChange={this._changePageSize}
+          />
+          <LocalPaging />
+          <SelectionState
+            defaultSelection={[]}
+          />
+          <FilteringState
+            defaultFilters={[]}
+          />
+          <LocalFiltering />
+          <TableView
+            allowColumnReordering 
+          />
+          <TableSelection
+            selectByRowClick 
+          />
+          <TableColumnResizing
+            columnWidths={columnWidths || defaultColumnWidths}
+            onColumnWidthsChange={this._changeColumnWidths}
+          />
+          <TableHeaderRow
+            allowSorting
+            allowDragging
+            allowResizing
+            //allowGroupingByClick 
+          />
+          <TableFilterRow />
+          <TableGroupRow />
+          <GroupingPanel
+            allowSorting
+            allowDragging
+            allowUngroupingByClick
+          />
+          <PagingPanel
+            allowedPageSizes={allowedPageSizes}
+          />
+        </Grid>
 
       ) : (
 
@@ -276,32 +334,13 @@ CategoryListContainer.defaultProps = {
 
 CategoryListContainer = withStyles(containerStyles)(CategoryListContainer);
 
-const listStyles = theme => ({
-  appBar: { 
-    display: 'flex',
-    justifyContent: 'center',
-    height: 30,
-    background: theme.palette.primary[800],
-  },
-  toolbar: { 
-    padding: theme.spacing.unit*2,
-  },
-  typography: { 
-    color: theme.palette.secondary[400],
-  },
-  paper: { 
-    height: 300,
-    overflow: 'auto',
-  }
-});
-
 class CategoryList extends Component {
   state = {
     searchQuery: '',
     showNewDialog: false,
     showOverviewDialog: false,
     dialogItemId: '',
-    tableMode: false,
+    tableMode: true,
   }
 
   _updateSearchQuery = searchQuery => this.setState({searchQuery});
@@ -390,7 +429,6 @@ class CategoryList extends Component {
 }
 
 CategoryList.propTypes = {
-  classes: PropTypes.object.isRequired,
   categoryId: PropTypes.string.isRequired,
   categoryLabel: PropTypes.string.isRequired,
   settings: PropTypes.object,
@@ -408,4 +446,4 @@ CategoryList.defaultProps = {
   loading: true,
 }
 
-export default withStyles(listStyles)(CategoryList);
+export default CategoryList;

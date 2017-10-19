@@ -98,6 +98,9 @@ const styles = theme => ({
   searchBarInputFocused: {
     background: theme.palette.primary[300],
   },
+  searchBarInputFocusedMiniToolbar: {
+    background: theme.palette.secondary[700],
+  },
   searchBarCloseIcon: {
     position: 'absolute',
     right: 0,
@@ -175,7 +178,7 @@ class CustomToolbar extends Component {
         style={
           miniToolbar ? {
             height: miniToolbarHeight,
-            background: theme.palette.primary[300],
+            background: theme.palette.secondary[700],
           } : {
           }
         }
@@ -210,7 +213,7 @@ class CustomToolbar extends Component {
           {updateSearchQuery &&
             <div
               className={classes.searchBar}
-              style={miniToolbar ? {background: theme.palette.primary[300]}: {}}
+              style={miniToolbar ? {background: theme.palette.secondary[700]}: {}}
             >
               <Search
                 size={20}
@@ -220,7 +223,9 @@ class CustomToolbar extends Component {
               <Input
                 classes={{
                   root:classes.searchBarInput,
-                  focused:classes.searchBarInputFocused,
+                  focused: miniToolbar ? 
+                    classes.searchBarInputFocusedMiniToolbar : 
+                    classes.searchBarInputFocused,
                 }}
                 color="contrast"
                 placeholder="Buscar"

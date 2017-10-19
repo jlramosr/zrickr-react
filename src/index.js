@@ -8,16 +8,80 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import reducer from './reducers';
 import { createMuiTheme, MuiThemeProvider } from 'material-ui/styles';
 import grey from 'material-ui/colors/grey';
-import amber from 'material-ui/colors/amber';
-import red from 'material-ui/colors/red';
 import './index.css';
 
 let theme = createMuiTheme({
   standards: {
     colors: {
-      primary: grey,
-      secondary: amber,
-      error: red,
+      primary: {
+        "50": "#DCEDC8",
+        "100": "#DCEDC8",
+        "200": "#DCEDC8",
+        "300": "#8BC34A",
+        "400": "#8BC34A",
+        "500": "#689F38",
+        "600": "#689F38",
+        "700": "#689F38",
+        "800": "#689F38",
+        "900": "#689F38",
+        "A100": "#DCEDC8",
+        "A200": "#DCEDC8",
+        "A400": "#8BC34A",
+        "A700": "#689F38",
+        "contrastDefaultColor": "light",
+        ...grey,
+      },
+      secondary: {
+        "50": "#FFE0B2",
+        "100": "#FFE0B2",
+        "200": "#FFE0B2",
+        "300": "#FF9800",
+        "400": "#FF9800",
+        "500": "#F57C00",
+        "600": "#F57C00",
+        "700": "#F57C00",
+        "800": "#F57C00",
+        "900": "#F57C00",
+        "A100": "#FFE0B2",
+        "A200": "#FFE0B2",
+        "A400": "#FF9800",
+        "A700": "#F57C00",
+        "contrastDefaultColor": "light",
+      },
+      "error": {
+        "50": "#ffebee",
+        "100": "#ffcdd2",
+        "200": "#ef9a9a",
+        "300": "#e57373",
+        "400": "#ef5350",
+        "500": "#f44336",
+        "600": "#e53935",
+        "700": "#d32f2f",
+        "800": "#c62828",
+        "900": "#b71c1c",
+        "A100": "#ff8a80",
+        "A200": "#ff5252",
+        "A400": "#ff1744",
+        "A700": "#d50000",
+        "contrastDefaultColor": "light",
+      },
+      grey: {
+        "50": "#FAFAFA",
+        "100": "#F5F5F5",
+        "200": "#EEEEEE",
+        "300": "#E0E0E0",
+        "400": "#BDBDBD",
+        "500": "#9E9E9E",
+        "600": "#757575",
+        "700": "#616161",
+        "800": "#424242",
+        "900": "#212121",
+        "A100": "#EEEEEE",
+        "A200": "#BDBDBD",
+        "A400": "#616161",
+        "A700": "#212121",
+        "contrastDefaultColor": "light",
+      },
     },
     toolbarHeights: {
       mobilePortrait: 56,
@@ -40,6 +104,8 @@ theme = {
   ...theme,
   overrides: {
     ...theme.overrides,
+
+    
     MuiAppBar: {
       root: {
         paddingTop: 0,
@@ -51,26 +117,46 @@ theme = {
         width: theme.standards.drawerWidth,
       },
     },
+
+
+    GridLayout: {
+      headingPanel: {
+        background: theme.standards.colors.primary[200],
+      },
+    },
+
     MuiTableRow: {
-      head: {
+      root: {
         height: theme.standards.tableRowHeight,
       },
-    },
-    MuiTableHead: {
-      root: {
-        position: 'fixed',
+      head: {
+        height: theme.standards.tableRowHeight,
+        background: theme.standards.colors.primary[100],
       },
     },
-    MuiTableBody: {
-      root: {
-        paddingTop: 56,
+    TableHeaderCell: {
+      plainTitle: {
+        fontWeight: 700,
       },
     },
-    MuiTableFooter: {
-      root: {
-        position: 'fixed',
+    TableFilterCell: {
+      cell: {
+        paddingTop: 0,
+        paddingRight: 12,
       },
     },
+    MuiTableCell: {
+      padding: {
+        padding: '0 12px',
+      },
+    },
+    PageSizeSelector: {
+      select: {
+        width: 30,
+      },
+    },
+
+
     MuiList: {
       padding: {
         paddingTop: 0,
@@ -78,16 +164,16 @@ theme = {
         [`${theme.breakpoints.up('sm')}`]: {
           paddingTop: theme.spacing.unit,
           paddingBottom: theme.spacing.unit,
-          paddingLeft: theme.spacing.unit*4,
-          paddingRight: theme.spacing.unit*4,
+          paddingLeft: theme.spacing.unit*2,
+          paddingRight: theme.spacing.unit*2,
         },
         [`${theme.breakpoints.up('md')}`]: {
-          paddingLeft: theme.spacing.unit*12,
-          paddingRight: theme.spacing.unit*12,
+          paddingLeft: theme.spacing.unit*3,
+          paddingRight: theme.spacing.unit*3,
         },
         [`${theme.breakpoints.up('lg')}`]: {
-          paddingLeft: theme.spacing.unit*24,
-          paddingRight: theme.spacing.unit*24,
+          paddingLeft: theme.spacing.unit*4,
+          paddingRight: theme.spacing.unit*4,
         },
       },
       dense: {
@@ -107,6 +193,8 @@ theme = {
         lineHeight: theme.standards.listCellDense.lineHeight,
       }
     },
+
+    
   },
   palette: {
     ...theme.palette,
