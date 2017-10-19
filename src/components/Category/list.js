@@ -139,8 +139,6 @@ class CategoryListContainer extends Component {
     }
   }
 
-
-
   render = _ => {
     const { classes, categoryId, tableMode, settings, fields, showAvatar, dense, relationMode } = this.props;
     const { showingItems, currentPage, pageSize, allowedPageSizes, columnOrder, columnWidths, itemsSelected } = this.state;
@@ -148,7 +146,7 @@ class CategoryListContainer extends Component {
     const defaultOrder = fields.map(field => field.id);
     const defaultColumnWidths = fields.reduce(
       (accumulator, currentField) => (
-        {...accumulator, [currentField.id]: 180}),
+        {...accumulator, [currentField.id]: 100 * (currentField.views.list.ys || 1)}),
       {}
     );
 
@@ -243,7 +241,9 @@ class CategoryListContainer extends Component {
             allowResizing
             //allowGroupingByClick 
           />
-          <TableFilterRow />
+          <TableFilterRow
+           rowHeight={28}
+          />
           <TableGroupRow />
           <GroupingPanel
             allowSorting
@@ -370,7 +370,7 @@ class CategoryList extends Component {
         relative={relationMode}
         relativeHeight={relationMode ? 200 : null}
         title={categoryLabel}
-        updateSearchQuery={this._updateSearchQuery}
+        updateSearchQuery={!tableMode && this._updateSearchQuery}
         loading={loading}
         operations={operations || [
           { 

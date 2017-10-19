@@ -14,38 +14,38 @@ let theme = createMuiTheme({
   standards: {
     colors: {
       primary: {
-        "50": "#DCEDC8",
-        "100": "#DCEDC8",
-        "200": "#DCEDC8",
-        "300": "#8BC34A",
-        "400": "#8BC34A",
+        "50": "#FAFCF7",
+        "100": "#EDF9E0",
+        "200": "#D3E7BC",
+        "300": "#A0D374",
+        "400": "#86BF54",
         "500": "#689F38",
-        "600": "#689F38",
-        "700": "#689F38",
-        "800": "#689F38",
-        "900": "#689F38",
-        "A100": "#DCEDC8",
-        "A200": "#DCEDC8",
-        "A400": "#8BC34A",
-        "A700": "#689F38",
+        "600": "#5E9031",
+        "700": "#56852B",
+        "800": "#487321",
+        "900": "#355915",
+        "A100": "#D3E7BC",
+        "A200": "#86BF54",
+        "A400": "#5E9031",
+        "A700": "#355915",
         "contrastDefaultColor": "light",
-        ...grey,
+        //...grey,
       },
       secondary: {
-        "50": "#FFE0B2",
-        "100": "#FFE0B2",
-        "200": "#FFE0B2",
-        "300": "#FF9800",
+        "50": "#FFF6EC",
+        "100": "#FFEEDB",
+        "200": "#FDD3A5",
+        "300": "#FAB268",
         "400": "#FF9800",
         "500": "#F57C00",
-        "600": "#F57C00",
-        "700": "#F57C00",
-        "800": "#F57C00",
-        "900": "#F57C00",
-        "A100": "#FFE0B2",
-        "A200": "#FFE0B2",
-        "A400": "#FF9800",
-        "A700": "#F57C00",
+        "600": "#DD7101",
+        "700": "#CC6900",
+        "800": "#B45C00",
+        "900": "#9F5100",
+        "A100": "#FDD3A5",
+        "A200": "#F57C00",
+        "A400": "#DD7101",
+        "A700": "#9F5100",
         "contrastDefaultColor": "light",
       },
       "error": {
@@ -88,7 +88,6 @@ let theme = createMuiTheme({
       mobileLandscape: 48,
       tabletDesktop: 64,
     },
-    tableRowHeight: 30,
     listCellDense: {
       height: 20,
       lineHeight: '14px',
@@ -121,21 +120,29 @@ theme = {
 
     GridLayout: {
       headingPanel: {
-        background: theme.standards.colors.primary[200],
+        background: theme.standards.colors.secondary[100],
       },
     },
-
     MuiTableRow: {
       root: {
-        height: theme.standards.tableRowHeight,
       },
       head: {
-        height: theme.standards.tableRowHeight,
-        background: theme.standards.colors.primary[100],
+        background: theme.standards.colors.secondary[50],
+      },
+    },
+    MuiTableHead: {
+      root: {
+      }
+    },
+    ResizingControl: {
+      resizeHandleLine: {
+        ['@media (pointer: fine)']: {
+          opacity: '0.3 !important',
+        }
       },
     },
     TableHeaderCell: {
-      plainTitle: {
+      title: {
         fontWeight: 700,
       },
     },
