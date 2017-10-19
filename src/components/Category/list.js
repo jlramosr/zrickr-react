@@ -166,6 +166,7 @@ class CategoryListContainer extends Component {
                 aria-checked={isSelected}
                 tabIndex={-1}
                 selected={isSelected}
+                style={{height:12}}
               >
                 <TableCell checkbox>
                   <Checkbox

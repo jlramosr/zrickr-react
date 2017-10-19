@@ -24,7 +24,8 @@ let theme = createMuiTheme({
       mobileLandscape: 48,
       tabletDesktop: 64,
     },
-    denseListCell: {
+    tableRowHeight: 30,
+    listCellDense: {
       height: 20,
       lineHeight: '14px',
     },
@@ -39,22 +40,71 @@ theme = {
   ...theme,
   overrides: {
     ...theme.overrides,
+    MuiAppBar: {
+      root: {
+        paddingTop: 0,
+        paddingBottom: 0,
+      },
+    },
     MuiDrawer: {
       paper: {
         width: theme.standards.drawerWidth,
       },
+    },
+    MuiTableRow: {
+      head: {
+        height: theme.standards.tableRowHeight,
+      },
+    },
+    MuiTableHead: {
+      root: {
+        position: 'fixed',
+      },
+    },
+    MuiTableBody: {
+      root: {
+        paddingTop: 56,
+      },
+    },
+    MuiTableFooter: {
+      root: {
+        position: 'fixed',
+      },
+    },
+    MuiList: {
+      padding: {
+        paddingTop: 0,
+        paddingBottom: 0,
+        [`${theme.breakpoints.up('sm')}`]: {
+          paddingTop: theme.spacing.unit,
+          paddingBottom: theme.spacing.unit,
+          paddingLeft: theme.spacing.unit*4,
+          paddingRight: theme.spacing.unit*4,
+        },
+        [`${theme.breakpoints.up('md')}`]: {
+          paddingLeft: theme.spacing.unit*12,
+          paddingRight: theme.spacing.unit*12,
+        },
+        [`${theme.breakpoints.up('lg')}`]: {
+          paddingLeft: theme.spacing.unit*24,
+          paddingRight: theme.spacing.unit*24,
+        },
+      },
+      dense: {
+        padding: 0,
+      }
     },
     MuiListItem: {
       root: {
         outline: 'none',
       },
       dense: {
-        height: theme.standards.denseListCell.height,
+        height: theme.standards.listCellDense.height,
       },
     },
     MuiListItemText: {
       textDense: {
-        lineHeight: theme.standards.denseListCell.lineHeight,
+        lineHeight: theme.standards.listCellDense.lineHeight,
       }
     },
   },

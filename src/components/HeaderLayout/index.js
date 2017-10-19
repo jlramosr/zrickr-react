@@ -23,7 +23,6 @@ const styles = theme => ({
     flex: '1 1 auto',
     overflowY: 'auto',
     width: '100%',
-    height: '100vh',
     height: `calc(100vh - ${theme.standards.toolbarHeights.mobilePortrait}px)`,
     marginTop: theme.standards.toolbarHeights.mobilePortrait,
     [`${theme.breakpoints.up('xs')} and (orientation: landscape)`]: {

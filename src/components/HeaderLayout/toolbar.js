@@ -73,7 +73,7 @@ const styles = theme => ({
     position: 'relative',
     justifyContent: 'center',
     alignItems: 'center',
-    maxWidth: 720,
+    maxWidth: 520,
     background: theme.palette.primary[400],
     width: '100%',
   },
@@ -203,9 +203,15 @@ class CustomToolbar extends Component {
             </Typography>
           </div>
 
-          <div className={classes.search}>
+          <div
+            className={classes.search}
+            style={miniToolbar ? {justifyContent: 'flex-end'}: {}}
+          >
           {updateSearchQuery &&
-            <div className={classes.searchBar}>
+            <div
+              className={classes.searchBar}
+              style={miniToolbar ? {background: theme.palette.primary[300]}: {}}
+            >
               <Search
                 size={20}
                 color="contrast"
@@ -218,7 +224,7 @@ class CustomToolbar extends Component {
                 }}
                 color="contrast"
                 placeholder="Buscar"
-                disableUnderline
+                disableUnderline={miniToolbar ? false : true}
                 value={searchQuery}
                 onChange={ event => this._updateSearchQuery(event.target.value) }
               />
@@ -249,7 +255,7 @@ class CustomToolbar extends Component {
                   }}
                   color="contrast"
                   placeholder="Buscar"
-                  disableUnderline
+                  disableUnderline={miniToolbar}
                   value={searchQuery}
                   onChange={ event => this._updateSearchQuery(event.target.value) }
                 />
