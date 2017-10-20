@@ -1,12 +1,8 @@
-import { combineReducers } from 'redux';
 import { RECEIVE_CATEGORIES } from '../actions';
 import { ADD_CATEGORY } from '../actions';
 
 const initialCategoriesState = {
-  clients: {
-    icon: 'Work',
-    label: 'Clients',
-  },
+  categories: [],
 }
 
 const categories = (state = initialCategoriesState, action) => {
@@ -14,7 +10,8 @@ const categories = (state = initialCategoriesState, action) => {
     case RECEIVE_CATEGORIES:
       const { categories } = action
       return {
-        ...categories,
+        ...state,
+        categories,
       }
     case ADD_CATEGORY:
       const { name, icon, label } = action
@@ -27,6 +24,4 @@ const categories = (state = initialCategoriesState, action) => {
   }
 }
 
-export default combineReducers({
-  categories
-})
+export default categories;

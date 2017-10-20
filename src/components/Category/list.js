@@ -61,25 +61,19 @@ class CategoryListContainer extends Component {
     allowedPageSizes: [10,20,50,200,500,0],
     columnOrder: null,
     columnWidths: null,
-    itemsSelected: new Set([]),
   }
 
   _updateSearchQuery = searchQuery => {
     const { settings, items } = this.props;
     let showingItems = items;
-    let itemsSelected = this.state.itemsSelected;
     if (searchQuery) {
       const cleanQuery = removeDiacritics(searchQuery.trim());
       const match = new RegExp(escapeRegExp(cleanQuery), 'i');
       showingItems = items.filter(item => (
         match.test(removeDiacritics(getInfo(settings.primaryFields, item)))
       ))
-      itemsSelected = new Set(showingItems
-        .filter(item => this._isSelected(item.id))
-        .map(item => item.id)
-      );
     }
-    this.setState({showingItems, itemsSelected})
+    this.setState({ showingItems })
   };
 
   _changeCurrentPage = currentPage => this.setState({ currentPage });
@@ -89,17 +83,6 @@ class CategoryListContainer extends Component {
   _changeColumnOrder = columnOrder => this.setState({ columnOrder });
 
   _changeColumnWidths = columnWidths => this.setState({ columnWidths });
-
-  _tableSelectAllClick = (event, checked) =>
-    this.setState({itemsSelected: new Set(checked ? this.state.showingItems.map(item => item.id) : [])});
-
-  _tableSelectRowClick = (event, id) => {
-    this.setState(prevState => {
-      let itemsSelected = prevState.itemsSelected;
-      let isRowSelected = itemsSelected.delete(id);
-      return { itemsSelected: isRowSelected ? itemsSelected : itemsSelected.add(id) }
-    })
-  }
 
   _itemClick(event, relationMode, id) {
     if (relationMode) {
@@ -120,8 +103,6 @@ class CategoryListContainer extends Component {
     }*/
   }
 
-  _isSelected = id => this.state.itemsSelected.has(id);
-
   _handleMenuItemClick = (event, itemId) => {
     event.preventDefault();
     this.setState({ showMenuItem: true, anchorEl: event.currentTarget, itemMenuClicked: itemId });
@@ -141,7 +122,7 @@ class CategoryListContainer extends Component {
 
   render = _ => {
     const { classes, categoryId, tableMode, settings, fields, showAvatar, dense, relationMode } = this.props;
-    const { showingItems, currentPage, pageSize, allowedPageSizes, columnOrder, columnWidths, itemsSelected } = this.state;
+    const { showingItems, currentPage, pageSize, allowedPageSizes, columnOrder, columnWidths } = this.state;
     
     const defaultOrder = fields.map(field => field.id);
     const defaultColumnWidths = fields.reduce(
@@ -345,7 +326,6 @@ class CategoryList extends Component {
 
   _updateSearchQuery = searchQuery => this.setState({searchQuery});
 
-  //, itemsSelected:new Set([])
   _changeView = view => this.setState({tableMode: view === 'list'});
 
   _openNewDialog = _ => this.setState({ showNewDialog: true});

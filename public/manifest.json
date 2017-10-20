@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "TinyERP",
+  "name": "Business App to Manage Contacts and Invoices",
   "icons": [
     {
       "src": "favicon.ico",

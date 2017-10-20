@@ -6,7 +6,6 @@ import Category from '../Category';
 import Dashboard from '../Dashboard';
 import NotFound from '../NotFound';
 import { fetchCategories } from '../../actions';
-import API from '../../utils/api';
 import { withStyles } from 'material-ui/styles';
 import Drawer from 'material-ui/Drawer';
 import { MenuItem } from 'material-ui/Menu';
@@ -27,32 +26,15 @@ class App extends Component {
     loading: true,
   }
 
-  _getData = _ => {
-    API('firebase').getCollection('categories')
-      .then(categories => {
-        this.setState({categories, loading: false});
-      })
-      .catch(error => {
-        console.log("ERROR PIDIENDO CATEGORIAS", error);
-      })
-  }
+  toggleDrawer = _ => this.setState({drawerOpen: !this.state.drawerOpen});
 
-  toggleDrawer = _ => {
-    this.setState({drawerOpen: !this.state.drawerOpen});
-  }
+  componentDidMount = _ => this.props.fetchCategories();
 
-  componentDidMount = _ => {
-    this.props.fetchCategories();
-    //this._getData();
-  }
-
-  componentDidCatch(error, info) {
-    console.log("ERROR", error, info);
-  }
+  componentWillReceiveProps = props => this.setState({categories: props.categories});
 
   render = _ => {
-    const { classes, categories } = this.props;
-    const { drawerOpen, loading} = this.state;
+    const { classes } = this.props;
+    const { drawerOpen, categories, loading} = this.state;
 
     return (
       <div>
@@ -77,13 +59,14 @@ class App extends Component {
 
         <Route path="/" exact render={ _ => (
           <Dashboard
-            loading={loading}
             categories={categories}
-            closeDrawer={ _ => this.toggleDrawer()}
+            loading={loading}
+            closeDrawer={this.toggleDrawer}
           />    
         )}/>
-        <Route path="/:categoryId" component={ props => {
+        <Route path="/:categoryId" exact component={ props => {
           const categoryId = props.match.params.categoryId;
+          console.log(categoryId);
           const category = categories.find(
             category => category.id === categoryId
           );
@@ -100,23 +83,25 @@ class App extends Component {
   }
 }
 
-App.propTypes = {
-  classes: PropTypes.object.isRequired,
-};
-
 const mapStateToProps = ({categories}) => ({
-  categories: Object.keys(categories).reduce((cats, categoryId) =>
-    [...cats, { id: categoryId, ...categories[categoryId] }]
-  ,[])
+  categories:
+    Object.keys(categories).reduce((cats, categoryId) =>
+      [...cats, { id: categoryId, ...categories[categoryId] }]
+    ,[])
+
 })
 
 const mapDispatchToProps = dispatch => {
   return {
-    fetchCategories: (data) => dispatch(fetchCategories()),
+    fetchCategories: _ => dispatch(fetchCategories()),
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withStyles(styles)(App));
+App.propTypes = {
+  classes: PropTypes.object.isRequired,
+};
+
+export default
+  connect(mapStateToProps,mapDispatchToProps)(
+    withStyles(styles)(App)
+  );

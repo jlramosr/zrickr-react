@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import HeaderLayout from '../HeaderLayout';
 import { GridList, GridListTile, GridListTileBar } from 'material-ui/GridList';
@@ -48,7 +49,7 @@ const Dashboard = props => {
               >
                 <img className={classes.gridImage} src={category.image || "https://blogs.ntu.edu.sg/files/2014/07/change_default_category.jpg"} alt={category.label} />
                 <GridListTileBar
-                  title={category.label}
+                  title={category.label || ''}
                   subtitle={<span>{category.description}</span>}
                   actionIcon={
                     <IconButton>
@@ -72,4 +73,6 @@ Dashboard.propTypes = {
   loading: PropTypes.bool.isRequired,
 };
 
-export default withStyles(styles)(Dashboard);
+export default 
+    withStyles(styles)(Dashboard)
+  ;
