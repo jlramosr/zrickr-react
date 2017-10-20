@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import { Route, Link } from 'react-router-dom';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Category from '../Category';
 import Dashboard from '../Dashboard';
 import NotFound from '../NotFound';
+import { fetchCategories } from '../../actions';
 import API from '../../utils/api';
 import { withStyles } from 'material-ui/styles';
 import Drawer from 'material-ui/Drawer';
@@ -40,7 +42,8 @@ class App extends Component {
   }
 
   componentDidMount = _ => {
-    this._getData();
+    this.props.fetchCategories();
+    //this._getData();
   }
 
   componentDidCatch(error, info) {
@@ -48,8 +51,8 @@ class App extends Component {
   }
 
   render = _ => {
-    const { classes } = this.props;
-    const { categories, drawerOpen, loading} = this.state;
+    const { classes, categories } = this.props;
+    const { drawerOpen, loading} = this.state;
 
     return (
       <div>
@@ -101,4 +104,19 @@ App.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(App);
+const mapStateToProps = ({categories}) => ({
+  categories: Object.keys(categories).reduce((cats, categoryId) =>
+    [...cats, { id: categoryId, ...categories[categoryId] }]
+  ,[])
+})
+
+const mapDispatchToProps = dispatch => {
+  return {
+    fetchCategories: (data) => dispatch(fetchCategories()),
+  }
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(withStyles(styles)(App));

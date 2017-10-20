@@ -5,6 +5,7 @@ import { Provider } from 'react-redux';
 import App from './components/App';
 import registerServiceWorker from './registerServiceWorker';
 import { createStore, applyMiddleware, compose } from 'redux';
+import thunk from 'redux-thunk';
 import reducer from './reducers';
 import { createMuiTheme, MuiThemeProvider } from 'material-ui/styles';
 import grey from 'material-ui/colors/grey';
@@ -29,7 +30,7 @@ let theme = createMuiTheme({
         "A400": "#5E9031",
         "A700": "#355915",
         "contrastDefaultColor": "light",
-        //...grey,
+        ...grey,
       },
       secondary: {
         "50": "#FFF6EC",
@@ -240,7 +241,8 @@ const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
 const store = createStore(
   reducer,
   composeEnhancers(
-    applyMiddleware(logger)
+    applyMiddleware(logger),
+    applyMiddleware(thunk)
   )
 )
 

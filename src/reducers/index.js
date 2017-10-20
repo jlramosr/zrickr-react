@@ -1,18 +1,32 @@
-import { combineReducers } from 'redux'
+import { combineReducers } from 'redux';
+import { RECEIVE_CATEGORIES } from '../actions';
+import { ADD_CATEGORY } from '../actions';
 
-import {
-  ADD_CLIENT,
-} from '../actions'
+const initialCategoriesState = {
+  clients: {
+    icon: 'Work',
+    label: 'Clients',
+  },
+}
 
-function clients(state = {}, action) {
+const categories = (state = initialCategoriesState, action) => {
   switch (action.type) {
-    case ADD_CLIENT :
-      return state
-    default :
+    case RECEIVE_CATEGORIES:
+      const { categories } = action
+      return {
+        ...categories,
+      }
+    case ADD_CATEGORY:
+      const { name, icon, label } = action
+      return {
+        ...state,
+        [name]: {icon, label},
+      }
+    default:
       return state
   }
 }
 
 export default combineReducers({
-  clients
+  categories
 })
