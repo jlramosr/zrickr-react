@@ -1,18 +1,13 @@
 import { RECEIVE_CATEGORIES } from '../actions';
 import { ADD_CATEGORY } from '../actions';
 
-const initialCategoriesState = {
-  categories: [],
-}
+const initialCategoriesState = [];
 
 const categories = (state = initialCategoriesState, action) => {
+  console.log(state, action);
   switch (action.type) {
     case RECEIVE_CATEGORIES:
-      const { categories } = action
-      return {
-        ...state,
-        categories,
-      }
+      return action.categories;
     case ADD_CATEGORY:
       const { name, icon, label } = action
       return {

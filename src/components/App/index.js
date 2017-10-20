@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Route, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { Route } from 'react-router';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Category from '../Category';
@@ -38,7 +39,7 @@ class App extends Component {
 
     return (
       <div>
-
+        
         <Drawer type="persistent" open={drawerOpen}>
           <div>
             <IconButton onClick={this.toggleDrawer}>
@@ -57,14 +58,14 @@ class App extends Component {
           ))}
         </Drawer>
 
-        <Route path="/" exact render={ _ => (
+        <Route path="/" exact component={props => (
           <Dashboard
             categories={categories}
             loading={loading}
             closeDrawer={this.toggleDrawer}
           />    
         )}/>
-        <Route path="/:categoryId" exact component={ props => {
+        <Route path="/:categoryId" component={ props => {
           const categoryId = props.match.params.categoryId;
           console.log(categoryId);
           const category = categories.find(
@@ -84,11 +85,9 @@ class App extends Component {
 }
 
 const mapStateToProps = ({categories}) => ({
-  categories:
-    Object.keys(categories).reduce((cats, categoryId) =>
-      [...cats, { id: categoryId, ...categories[categoryId] }]
-    ,[])
-
+  categories: Object.keys(categories).reduce((cats, categoryId) =>
+    [...cats, { id: categoryId, ...categories[categoryId] }]
+  ,[])
 })
 
 const mapDispatchToProps = dispatch => {

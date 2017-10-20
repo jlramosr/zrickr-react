@@ -3,13 +3,18 @@ import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { MuiThemeProvider } from 'material-ui/styles';
 import { BrowserRouter } from 'react-router-dom';
-import { createStore, applyMiddleware, compose } from 'redux';
+import { createStore, applyMiddleware, combineReducers, compose } from 'redux';
 import thunk from 'redux-thunk';
-import reducer from './reducers';
+import categoriesReducer from './reducers';
 import App from './components/App';
 import registerServiceWorker from './registerServiceWorker';
 import theme from './theme';
 import './index.css';
+
+import createHistory from 'history/createBrowserHistory';
+import { ConnectedRouter, routerReducer, routerMiddleware, push } from 'react-router-redux'
+import {withRouter} from 'react-router';
+
 
 const logger = store => next => action => {
   /*console.group(action.type);
@@ -21,23 +26,28 @@ const logger = store => next => action => {
 }
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
+const history = createHistory();
 
 const store = createStore(
-  reducer,
+  combineReducers({
+    categories: categoriesReducer,
+    router: routerReducer,
+  }),
   composeEnhancers(
+    applyMiddleware(thunk),
     applyMiddleware(logger),
-    applyMiddleware(thunk)
+    applyMiddleware(routerMiddleware(history))
   )
 )
 
 ReactDOM.render(
-  <Provider store={store}>
-    <MuiThemeProvider theme={theme}>
-      <BrowserRouter>
+  <MuiThemeProvider theme={theme}>
+    <Provider store={store}>
+      <ConnectedRouter history={history}>
         <App/>
-      </BrowserRouter>
-    </MuiThemeProvider>
-  </Provider>,
+      </ConnectedRouter>
+    </Provider>
+  </MuiThemeProvider>,
   document.getElementById('root')
 )
 
