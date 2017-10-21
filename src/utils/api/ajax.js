@@ -1,4 +1,4 @@
-const api = "http://romeo-hesch:3001/api/v1.0";
+const api = "http://romeo-hesch:3001/api/v1.0"
 
 let token = localStorage.token
 if (!token)

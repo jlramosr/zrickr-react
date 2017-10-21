@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import HeaderLayout from '../HeaderLayout';
+import HeaderLayout from '../headerLayout';
 import Close from 'material-ui-icons/Close';
 import Check from 'material-ui-icons/Check';
 

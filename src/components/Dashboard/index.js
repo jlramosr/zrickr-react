@@ -1,13 +1,14 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
-import HeaderLayout from '../HeaderLayout';
-import { GridList, GridListTile, GridListTileBar } from 'material-ui/GridList';
-import IconButton from 'material-ui/IconButton';
-import InfoIcon from 'material-ui-icons/Info';
-import MenuIcon from 'material-ui-icons/Menu';
-import { withStyles } from 'material-ui/styles';
+import React from 'react'
+import { Link } from 'react-router-dom'
+import { connect } from 'react-redux'
+import PropTypes from 'prop-types'
+import { toggleDrawer } from '../../actions/drawer'
+import HeaderLayout from '../headerLayout'
+import { GridList, GridListTile, GridListTileBar } from 'material-ui/GridList'
+import IconButton from 'material-ui/IconButton'
+import InfoIcon from 'material-ui-icons/Info'
+import MenuIcon from 'material-ui-icons/Menu'
+import { withStyles } from 'material-ui/styles'
 
 const styles = theme => ({
   gridContainer: {
@@ -25,17 +26,17 @@ const styles = theme => ({
     height: 250,
     objectFit: 'cover',
   }
-});
+})
 
 const Dashboard = props => {
-  const { categories, closeDrawer, loading, classes } = props;
+  const { categories, isFetchingCategories, drawerOpened, toggleDrawer, classes } = props
 
   return (
     <HeaderLayout
       title="ERP"
-      loading={loading}
+      loading={isFetchingCategories}
       operations={[
-        {id:'menu', icon: MenuIcon, onClick:closeDrawer},
+        {id:'menu', icon: MenuIcon, onClick: _ => toggleDrawer(!drawerOpened)},
       ]}
     >
 
@@ -64,15 +65,28 @@ const Dashboard = props => {
       </div>
     </HeaderLayout>
   )
-};
+}
 
 Dashboard.propTypes = {
-  classes: PropTypes.object.isRequired,
   categories: PropTypes.array.isRequired,
-  closeDrawer: PropTypes.func,
-  loading: PropTypes.bool.isRequired,
-};
+  isFetchingCategories: PropTypes.bool.isRequired,
+  drawerOpened: PropTypes.bool.isRequired,
+  classes: PropTypes.object.isRequired
+}
 
-export default 
-    withStyles(styles)(Dashboard)
-  ;
+const mapStateToProps = (state) => {
+  const { categories, drawer } = state
+  return {
+    categories: [...categories.items], 
+    isFetchingCategories: categories.isFetching,
+    drawerOpened: drawer.opened
+  }
+}
+
+const mapDispatchToProps = dispatch => ({
+  toggleDrawer: opened => dispatch(toggleDrawer(opened)),
+})
+
+export default connect(mapStateToProps,mapDispatchToProps)(
+  withStyles(styles)(Dashboard)
+)

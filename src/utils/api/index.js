@@ -1,6 +1,6 @@
-import localAPI from './local';
-import ajaxAPI from './ajax';
-import firebaseAPI from './firebase';
+import localAPI from './local'
+import ajaxAPI from './ajax'
+import firebaseAPI from './firebase'
 
 export default (api='local') => {
   switch (api) {

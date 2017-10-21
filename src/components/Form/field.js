@@ -8,7 +8,7 @@ import { MenuItem } from 'material-ui/Menu';
 import Switch from 'material-ui/Switch';
 import { ListItem } from 'material-ui/List';
 import Divider from 'material-ui/Divider';
-import CategoryList from '../Category/list';
+import CategoryList from '../category/list';
 import { getInfo } from '../../utils/helpers';
 
 const styles = theme => ({

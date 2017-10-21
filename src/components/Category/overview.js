@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import API from '../../utils/api';
-import HeaderLayout from '../HeaderLayout';
-import Form from '../Form';
+import HeaderLayout from '../headerLayout';
+import Form from '../form';
 import ArrowBack from 'material-ui-icons/ArrowBack';
 import Close from 'material-ui-icons/Close';
 import Check from 'material-ui-icons/Check';

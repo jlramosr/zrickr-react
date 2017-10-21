@@ -1,7 +1,5 @@
-import { snapshotToArray } from '../helpers';
-
-const firebase = require("firebase/app");
-require("firebase/database");
+const firebase = require("firebase/app")
+require("firebase/database")
 
 const config = {
   apiKey: "AIzaSyDoZ6V5LUCN2AZ-DvbDx4S8JoHhBKgIeMw",
@@ -10,63 +8,63 @@ const config = {
   projectId: "tinyerp-1017",
   storageBucket: "tinyerp-1017.appspot.com",
   messagingSenderId: "326927970961"
-};
+}
 
-firebase.initializeApp(config);
+firebase.initializeApp(config)
 
-const database = firebase.database();
+const database = firebase.database()
 
 export default class firebaseAPI {
 
   static getCollection = (collection, collectionId) => {
     let ref = database.ref(collection)
-    if (collectionId) ref = ref.child(collectionId);
+    if (collectionId) ref = ref.child(collectionId)
     return ref.once('value')
-      .then( snapshot => snapshotToArray(snapshot.val()))
+      .then( snapshot => snapshot.val())
   }
 
   static getDocument = (collection, collectionId, documentId='') => {
-    let ref = database.ref(collection).child(collectionId);
-    if (documentId) ref = ref.child(documentId);
+    let ref = database.ref(collection).child(collectionId)
+    if (documentId) ref = ref.child(documentId)
     return ref.once('value')
-      .then( snapshot => snapshot.val());
+      .then( snapshot => snapshot.val())
   }
 
   static updateCollection = 
   ({collection, collectionId='', generateDocumentId=false, documentId='', document}) => {
-    const ref = database.ref().child(collection);
-    const _collectionId = collectionId ? `${collectionId}/` : '';
-    const _documentId = documentId || (generateDocumentId ? ref.push().key : '');
-    const path = `${_collectionId}${_documentId}`;
+    const ref = database.ref().child(collection)
+    const _collectionId = collectionId ? `${collectionId}/` : ''
+    const _documentId = documentId || (generateDocumentId ? ref.push().key : '')
+    const path = `${_collectionId}${_documentId}`
     if (path) {
-      let updates = {};
-      updates[`${path}`] = document;
-      ref.update(updates);
+      let updates = {}
+      updates[`${path}`] = document
+      ref.update(updates)
     }
     else {
-      ref.update(document);
+      ref.update(document)
     }
   }
 
   /*static addDocumentsId = (collection, collectionId='', newDocumentId='', newDocuments) => {
-    const ref = database.ref().child(collection);
-    let updates = {};
+    const ref = database.ref().child(collection)
+    let updates = {}
     if (!Array.isArray(newDocuments)) {
-      newDocuments = [newDocuments];
+      newDocuments = [newDocuments]
     }
     newDocuments.forEach(newDocument => {
-      const newDocumentId = ref.push().key;
+      const newDocumentId = ref.push().key
       const path = collectionId ? `${collectionId}/${newDocumentId}` : `${newDocumentId}`
-      updates[`${path}`] = newDocument;
-      ref.update(updates);
+      updates[`${path}`] = newDocument
+      ref.update(updates)
     })
   }
 
   static addDocuments = (collection, collectionId, newDocuments) => {
-    const ref = database.ref().child(collection);
-    let updates = {};
-    updates[`${collectionId}`] = newDocuments;
-    ref.update(updates);
+    const ref = database.ref().child(collection)
+    let updates = {}
+    updates[`${collectionId}`] = newDocuments
+    ref.update(updates)
   }*/
 
 }
@@ -268,4 +266,4 @@ export default class firebaseAPI {
 }
 updateCollection({
   collection:'categories_fields', collectionId: 'clients', document
-});*/
+})*/

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import HeaderLayout from '../HeaderLayout';
+import HeaderLayout from '../headerLayout';
 import List, { ListItem, ListItemSecondaryAction, ListItemText } from 'material-ui/List';
 import Divider from 'material-ui/Divider';
 import {
