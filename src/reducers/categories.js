@@ -4,7 +4,9 @@ import { RECEIVE_CATEGORIES } from '../actions/categories'
 
 const initialCategoriesState = {
   isFetching: false,
-  didInvalidate: false,
+  isUpdating: false,
+  isReceived: false,
+  lastUpdated: null,
   items: []
 }
 
@@ -13,14 +15,13 @@ const categories = (state = initialCategoriesState, action) => {
     case REQUEST_CATEGORIES:
       return {
         ...state,
-        isFetching: true,
-        didInvalidate: false
+        isFetching: true
       }
     case RECEIVE_CATEGORIES:
       return {
         ...state,
         isFetching: false,
-        didInvalidate: false,
+        isReceived: true,
         items: snapshotToArray(action.items),
         lastUpdated: action.receivedAt
       }

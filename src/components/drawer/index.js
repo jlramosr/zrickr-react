@@ -21,7 +21,7 @@ class CustomDrawer extends Component {
     const { categories, opened, close, classes } = this.props
 
     return (
-      <Drawer type="persistent" open={opened}>
+      <Drawer open={opened}>
         <div>
           <IconButton onClick={close}>
             <ChevronLeftIcon />
@@ -45,13 +45,14 @@ class CustomDrawer extends Component {
 CustomDrawer.propTypes = {
   categories: PropTypes.array.isRequired,
   opened: PropTypes.bool.isRequired,
+  close: PropTypes.func.isRequired,
   classes: PropTypes.object.isRequired
 }
 
 const mapStateToProps = (state) => {
   const { categories, drawer } = state;
   return {
-    categories: [...categories.items],
+    categories: categories.items,
     opened: drawer.opened
   }
 }

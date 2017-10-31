@@ -1,87 +1,36 @@
-import React, { Component } from 'react';
-import { Route } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import API from '../../utils/api';
-import CategoryList from './list';
-import CategoryItemOverview from './overview';
+import React from 'react'
+import { connect } from 'react-redux'
+import PropTypes from 'prop-types'
+import { renderRoutes } from 'react-router-config'
+import NotFound from '../notFound'
 
-class Category extends Component {
-  state = {
-    settings: {},
-    fields: [],
-    items: [],
-    loading: true,
-  }
-
-  _getData = _ => {
-    Promise.all([
-      API('local').getDocument('categories_settings', this.props.id),
-      API('local').getCollection('categories_fields', this.props.id),
-      API('local').getCollection('categories_items', this.props.id),
-    ])
-      .then(values => {
-        const [settings, fields, items] = values;
-        const icon = settings.icon;
-        settings['icon'] = icon  ?
-          (typeof icon === 'string' ? require('material-ui-icons')[icon] : icon) : 
-          null
-        this.setState({settings, fields, items, loading: false});
-      })
-      .catch(error => {
-        console.log("ERROR PIDIENDO DATOS CATEGORIA", error);
-      })
-  }
-
-  componentDidMount = _ => {
-    this._getData();
-  }
-
-  render = _ => {
-    const { settings, fields, items, loading } = this.state;
-    const { id, label } = this.props;
-
-    return (
-      <div>
-
-        <Route path={`/${id}`} exact render={ props => (
-          React.createElement(CategoryList, {
-            categoryId: id,
-            categoryLabel: label,
-            settings,
-            items,
-            loading,
-            fields: fields
-              .filter(field => field.views.list)
-              .sort((a, b) => (a.views.list.y < b.views.list.y ? -1 : 1)),
-          })
-        )}/>
-
-        <Route path={`/${id}/:itemId`} render={ props => {
-          const itemId = props.match.params.itemId;
-          return React.createElement(CategoryItemOverview, {
-            id: itemId.toString(),
-            categoryId: id,
-            settings,
-            loading,
-            fields: fields
-              .filter(field => field.views.overview)
-              .sort((a, b) => (
-                a.views.overview.x < b.views.overview.x ? -1 : (
-                  (a.views.overview.x === b.views.overview.x) &&
-                  (a.views.overview.y < b.views.overview.y) ? -1 : 1
-                ))
-              ),
-          });
-        }}/>
-
-      </div>
-    );
-  }
+let Category = props => {
+  const { categories, categoriesReceived, match, route } = props
+  const categoryId = match.params.categoryId
+  const category = categories.find(category => category.id === categoryId)
+  return categoriesReceived ? (
+    category ?
+      <div>{renderRoutes(route.routes, {categoryId})}</div> :
+      <NotFound text="Category Not Found" />
+  ) : (
+    <NotFound text="Loading Category ..." />
+  )
 }
 
 Category.propTypes = {
-  id: PropTypes.string.isRequired,
-  label: PropTypes.string.isRequired,
+  categories: PropTypes.array.isRequired,
+  categoriesReceived: PropTypes.bool.isRequired,
+  match: PropTypes.shape({
+    params: PropTypes.shape({
+      categoryId: PropTypes.string.isRequired
+    })
+  }),
+  route: PropTypes.object.isRequired
 }
 
-export default Category;
+const mapStateToProps = ({ categories }) => ({ 
+  categories: categories.items,
+  categoriesReceived: categories.received
+})
+
+export default connect(mapStateToProps)(Category)

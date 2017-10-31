@@ -1,55 +1,40 @@
 import React, { Component } from 'react'
-import { Route } from 'react-router'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { fetchCategories } from '../../actions/categories'
-import Category from '../category'
-import Dashboard from '../dashboard'
-import NotFound from '../notFound'
+import { renderRoutes } from 'react-router-config'
 import Drawer from '../drawer'
 
+/**
+ * Main app component, with common Drawer and first level routes.
+ *
+ */
 class App extends Component {
   componentDidMount = _ => this.props.fetchCategories()
 
-  render = _ => {
-    const { categories } = this.props
-
-    return (
-      <div>
-        
-        <Drawer />
-
-        <Route path="/" exact component={Dashboard} />
-
-        <Route path="/:categoryId" component={ props => {
-          const categoryId = props.match.params.categoryId
-          const category = categories.find(
-            category => category.id === categoryId
-          )
-          return category ? 
-            React.createElement(Category, { 
-              id: categoryId,
-              label: category.label,
-            }) : 
-            React.createElement(NotFound, {title: 'Not Found'})
-        }}/>
-
-      </div>
-    )
-  }
+  render = _ => (
+    <div>
+      <Drawer />
+      {renderRoutes(this.props.route.routes)}
+    </div>
+  )
 }
 
 App.propTypes = {
-  categories: PropTypes.array.isRequired,
-  fetchCategories: PropTypes.func.isRequired,
+  /**
+   * Info with all the app routes and rendered components for every one of them.
+   * @see See [GitHub](https://github.com/ReactTraining/react-router/tree/master/packages/react-router-config)
+   * to see how it generates
+   */
+  route: PropTypes.object.isRequired,
+    /**
+   * Get all categories from Redux store.
+   */
+  fetchCategories: PropTypes.func.isRequired
 }
-
-const mapStateToProps = ({categories}) => ({
-  categories: [...categories.items] 
-})
 
 const mapDispatchToProps = dispatch => ({
   fetchCategories: _ => dispatch(fetchCategories()),
 })
 
-export default connect(mapStateToProps,mapDispatchToProps)(App)
+export default connect(null, mapDispatchToProps)(App)

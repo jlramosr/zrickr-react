@@ -1,20 +1,14 @@
-import React, { Component } from 'react';
-import './index.css';
+import React from 'react'
+import PropTypes from 'prop-types'
 
-class NotFound extends Component {
-  state = {
-  }
-
-  componentDidMount() {
-  }
-
-  render() {
-    return (
-      <div className="app-content">
-        Not found
-      </div>
-    );
-  }
+const NotFound = props => {
+  return (
+    <div style={{padding: 40}}>{props.text || 'Page Not Found'}</div>
+  )
 }
 
-export default NotFound;
+NotFound.propTypes = {
+  text: PropTypes.string
+}
+
+export default NotFound

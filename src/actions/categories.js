@@ -22,10 +22,3 @@ export const fetchCategories = _ => (dispatch, getState) => {
       error => console.log("ERROR PIDIENDO CATEGORIAS", error)
     )
 }
-
-export const addCategory = ({ name, icon, label }) => ({
-  type: ADD_CATEGORY,
-  name,
-  icon,
-  label
-})

@@ -1,0 +1,1 @@
+TinyERP is a business app to manage contacts and invoices using React and Redux

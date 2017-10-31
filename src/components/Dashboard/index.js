@@ -71,17 +71,15 @@ Dashboard.propTypes = {
   categories: PropTypes.array.isRequired,
   isFetchingCategories: PropTypes.bool.isRequired,
   drawerOpened: PropTypes.bool.isRequired,
+  toggleDrawer: PropTypes.func.isRequired,
   classes: PropTypes.object.isRequired
 }
 
-const mapStateToProps = (state) => {
-  const { categories, drawer } = state
-  return {
-    categories: [...categories.items], 
-    isFetchingCategories: categories.isFetching,
-    drawerOpened: drawer.opened
-  }
-}
+const mapStateToProps = ({ categories, drawer }) => ({
+  categories: categories.items, 
+  isFetchingCategories: categories.isFetching,
+  drawerOpened: drawer.opened
+})
 
 const mapDispatchToProps = dispatch => ({
   toggleDrawer: opened => dispatch(toggleDrawer(opened)),
