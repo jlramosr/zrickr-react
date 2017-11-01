@@ -1,7 +1,7 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import CustomToolbar from './toolbar';
-import { withStyles } from 'material-ui/styles';
+import React from 'react'
+import PropTypes from 'prop-types'
+import CustomToolbar from './toolbar'
+import { withStyles } from 'material-ui/styles'
 
 const styles = theme => ({
   root: {
@@ -34,10 +34,10 @@ const styles = theme => ({
       height: `calc(100vh - ${theme.standards.toolbarHeights.tabletDesktop}px)`,
     },
   },
-});
+})
 
 const HeaderLayout = props => {
-  const { children, classes, theme, relative, relativeHeight, ...rest } = props;
+  const { children, classes, theme, relative, relativeHeight, ...rest } = props
 
   return (
     <div className={classes.root}>
@@ -61,7 +61,7 @@ const HeaderLayout = props => {
       </div>
     </div>
   )
-};
+}
 
 HeaderLayout.propTypes = {
   classes: PropTypes.object.isRequired,
@@ -73,10 +73,10 @@ HeaderLayout.propTypes = {
   loading: PropTypes.bool,
   miniToolbar: PropTypes.bool,
   relativeHeight: PropTypes.number,
-};
+}
 
 HeaderLayout.defaultProps = {
   relative: false,
-};
+}
 
-export default withStyles(styles, {withTheme: true})(HeaderLayout);
+export default withStyles(styles, {withTheme: true})(HeaderLayout)

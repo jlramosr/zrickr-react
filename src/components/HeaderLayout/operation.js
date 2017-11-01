@@ -1,12 +1,12 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import IconButton from 'material-ui/IconButton';
-import Tooltip from 'material-ui/Tooltip';
+import React from 'react'
+import { Link } from 'react-router-dom'
+import PropTypes from 'prop-types'
+import IconButton from 'material-ui/IconButton'
+import Tooltip from 'material-ui/Tooltip'
 
 const Operation = props => {
-  const { id, icon, color, hidden, to, description, onClick } = props;
-  const Icon = icon;
+  const { id, icon, color, hidden, to, description, onClick } = props
+  const Icon = icon
 
   return (
     <div hidden={hidden}>
@@ -30,8 +30,8 @@ const Operation = props => {
       )
     )}
     </div>
-  );
-};
+  )
+}
 
 Operation.propTypes = {
   id: PropTypes.string.isRequired,
@@ -41,11 +41,11 @@ Operation.propTypes = {
   to: PropTypes.string,
   description: PropTypes.string,
   onClick: PropTypes.func,
-};
+}
 
 Operation.defaultProps = {
   hidden: false,
   color: "contrast",
-};
+}
 
-export default Operation;
+export default Operation

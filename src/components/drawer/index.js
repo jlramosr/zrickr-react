@@ -15,7 +15,7 @@ const styles = {
     textTransform: 'capitalize'
   }
 }
-
+import moduleName from 'module';
 class CustomDrawer extends Component {
   render = _ => {
     const { categories, opened, close, classes } = this.props
