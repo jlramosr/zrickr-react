@@ -1,15 +1,15 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { withStyles } from 'material-ui/styles';
-import API from '../../utils/api';
-import Paper from 'material-ui/Paper';
-import TextField from 'material-ui/TextField';
-import { MenuItem } from 'material-ui/Menu';
-import Switch from 'material-ui/Switch';
-import { ListItem } from 'material-ui/List';
-import Divider from 'material-ui/Divider';
-import CategoryList from '../category/list';
-import { getInfo } from '../../utils/helpers';
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import { withStyles } from 'material-ui/styles'
+import API from '../../utils/api'
+import Paper from 'material-ui/Paper'
+import TextField from 'material-ui/TextField'
+import { MenuItem } from 'material-ui/Menu'
+import Switch from 'material-ui/Switch'
+import { ListItem } from 'material-ui/List'
+import Divider from 'material-ui/Divider'
+import CategoryList from '../category/list'
+import { getInfo } from '../../utils/helpers'
 
 const styles = theme => ({
   textField: {
@@ -19,25 +19,25 @@ const styles = theme => ({
 
   },
   list: {
-    marginTop: theme.spacing.unit*2,
+    marginTop: theme.spacing.unit*2
   },
   toogle: {
 
-  },
-});
+  }
+})
 
 class Field extends Component {
   state = {
     relationSettings: {},
     relationFields: [],
     relationItems: [],
-    relationLoading: true,
+    relationLoading: true
   }
 
   _getData = relationId => {
-    let { value, type } = this.props;
-    let getItemsPromises = [];
-    value = value || {};
+    let { value, type } = this.props
+    let getItemsPromises = []
+    value = value || {}
     if (type === 'list') {
       getItemsPromises = Object.keys(value).map(relationItemId =>
         API('local').getDocument('categories_items', relationId, relationItemId)
@@ -50,14 +50,14 @@ class Field extends Component {
     Promise.all([
       API('local').getDocument('categories_settings', relationId),
       API('local').getCollection('categories_fields', relationId),
-      ...getItemsPromises,
+      ...getItemsPromises
     ])
       .then(values => {
-        let [relationSettings, relationFields, ...relationItems] = values;
+        let [relationSettings, relationFields, ...relationItems] = values
         if (relationItems.length === 1 && Array.isArray(relationItems[0])) {
-          relationItems = relationItems[0];
+          relationItems = relationItems[0]
         }
-        const icon = relationSettings.icon;
+        const icon = relationSettings.icon
         relationSettings['icon'] = icon  ?
           (typeof icon === 'string' ? require('material-ui-icons')[icon] : icon) : 
           null
@@ -66,21 +66,21 @@ class Field extends Component {
           relationFields,
           relationItems,
           relationLoading: false
-        });
+        })
       })
       .catch(error => {
-        console.log("ERROR PIDIENDO DATOS RELACIÓN", error);
+        console.log('ERROR PIDIENDO DATOS RELACIÓN', error)
       })
   }
 
-  componentDidMount = _ => {
-    const { relationId } = this.props;
+  componentDidMount = () => {
+    const { relationId } = this.props
     if (relationId) {
-      this._getData(relationId);
+      this._getData(relationId)
     }
   }
 
-  render() {
+  render = () => {
     const {
       id,
       type,
@@ -90,15 +90,15 @@ class Field extends Component {
       required,
       value,
       relationId,
-      classes,
-    } = this.props;
+      classes
+    } = this.props
 
     const {
       relationSettings,
       relationFields,
       relationItems,
-      relationLoading,
-    } = this.state;
+      relationLoading
+    } = this.state
 
     switch(type) {
 
@@ -138,12 +138,12 @@ class Field extends Component {
               ))
             )}
           </TextField>
-        );
+        )
 
       case 'radio': 
         return (
           <TextField value={value}/>
-        );
+        )
 
       case 'boolean':
         return (
@@ -205,9 +205,9 @@ class Field extends Component {
             }
           />
         )
-      }
+    }
   }
-};
+}
 
 Field.propTypes = {
   id: PropTypes.string.isRequired,
@@ -223,7 +223,7 @@ Field.propTypes = {
     if (props.type === 'select' && !props.options && !props.relationId) {
       return new Error(
         `${propName} ${componentName}: Select field must to have an array of options or a relation name.`
-      );
+      )
     }
   },
   optionsId: (props, propName, componentName) => {
@@ -231,7 +231,7 @@ Field.propTypes = {
       if (!option.id) {
         return new Error(
           `${propName} ${componentName}: Not option id provided on select/list field.`
-        );
+        )
       }
     }
   },
@@ -239,20 +239,20 @@ Field.propTypes = {
     if (props.relationId && props.type === 'select' && props.value && typeof props.value !== 'string') {
       return new Error(
         `${propName} ${componentName}: Value of relation field must be an id key`
-      );
+      )
     }
   },
   valueListRelation: (props, propName, componentName) => {
     if (props.relationId && props.type === 'list' && props.value && typeof props.value !== 'object') {
       return new Error(
         `${propName} ${componentName}: Value of relation field must be an id key`
-      );
+      )
     }
-  },
-};
+  }
+}
 
 Field.defaultProps = {
-  type: 'string',
-};
+  type: 'string'
+}
 
-export default withStyles(styles)(Field);
+export default withStyles(styles)(Field)

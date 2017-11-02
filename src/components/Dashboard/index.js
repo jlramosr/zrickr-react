@@ -10,21 +10,21 @@ import InfoIcon from 'material-ui-icons/Info'
 import MenuIcon from 'material-ui-icons/Menu'
 import { withStyles } from 'material-ui/styles'
 
-const styles = theme => ({
+const styles = () => ({
   gridContainer: {
     display: 'flex',
     flexWrap: 'wrap',
     justifyContent: 'space-around',
-    overflow: 'hidden',
+    overflow: 'hidden'
   },
   gridList: {
     maxWidth: 700,
-    textTransform: 'capitalize',
+    textTransform: 'capitalize'
   },
   gridImage: {
     width: 250,
     height: 250,
-    objectFit: 'cover',
+    objectFit: 'cover'
   }
 })
 
@@ -36,7 +36,7 @@ const Dashboard = props => {
       title="ERP"
       loading={isFetchingCategories}
       operations={[
-        {id:'menu', icon: MenuIcon, onClick: _ => toggleDrawer(!drawerOpened)},
+        {id:'menu', icon: MenuIcon, onClick: () => toggleDrawer(!drawerOpened)}
       ]}
     >
 
@@ -48,7 +48,11 @@ const Dashboard = props => {
                 key={category.id}
                 to={`/${category.id}`}
               >
-                <img className={classes.gridImage} src={category.image || "https://blogs.ntu.edu.sg/files/2014/07/change_default_category.jpg"} alt={category.label} />
+                <img
+                  className={classes.gridImage}
+                  src={category.image || 'https://blogs.ntu.edu.sg/files/2014/07/change_default_category.jpg'}
+                  alt={category.label}
+                />
                 <GridListTileBar
                   title={category.label || ''}
                   subtitle={<span>{category.description}</span>}
@@ -82,7 +86,7 @@ const mapStateToProps = ({ categories, drawer }) => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-  toggleDrawer: opened => dispatch(toggleDrawer(opened)),
+  toggleDrawer: opened => dispatch(toggleDrawer(opened))
 })
 
 export default connect(mapStateToProps,mapDispatchToProps)(

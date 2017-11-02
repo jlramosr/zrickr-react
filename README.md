@@ -2173,15 +2173,15 @@ type:
   string, number, text, boolean
 
 views:
-  overview, list, search:
+  detail, list, search:
     small:
     medium:
     large:
 
-      x: (overview)
-      y: (overview, search)
-      xs: (overview)
-      ys: (overview)
+      x: (detail)
+      y: (detail, search)
+      xs: (detail)
+      ys: (detail)
       nolabel:
       nodescription:
       when

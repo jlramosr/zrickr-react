@@ -3,7 +3,7 @@
     "type":"number",
     "label":"Cliente",
     "views": {
-      "overview": {
+      "detail": {
         "nolabel":true,
         "x":1,"y":1,"ys":2
       }
@@ -14,7 +14,7 @@
     "label":"Precio",
     "default": 0.0,
     "views": {
-      "overview": {
+      "detail": {
         "x":2,"y":1,"ys":3
       }
     }
@@ -24,7 +24,7 @@
     "label":"Fecha",
     "default": 0.0,
     "views": {
-      "overview": {
+      "detail": {
         "x":2,"y":4,"ys":3
       }
     }
@@ -33,7 +33,7 @@
     "type":"hour",
     "label":"Hora",
     "views": {
-      "overview": {
+      "detail": {
         "x":2,"y":7,"ys":3
       }
     }
@@ -42,7 +42,7 @@
     "type":"boolean",
     "label":"Cobrado",
     "views": {
-      "overview": {
+      "detail": {
         "x":1,"y":12,"ys":1
       }
     }
@@ -51,7 +51,7 @@
     "label":"Direccion",
     "description": "Dirección fiscal de la empresa/individuo",
     "views": {
-      "overview": {
+      "detail": {
         "x":3,
         "nodescription": true,
         "small":{"x":4}
@@ -62,7 +62,7 @@
     "label":"Cod.Postal",
     "type": "number",
     "views": {
-      "overview": {
+      "detail": {
         "x":4,"y":3,"ys":5,
         "small": {"x":5}
       },
@@ -79,7 +79,7 @@
       {"id": "barcelona", "label": "Bacelona"}
     ],
     "views": {
-      "overview": {
+      "detail": {
         "x":4,"y":1,"ys":2,
         "small": {"x":6}
       },
@@ -91,7 +91,7 @@
   "province": {
     "label":"Provincia",
     "views": {
-      "overview": {
+      "detail": {
         "x":4,"y":8,"ys":6,
         "small": {"x":7}
       },
@@ -103,7 +103,7 @@
   "phone": {
     "label":"Teléfono",
     "views": {
-      "overview": {
+      "detail": {
         "x":5,"y":1,"ys":4,
         "small": {"x":8}
       },
@@ -115,7 +115,7 @@
   "email": {
     "label":"Email",
     "views": {
-      "overview": {
+      "detail": {
         "x":5,
         "small": {"x":9}
       },
@@ -129,7 +129,7 @@
     "label": "Movimientos",
     "relation": "movements",
     "views": {
-      "overview": {
+      "detail": {
         "x": 6, "xs": 2,
         "small": {"x":10}
       },
@@ -142,7 +142,7 @@
     "label": "Descripción",
     "type": "text",
     "views": {
-      "overview": {
+      "detail": {
         "x": 8, "xs":3, "ys": 10,
         "small": {"x":11}
       },
@@ -155,7 +155,7 @@
     "label": "Edad",
     "type": "number",
     "views": {
-      "overview": {
+      "detail": {
         "x": 8, "ys": 2,
         "small": {"x":12}
       },
@@ -167,7 +167,7 @@
   "raza": {
     "label": "Raza",
     "views": {
-      "overview": {
+      "detail": {
         "x": 9, "ys": 2,
         "small": {"x":13}
       }
@@ -182,7 +182,7 @@
       {"id": "budista", "label": "Budista"}
     ],
     "views": {
-      "overview": {
+      "detail": {
         "x": 10, "ys": 2,
         "small": {"x":14}
       }
@@ -193,7 +193,7 @@
     "type": "select",
     "relation": "clients",
     "views": {
-      "overview": {
+      "detail": {
         "x": 11,
         "small": {"x":15}
       }

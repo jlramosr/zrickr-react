@@ -1,4 +1,5 @@
 module.exports = {
+    "parser": "./node_modules/babel-eslint",
     "env": {
         "browser": true,
         "commonjs": true,
@@ -21,10 +22,6 @@ module.exports = {
             2,
             { "SwitchCase": 1 }
         ],
-        "linebreak-style": [
-            "error",
-            "windows"
-        ],
         "quotes": [
             "error",
             "single"
@@ -33,6 +30,16 @@ module.exports = {
             "error",
             "never"
         ],
+        "comma-dangle": [
+            "error",
+            "never"
+        ],
+        "arrow-parens": [
+            "error",
+            "as-needed"
+        ],
+        "no-console": 0,
+        "no-debugger": 0,
         "react/jsx-uses-react": "error",
         "react/jsx-uses-vars": "error"
     }

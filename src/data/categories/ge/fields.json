@@ -2,7 +2,7 @@
   "nombre": {
     "label":"Nombre",
     "views": {
-      "overview": {
+      "detail": {
         "x":1,"y":1
       }
     }

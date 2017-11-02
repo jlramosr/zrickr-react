@@ -2,7 +2,7 @@ import App from './components/app'
 import Dashboard from './components/dashboard'
 import Category from './components/category'
 import CategoryList from './components/category/list'
-import ItemDetail from './components/category/overview'
+import CategoryItemDetail from './components/category/detail'
 
 export default [{
   component: App,
@@ -11,7 +11,7 @@ export default [{
     { path: '/', exact: true, component: Dashboard },
     { path: '/:categoryId', component: Category, routes: [
       { path: '/:categoryId', exact: true, component: CategoryList },
-      { path: '/:categoryId/:postId', component: ItemDetail }
+      { path: '/:categoryId/:postId', component: CategoryItemDetail }
     ]}
   ]
 }]

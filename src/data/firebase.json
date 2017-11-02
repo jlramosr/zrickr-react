@@ -16,7 +16,7 @@
         "description" : "Dirección fiscal de la empresa/individuo",
         "label" : "Direccion",
         "views" : {
-          "overview" : {
+          "detail" : {
             "nodescription" : true,
             "small" : {
               "x" : 4
@@ -39,7 +39,7 @@
           "list" : {
             "y" : 4
           },
-          "overview" : {
+          "detail" : {
             "small" : {
               "x" : 6
             },
@@ -54,7 +54,7 @@
         "relation" : "clients",
         "type" : "select",
         "views" : {
-          "overview" : {
+          "detail" : {
             "small" : {
               "x" : 15
             },
@@ -69,7 +69,7 @@
           "list" : {
             "y" : 9
           },
-          "overview" : {
+          "detail" : {
             "small" : {
               "x" : 11
             },
@@ -86,7 +86,7 @@
           "list" : {
             "y" : 10
           },
-          "overview" : {
+          "detail" : {
             "small" : {
               "x" : 12
             },
@@ -101,7 +101,7 @@
           "list" : {
             "y" : 7
           },
-          "overview" : {
+          "detail" : {
             "small" : {
               "x" : 9
             },
@@ -114,7 +114,7 @@
         "label" : "Empresa",
         "type" : "boolean",
         "views" : {
-          "overview" : {
+          "detail" : {
             "nolabel" : true,
             "x" : 1,
             "y" : 12,
@@ -129,7 +129,7 @@
           "list" : {
             "y" : 2
           },
-          "overview" : {
+          "detail" : {
             "small" : {
               "when" : "!this.isCompany",
               "x" : 3
@@ -147,7 +147,7 @@
           "list" : {
             "y" : 8
           },
-          "overview" : {
+          "detail" : {
             "small" : {
               "x" : 10
             },
@@ -162,7 +162,7 @@
           "list" : {
             "y" : 1
           },
-          "overview" : {
+          "detail" : {
             "small" : {
               "x" : 2
             },
@@ -178,7 +178,7 @@
           "list" : {
             "y" : 6
           },
-          "overview" : {
+          "detail" : {
             "small" : {
               "x" : 8
             },
@@ -194,7 +194,7 @@
           "list" : {
             "y" : 5
           },
-          "overview" : {
+          "detail" : {
             "small" : {
               "x" : 7
             },
@@ -207,7 +207,7 @@
       "raza" : {
         "label" : "Raza",
         "views" : {
-          "overview" : {
+          "detail" : {
             "small" : {
               "x" : 13
             },
@@ -230,7 +230,7 @@
         "label" : "Religión",
         "type" : "select",
         "views" : {
-          "overview" : {
+          "detail" : {
             "small" : {
               "x" : 14
             },
@@ -246,7 +246,7 @@
           "list" : {
             "y" : 3
           },
-          "overview" : {
+          "detail" : {
             "small" : {
               "x" : 5
             },

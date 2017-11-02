@@ -1,29 +1,29 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import Operation from './operation';
-import { withStyles } from 'material-ui/styles';
-import AppBar from 'material-ui/AppBar';
-import Input from 'material-ui/Input';
-import Toolbar from 'material-ui/Toolbar';
-import Typography from 'material-ui/Typography';
-import Search from 'material-ui-icons/Search';
-import Close from 'material-ui-icons/Close';
-import CircularProgress from 'material-ui/Progress/CircularProgress';
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import Operation from './operation'
+import { withStyles } from 'material-ui/styles'
+import AppBar from 'material-ui/AppBar'
+import Input from 'material-ui/Input'
+import Toolbar from 'material-ui/Toolbar'
+import Typography from 'material-ui/Typography'
+import Search from 'material-ui-icons/Search'
+import Close from 'material-ui-icons/Close'
+import CircularProgress from 'material-ui/Progress/CircularProgress'
 
 const styles = theme => ({
   root: {
-    width: '-webkit-fill-available',
+    width: '-webkit-fill-available'
   },
   leftOperations: {
     order: 1,
     display: 'flex',
-    justifyContent: 'flex-start',
+    justifyContent: 'flex-start'
   },
   title: {
     order: 2,
     display: 'flex',
     overflow: 'hidden',
-    marginRight: theme.spacing.unit*4,
+    marginRight: theme.spacing.unit*4
   },
   search: {
     order: 3,
@@ -35,8 +35,8 @@ const styles = theme => ({
       display: 'flex',
       justifyContent: 'center',
       marginLeft: theme.spacing.unit*4,
-      marginRight: theme.spacing.unit*4,
-    },
+      marginRight: theme.spacing.unit*4
+    }
   },
   rightOperations: {
     order: 4,
@@ -44,11 +44,11 @@ const styles = theme => ({
     display: 'flex',
     justifyContent: 'flex-end',
     [theme.breakpoints.up('sm')]: {
-      flex: 0,
-    },
+      flex: 0
+    }
   },
   operations: {
-    display: 'flex',
+    display: 'flex'
   },
   miniSearch: {
     position: 'absolute',
@@ -58,15 +58,15 @@ const styles = theme => ({
     width: '50%',
     zIndex: 5,
     [theme.breakpoints.up('sm')]: {
-      display: 'none',
-    },
+      display: 'none'
+    }
   },
   titleText: {
     marginBottom: 2,
     textTransform: 'capitalize',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
+    whiteSpace: 'nowrap'
   },
   searchBar: {
     display: 'flex',
@@ -75,7 +75,7 @@ const styles = theme => ({
     alignItems: 'center',
     maxWidth: 520,
     background: theme.palette.primary[400],
-    width: '100%',
+    width: '100%'
   },
   searchBarSearchIcon: {
     position: 'absolute',
@@ -84,7 +84,7 @@ const styles = theme => ({
     transform: 'translate(0, -50%)',
     zIndex: 5,
     paddingLeft: theme.spacing.unit,
-    paddingRight: theme.spacing.unit,
+    paddingRight: theme.spacing.unit
   },
   searchBarInput: {
     flex: 1,
@@ -93,13 +93,13 @@ const styles = theme => ({
     fontSize: 16,
     background: 'transparent',
     paddingLeft: theme.spacing.unit*5,
-    paddingRight: theme.spacing.unit*4,
+    paddingRight: theme.spacing.unit*4
   },
   searchBarInputFocused: {
-    background: theme.palette.primary[300],
+    background: theme.palette.primary[300]
   },
   searchBarInputFocusedMiniToolbar: {
-    background: theme.palette.secondary[700],
+    background: theme.palette.secondary[700]
   },
   searchBarCloseIcon: {
     position: 'absolute',
@@ -109,68 +109,60 @@ const styles = theme => ({
     paddingRight: theme.spacing.unit,
     width: 20,
     height: 20,
-    cursor: 'pointer',
+    cursor: 'pointer'
   },
   searchOperation: {
     [theme.breakpoints.up('sm')]: {
-      display: 'none',
-    },
+      display: 'none'
+    }
   },
   loading: {
     display: 'flex',
     alignItems: 'center',
     marginLeft: theme.spacing.unit,
-    marginRight: theme.spacing.unit,
+    marginRight: theme.spacing.unit
   }
-});
+})
 
 let Operations = props => {
-  const { operations, classes } = props;
+  const { operations, classes } = props
 
   return (
     <div className={classes.operations}>
-    {operations.map(operation => 
-      <Operation
-        key={operation.id}
-        id={operation.id}
-        icon={operation.icon}
-        hidden={operation.hidden}
-        to={operation.to}
-        description={operation.description}
-        onClick={operation.onClick}
-      />
-    )}
+      {operations.map(operation => 
+        <Operation key={operation.id} {...operation} />
+      )}
     </div>
   )
-};
+}
 
 Operations.propTypes = {
   classes: PropTypes.object.isRequired,
-  operations: PropTypes.array.isRequired,
-};
+  operations: PropTypes.array.isRequired
+}
 
-Operations = withStyles(styles)(Operations);
+Operations = withStyles(styles)(Operations)
 
 class CustomToolbar extends Component {
   state = {
     searchQuery: '',
-    showMiniSearch: false,
+    showMiniSearch: false
   }
 
-  _openMiniSearch = _ => {
-    this.setState({showMiniSearch: !this.state.showMiniSearch});
+  _openMiniSearch = () => {
+    this.setState({showMiniSearch: !this.state.showMiniSearch})
   }
 
   _updateSearchQuery = searchQuery => {
-    this.setState({searchQuery});
-    this.props.updateSearchQuery(searchQuery);
+    this.setState({searchQuery})
+    this.props.updateSearchQuery(searchQuery)
   }
 
-  render = _ => {
-    const { operations, title, updateSearchQuery, classes, theme, miniToolbar, loading } = this.props;
-    const { searchQuery, showMiniSearch } = this.state;
+  render = () => {
+    const { operations, title, updateSearchQuery, classes, theme, miniToolbar, loading } = this.props
+    const { searchQuery, showMiniSearch } = this.state
 
-    const miniToolbarHeight = 40;
+    const miniToolbarHeight = 40
 
     return (
       <AppBar
@@ -178,17 +170,15 @@ class CustomToolbar extends Component {
         style={
           miniToolbar ? {
             height: miniToolbarHeight,
-            background: theme.palette.secondary[700],
+            background: theme.palette.secondary[700]
           } : {
           }
         }
         position="static"
       >
         <Toolbar style={
-          miniToolbar ? {
-            minHeight: miniToolbarHeight
-          } : { 
-        }}>
+          miniToolbar ? {minHeight: miniToolbarHeight} : {}
+        }>
 
           <div className={classes.leftOperations}>
             {React.createElement(Operations, {
@@ -199,8 +189,8 @@ class CustomToolbar extends Component {
           <div className={classes.title}>
             <Typography
               className={classes.titleText}
-              type={miniToolbar ? "subheading" : "title"}
-              color="inherit"
+              type={miniToolbar ? 'subheading' : 'title'}
+              color='inherit'
             >
               {title}
             </Typography>
@@ -210,7 +200,7 @@ class CustomToolbar extends Component {
             className={classes.search}
             style={miniToolbar ? {justifyContent: 'flex-end'}: {}}
           >
-          {updateSearchQuery &&
+            {updateSearchQuery &&
             <div
               className={classes.searchBar}
               style={miniToolbar ? {background: theme.palette.secondary[700]}: {}}
@@ -225,7 +215,7 @@ class CustomToolbar extends Component {
                   root:classes.searchBarInput,
                   focused: miniToolbar ? 
                     classes.searchBarInputFocusedMiniToolbar : 
-                    classes.searchBarInputFocused,
+                    classes.searchBarInputFocused
                 }}
                 color="contrast"
                 placeholder="Buscar"
@@ -238,11 +228,11 @@ class CustomToolbar extends Component {
                   size={20}
                   color="inherit"
                   className={classes.searchBarCloseIcon}
-                  onClick={ event => this._updateSearchQuery('')}
+                  onClick={ () => this._updateSearchQuery('')}
                 />
               }
             </div>
-          }
+            }
           </div>
 
           {updateSearchQuery && showMiniSearch &&
@@ -256,7 +246,7 @@ class CustomToolbar extends Component {
                 <Input
                   classes={{
                     root:classes.searchBarInput,
-                    focused:classes.searchBarInputFocused,
+                    focused:classes.searchBarInputFocused
                   }}
                   color="contrast"
                   placeholder="Buscar"
@@ -269,7 +259,7 @@ class CustomToolbar extends Component {
                     size={20}
                     color="inherit"
                     className={classes.searchBarCloseIcon}
-                    onClick={ event => this._updateSearchQuery('')}
+                    onClick={ () => this._updateSearchQuery('')}
                   />
                 }
               </div>
@@ -279,9 +269,7 @@ class CustomToolbar extends Component {
 
           <div className={classes.rightOperations}>
             <div className={classes.loading}>
-            {loading &&
-              <CircularProgress size={30} color="accent"/>
-            }
+              {loading && <CircularProgress size={30} color="accent"/>}
             </div>
             <div className={classes.searchOperation}>
               <Operation
@@ -301,7 +289,7 @@ class CustomToolbar extends Component {
       </AppBar>
     )
   }
-};
+}
 
 CustomToolbar.propTypes = {
   theme: PropTypes.object.isRequired,
@@ -310,12 +298,12 @@ CustomToolbar.propTypes = {
   title: PropTypes.string,
   updateSearchQuery: PropTypes.func,
   loading: PropTypes.bool.isRequired,
-  miniToolbar: PropTypes.bool,
-};
+  miniToolbar: PropTypes.bool
+}
 
 CustomToolbar.defaultProps = {
   loading: false,
-  miniToolbar: false,
-};
+  miniToolbar: false
+}
 
-export default withStyles(styles, {withTheme: true})(CustomToolbar);
+export default withStyles(styles, {withTheme: true})(CustomToolbar)

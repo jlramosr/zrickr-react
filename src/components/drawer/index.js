@@ -15,7 +15,7 @@ const styles = {
     textTransform: 'capitalize'
   }
 }
-import moduleName from 'module';
+
 class CustomDrawer extends Component {
   render = _ => {
     const { categories, opened, close, classes } = this.props
@@ -49,8 +49,8 @@ CustomDrawer.propTypes = {
   classes: PropTypes.object.isRequired
 }
 
-const mapStateToProps = (state) => {
-  const { categories, drawer } = state;
+const mapStateToProps = state => {
+  const { categories, drawer } = state
   return {
     categories: categories.items,
     opened: drawer.opened
@@ -58,7 +58,7 @@ const mapStateToProps = (state) => {
 }
 
 const mapDispatchToProps = dispatch => ({
-  close: _ => dispatch(toggleDrawer(false)),
+  close: () => dispatch(toggleDrawer(false))
 })
 
 export default connect(mapStateToProps,mapDispatchToProps)(

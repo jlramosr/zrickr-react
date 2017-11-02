@@ -1,18 +1,18 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import HeaderLayout from '../headerLayout';
-import Close from 'material-ui-icons/Close';
-import Check from 'material-ui-icons/Check';
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import HeaderLayout from '../headerLayout'
+import Close from 'material-ui-icons/Close'
+import Check from 'material-ui-icons/Check'
 
 class CategoryItemNew extends Component {
 
-  _createItem = _ => {
-    console.log("CREAR ITEM");
-    this.props.closeDialog();
+  _createItem = () => {
+    console.log('CREAR ITEM')
+    this.props.closeDialog()
   }
 
-  render = _ => {
-    const { closeDialog, itemLabel } = this.props;
+  render = () => {
+    const { closeDialog, itemLabel } = this.props
 
     return (
       <HeaderLayout
@@ -23,13 +23,13 @@ class CategoryItemNew extends Component {
         ]}
       >
       </HeaderLayout>
-    );
+    )
   }
 }
 
 CategoryItemNew.propTypes = {
   closeDialog: PropTypes.func.isRequired,
-  itemLabel: PropTypes.string,
+  itemLabel: PropTypes.string
 }
 
-export default CategoryItemNew;
+export default CategoryItemNew

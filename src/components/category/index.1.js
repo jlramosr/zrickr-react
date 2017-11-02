@@ -3,7 +3,7 @@ import { Route } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import API from '../../utils/api';
 import CategoryList from './list';
-import CategoryItemOverview from './overview';
+import CategoryItemOverview from './detail';
 
 class Category extends Component {
   state = {

@@ -12,7 +12,7 @@ import Drawer from '../drawer'
 class App extends Component {
   componentDidMount = _ => this.props.fetchCategories()
 
-  render = _ => (
+  render = () => (
     <div>
       <Drawer />
       {renderRoutes(this.props.route.routes)}
@@ -27,14 +27,14 @@ App.propTypes = {
    * to see how it generates
    */
   route: PropTypes.object.isRequired,
-    /**
+  /**
    * Get all categories from Redux store.
    */
   fetchCategories: PropTypes.func.isRequired
 }
 
 const mapDispatchToProps = dispatch => ({
-  fetchCategories: _ => dispatch(fetchCategories()),
+  fetchCategories: () => dispatch(fetchCategories())
 })
 
 export default connect(null, mapDispatchToProps)(App)

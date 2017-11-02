@@ -10,25 +10,25 @@ const Operation = props => {
 
   return (
     <div hidden={hidden}>
-    {to ? (
-      <Link to={to}>
-        <IconButton color={color}>
-          <Icon aria-label={id} onClick={onClick}/>
-        </IconButton>
-      </Link> 
-    ) : (
-      description ? (
-        <Tooltip title={description} placement="bottom" enterDelay={200}>
+      {to ? (
+        <Link to={to}>
+          <IconButton color={color}>
+            <Icon aria-label={id} onClick={onClick}/>
+          </IconButton>
+        </Link> 
+      ) : (
+        description ? (
+          <Tooltip title={description} placement="bottom" enterDelay={200}>
+            <IconButton color={color} style={{cursor: onClick ? 'pointer' : 'default'}}>
+              <Icon aria-label={id} onClick={onClick}/>
+            </IconButton>
+          </Tooltip>
+        ) : (
           <IconButton color={color} style={{cursor: onClick ? 'pointer' : 'default'}}>
             <Icon aria-label={id} onClick={onClick}/>
           </IconButton>
-        </Tooltip>
-      ) : (
-        <IconButton color={color} style={{cursor: onClick ? 'pointer' : 'default'}}>
-          <Icon aria-label={id} onClick={onClick}/>
-        </IconButton>
-      )
-    )}
+        )
+      )}
     </div>
   )
 }
@@ -40,12 +40,12 @@ Operation.propTypes = {
   hidden: PropTypes.bool.isRequired,
   to: PropTypes.string,
   description: PropTypes.string,
-  onClick: PropTypes.func,
+  onClick: PropTypes.func
 }
 
 Operation.defaultProps = {
   hidden: false,
-  color: "contrast",
+  color: 'contrast'
 }
 
 export default Operation
