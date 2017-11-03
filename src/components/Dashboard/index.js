@@ -10,7 +10,10 @@ import InfoIcon from 'material-ui-icons/Info'
 import MenuIcon from 'material-ui-icons/Menu'
 import { withStyles } from 'material-ui/styles'
 
-const styles = () => ({
+const styles = theme => ({
+  emptyContainer: {
+    padding: theme.spacing.unit*5
+  },
   gridContainer: {
     display: 'flex',
     flexWrap: 'wrap',
@@ -29,7 +32,14 @@ const styles = () => ({
 })
 
 const Dashboard = props => {
-  const { categories, isFetchingCategories, drawerOpened, toggleDrawer, classes } = props
+  const { 
+    categories,
+    isFetchingCategories,
+    isReceivedCategories,
+    drawerOpened,
+    toggleDrawer,
+    classes 
+  } = props
 
   return (
     <HeaderLayout
@@ -40,33 +50,41 @@ const Dashboard = props => {
       ]}
     >
 
-      <div className={classes.gridContainer}>
-        <GridList cols={1} spacing={16} className={classes.gridList}>
-          {categories.map(category => (
-            <GridListTile key={category.id}>
-              <Link
-                key={category.id}
-                to={`/${category.id}`}
-              >
-                <img
-                  className={classes.gridImage}
-                  src={category.image || 'https://blogs.ntu.edu.sg/files/2014/07/change_default_category.jpg'}
-                  alt={category.label}
-                />
-                <GridListTileBar
-                  title={category.label || ''}
-                  subtitle={<span>{category.description}</span>}
-                  actionIcon={
-                    <IconButton>
-                      <InfoIcon color="rgba(255, 255, 255, 0.54)" />
-                    </IconButton>
-                  }
-                />
-              </Link>
-            </GridListTile>
-          ))}
-        </GridList>
-      </div>
+      {isReceivedCategories && (
+        categories.length ? (
+          <div className={classes.gridContainer}>
+            <GridList cols={1} spacing={16} className={classes.gridList}>
+              {categories.map(category => (
+                <GridListTile key={category.id}>
+                  <Link
+                    key={category.id}
+                    to={`/${category.id}`}
+                  >
+                    <img
+                      className={classes.gridImage}
+                      src={category.image || 'https://blogs.ntu.edu.sg/files/2014/07/change_default_category.jpg'}
+                      alt={category.label}
+                    />
+                    <GridListTileBar
+                      title={category.label || ''}
+                      subtitle={<span>{category.description}</span>}
+                      actionIcon={
+                        <IconButton>
+                          <InfoIcon color="rgba(255, 255, 255, 0.54)" />
+                        </IconButton>
+                      }
+                    />
+                  </Link>
+                </GridListTile>
+              ))}
+            </GridList>
+          </div>
+        ) : (
+          <div className={classes.emptyContainer}>
+            <span>There is no categories</span>
+          </div>
+        )
+      )}
     </HeaderLayout>
   )
 }
@@ -74,14 +92,16 @@ const Dashboard = props => {
 Dashboard.propTypes = {
   categories: PropTypes.array.isRequired,
   isFetchingCategories: PropTypes.bool.isRequired,
+  isReceivedCategories: PropTypes.bool.isRequired,
   drawerOpened: PropTypes.bool.isRequired,
   toggleDrawer: PropTypes.func.isRequired,
   classes: PropTypes.object.isRequired
 }
 
 const mapStateToProps = ({ categories, drawer }) => ({
-  categories: categories.items, 
-  isFetchingCategories: categories.isFetching,
+  categories: Object.values(categories.byId), 
+  isFetchingCategories: categories.flow.isFetching,
+  isReceivedCategories: categories.flow.isReceived,
   drawerOpened: drawer.opened
 })
 

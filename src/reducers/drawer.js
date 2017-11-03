@@ -9,7 +9,7 @@ const drawer = (state = initialDrawerState, action) => {
     case TOGGLE_DRAWER:
       return {
         ...state,
-        opened: action.opened,
+        opened: action.opened
       }
     default:
       return state

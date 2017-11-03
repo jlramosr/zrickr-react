@@ -52,7 +52,7 @@ CustomDrawer.propTypes = {
 const mapStateToProps = state => {
   const { categories, drawer } = state
   return {
-    categories: categories.items,
+    categories: Object.values(categories.byId),
     opened: drawer.opened
   }
 }
