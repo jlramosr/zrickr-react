@@ -32,7 +32,8 @@ const styles = theme => ({
 })
 
 const Dashboard = props => {
-  const { 
+  const {
+    appName,
     categories,
     isFetchingCategories,
     isReceivedCategories,
@@ -43,7 +44,7 @@ const Dashboard = props => {
 
   return (
     <HeaderLayout
-      title="ERP"
+      title={appName}
       loading={isFetchingCategories}
       operations={[
         {id:'menu', icon: MenuIcon, onClick: () => toggleDrawer(!drawerOpened)}
@@ -90,6 +91,7 @@ const Dashboard = props => {
 }
 
 Dashboard.propTypes = {
+  appName: PropTypes.string.isRequired,
   categories: PropTypes.array.isRequired,
   isFetchingCategories: PropTypes.bool.isRequired,
   isReceivedCategories: PropTypes.bool.isRequired,
@@ -98,7 +100,8 @@ Dashboard.propTypes = {
   classes: PropTypes.object.isRequired
 }
 
-const mapStateToProps = ({ categories, drawer }) => ({
+const mapStateToProps = ({ app, categories, drawer }) => ({
+  appName: app.name,
   categories: Object.values(categories.byId), 
   isFetchingCategories: categories.flow.isFetching,
   isReceivedCategories: categories.flow.isReceived,

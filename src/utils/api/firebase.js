@@ -1,13 +1,13 @@
-const firebase = require("firebase/app")
-require("firebase/database")
+const firebase = require('firebase/app')
+require('firebase/database')
 
 const config = {
-  apiKey: "AIzaSyDoZ6V5LUCN2AZ-DvbDx4S8JoHhBKgIeMw",
-  authDomain: "tinyerp-1017.firebaseapp.com",
-  databaseURL: "https://tinyerp-1017.firebaseio.com",
-  projectId: "tinyerp-1017",
-  storageBucket: "tinyerp-1017.appspot.com",
-  messagingSenderId: "326927970961"
+  apiKey: 'AIzaSyDoZ6V5LUCN2AZ-DvbDx4S8JoHhBKgIeMw',
+  authDomain: 'tinyerp-1017.firebaseapp.com',
+  databaseURL: 'https://tinyerp-1017.firebaseio.com',
+  projectId: 'tinyerp-1017',
+  storageBucket: 'tinyerp-1017.appspot.com',
+  messagingSenderId: '326927970961'
 }
 
 firebase.initializeApp(config)
