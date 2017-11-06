@@ -10,7 +10,7 @@ import Drawer from '../drawer'
  *
  */
 class App extends Component {
-  componentDidMount = _ => this.props.fetchCategories()
+  componentDidMount = () => this.props.fetchCategories()
 
   render = () => (
     <div>

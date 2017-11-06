@@ -15,7 +15,7 @@ export const receiveCategories = categories => ({
   categories
 })
 
-export const fetchCategories = _ => dispatch => {
+export const fetchCategories = () => dispatch => {
   dispatch(requestCategories())
   return API('firebase').getCollection('categories')
     .then(

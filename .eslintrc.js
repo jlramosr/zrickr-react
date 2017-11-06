@@ -38,6 +38,11 @@ module.exports = {
             "error",
             "as-needed"
         ],
+        "no-fallthrough": [
+            "error",
+            { "commentPattern": "break[\\s\\w]*omitted" }
+        ],
+        "no-case-declarations": "error",
         "no-console": 0,
         "no-debugger": 0,
         "react/jsx-uses-react": "error",

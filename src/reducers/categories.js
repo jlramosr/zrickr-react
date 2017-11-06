@@ -1,6 +1,9 @@
 import { combineReducers } from 'redux'
 import { REQUEST_CATEGORIES } from '../actions/categories'
 import { RECEIVE_CATEGORIES } from '../actions/categories'
+import { RECEIVE_CATEGORY_SETTINGS } from '../actions/settings'
+import { RECEIVE_CATEGORY_FIELDS } from '../actions/fields'
+import { RECEIVE_CATEGORY_ITEMS } from '../actions/items'
 
 const initialFlowState = {
   isFetching: false,
@@ -41,10 +44,37 @@ const byId = (state = initialByIdState, action) => {
       return Object.keys(action.categories).reduce((categories, categoryId) => ({
         ...categories, 
         [categoryId]: {
+          ...state[categoryId],
           id: categoryId,
           ...action.categories[categoryId]
         }
       }), {})
+    case RECEIVE_CATEGORY_SETTINGS:
+      return {
+        ...state,
+        [action.categoryId]: {
+          ...state[action.categoryId],
+          settings: action.settingsId
+        }
+      }
+    case RECEIVE_CATEGORY_FIELDS:
+      return {
+        ...state,
+        [action.categoryId]: {
+          ...state[action.categoryId],
+          fields: Object.keys(action.fields)
+        }
+      }
+    case RECEIVE_CATEGORY_ITEMS: {
+      console.log(action);
+      return {
+        ...state,
+        [action.categoryId]: {
+          ...state[action.categoryId],
+          items: Object.keys(action.items)
+        }
+      }
+    }
     default:
       return state
   }

@@ -5,9 +5,12 @@ import { routerReducer, routerMiddleware } from 'react-router-redux'
 import createHistory from 'history/createBrowserHistory'
 import thunk from 'redux-thunk'
 import logger from 'redux-logger'
-import appReducer from './reducers/app'
-import categoriesReducer from './reducers/categories'
-import drawerReducer from './reducers/drawer'
+import app from './reducers/app'
+import categories from './reducers/categories'
+import settings from './reducers/settings'
+import fields from './reducers/fields'
+import items from './reducers/items'
+import drawer from './reducers/drawer'
 
 const config = {
   key: 'root',
@@ -21,10 +24,13 @@ export const history = createHistory()
 const configureStore = () => {
   const store = createStore(
     persistCombineReducers(config, {
-      app: appReducer,
       router: routerReducer,
-      categories: categoriesReducer,
-      drawer: drawerReducer
+      app,
+      categories,
+      settings,
+      fields,
+      items,
+      drawer
     }),
     composeEnhancers(
       applyMiddleware(thunk, routerMiddleware(history), logger)

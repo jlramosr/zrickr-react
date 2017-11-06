@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
 import HeaderLayout from '../headerLayout'
@@ -113,14 +114,18 @@ class CategoryListContainer extends Component {
   }
 
   componentWillReceiveProps = props => {
-    if (this.props.searchQuery !== props.searchQuery) {
+    /*if (this.props.searchQuery !== props.searchQuery) {
       this._updateSearchQuery(props.searchQuery)
     } else {
       this.setState({showingItems: props.items})
-    }
+    }*/
   }
 
   render = () => {
+    return (
+      <div>hola</div>
+    )
+
     const { classes, categoryId, tableMode, settings, fields, showAvatar, dense, relationMode } = this.props
     const { showingItems, currentPage, pageSize, allowedPageSizes, columnOrder, columnWidths } = this.state
     
@@ -341,6 +346,10 @@ class CategoryList extends Component {
   closeDetailDialog = () => this.setState({ showDetailDialog: false})
 
   render = () => {
+    console.log(this.props)
+    return (
+      <div>asdsads</div>
+    )
     const { categoryId, categoryLabel, settings, items, fields, operations, relationMode, showAvatar, loading } = this.props
     const { searchQuery, showNewDialog, showDetailDialog, dialogItemId, tableMode } = this.state
 
@@ -411,7 +420,7 @@ class CategoryList extends Component {
 CategoryList.propTypes = {
   categoryId: PropTypes.string.isRequired,
   categoryLabel: PropTypes.string.isRequired,
-  settings: PropTypes.object,
+  settings: PropTypes.object.isRequired,
   fields: PropTypes.array,
   items: PropTypes.array,
   operations: PropTypes.array,
@@ -426,4 +435,17 @@ CategoryList.defaultProps = {
   loading: true
 }
 
-export default CategoryList
+const mapStateToProps = ({ settings, fields, items }, props) => {
+  console.log(fields, props)
+
+  return { 
+    settings: settings.byId[props.settingsId],
+    settingsReceived: settings.flow.isReceived,
+    fields: Object.values(fields.byId).filter(field => props.fieldsIds.includes(field.id)),
+    fieldsReceived: fields.flow.isReceived,
+    items: Object.values(items.byId).filter(item => props.itemsIds.includes(item.id)),
+    itemsReceived: items.flow.isReceived
+  }
+}
+
+export default connect(mapStateToProps)(CategoryList)
