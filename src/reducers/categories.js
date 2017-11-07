@@ -1,4 +1,5 @@
 import { combineReducers } from 'redux'
+//import { REHYDRATE } from '../actions/categories'
 import { REQUEST_CATEGORIES } from '../actions/categories'
 import { RECEIVE_CATEGORIES } from '../actions/categories'
 import { RECEIVE_CATEGORY_SETTINGS } from '../actions/settings'
@@ -20,6 +21,16 @@ const initialAllIdsState = []
 
 const flow = (state = initialFlowState, action) => {
   switch (action.type) {
+    /*case REHYDRATE:
+      if (action.payload) {
+        return {
+          ...action.payload.categories.flow,
+          isFetching: false,
+          isReceived: false
+        }
+      }
+      return state
+      // break omitted*/
     case REQUEST_CATEGORIES:
       return {
         ...state,
@@ -66,7 +77,6 @@ const byId = (state = initialByIdState, action) => {
         }
       }
     case RECEIVE_CATEGORY_ITEMS: {
-      console.log(action);
       return {
         ...state,
         [action.categoryId]: {

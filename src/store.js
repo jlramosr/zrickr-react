@@ -4,7 +4,7 @@ import storage from 'redux-persist/es/storage'
 import { routerReducer, routerMiddleware } from 'react-router-redux'
 import createHistory from 'history/createBrowserHistory'
 import thunk from 'redux-thunk'
-import logger from 'redux-logger'
+//import logger from 'redux-logger'
 import app from './reducers/app'
 import categories from './reducers/categories'
 import settings from './reducers/settings'
@@ -33,7 +33,7 @@ const configureStore = () => {
       drawer
     }),
     composeEnhancers(
-      applyMiddleware(thunk, routerMiddleware(history), logger)
+      applyMiddleware(thunk, routerMiddleware(history), /*logger*/)
     )
   )
 

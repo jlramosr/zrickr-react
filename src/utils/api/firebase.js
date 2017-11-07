@@ -19,8 +19,13 @@ export default class firebaseAPI {
   static getCollection = (collection, collectionId) => {
     let ref = database.ref(collection)
     if (collectionId) ref = ref.child(collectionId)
-    return ref.once('value')
-      .then( snapshot => snapshot.val())
+    return new Promise((resolve, reject) => {
+      ref.once('value').then( snapshot =>
+        snapshot.val() ?
+          resolve(snapshot.val()) :
+          reject(`Attempted to access to ${collection}/${collectionId}`)
+      )
+    })
   }
 
   static getDocument = (collection, collectionId, documentId='') => {

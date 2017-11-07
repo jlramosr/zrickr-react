@@ -6,11 +6,19 @@ import { renderRoutes } from 'react-router-config'
 import Drawer from '../drawer'
 
 /**
- * Main app component, with common Drawer and first level routes.
- *
+ * Main app component, with common drawer and first level routes.
  */
 class App extends Component {
-  componentDidMount = () => this.props.fetchCategories()
+  componentDidMount = () => {
+    this.props.fetchCategories()
+  }
+
+  componentDidUpdate = () => {
+    const { currentPath, fetchCategories } = this.props
+    if (currentPath === '/') {
+      fetchCategories()
+    }
+  }
 
   render = () => (
     <div>
@@ -28,13 +36,21 @@ App.propTypes = {
    */
   route: PropTypes.object.isRequired,
   /**
+   * Current location path.
+   */
+  currentPath: PropTypes.string.isRequired,
+  /**
    * Get all categories from Redux store.
    */
   fetchCategories: PropTypes.func.isRequired
 }
 
-const mapDispatchToProps = dispatch => ({
-  fetchCategories: () => dispatch(fetchCategories())
+const mapStateToProps = ({ router }) => ({ 
+  currentPath: router.location.pathname
 })
 
-export default connect(null, mapDispatchToProps)(App)
+const mapDispatchToProps = dispatch => ({
+  fetchCategories: () => dispatch(fetchCategories()),
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(App)

@@ -1,12 +1,15 @@
 import { combineReducers } from 'redux'
 import { REQUEST_CATEGORY_SETTINGS } from '../actions/settings'
 import { RECEIVE_CATEGORY_SETTINGS } from '../actions/settings'
+import { REQUEST_CATEGORY_SETTINGS_ERROR } from '../actions/settings'
 
 const initialFlowState = {
   isFetching: false,
-  fetchingAt: null,
+  fetchedAt: null,
+  errorFetching: null,
   isUpdating: false,
   updatedAt: null,
+  errorUpdating: null,
   isReceived: false,
   receivedAt: null,
   categoryId: null
@@ -22,7 +25,7 @@ const flow = (state = initialFlowState, action) => {
       return {
         ...state,
         isFetching: true,
-        fetchingAt: action.fetchingAt,
+        fetchedAt: action.fetchedAt,
         categoryId: action.categoryId
       }
     case RECEIVE_CATEGORY_SETTINGS:
@@ -31,6 +34,14 @@ const flow = (state = initialFlowState, action) => {
         isFetching: false,
         isReceived: true,
         receivedAt: action.receivedAt,
+        categoryId: action.categoryId
+      }
+    case REQUEST_CATEGORY_SETTINGS_ERROR:
+      return {
+        ...state,
+        isFetching: false,
+        isReceived: false,
+        errorFetching: action.errorFetching,
         categoryId: action.categoryId
       }
     default:

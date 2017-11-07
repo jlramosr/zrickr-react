@@ -51,7 +51,7 @@ import { withStyles } from 'material-ui/styles'
 const containerStyles = () => ({
 })
 
-class CategoryListContainer extends Component {
+let CategoryListContainer = class extends Component {
   state = {
     showingItems: [],
     showMenuItem: false,
@@ -114,23 +114,21 @@ class CategoryListContainer extends Component {
   }
 
   componentWillReceiveProps = props => {
-    /*if (this.props.searchQuery !== props.searchQuery) {
+    if (this.props.searchQuery !== props.searchQuery) {
       this._updateSearchQuery(props.searchQuery)
     } else {
       this.setState({showingItems: props.items})
-    }*/
+    }
   }
 
   render = () => {
-    return (
-      <div>hola</div>
-    )
-
     const { classes, categoryId, tableMode, settings, fields, showAvatar, dense, relationMode } = this.props
     const { showingItems, currentPage, pageSize, allowedPageSizes, columnOrder, columnWidths } = this.state
     
-    const defaultOrder = fields.map(field => field.id)
-    const defaultColumnWidths = fields.reduce(
+    const showingFields = fields.filter(field => field.views.list)
+
+    const defaultOrder = showingFields.map(field => field.id)
+    const defaultColumnWidths = showingFields.reduce(
       (accumulator, currentField) => (
         {...accumulator, [currentField.id]: 100 * (currentField.views.list.ys || 1)}),
       {}
@@ -140,10 +138,10 @@ class CategoryListContainer extends Component {
       tableMode ? (
         <Grid
           rows={showingItems}
-          columns={fields.map(field => {
+          columns={showingFields.map(field => {
             //https://devexpress.github.io/devextreme-reactive/react/grid/docs/guides/getting-started/
             return {
-              title: field.label,
+              title: field.label || '',
               name: field.id,
               dataType: field.type || 'string',
               align: field.type === 'number' ? 'right' : 'left'
@@ -320,13 +318,16 @@ CategoryListContainer.defaultProps = {
 
 CategoryListContainer = withStyles(containerStyles)(CategoryListContainer)
 
+/**
+ * A list with category items, showed in the shape of table or agenda.
+ */
 class CategoryList extends Component {
   state = {
     searchQuery: '',
     showNewDialog: false,
     showDetailDialog: false,
     dialogItemId: '',
-    tableMode: true
+    tableMode: this.props.tableMode || true
   }
 
   _updateSearchQuery = searchQuery => this.setState({searchQuery})
@@ -342,16 +343,30 @@ class CategoryList extends Component {
   openDetailDialog = itemId => this.setState({ showDetailDialog: true, dialogItemId: itemId})
   
   detailDialogClosed = () => this.closeDetailDialog()
-  
+
   closeDetailDialog = () => this.setState({ showDetailDialog: false})
 
   render = () => {
-    console.log(this.props)
-    return (
-      <div>asdsads</div>
-    )
-    const { categoryId, categoryLabel, settings, items, fields, operations, relationMode, showAvatar, loading } = this.props
-    const { searchQuery, showNewDialog, showDetailDialog, dialogItemId, tableMode } = this.state
+    const {
+      categoryId,
+      categoryLabel,
+      settings,
+      isFetchingSettings,
+      fields,
+      isFetchingFields,
+      items,
+      isFetchingItems,
+      operations,
+      relationMode,
+      showAvatar 
+    } = this.props
+    const {
+      searchQuery,
+      showNewDialog,
+      showDetailDialog,
+      dialogItemId,
+      tableMode
+    } = this.state
 
     return (
       <HeaderLayout
@@ -359,8 +374,8 @@ class CategoryList extends Component {
         relative={relationMode}
         relativeHeight={relationMode ? 200 : null}
         title={categoryLabel}
-        updateSearchQuery={!tableMode && this._updateSearchQuery}
-        loading={loading}
+        updateSearchQuery={!tableMode ? this._updateSearchQuery : null}
+        loading={isFetchingSettings || isFetchingFields || isFetchingItems}
         operations={operations || [
           { 
             id:'arrowBack',
@@ -371,7 +386,7 @@ class CategoryList extends Component {
           {
             id:'viewAgenda',
             icon:ViewAgenda,
-            description:'Vista agenda',
+            description:'Agenda View',
             hidden:!tableMode,
             right: true,
             onClick: () => this._changeView('agenda')
@@ -379,7 +394,7 @@ class CategoryList extends Component {
           {
             id:'viewList',
             icon:ViewList,
-            description:'Vista tabla',
+            description:'Table View',
             hidden:tableMode,
             right: true,
             onClick: () => this._changeView('list')
@@ -387,7 +402,7 @@ class CategoryList extends Component {
           {
             id:'addItem',
             icon:Add,
-            description:`Nuevo ${settings.itemLabel || 'Item'}`,
+            description:`New ${settings.itemLabel || 'Item'}`,
             right: true, onClick: this._openNewDialog
           }
         ]}
@@ -418,33 +433,146 @@ class CategoryList extends Component {
 }
 
 CategoryList.propTypes = {
+  /**
+   * Unique indentifier of category. Available on parent element from route.
+   */
   categoryId: PropTypes.string.isRequired,
+  /**
+   * Category label to show on header.
+   */
   categoryLabel: PropTypes.string.isRequired,
-  settings: PropTypes.object.isRequired,
-  fields: PropTypes.array,
+  /**
+   * Category settings like color, main fields to get the title of an item, etc.
+   */
+  settings: PropTypes.object,
+  /**
+   * It indicates if request to obtain settings is still active. It's used to show
+   * the loading spinner until request finalizes.
+   */
+  isFetchingSettings: PropTypes.bool,
+  /**
+   * All category fields. It only be shown fields with property 'view.list'.
+   */
+  fields: PropTypes.arrayOf(PropTypes.shape({
+    /**
+     * Field unique identifier.
+     */
+    id: PropTypes.string.isRequired,
+    /**
+     * Field Label showed in the views.
+     */
+    label: PropTypes.string,
+    /**
+     * Description of field, Showed under field in detail views (if 'nodescription' is true).
+     */
+    description: PropTypes.string,
+    /**
+     * One of: 'string','text','number','boolean','list','select','relation'.
+     * When type is 'list', there should be either 'items' or 'relation' property.
+     * When type is 'select', there should be either 'options' or 'relation' property.
+     */
+    type: PropTypes.oneOf(['string','text','number','boolean','list','select','relation']),
+    /**
+     * Default value of the field.
+     */
+    default: PropTypes.any,
+    /**
+     * If the field is required in detail view.
+     */
+    required: PropTypes.bool,
+    /**
+     * Possible values when type is 'select'. Property 'relation' is also possible when
+     * field is a one-to-many relation.
+     */
+    options: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      label: PropTypes.string.isRequired
+    })),
+    /**
+     * Possible values when type is 'list'. Property 'relation' is also possible when
+     * field is a one-to-many relation.
+     */
+    items: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      label: PropTypes.string.isRequired
+    })),
+    /**
+     * Name of the relational category in the case of values obtain from other category.
+     * With type 'select' is an one-to-many relation. With type 'relation' is a multiple relation.
+     * It has priority over 'options' and 'items' properties.
+     */
+    relation: PropTypes.string,
+    /**
+     * Views where field appears, with its position and conditions.
+     * They can be: 'list', 'detail'.
+     */ 
+    views: PropTypes.objectOf(PropTypes.shape({
+      list: PropTypes.objectOf({
+        x: PropTypes.number,
+        y: PropTypes.number,
+        xs: PropTypes.number,
+        ys: PropTypes.number,
+        when: PropTypes.string,
+        nodescription: PropTypes.bool
+      }),
+      detail: PropTypes.objectOf({
+
+      })
+    }))
+  })).isRequired,
+  /**
+   * It indicates if request to obtain fields is still active. It's used to show
+   * the loading spinner until request finalizes.
+   */
+  isFetchingFields: PropTypes.bool,
+  /**
+   * All category entities.
+   */
   items: PropTypes.array,
+  /**
+   * It indicates if request to obtain items is still active. It's used to show
+   * the loading spinner until request finalizes.
+   */
+  isFetchingItems: PropTypes.bool,
+  /**
+   * Operations showed on the header. In other case, operations will be 'arrowBack' (left) and
+   * 'viewAgenda', 'viewList' and 'addItem' (right).
+   */
   operations: PropTypes.array,
-  relationMode: PropTypes.bool.isRequired,
-  showAvatar: PropTypes.bool.isRequired,
-  loading: PropTypes.bool.isRequired
+  /**
+   * It indicates if list is showed on a view inside to the other view (tipically a relation
+   * 'many-to-one' or 'many-to-many' of a category item).
+   */
+  relationMode: PropTypes.bool,
+  /**
+   * If items are shown firstly on a table. In other case, it will shown with agenda view.
+   */
+  tableMode: PropTypes.bool,
+  /**
+   * If it should be shown avatar in agenda view.
+   */
+  showAvatar: PropTypes.bool
 }
 
 CategoryList.defaultProps = {
+  settings: {},
+  isFetchingSettings: false,
+  isFetchingFields: false,
+  items: [],
+  isFetchingItems: false,
   relationMode: false,
-  showAvatar: true,
-  loading: true
+  tableMode: true,
+  showAvatar: true
 }
 
 const mapStateToProps = ({ settings, fields, items }, props) => {
-  console.log(fields, props)
-
-  return { 
+  return{ 
     settings: settings.byId[props.settingsId],
-    settingsReceived: settings.flow.isReceived,
+    isFetchingSettings: settings.flow.isFetching,
     fields: Object.values(fields.byId).filter(field => props.fieldsIds.includes(field.id)),
-    fieldsReceived: fields.flow.isReceived,
+    isFetchingFields: fields.flow.isFetching,
     items: Object.values(items.byId).filter(item => props.itemsIds.includes(item.id)),
-    itemsReceived: items.flow.isReceived
+    isFetchingItems: items.flow.isFetching
   }
 }
 

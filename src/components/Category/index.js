@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { renderRoutes } from 'react-router-config'
+import { fetchCategoriesIfNeeded } from '../../actions/categories'
 import { fetchSettings } from '../../actions/settings'
 import { fetchFields } from '../../actions/fields'
 import { fetchItems } from '../../actions/items'
@@ -9,6 +10,7 @@ import NotFound from '../notFound'
 
 class Category extends Component {
   componentDidMount = () => {
+    this.props.fetchCategoriesIfNeeded()
     this.props.fetchSettings()
     this.props.fetchFields()
     this.props.fetchItems()
@@ -23,16 +25,15 @@ class Category extends Component {
     } = this.props
     const categoryId = match.params.categoryId
     const category = categories.find(category => category.id === categoryId)
-    console.log(category)
     return categoriesReceived ? (
       category ? (
         <div>
           {renderRoutes(route.routes, {
             categoryId,
             categoryLabel: category.label,
-            settingsId: category.settings,
-            fieldsIds: category.fields,
-            itemsIds: category.items
+            settingsId: category.settings || {},
+            fieldsIds: category.fields || [],
+            itemsIds: category.items || []
           })}
         </div> 
       ) : (
@@ -66,6 +67,7 @@ const mapStateToProps = ({ categories }) => ({
 const mapDispatchToProps = (dispatch, props) => {
   const categoryId = props.match.params.categoryId
   return {
+    fetchCategoriesIfNeeded: () => dispatch(fetchCategoriesIfNeeded()),
     fetchSettings: () => dispatch(fetchSettings(categoryId)),
     fetchFields: () => dispatch(fetchFields(categoryId)),
     fetchItems: () => dispatch(fetchItems(categoryId))
