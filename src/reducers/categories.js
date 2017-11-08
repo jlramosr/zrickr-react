@@ -2,15 +2,18 @@ import { combineReducers } from 'redux'
 //import { REHYDRATE } from '../actions/categories'
 import { REQUEST_CATEGORIES } from '../actions/categories'
 import { RECEIVE_CATEGORIES } from '../actions/categories'
+import { REQUEST_CATEGORIES_ERROR } from '../actions/categories'
 import { RECEIVE_CATEGORY_SETTINGS } from '../actions/settings'
 import { RECEIVE_CATEGORY_FIELDS } from '../actions/fields'
 import { RECEIVE_CATEGORY_ITEMS } from '../actions/items'
 
 const initialFlowState = {
   isFetching: false,
-  fetchingAt: null,
+  fetchedAt: null,
+  errorFetching: null,
   isUpdating: false,
   updatedAt: null,
+  errorUpdating: null,
   isReceived: false,
   receivedAt: null
 }
@@ -35,7 +38,7 @@ const flow = (state = initialFlowState, action) => {
       return {
         ...state,
         isFetching: true,
-        fetchingAt: action.fetchingAt
+        fetchedAt: action.fetchingAt
       }
     case RECEIVE_CATEGORIES:
       return {
@@ -43,6 +46,13 @@ const flow = (state = initialFlowState, action) => {
         isFetching: false,
         isReceived: true,
         receivedAt: action.receivedAt
+      }
+    case REQUEST_CATEGORIES_ERROR:
+      return {
+        ...state,
+        isFetching: false,
+        isReceived: false,
+        errorFetching: action.errorFetching
       }
     default:
       return state

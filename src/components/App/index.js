@@ -32,11 +32,13 @@ App.propTypes = {
   /**
    * Info with all the app routes and rendered components for every one of them.
    * @see See [GitHub](https://github.com/ReactTraining/react-router/tree/master/packages/react-router-config)
-   * to see how it generates
+   * to know how it generates
    */
   route: PropTypes.object.isRequired,
   /**
-   * Current location path.
+   * Current location path. It obtains from Redux store.
+   * @see See [GitHub](https://github.com/reactjs/react-router-redux)
+   * to know how router provider works.
    */
   currentPath: PropTypes.string.isRequired,
   /**
@@ -50,7 +52,7 @@ const mapStateToProps = ({ router }) => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-  fetchCategories: () => dispatch(fetchCategories()),
+  fetchCategories: () => dispatch(fetchCategories())
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(App)

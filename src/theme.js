@@ -79,6 +79,7 @@ let theme = createMuiTheme({
       mobileLandscape: 48,
       tabletDesktop: 64
     },
+    tableRowHeight: 26,
     listCellDense: {
       height: 20,
       lineHeight: '14px'
@@ -136,9 +137,21 @@ theme = {
         paddingRight: 12
       }
     },
-    MuiTableCell: {
-      padding: {
-        padding: '0 12px'
+    MuiCheckbox: {
+      default: {
+        width: theme.standards.tableRowHeight,
+        height: theme.standards.tableRowHeight,
+        marginTop: 2
+      }
+    },
+    TableSelectCell: {
+      cell: {
+        paddingLeft: theme.spacing.unit*2
+      }
+    },
+    TableSelectAllCell: {
+      cell: {
+        paddingLeft: theme.spacing.unit*2
       }
     },
     PageSizeSelector: {

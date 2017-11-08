@@ -3,6 +3,7 @@ import API from '../utils/api'
 //export const REHYDRATE = 'persist/REHYDRATE'
 export const REQUEST_CATEGORIES = 'REQUEST_CATEGORIES'
 export const RECEIVE_CATEGORIES = 'RECEIVE_CATEGORIES'
+export const REQUEST_CATEGORIES_ERROR = 'REQUEST_CATEGORIES_ERROR'
 
 export const requestCategories = () => ({
   type: REQUEST_CATEGORIES,
@@ -15,12 +16,23 @@ export const receiveCategories = categories => ({
   categories
 })
 
+export const errorFetchingCategories = (categoryId, error) => ({
+  type: REQUEST_CATEGORIES_ERROR,
+  errorFetching: `${Date.now()} ${error}`,
+  categoryId
+})
+
 export const fetchCategories = () => dispatch => {
   dispatch(requestCategories())
   return API('firebase').getCollection('categories')
     .then(
-      categories => dispatch(receiveCategories(categories || {})),
-      error => console.log('ERROR PIDIENDO CATEGORIAS', error)
+      categories => {
+        dispatch(receiveCategories(categories || {}))
+      },
+      error => {
+        console.error('An error occurred fetching categories:', error)
+        dispatch(errorFetchingCategories(error))
+      }
     )
 }
 

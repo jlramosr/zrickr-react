@@ -1,6 +1,7 @@
-const path = require('path')
+const theme = require('./docs/theme')
 
 module.exports = {
+  theme,
   title: 'TinyERP Style Guide',
   sections: [
     {
@@ -17,8 +18,9 @@ module.exports = {
       content: 'docs/actions.md',
       components: 'src/actions/*.js'
     }
-  ]
+  ],
+  showUsage: true
   /*styleguideComponents: {
-    Wrapper: path.join(__dirname, 'styleguide.wrapper')
+    Wrapper: 'docs/wrapper'
   }*/
 }

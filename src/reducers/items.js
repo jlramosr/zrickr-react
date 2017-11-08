@@ -1,6 +1,7 @@
 import { combineReducers } from 'redux'
 import { REQUEST_CATEGORY_ITEMS } from '../actions/items'
 import { RECEIVE_CATEGORY_ITEMS } from '../actions/items'
+import { REQUEST_CATEGORY_ITEMS_ERROR } from '../actions/items'
 
 const initialFlowState = {
   isFetching: false,
@@ -30,6 +31,13 @@ const flow = (state = initialFlowState, action) => {
         isFetching: false,
         isReceived: true,
         receivedAt: action.receivedAt
+      }
+    case REQUEST_CATEGORY_ITEMS_ERROR:
+      return {
+        ...state,
+        isFetching: false,
+        isReceived: false,
+        errorFetching: action.errorFetching
       }
     default:
       return state

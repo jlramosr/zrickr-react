@@ -30,9 +30,13 @@ import {
   DragDropContext,
   GroupingPanel
 } from '@devexpress/dx-react-grid-material-ui'
+import { TableRow } from 'material-ui/Table'
+import Button from 'material-ui/Button'
+import Snackbar from 'material-ui/Snackbar'
 import { LinearProgress } from 'material-ui/Progress'
 import Avatar from 'material-ui/Avatar'
 import Add from 'material-ui-icons/Add'
+import Close from 'material-ui-icons/Close'
 import ViewList from 'material-ui-icons/ViewList'
 import ViewAgenda from 'material-ui-icons/ViewAgenda'
 import ArrowBack from 'material-ui-icons/ArrowBack'
@@ -48,33 +52,42 @@ import ItemNew from './new'
 import { getInfo } from '../../utils/helpers'
 import { withStyles } from 'material-ui/styles'
 
-const containerStyles = () => ({
+const styles = theme => ({
+  tableRow: {
+    cursor: 'pointer',
+    height: theme.standards.tableRowHeight
+  },
+  snackbar: {
+    top: 0,
+    left: 0,
+    right: 0,
+    minHeight: theme.standards.toolbarHeights.mobilePortrait,
+    [`${theme.breakpoints.up('xs')} and (orientation: landscape)`]: {
+      minHeight: theme.standards.toolbarHeights.mobileLandscape
+    },
+    [theme.breakpoints.up('sm')]: {
+      minHeight: theme.standards.toolbarHeights.tabletDesktop
+    }
+  },
+  snackbarContent: {
+    width: '100%'
+  }
 })
 
 let CategoryListContainer = class extends Component {
   state = {
-    showingItems: [],
+    /* Agenda */
+    agendaShowingItems: [],
     showMenuItem: false,
     itemMenuClicked: null,
     anchorEl: null,
+    /* Table */
+    tableSelectedIndexes: [],
     currentPage: 0,
-    pageSize: 10,
-    allowedPageSizes: [10,20,50,200,500,0],
+    pageSize: 20,
+    allowedPageSizes: [20,50,200,500,0],
     columnOrder: null,
     columnWidths: null
-  }
-
-  _updateSearchQuery = searchQuery => {
-    const { settings, items } = this.props
-    let showingItems = items
-    if (searchQuery) {
-      const cleanQuery = removeDiacritics(searchQuery.trim())
-      const match = new RegExp(escapeRegExp(cleanQuery), 'i')
-      showingItems = items.filter(item => (
-        match.test(removeDiacritics(getInfo(settings.primaryFields, item)))
-      ))
-    }
-    this.setState({ showingItems })
   }
 
   _changeCurrentPage = currentPage => this.setState({ currentPage })
@@ -85,16 +98,15 @@ let CategoryListContainer = class extends Component {
 
   _changeColumnWidths = columnWidths => this.setState({ columnWidths })
 
-  _itemClick(event, relationMode, id) {
-    if (relationMode) {
-      event.preventDefault()
-      this.props.openDetailDialog(id)
-    }
+  _changeSelection = tableSelectedIndexes => this.setState({tableSelectedIndexes})
+
+  _tableRowClick = item => {
+    const { categoryId, history } = this.props
+    history.push(`${categoryId}/${item.id}`)
   }
 
-  _tableRowClick = (event, id) => {
-    /*const { category, history } = this.props
-    history.push(`${categoryId}/${id}`)*/
+  _changeFiltering = filters => {
+    console.log(filters)
   }
 
   _tableRowKeyDown = (event, id) => {
@@ -102,6 +114,26 @@ let CategoryListContainer = class extends Component {
       console.log("HOLA")
       this._tableRowClick(event, id)
     }*/
+  }
+
+  _updateSearchQuery = searchQuery => {
+    const { settings, items } = this.props
+    let agendaShowingItems = items
+    if (searchQuery) {
+      const cleanQuery = removeDiacritics(searchQuery.trim())
+      const match = new RegExp(escapeRegExp(cleanQuery), 'i')
+      agendaShowingItems = items.filter(item => (
+        match.test(removeDiacritics(getInfo(settings.primaryFields, item)))
+      ))
+    }
+    this.setState({ agendaShowingItems })
+  }
+
+  _listItemClick(event, relationMode, id) {
+    if (relationMode) {
+      event.preventDefault()
+      this.props.openDetailDialog(id)
+    }
   }
 
   _handleMenuItemClick = (event, itemId) => {
@@ -117,13 +149,31 @@ let CategoryListContainer = class extends Component {
     if (this.props.searchQuery !== props.searchQuery) {
       this._updateSearchQuery(props.searchQuery)
     } else {
-      this.setState({showingItems: props.items})
+      this.setState({agendaShowingItems: props.items})
     }
   }
 
   render = () => {
-    const { classes, categoryId, tableMode, settings, fields, showAvatar, dense, relationMode } = this.props
-    const { showingItems, currentPage, pageSize, allowedPageSizes, columnOrder, columnWidths } = this.state
+    const {
+      classes,
+      categoryId,
+      tableMode,
+      settings,
+      fields,
+      items,
+      showAvatar,
+      dense,
+      relationMode
+    } = this.props
+    const { 
+      agendaShowingItems,
+      tableSelectedIndexes,
+      currentPage,
+      pageSize,
+      allowedPageSizes,
+      columnOrder,
+      columnWidths
+    } = this.state
     
     const showingFields = fields.filter(field => field.views.list)
 
@@ -136,120 +186,155 @@ let CategoryListContainer = class extends Component {
 
     return (
       tableMode ? (
-        <Grid
-          rows={showingItems}
-          columns={showingFields.map(field => {
-            //https://devexpress.github.io/devextreme-reactive/react/grid/docs/guides/getting-started/
-            return {
-              title: field.label || '',
-              name: field.id,
-              dataType: field.type || 'string',
-              align: field.type === 'number' ? 'right' : 'left'
+        <div>
+          <Grid
+            rows={items}
+            columns={showingFields.map(field => {
+              //https://devexpress.github.io/devextreme-reactive/react/grid/docs/guides/getting-started/
+              return {
+                title: field.label || '',
+                name: field.id,
+                dataType: field.type || 'string',
+                align: field.type === 'number' ? 'right' : 'left'
+              }
+            })}
+            getCellValue={ (row, columnName) => {
+              const value = row[columnName]
+              if (typeof value === 'object') {
+                return Object.keys(value).toString()
+              }
+              return value
+            }}
+          >
+            <DataTypeProvider
+              type="string"
+              formatterTemplate={({ value }) => 
+                <span style={{ color: 'darkblue' }}>{value}</span>
+              }
+            />
+            <DataTypeProvider
+              type="progress"
+              formatterTemplate={({ value }) => 
+                <LinearProgress color="accent" mode="determinate" value={value} />
+              }
+            />
+            <DataTypeProvider
+              type="currency"
+              formatterTemplate={({ value }) => 
+                value ? 
+                  <span style={{ color: 'darkblue' }}>${value}</span> :
+                  null
+              }
+            />
+            <DataTypeProvider
+              type="date"
+              formatterTemplate={({ value }) =>
+                value.replace(/(\d{4})-(\d{2})-(\d{2})/, '$3.$2.$1')}
+            />
+            <SortingState
+              defaultSorting={[]}
+            />
+            <PagingState 
+              defaultCurrentPage={0}
+              currentPage={currentPage}
+              onCurrentPageChange={this._changeCurrentPage}
+              pageSize={pageSize}
+              onPageSizeChange={this._changePageSize}
+            />
+            <FilteringState
+              defaultFilters={[]}
+              onFiltersChange={this._changeFiltering}
+            />
+            <GroupingState
+              defaultGroups={[]}
+            />
+            <SelectionState
+              defaultSelection={[]}
+              onSelectionChange={this._changeSelection}
+            />
+            <ColumnOrderState
+              defaultOrder={defaultOrder}
+              order={columnOrder || defaultOrder}
+              onOrderChange={this._changeColumnOrder}
+            />
+            <LocalSorting />
+            <LocalFiltering />
+            <LocalGrouping />
+            <LocalPaging />
+            <DragDropContext />
+            <TableView
+              allowColumnReordering
+              tableRowTemplate={({ children, row, tableRow }) => (
+                <TableRow
+                  hover
+                  selected={tableSelectedIndexes.includes(tableRow.rowId)}
+                  className={classes.tableRow}
+                  onClick={() => this._tableRowClick(row)}
+                >
+                  {children}
+                </TableRow>
+              )}
+            />
+            <TableColumnResizing
+              columnWidths={columnWidths || defaultColumnWidths}
+              onColumnWidthsChange={this._changeColumnWidths}
+            />
+            <TableHeaderRow
+              allowSorting
+              allowDragging
+              allowResizing
+              //allowGroupingByClick 
+            />
+            <TableFilterRow />
+            <TableSelection />
+            <PagingPanel
+              allowedPageSizes={allowedPageSizes}
+            />
+            <GroupingPanel
+              allowSorting
+              allowDragging
+              allowUngroupingByClick
+            />
+            <TableGroupRow />
+          </Grid>
+
+          <Snackbar
+            anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+            open={tableSelectedIndexes.length}
+            className={classes.snackbar}
+            bodyStyle={classes.snackbarContent}
+            message={
+              <span>
+                {tableSelectedIndexes.length} selected
+              </span>
             }
-          })}
-          getCellValue={ (row, columnName) => {
-            const value = row[columnName]
-            if (typeof value === 'object') {
-              return Object.keys(value).toString()
-            }
-            return value
-          }}
-        >
-          <DataTypeProvider
-            type="string"
-            formatterTemplate={({ value }) => 
-              <span style={{ color: 'darkblue' }}>{value}</span>
-            }
+            action={[
+              <Button key="undo" color="accent" dense onClick={this.handleRequestClose}>
+                UNDO
+              </Button>,
+              <IconButton
+                key="close"
+                aria-label="Close"
+                color="inherit"
+                onClick={this.handleRequestClose}
+              >
+                <Close />
+              </IconButton>
+            ]}
           />
-          <DataTypeProvider
-            type="progress"
-            formatterTemplate={({ value }) => 
-              <LinearProgress color="accent" mode="determinate" value={value} />
-            }
-          />
-          <DataTypeProvider
-            type="currency"
-            formatterTemplate={({ value }) => 
-              value ? 
-                <span style={{ color: 'darkblue' }}>${value}</span> :
-                null
-            }
-          />
-          <DataTypeProvider
-            type="date"
-            formatterTemplate={({ value }) =>
-              value.replace(/(\d{4})-(\d{2})-(\d{2})/, '$3.$2.$1')}
-          />
-          <ColumnOrderState
-            defaultOrder={defaultOrder}
-            order={columnOrder || defaultOrder}
-            onOrderChange={this._changeColumnOrder}
-          />
-          <DragDropContext />
-          <SortingState
-            defaultSorting={[]}
-          />
-          <LocalSorting />
-          <GroupingState
-            defaultGroups={[]}
-          />
-          <LocalGrouping />
-          <PagingState 
-            defaultCurrentPage={0}
-            currentPage={currentPage}
-            onCurrentPageChange={this._changeCurrentPage}
-            pageSize={pageSize}
-            onPageSizeChange={this._changePageSize}
-          />
-          <LocalPaging />
-          <SelectionState
-            defaultSelection={[]}
-          />
-          <FilteringState
-            defaultFilters={[]}
-          />
-          <LocalFiltering />
-          <TableView
-            allowColumnReordering 
-          />
-          <TableSelection
-            selectByRowClick 
-          />
-          <TableColumnResizing
-            columnWidths={columnWidths || defaultColumnWidths}
-            onColumnWidthsChange={this._changeColumnWidths}
-          />
-          <TableHeaderRow
-            allowSorting
-            allowDragging
-            allowResizing
-            //allowGroupingByClick 
-          />
-          <TableFilterRow
-            rowHeight={28}
-          />
-          <TableGroupRow />
-          <GroupingPanel
-            allowSorting
-            allowDragging
-            allowUngroupingByClick
-          />
-          <PagingPanel
-            allowedPageSizes={allowedPageSizes}
-          />
-        </Grid>
+        </div>
 
       ) : (
 
         <div>
           <List dense={dense}>
-            {showingItems.map(item =>
+            {agendaShowingItems.map(item =>
               <div key={item.id}>
                 <Link
                   key={item.id}
                   tabIndex={-1}
                   to={`/${categoryId}/${item.id}`}
-                  onClick={ event => this._itemClick(event, relationMode, item.id)}
+                  onClick={ event => this._listItemClick(event, relationMode, item.id)}
                 >
                   <ListItem button>
                     {showAvatar &&
@@ -302,6 +387,7 @@ CategoryListContainer.propTypes = {
   classes: PropTypes.object.isRequired,
   categoryId: PropTypes.string.isRequired,
   settings: PropTypes.object.isRequired,
+  history: PropTypes.object.isRequired,
   dense: PropTypes.bool,
   items: PropTypes.array.isRequired,
   fields: PropTypes.array.isRequired,
@@ -316,7 +402,7 @@ CategoryListContainer.defaultProps = {
   relationMode: false
 }
 
-CategoryListContainer = withStyles(containerStyles)(CategoryListContainer)
+CategoryListContainer = withStyles(styles)(CategoryListContainer)
 
 /**
  * A list with category items, showed in the shape of table or agenda.
@@ -358,7 +444,8 @@ class CategoryList extends Component {
       isFetchingItems,
       operations,
       relationMode,
-      showAvatar 
+      showAvatar,
+      history
     } = this.props
     const {
       searchQuery,
@@ -410,11 +497,12 @@ class CategoryList extends Component {
         {React.createElement(CategoryListContainer, {
           dense: relationMode,
           openDetailDialog: relationMode ? this.openDetailDialog : null,
-          relationMode, categoryId, settings, items, fields, tableMode, showAvatar, searchQuery
+          relationMode, categoryId, settings, items, fields,
+          tableMode, showAvatar, history, searchQuery
         })}
 
         <Dialog fullScreen open={showNewDialog} onRequestClose={this._newDialogClosed}>
-          <ItemNew closeDialog={this.closeNewDialog} itemLabel={settings.itemLabel}/>
+          <ItemNew closeDialog={this.closeNewDialog} itemLabel={settings.itemLabel} />
         </Dialog>
 
         <Dialog fullWidth maxWidth="md" open={showDetailDialog} onRequestClose={this.detailDialogClosed}>

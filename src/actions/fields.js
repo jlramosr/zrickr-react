@@ -2,6 +2,7 @@ import API from '../utils/api'
 
 export const REQUEST_CATEGORY_FIELDS = 'REQUEST_CATEGORY_FIELDS'
 export const RECEIVE_CATEGORY_FIELDS = 'RECEIVE_CATEGORY_FIELDS'
+export const REQUEST_CATEGORY_FIELDS_ERROR = 'REQUEST_CATEGORY_FIELDS_ERROR'
 
 export const requestFields = categoryId => ({
   type: REQUEST_CATEGORY_FIELDS,
@@ -16,11 +17,22 @@ export const receiveFields = (categoryId, fields) => ({
   fields
 })
 
+export const errorFetchingFields = (categoryId, error) => ({
+  type: REQUEST_CATEGORY_FIELDS_ERROR,
+  errorFetching: `${Date.now()} ${error}`,
+  categoryId
+})
+
 export const fetchFields = categoryId => dispatch => {
   dispatch(requestFields(categoryId))
   return API('firebase').getCollection('categories_fields', categoryId)
     .then(
-      fields => dispatch(receiveFields(categoryId, fields) || {}),
-      error => console.log('ERROR PIDIENDO FIELDS', error)
+      fields => {
+        dispatch(receiveFields(categoryId, fields) || {})
+      },
+      error => {
+        console.error(`An error occurred fetching fields of ${categoryId}:`, error)
+        dispatch(errorFetchingFields(categoryId, error))
+      }
     )
 }
