@@ -161,7 +161,7 @@ class Form extends Component {
                     required={field.required}
                     value={item ? item[field.id] : ''}
                     options={field.options}
-                    relationId={field.relation}
+                    relation={field.relation}
                     handleFormFieldChange={ (fieldId, value) => 
                       this.handleFieldChange(fieldId, value)
                     }

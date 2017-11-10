@@ -1,4 +1,5 @@
 const theme = require('./docs/theme')
+const path = require('path')
 
 module.exports = {
   theme,
@@ -19,8 +20,27 @@ module.exports = {
       components: 'src/actions/*.js'
     }
   ],
-  showUsage: true
-  /*styleguideComponents: {
-    Wrapper: 'docs/wrapper'
+  showUsage: true/*,
+  styleguideComponents: {
+    Wrapper: path.join(__dirname, 'docs/wrapper')
+  },
+  webpackConfig: {
+    module: {
+      rules: [
+        {
+          test: /\.jsx?$/,
+          exclude: /node_modules/,
+          loader: 'babel-loader'
+        },
+        {
+          test: /\.css$/,
+          loader: 'style-loader!css-loader?modules'
+        },
+        {
+          test: /\.svg$/,
+          loader: 'url-loader'
+        }
+      ]
+    }
   }*/
 }

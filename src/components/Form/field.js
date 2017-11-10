@@ -40,16 +40,16 @@ class Field extends Component {
     value = value || {}
     if (type === 'list') {
       getItemsPromises = Object.keys(value).map(relationItemId =>
-        API('local').getDocument('categories_items', relationId, relationItemId)
+        API('firebase').getDocument('categories_items', relationId, relationItemId)
       )
     } else if (type === 'select') {
       getItemsPromises.push(
-        API('local').getCollection('categories_items', relationId)
+        API('firebase').getCollection('categories_items', relationId)
       )
     }
     Promise.all([
-      API('local').getDocument('categories_settings', relationId),
-      API('local').getCollection('categories_fields', relationId),
+      API('firebase').getDocument('categories_settings', relationId),
+      API('firebase').getCollection('categories_fields', relationId),
       ...getItemsPromises
     ])
       .then(values => {
@@ -118,7 +118,8 @@ class Field extends Component {
               this.props.handleFormFieldChange(id, event.target.value)
             }
           >
-            {relationId ? (
+            <div>hola</div>
+            {/*relationId && relationItems.length ? (
               relationItems.map(item => (
                 <MenuItem
                   key={item.id}
@@ -136,7 +137,7 @@ class Field extends Component {
                   {item.label}
                 </MenuItem>
               ))
-            )}
+            )*/}
           </TextField>
         )
 
@@ -162,7 +163,7 @@ class Field extends Component {
       case 'list':
         return (
           relationId ? (
-            <Paper elevation={4} className={classes.list}>
+            /*<Paper elevation={4} className={classes.list}>
               <CategoryList
                 relationMode={true}
                 categoryId={relationId}
@@ -173,7 +174,8 @@ class Field extends Component {
                 loading={relationLoading}
                 showAvatar={false}
               />
-            </Paper>
+            </Paper>*/
+            <div>hola</div>
           ) : (
             <div>
               <ListItem
@@ -216,13 +218,13 @@ Field.propTypes = {
   description: PropTypes.string,
   required: PropTypes.bool,
   options: PropTypes.array,
-  relationId: PropTypes.string,
+  relation: PropTypes.string,
   value: PropTypes.any,
   handleFormFieldChange: PropTypes.func,
   itemsSelect: (props, propName, componentName) => {
-    if (props.type === 'select' && !props.options && !props.relationId) {
+    if (props.type === 'select' && !props.options && !props.relation) {
       return new Error(
-        `${propName} ${componentName}: Select field must to have an array of options or a relation name.`
+        `${propName} ${componentName}: Select field ${props.id} must to have an array of options or a relation name.`
       )
     }
   },

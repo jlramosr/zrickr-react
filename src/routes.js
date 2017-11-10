@@ -11,7 +11,7 @@ export default [{
     { path: '/', exact: true, component: Dashboard },
     { path: '/:categoryId', component: Category, routes: [
       { path: '/:categoryId', exact: true, component: CategoryList },
-      { path: '/:categoryId/:postId', component: CategoryItemDetail }
+      { path: '/:categoryId/:itemId', component: CategoryItemDetail }
     ]}
   ]
 }]

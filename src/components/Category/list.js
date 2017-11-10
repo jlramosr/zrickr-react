@@ -36,7 +36,7 @@ import Snackbar from 'material-ui/Snackbar'
 import { LinearProgress } from 'material-ui/Progress'
 import Avatar from 'material-ui/Avatar'
 import Add from 'material-ui-icons/Add'
-import Close from 'material-ui-icons/Close'
+import Delete from 'material-ui-icons/Delete'
 import ViewList from 'material-ui-icons/ViewList'
 import ViewAgenda from 'material-ui-icons/ViewAgenda'
 import ArrowBack from 'material-ui-icons/ArrowBack'
@@ -49,7 +49,8 @@ import escapeRegExp from 'escape-string-regexp'
 import removeDiacritics from 'remove-diacritics'
 import ItemDetail from './detail'
 import ItemNew from './new'
-import { getInfo } from '../../utils/helpers'
+import { getItemInfo } from './utils/helpers'
+import { capitalize } from '../../utils/helpers'
 import { withStyles } from 'material-ui/styles'
 
 const styles = theme => ({
@@ -61,6 +62,8 @@ const styles = theme => ({
     top: 0,
     left: 0,
     right: 0,
+    display: 'flex',
+    overflow: 'hidden',
     minHeight: theme.standards.toolbarHeights.mobilePortrait,
     [`${theme.breakpoints.up('xs')} and (orientation: landscape)`]: {
       minHeight: theme.standards.toolbarHeights.mobileLandscape
@@ -70,7 +73,10 @@ const styles = theme => ({
     }
   },
   snackbarContent: {
-    width: '100%'
+    width: '100%',
+    flex: 1,
+    maxWidth: 'inherit',
+    flexWrap: 'inherit'
   }
 })
 
@@ -123,7 +129,7 @@ let CategoryListContainer = class extends Component {
       const cleanQuery = removeDiacritics(searchQuery.trim())
       const match = new RegExp(escapeRegExp(cleanQuery), 'i')
       agendaShowingItems = items.filter(item => (
-        match.test(removeDiacritics(getInfo(settings.primaryFields, item)))
+        match.test(removeDiacritics(getItemInfo(settings.primaryFields, item)))
       ))
     }
     this.setState({ agendaShowingItems })
@@ -248,10 +254,6 @@ let CategoryListContainer = class extends Component {
             <GroupingState
               defaultGroups={[]}
             />
-            <SelectionState
-              defaultSelection={[]}
-              onSelectionChange={this._changeSelection}
-            />
             <ColumnOrderState
               defaultOrder={defaultOrder}
               order={columnOrder || defaultOrder}
@@ -262,6 +264,10 @@ let CategoryListContainer = class extends Component {
             <LocalGrouping />
             <LocalPaging />
             <DragDropContext />
+            <SelectionState
+              defaultSelection={[]}
+              onSelectionChange={this._changeSelection}
+            />
             <TableView
               allowColumnReordering
               tableRowTemplate={({ children, row, tableRow }) => (
@@ -302,7 +308,13 @@ let CategoryListContainer = class extends Component {
             anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
             open={tableSelectedIndexes.length}
             className={classes.snackbar}
-            bodyStyle={classes.snackbarContent}
+            transitionDuration={{
+              enter: 200,
+              exit: 0
+            }}
+            SnackbarContentProps={{
+              className: classes.snackbarContent
+            }}
             message={
               <span>
                 {tableSelectedIndexes.length} selected
@@ -318,7 +330,7 @@ let CategoryListContainer = class extends Component {
                 color="inherit"
                 onClick={this.handleRequestClose}
               >
-                <Close />
+                <Delete />
               </IconButton>
             ]}
           />
@@ -339,12 +351,12 @@ let CategoryListContainer = class extends Component {
                   <ListItem button>
                     {showAvatar &&
                       <Avatar>
-                        <Icon>{settings.icon && React.createElement(settings.icon)}</Icon>
+                        <Icon>{settings.icon}</Icon>
                       </Avatar>
                     }
                     <ListItemText
-                      primary={getInfo(settings.primaryFields, item)}
-                      secondary={getInfo(settings.secondaryFields, item)}
+                      primary={getItemInfo(settings.primaryFields, item)}
+                      secondary={getItemInfo(settings.secondaryFields, item)}
                     />
                     <ListItemSecondaryAction>
                       <IconButton aria-label="Item Menu">
@@ -416,20 +428,63 @@ class CategoryList extends Component {
     tableMode: this.props.tableMode || true
   }
 
+  /**
+	 * Update the state with the new search string indicated by the user.
+	 * @public
+   * @param {string} searchQuery The string.
+   * @returns {void}
+	 */
   _updateSearchQuery = searchQuery => this.setState({searchQuery})
 
+  /**
+	 * Change the view of the list.
+	 * @public
+   * @param {string} view The desired view. One of 'list','agenda'.
+   * @returns {void}
+	 */
   _changeView = view => this.setState({tableMode: view === 'list'})
 
+  /**
+	 * Open the new item dialog, updating the state.
+	 * @public
+	 * @returns {void}
+	 */
   _openNewDialog = () => this.setState({ showNewDialog: true})
 
+  /**
+	 * Executed when new item dialog is closed.
+	 * @public
+	 * @returns {void}
+	 */
   _newDialogClosed = () => this.closeNewDialog()
 
+  /**
+	 * Update the state indicating new item dialog is not showing.
+	 * @public
+   * @returns {void}
+	 */
   closeNewDialog = () => this.setState({ showNewDialog: false})
-
+  
+  /**
+	 * Open the detail item dialog, updating the state.
+	 * @public
+	 * @param {string} itemId Unique id of the item.
+	 * @returns {void}
+	 */
   openDetailDialog = itemId => this.setState({ showDetailDialog: true, dialogItemId: itemId})
   
+  /**
+	 * Executed when a detail item dialog is closed.
+	 * @public
+	 * @returns {void}
+	 */
   detailDialogClosed = () => this.closeDetailDialog()
 
+  /**
+	 * Update the state indicating detail item dialog is not showing.
+	 * @public
+	 * @returns {void}
+	 */
   closeDetailDialog = () => this.setState({ showDetailDialog: false})
 
   render = () => {
@@ -530,16 +585,23 @@ CategoryList.propTypes = {
    */
   categoryLabel: PropTypes.string.isRequired,
   /**
-   * Category settings like color, main fields to get the title of an item, etc.
+   * Id of settings category. It obtain from parent element.
+   */
+  categorySettingsId: PropTypes.string.isRequired,
+  /**
+   * All ids of category fields. It obtain from parent element.
+   */
+  categoryFieldsIds: PropTypes.array.isRequired,
+  /**
+   * All ids of category items. It obtain from parent element.
+   */
+  categoryItemsIds: PropTypes.array.isRequired,
+  /**
+   * Category settings like color, main fields to get the title of an item, etc., gotten from 'categorySettingsId'
    */
   settings: PropTypes.object,
   /**
-   * It indicates if request to obtain settings is still active. It's used to show
-   * the loading spinner until request finalizes.
-   */
-  isFetchingSettings: PropTypes.bool,
-  /**
-   * All category fields. It only be shown fields with property 'view.list'.
+   * All category fields gotten from 'categoryFieldsIds'. It only be shown fields with property 'view.list'.
    */
   fields: PropTypes.arrayOf(PropTypes.shape({
     /**
@@ -551,15 +613,15 @@ CategoryList.propTypes = {
      */
     label: PropTypes.string,
     /**
-     * Description of field, Showed under field in detail views (if 'nodescription' is true).
+     * Description of field, showed under field in detail views (if 'nodescription' is true).
      */
     description: PropTypes.string,
     /**
-     * One of: 'string','text','number','boolean','list','select','relation'.
+     * One of: 'string','text','number','boolean','list','select','relation','date','currency'.
      * When type is 'list', there should be either 'items' or 'relation' property.
      * When type is 'select', there should be either 'options' or 'relation' property.
      */
-    type: PropTypes.oneOf(['string','text','number','boolean','list','select','relation']),
+    type: PropTypes.oneOf(['string','text','number','boolean','list','select','relation','date','currency']),
     /**
      * Default value of the field.
      */
@@ -592,7 +654,7 @@ CategoryList.propTypes = {
     relation: PropTypes.string,
     /**
      * Views where field appears, with its position and conditions.
-     * They can be: 'list', 'detail'.
+     * Keys can be: 'list', 'detail'.
      */ 
     views: PropTypes.objectOf(PropTypes.shape({
       list: PropTypes.objectOf({
@@ -609,14 +671,19 @@ CategoryList.propTypes = {
     }))
   })).isRequired,
   /**
+   * All category items gotten from 'categoryItemsIds'.
+   */
+  items: PropTypes.array,
+  /**
+   * It indicates if request to obtain settings is still active. It's used to show
+   * the loading spinner until request finalizes.
+   */
+  isFetchingSettings: PropTypes.bool,
+  /**
    * It indicates if request to obtain fields is still active. It's used to show
    * the loading spinner until request finalizes.
    */
   isFetchingFields: PropTypes.bool,
-  /**
-   * All category entities.
-   */
-  items: PropTypes.array,
   /**
    * It indicates if request to obtain items is still active. It's used to show
    * the loading spinner until request finalizes.
@@ -653,15 +720,13 @@ CategoryList.defaultProps = {
   showAvatar: true
 }
 
-const mapStateToProps = ({ settings, fields, items }, props) => {
-  return{ 
-    settings: settings.byId[props.settingsId],
-    isFetchingSettings: settings.flow.isFetching,
-    fields: Object.values(fields.byId).filter(field => props.fieldsIds.includes(field.id)),
-    isFetchingFields: fields.flow.isFetching,
-    items: Object.values(items.byId).filter(item => props.itemsIds.includes(item.id)),
-    isFetchingItems: items.flow.isFetching
-  }
-}
+const mapStateToProps = ({ settings, fields, items }, props) => ({
+  settings: settings.byId[props.categorySettingsId],
+  isFetchingSettings: settings.flow.isFetching,
+  fields: Object.values(fields.byId).filter(field => props.categoryFieldsIds.includes(field.id)),
+  isFetchingFields: fields.flow.isFetching,
+  items: Object.values(items.byId).filter(item => props.categoryItemsIds.includes(item.id)),
+  isFetchingItems: items.flow.isFetching
+})
 
 export default connect(mapStateToProps)(CategoryList)

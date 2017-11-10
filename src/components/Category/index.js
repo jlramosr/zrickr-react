@@ -31,9 +31,9 @@ class Category extends Component {
           {renderRoutes(route.routes, {
             categoryId,
             categoryLabel: category.label,
-            settingsId: category.settings || {},
-            fieldsIds: category.fields || [],
-            itemsIds: category.items || []
+            categorySettingsId: category.settings || {},
+            categoryFieldsIds: category.fields || [],
+            categoryItemsIds: category.items || []
           })}
         </div> 
       ) : (

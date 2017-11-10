@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
-import API from '../../utils/api'
 import HeaderLayout from '../headerLayout'
 import Form from '../form'
 import ArrowBack from 'material-ui-icons/ArrowBack'
@@ -8,13 +8,11 @@ import Close from 'material-ui-icons/Close'
 import Check from 'material-ui-icons/Check'
 import Edit from 'material-ui-icons/Edit'
 import Delete from 'material-ui-icons/Delete'
-import { getInfo } from '../../utils/helpers'
+import { getItemInfo } from './utils/helpers'
 
 class CategoryItemDetail extends Component {
   state = {
-    item: {},
-    editMode: false,
-    loading: true
+    editMode: false
   }
 
   _updateItem = () => {
@@ -24,9 +22,6 @@ class CategoryItemDetail extends Component {
 
   _deleteItem = () => {
     console.log('DELETE ITEM', this.state.item)
-    /*TODO:
-      return to list
-    */
   }
 
   _changeEditMode = editMode => {
@@ -34,27 +29,26 @@ class CategoryItemDetail extends Component {
     this.setState({editMode})
   }
 
-  _getData = () => {
-    const { id, categoryId } = this.props
-    API('local').getDocument('categories_items', categoryId, id).then(item => {
-      this.setState({item, loading: false})
-    }).catch(error => {
-      console.log('ERROR PIDIENDO ITEM DETAIL', error)
-    })
-  }
-
   componentDidMount = () => {
-    this._getData()
   }
 
   render = () => {
-    const { categoryId, settings, fields, dialog, closeDialog } = this.props
-    const { item, editMode, loading } = this.state
+    const {
+      categoryId,
+      settings,
+      isFetchingSettings,
+      isFetchingFields,
+      fields,
+      item,
+      dialog,
+      closeDialog
+    } = this.props
+    const { editMode } = this.state
     return (
       <HeaderLayout
         relative={dialog}
-        title={item ? getInfo(settings.primaryFields, item) : ''}
-        loading={loading}
+        title={item ? getItemInfo(settings.primaryFields, item) : ''}
+        loading={isFetchingSettings || isFetchingFields}
         operations={[
           {id:'arrowBack', icon:ArrowBack, hidden:dialog, to:`/${categoryId}`},
           {id:'close', icon:Close, hidden:!dialog, onClick:closeDialog},
@@ -70,18 +64,31 @@ class CategoryItemDetail extends Component {
 }
 
 CategoryItemDetail.propTypes = {
-  id: PropTypes.string.isRequired,
   categoryId: PropTypes.string.isRequired,
   settings: PropTypes.object.isRequired,
   fields: PropTypes.array.isRequired,
-  dialog: PropTypes.bool.isRequired,
+  dialog: PropTypes.bool,
   closeDialog: PropTypes.func,
   closeDialogRequired: (props, propName, componentName) => {
     if (props.dialog && !props.closeDialog) {
       return new Error(
-        `${propName} ${componentName}: An detail dialog must be a closeDialog function.`
+        `${propName} ${componentName}: A detail dialog must be a closeDialog function.`
       )
     }
+  }
+}
+
+const mapStateToProps = ({ settings, fields, items }, props) => {
+  const itemId = props.match.params.itemId
+  return { 
+    settings: settings.byId[props.categorySettingsId],
+    isFetchingSettings: settings.flow.isFetching,
+    fields: Object.values(fields.byId).filter(
+      field => props.categoryFieldsIds.includes(field.id)
+    ),
+    isFetchingFields: fields.flow.isFetching,
+    item: props.categoryItemsIds.includes(itemId) ? items.byId[itemId] : null,
+    isFetchingItems: items.flow.isFetching
   }
 }
 
@@ -89,4 +96,4 @@ CategoryItemDetail.defaultProps = {
   dialog: false
 }
 
-export default CategoryItemDetail
+export default connect(mapStateToProps, null)(CategoryItemDetail)
