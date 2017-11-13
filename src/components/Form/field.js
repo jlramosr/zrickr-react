@@ -1,10 +1,9 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { withStyles } from 'material-ui/styles'
-import API from '../../utils/api'
 import Paper from 'material-ui/Paper'
 import TextField from 'material-ui/TextField'
-import { MenuItem } from 'material-ui/Menu'
 import Switch from 'material-ui/Switch'
 import { ListItem } from 'material-ui/List'
 import Divider from 'material-ui/Divider'
@@ -12,17 +11,30 @@ import CategoryList from '../category/list'
 import { getInfo } from '../../utils/helpers'
 
 const styles = theme => ({
-  textField: {
-
+  input: {
+    paddingLeft: 2,
+    paddingRigth: 2,
+    borderRadius: 4,
+    fontSize: 14,
+    border: `1px solid ${theme.palette.primary[500]}`,
+    background: theme.palette.secondary[50],
+    transition: theme.transitions.create(['border-color', 'box-shadow']),
+    '&:focus': {
+      borderColor: theme.palette.primary[500],
+      boxShadow: `0 0 0 0.1rem ${theme.palette.primary[500]}`
+    }
   },
-  select: {
-
+  textarea: {
+    display: 'inline',
+    padding: 0
   },
-  list: {
-    marginTop: theme.spacing.unit*2
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: 700,
+    color: theme.palette.primary[500]
   },
-  toogle: {
-
+  helperText: {
+    marginTop: 2
   }
 })
 
@@ -34,52 +46,6 @@ class Field extends Component {
     relationLoading: true
   }
 
-  _getData = relationId => {
-    let { value, type } = this.props
-    let getItemsPromises = []
-    value = value || {}
-    if (type === 'list') {
-      getItemsPromises = Object.keys(value).map(relationItemId =>
-        API('firebase').getDocument('categories_items', relationId, relationItemId)
-      )
-    } else if (type === 'select') {
-      getItemsPromises.push(
-        API('firebase').getCollection('categories_items', relationId)
-      )
-    }
-    Promise.all([
-      API('firebase').getDocument('categories_settings', relationId),
-      API('firebase').getCollection('categories_fields', relationId),
-      ...getItemsPromises
-    ])
-      .then(values => {
-        let [relationSettings, relationFields, ...relationItems] = values
-        if (relationItems.length === 1 && Array.isArray(relationItems[0])) {
-          relationItems = relationItems[0]
-        }
-        const icon = relationSettings.icon
-        relationSettings['icon'] = icon  ?
-          (typeof icon === 'string' ? require('material-ui-icons')[icon] : icon) : 
-          null
-        this.setState({
-          relationSettings,
-          relationFields,
-          relationItems,
-          relationLoading: false
-        })
-      })
-      .catch(error => {
-        console.log('ERROR PIDIENDO DATOS RELACIÓN', error)
-      })
-  }
-
-  componentDidMount = () => {
-    const { relationId } = this.props
-    if (relationId) {
-      this._getData(relationId)
-    }
-  }
-
   render = () => {
     const {
       id,
@@ -89,7 +55,8 @@ class Field extends Component {
       options,
       required,
       value,
-      relationId,
+      relation,
+      order,
       classes
     } = this.props
 
@@ -105,39 +72,35 @@ class Field extends Component {
       case 'select':
         return (
           <TextField
-            className={classes.select}
+            InputClassName={classes.input}
+            labelClassName={classes.inputLabel}
             error={required && !value}
             key={id}
             name={id}
             select
             fullWidth
-            margin="normal"
             label={label}
             value={value || ''}
+            SelectProps={{native: true}}
+            InputProps={{disableUnderline: true}}
+            InputLabelProps={{shrink: true}}
             onChange={ event => 
               this.props.handleFormFieldChange(id, event.target.value)
             }
           >
-            <div>hola</div>
-            {/*relationId && relationItems.length ? (
+            {(relation && relationItems) ? (
               relationItems.map(item => (
-                <MenuItem
-                  key={item.id}
-                  value={item.id}
-                >
+                <option key={item.id} value={item.id}>
                   {getInfo(relationSettings.primaryFields, item)}
-                </MenuItem>
+                </option>
               ))
             ) : (
               options.map(item => (
-                <MenuItem
-                  key={item.id}
-                  value={item.id}
-                >
+                <option key={item.id} value={item.id}>
                   {item.label}
-                </MenuItem>
+                </option>
               ))
-            )*/}
+            )}
           </TextField>
         )
 
@@ -162,20 +125,19 @@ class Field extends Component {
 
       case 'list':
         return (
-          relationId ? (
-            /*<Paper elevation={4} className={classes.list}>
+          relation ? (
+            <Paper elevation={4} className={classes.list}>
               <CategoryList
                 relationMode={true}
-                categoryId={relationId}
-                categoryLabel={label}
-                settings={relationSettings}
-                items={relationItems}
-                fields={relationFields}
-                loading={relationLoading}
+                tableMode={false}
+                categoryId={relation}
+                categoryLabel={label || this.props.relationLabel}
+                categorySettingsId={this.props.relationSettingsId}
+                categoryFieldsIds={this.props.relationFieldsIds}
+                categoryItemsIds={this.props.relationItemsIds}
                 showAvatar={false}
               />
-            </Paper>*/
-            <div>hola</div>
+            </Paper>
           ) : (
             <div>
               <ListItem
@@ -189,7 +151,8 @@ class Field extends Component {
       default: 
         return (
           <TextField
-            className={classes.textField}
+            inputClassName={classes.input}
+            labelClassName={classes.inputLabel}
             error={required && !value}
             key={id}
             name={id}
@@ -201,8 +164,15 @@ class Field extends Component {
             type={type === 'number' ? 'number' : 'text'}
             label={label}
             helperText={description}
+            FormHelperTextProps={{className: classes.helperText}}
             value={value || ''}
-            onChange={ event => 
+            InputProps={{
+              className: type==='text' ? classes.textarea: {},
+              tabindex: order,
+              disableUnderline: true
+            }}
+            InputLabelProps={{shrink: true}}
+            onChange={ event =>
               this.props.handleFormFieldChange(id, event.target.value)
             }
           />
@@ -220,6 +190,7 @@ Field.propTypes = {
   options: PropTypes.array,
   relation: PropTypes.string,
   value: PropTypes.any,
+  order: PropTypes.number,
   handleFormFieldChange: PropTypes.func,
   itemsSelect: (props, propName, componentName) => {
     if (props.type === 'select' && !props.options && !props.relation) {
@@ -238,14 +209,14 @@ Field.propTypes = {
     }
   },
   valueSelectRelation: (props, propName, componentName) => {
-    if (props.relationId && props.type === 'select' && props.value && typeof props.value !== 'string') {
+    if (props.relation && props.type === 'select' && props.value && typeof props.value !== 'string') {
       return new Error(
         `${propName} ${componentName}: Value of relation field must be an id key`
       )
     }
   },
   valueListRelation: (props, propName, componentName) => {
-    if (props.relationId && props.type === 'list' && props.value && typeof props.value !== 'object') {
+    if (props.relation && props.type === 'list' && props.value && typeof props.value !== 'object') {
       return new Error(
         `${propName} ${componentName}: Value of relation field must be an id key`
       )
@@ -257,4 +228,16 @@ Field.defaultProps = {
   type: 'string'
 }
 
-export default withStyles(styles)(Field)
+const mapStateToProps = ({ categories }, props) => {
+  if (props.relation) {
+    return {
+      relationLabel: categories.byId[props.relation].label || '',
+      relationSettingsId: categories.byId[props.relation].settings || {},
+      relationFieldsIds: categories.byId[props.relation].fields || [],
+      relationItemsIds: categories.byId[props.relation].items || []
+    }
+  }
+  return {}
+}
+
+export default connect(mapStateToProps)(withStyles(styles)(Field))

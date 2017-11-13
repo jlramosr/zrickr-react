@@ -29,15 +29,13 @@ class CategoryItemDetail extends Component {
     this.setState({editMode})
   }
 
-  componentDidMount = () => {
-  }
-
   render = () => {
     const {
       categoryId,
       settings,
       isFetchingSettings,
       isFetchingFields,
+      isFetchingItems,
       fields,
       item,
       dialog,
@@ -48,7 +46,7 @@ class CategoryItemDetail extends Component {
       <HeaderLayout
         relative={dialog}
         title={item ? getItemInfo(settings.primaryFields, item) : ''}
-        loading={isFetchingSettings || isFetchingFields}
+        loading={isFetchingSettings || isFetchingFields || isFetchingItems }
         operations={[
           {id:'arrowBack', icon:ArrowBack, hidden:dialog, to:`/${categoryId}`},
           {id:'close', icon:Close, hidden:!dialog, onClick:closeDialog},

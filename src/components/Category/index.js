@@ -9,11 +9,23 @@ import { fetchItems } from '../../actions/items'
 import NotFound from '../notFound'
 
 class Category extends Component {
-  componentDidMount = () => {
+  componentWillMount = () => {
     this.props.fetchCategoriesIfNeeded()
     this.props.fetchSettings()
     this.props.fetchFields()
     this.props.fetchItems()
+  }
+
+  componentDidUpdate = prevProps => {
+    /* If multi-user */
+    const prevPath = prevProps.location.pathname
+    const currentPath = this.props.location.pathname
+    const categoryId = this.props.match.params.categoryId
+    if (prevPath !== currentPath && currentPath === `/${categoryId}`) {
+      this.props.fetchSettings()
+      this.props.fetchFields()
+      this.props.fetchItems()
+    }
   }
 
   render = () => {

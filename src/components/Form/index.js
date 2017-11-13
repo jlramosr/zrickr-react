@@ -70,6 +70,18 @@ class Form extends Component {
     })
   }
 
+  componentWillMount = () => {
+    const { fields, values, theme } = this.props
+    let item = new Item(values)
+    for (const field of fields) {
+      if (field.default && !(field.id in values)) {
+        item[field.id] = field.default
+      }
+    }
+    this._resize(theme)
+    this.setState({item})
+  }
+
   componentDidMount = () => {
     window.addEventListener('resize', () =>
       this._resize(this.props.theme)
@@ -82,20 +94,8 @@ class Form extends Component {
     )
   }
 
-  componentWillReceiveProps = props => {
-    const { fields, values, theme } = props
-    let item = new Item(values)
-    for (const field of fields) {
-      if (field.default && !(field.id in values)) {
-        item[field.id] = field.default
-      }
-    }
-    this._resize(theme)
-    this.setState({item})
-  }
-
   render = () => {
-    const { view, cols, fields, theme } = this.props
+    const { view, cols, fields, classes, theme } = this.props
     const { item, size } = this.state
 
     const formStyle = cols => ({
@@ -117,6 +117,7 @@ class Form extends Component {
       }
   
       let formFieldStyle = {
+        paddingTop: theme.spacing.unit,
         paddingLeft: theme.spacing.unit,
         paddingRight: theme.spacing.unit
       }
@@ -139,6 +140,7 @@ class Form extends Component {
       <form 
         onSubmit={ event => this._handleSubmit(event)}
         style={formStyle(cols)}
+        tabindex={0}
       >
         {
           fields.map(field => {
@@ -162,6 +164,7 @@ class Form extends Component {
                     value={item ? item[field.id] : ''}
                     options={field.options}
                     relation={field.relation}
+                    order={fieldView.x || 0}
                     handleFormFieldChange={ (fieldId, value) => 
                       this.handleFieldChange(fieldId, value)
                     }

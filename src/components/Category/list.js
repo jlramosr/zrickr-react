@@ -50,10 +50,30 @@ import removeDiacritics from 'remove-diacritics'
 import ItemDetail from './detail'
 import ItemNew from './new'
 import { getItemInfo } from './utils/helpers'
-import { capitalize } from '../../utils/helpers'
 import { withStyles } from 'material-ui/styles'
 
 const styles = theme => ({
+  listPadding: {
+    paddingTop: 0,
+    paddingBottom: 0,
+    [`${theme.breakpoints.up('sm')}`]: {
+      paddingTop: theme.spacing.unit,
+      paddingBottom: theme.spacing.unit,
+      paddingLeft: theme.spacing.unit*2,
+      paddingRight: theme.spacing.unit*2
+    },
+    [`${theme.breakpoints.up('md')}`]: {
+      paddingLeft: theme.spacing.unit*3,
+      paddingRight: theme.spacing.unit*3
+    },
+    [`${theme.breakpoints.up('lg')}`]: {
+      paddingLeft: theme.spacing.unit*4,
+      paddingRight: theme.spacing.unit*4
+    }
+  },
+  listDense: {
+    padding: 0
+  },
   tableRow: {
     cursor: 'pointer',
     height: theme.standards.tableRowHeight
@@ -113,13 +133,6 @@ let CategoryListContainer = class extends Component {
 
   _changeFiltering = filters => {
     console.log(filters)
-  }
-
-  _tableRowKeyDown = (event, id) => {
-    /*if (keycode(event) === 'space') {
-      console.log("HOLA")
-      this._tableRowClick(event, id)
-    }*/
   }
 
   _updateSearchQuery = searchQuery => {
@@ -339,7 +352,13 @@ let CategoryListContainer = class extends Component {
       ) : (
 
         <div>
-          <List dense={dense}>
+          <List
+            classes={{
+              padding:classes.listPadding,
+              dense:classes.listDense
+            }}
+            dense={dense}
+          >
             {agendaShowingItems.map(item =>
               <div key={item.id}>
                 <Link
@@ -425,7 +444,7 @@ class CategoryList extends Component {
     showNewDialog: false,
     showDetailDialog: false,
     dialogItemId: '',
-    tableMode: this.props.tableMode || true
+    tableMode: null
   }
 
   /**
@@ -487,6 +506,10 @@ class CategoryList extends Component {
 	 */
   closeDetailDialog = () => this.setState({ showDetailDialog: false})
 
+  componentWillReceiveProps = props => {
+    this.setState({tableMode: props.tableMode})
+  }
+  
   render = () => {
     const {
       categoryId,
@@ -646,12 +669,6 @@ CategoryList.propTypes = {
       id: PropTypes.string.isRequired,
       label: PropTypes.string.isRequired
     })),
-    /**
-     * Name of the relational category in the case of values obtain from other category.
-     * With type 'select' is an one-to-many relation. With type 'relation' is a multiple relation.
-     * It has priority over 'options' and 'items' properties.
-     */
-    relation: PropTypes.string,
     /**
      * Views where field appears, with its position and conditions.
      * Keys can be: 'list', 'detail'.

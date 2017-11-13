@@ -9,14 +9,16 @@ import Drawer from '../drawer'
  * Main app component, with common drawer and first level routes.
  */
 class App extends Component {
-  componentDidMount = () => {
+  componentWillMount = () => {
     this.props.fetchCategories()
   }
 
-  componentDidUpdate = () => {
-    const { currentPath, fetchCategories } = this.props
-    if (currentPath === '/') {
-      fetchCategories()
+  componentDidUpdate = prevProps => {
+    /* If multi-user */
+    const prevPath = prevProps.location.pathname
+    const currentPath = this.props.location.pathname
+    if (prevPath !== currentPath && currentPath === '/') {
+      this.props.fetchCategories()
     }
   }
 
@@ -36,23 +38,13 @@ App.propTypes = {
    */
   route: PropTypes.object.isRequired,
   /**
-   * Current location path. It obtains from Redux store.
-   * @see See [GitHub](https://github.com/reactjs/react-router-redux)
-   * to know how router provider works.
-   */
-  currentPath: PropTypes.string.isRequired,
-  /**
    * Get all categories from Redux store.
    */
   fetchCategories: PropTypes.func.isRequired
 }
 
-const mapStateToProps = ({ router }) => ({ 
-  currentPath: router.location.pathname
-})
-
 const mapDispatchToProps = dispatch => ({
   fetchCategories: () => dispatch(fetchCategories())
 })
 
-export default connect(mapStateToProps, mapDispatchToProps)(App)
+export default connect(null, mapDispatchToProps)(App)

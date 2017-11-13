@@ -161,29 +161,6 @@ theme = {
     },
 
 
-    MuiList: {
-      padding: {
-        paddingTop: 0,
-        paddingBottom: 0,
-        [`${theme.breakpoints.up('sm')}`]: {
-          paddingTop: theme.spacing.unit,
-          paddingBottom: theme.spacing.unit,
-          paddingLeft: theme.spacing.unit*2,
-          paddingRight: theme.spacing.unit*2
-        },
-        [`${theme.breakpoints.up('md')}`]: {
-          paddingLeft: theme.spacing.unit*3,
-          paddingRight: theme.spacing.unit*3
-        },
-        [`${theme.breakpoints.up('lg')}`]: {
-          paddingLeft: theme.spacing.unit*4,
-          paddingRight: theme.spacing.unit*4
-        }
-      },
-      dense: {
-        padding: 0
-      }
-    },
     MuiListItem: {
       root: {
         outline: 'none'
@@ -197,9 +174,8 @@ theme = {
         lineHeight: theme.standards.listCellDense.lineHeight
       }
     }
-
-    
   },
+
   palette: {
     ...theme.palette,
     ...theme.standards.colors
