@@ -7,21 +7,30 @@ import TextField from 'material-ui/TextField'
 import Switch from 'material-ui/Switch'
 import { ListItem } from 'material-ui/List'
 import Divider from 'material-ui/Divider'
-import CategoryList from '../category/list'
-import { getInfo } from '../../utils/helpers'
+import CategoryList from '../../category/list'
+import Select from './select'
+
+const inputCommon = theme => ({
+  paddingLeft: 2,
+  paddingRigth: 2,
+  borderRadius: 4,
+  border: `1px solid ${theme.palette.primary[500]}`,
+  fontSize: 14,
+  background: theme.palette.secondary[50],
+  transition: theme.transitions.create(['border-color', 'box-shadow']),
+  '&:focus': {
+    borderColor: theme.palette.primary[500],
+    boxShadow: `0 0 0 0.1rem ${theme.palette.primary[500]}`
+  }
+})
 
 const styles = theme => ({
   input: {
-    paddingLeft: 2,
-    paddingRigth: 2,
-    borderRadius: 4,
-    fontSize: 14,
-    border: `1px solid ${theme.palette.primary[500]}`,
-    background: theme.palette.secondary[50],
-    transition: theme.transitions.create(['border-color', 'box-shadow']),
-    '&:focus': {
-      borderColor: theme.palette.primary[500],
-      boxShadow: `0 0 0 0.1rem ${theme.palette.primary[500]}`
+    ...inputCommon(theme)
+  },
+  selectInput: {
+    '& .Select-control': {
+      ...inputCommon(theme)
     }
   },
   textarea: {
@@ -39,12 +48,6 @@ const styles = theme => ({
 })
 
 class Field extends Component {
-  state = {
-    relationSettings: {},
-    relationFields: [],
-    relationItems: [],
-    relationLoading: true
-  }
 
   render = () => {
     const {
@@ -52,57 +55,18 @@ class Field extends Component {
       type,
       label,
       description,
-      options,
       required,
       value,
-      relation,
+      relation,   
       order,
       classes
     } = this.props
 
-    const {
-      relationSettings,
-      relationFields,
-      relationItems,
-      relationLoading
-    } = this.state
-
     switch(type) {
 
-      case 'select':
-        return (
-          <TextField
-            InputClassName={classes.input}
-            labelClassName={classes.inputLabel}
-            error={required && !value}
-            key={id}
-            name={id}
-            select
-            fullWidth
-            label={label}
-            value={value || ''}
-            SelectProps={{native: true}}
-            InputProps={{disableUnderline: true}}
-            InputLabelProps={{shrink: true}}
-            onChange={ event => 
-              this.props.handleFormFieldChange(id, event.target.value)
-            }
-          >
-            {(relation && relationItems) ? (
-              relationItems.map(item => (
-                <option key={item.id} value={item.id}>
-                  {getInfo(relationSettings.primaryFields, item)}
-                </option>
-              ))
-            ) : (
-              options.map(item => (
-                <option key={item.id} value={item.id}>
-                  {item.label}
-                </option>
-              ))
-            )}
-          </TextField>
-        )
+      case 'select': return (
+        <Select {...this.props} />
+      )
 
       case 'radio': 
         return (
@@ -168,7 +132,7 @@ class Field extends Component {
             value={value || ''}
             InputProps={{
               className: type==='text' ? classes.textarea: {},
-              tabindex: order,
+              tabIndex: order,
               disableUnderline: true
             }}
             InputLabelProps={{shrink: true}}
@@ -240,4 +204,4 @@ const mapStateToProps = ({ categories }, props) => {
   return {}
 }
 
-export default connect(mapStateToProps)(withStyles(styles)(Field))
+export default connect(mapStateToProps)(withStyles(styles, {withTheme: true})(Field))

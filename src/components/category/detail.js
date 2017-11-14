@@ -63,21 +63,45 @@ class CategoryItemDetail extends Component {
 
 CategoryItemDetail.propTypes = {
   categoryId: PropTypes.string.isRequired,
+  dialog: PropTypes.bool,
+  itemId: (props, propName, componentName) => {
+    if (props.dialog) {
+      if (!props.itemId) {
+        return new Error(
+          `The prop ${propName} is marked as required in ${componentName} when this component is shown in a dialog, but its value is ${props.itemId}`
+        )
+      }
+      if (typeof props.itemId !== 'string') {
+        return new Error(
+          `Invalid prop ${propName} of type ${typeof props.itemId} supplied to ${componentName}, expected 'string'`
+        )
+      }
+    }
+  },
   settings: PropTypes.object.isRequired,
   fields: PropTypes.array.isRequired,
-  dialog: PropTypes.bool,
-  closeDialog: PropTypes.func,
-  closeDialogRequired: (props, propName, componentName) => {
-    if (props.dialog && !props.closeDialog) {
-      return new Error(
-        `${propName} ${componentName}: A detail dialog must be a closeDialog function.`
-      )
+  closeDialog: (props, propName, componentName) => {
+    if (props.dialog) {
+      if (!props.closeDialog) {
+        return new Error(
+          `The prop ${propName} is marked as required in ${componentName} when this component is shown in a dialog, but its value is ${props.closeDialog}`
+        )
+      }
+      if (typeof props.closeDialog !== 'function') {
+        return new Error(
+          `Invalid prop ${propName} of type ${typeof props.closeDialog} supplied to ${componentName}, expected 'function'`
+        )
+      }
     }
   }
 }
 
+CategoryItemDetail.defaultProps = {
+  dialog: false
+}
+
 const mapStateToProps = ({ settings, fields, items }, props) => {
-  const itemId = props.match.params.itemId
+  const itemId = props.dialog ? props.itemId : props.match.params.itemId
   return { 
     settings: settings.byId[props.categorySettingsId],
     isFetchingSettings: settings.flow.isFetching,
@@ -88,10 +112,6 @@ const mapStateToProps = ({ settings, fields, items }, props) => {
     item: props.categoryItemsIds.includes(itemId) ? items.byId[itemId] : null,
     isFetchingItems: items.flow.isFetching
   }
-}
-
-CategoryItemDetail.defaultProps = {
-  dialog: false
 }
 
 export default connect(mapStateToProps, null)(CategoryItemDetail)

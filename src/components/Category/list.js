@@ -364,10 +364,10 @@ let CategoryListContainer = class extends Component {
                 <Link
                   key={item.id}
                   tabIndex={-1}
-                  to={`/${categoryId}/${item.id}`}
+                  to={relationMode ? `/${categoryId}/${item.id}#dialog` : `/${categoryId}/${item.id}`}
                   onClick={ event => this._listItemClick(event, relationMode, item.id)}
                 >
-                  <ListItem button>
+                  <ListItem button disableRipple>
                     {showAvatar &&
                       <Avatar>
                         <Icon>{settings.icon}</Icon>
@@ -514,6 +514,9 @@ class CategoryList extends Component {
     const {
       categoryId,
       categoryLabel,
+      categorySettingsId,
+      categoryFieldsIds,
+      categoryItemsIds,
       settings,
       isFetchingSettings,
       fields,
@@ -586,11 +589,12 @@ class CategoryList extends Component {
         <Dialog fullWidth maxWidth="md" open={showDetailDialog} onRequestClose={this.detailDialogClosed}>
           <ItemDetail
             dialog
+            itemId={dialogItemId}
             closeDialog={this.closeDetailDialog}
-            id={dialogItemId}
             categoryId={categoryId}
-            settings={settings}
-            fields={fields}
+            categorySettingsId={categorySettingsId}
+            categoryFieldsIds={categoryFieldsIds}
+            categoryItemsIds={categoryItemsIds}
           />
         </Dialog>
       </HeaderLayout>
@@ -608,15 +612,15 @@ CategoryList.propTypes = {
    */
   categoryLabel: PropTypes.string.isRequired,
   /**
-   * Id of settings category. It obtain from parent element.
+   * Id of settings category. It obtains from parent element.
    */
   categorySettingsId: PropTypes.string.isRequired,
   /**
-   * All ids of category fields. It obtain from parent element.
+   * All ids of category fields. It obtains from parent element.
    */
   categoryFieldsIds: PropTypes.array.isRequired,
   /**
-   * All ids of category items. It obtain from parent element.
+   * All ids of category items. It obtains from parent element.
    */
   categoryItemsIds: PropTypes.array.isRequired,
   /**

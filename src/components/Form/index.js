@@ -1,7 +1,7 @@
 /*eslint-disable no-eval*/
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import Field from './field'
+import Field from './field/'
 import { withStyles } from 'material-ui/styles'
 
 class Item {
@@ -66,7 +66,7 @@ class Form extends Component {
     this.setState(prevState => {
       let item = prevState.item
       item[fieldId] = value
-      return item
+      return {...prevState, item}
     })
   }
 
@@ -95,7 +95,8 @@ class Form extends Component {
   }
 
   render = () => {
-    const { view, cols, fields, classes, theme } = this.props
+    console.log(this.state)
+    const { view, cols, fields, theme } = this.props
     const { item, size } = this.state
 
     const formStyle = cols => ({
@@ -117,7 +118,8 @@ class Form extends Component {
       }
   
       let formFieldStyle = {
-        paddingTop: theme.spacing.unit,
+        paddingTop: theme.spacing.unit/2,
+        paddingBottom: theme.spacing.unit/2,
         paddingLeft: theme.spacing.unit,
         paddingRight: theme.spacing.unit
       }
@@ -140,7 +142,6 @@ class Form extends Component {
       <form 
         onSubmit={ event => this._handleSubmit(event)}
         style={formStyle(cols)}
-        tabindex={0}
       >
         {
           fields.map(field => {
@@ -165,7 +166,7 @@ class Form extends Component {
                     options={field.options}
                     relation={field.relation}
                     order={fieldView.x || 0}
-                    handleFormFieldChange={ (fieldId, value) => 
+                    handleFormFieldChange={ (fieldId, value) =>
                       this.handleFieldChange(fieldId, value)
                     }
                   />

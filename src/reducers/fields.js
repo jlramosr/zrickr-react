@@ -52,11 +52,10 @@ const byId = (state = initialByIdState, action) => {
       return Object.keys(action.fields).reduce((fields, fieldId) => ({
         ...fields, 
         [fieldId]: {
-          ...state[fieldId],
           id: fieldId,
           ...action.fields[fieldId]
         }
-      }), {})
+      }), state)
     default:
       return state
   }

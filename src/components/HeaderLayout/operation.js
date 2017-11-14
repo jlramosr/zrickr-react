@@ -36,8 +36,8 @@ const Operation = props => {
 Operation.propTypes = {
   id: PropTypes.string.isRequired,
   icon: PropTypes.func.isRequired,
-  color: PropTypes.string.isRequired,
-  hidden: PropTypes.bool.isRequired,
+  color: PropTypes.string,
+  hidden: PropTypes.bool,
   to: PropTypes.string,
   description: PropTypes.string,
   onClick: PropTypes.func

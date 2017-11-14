@@ -53,7 +53,7 @@ const byId = (state = initialByIdState, action) => {
           id: itemId,
           ...action.items[itemId]
         }
-      }), {})
+      }), state)
     default:
       return state
   }
@@ -62,7 +62,7 @@ const byId = (state = initialByIdState, action) => {
 const allIds = (state = initialAllIdsState, action) => {
   switch (action.type) {
     case RECEIVE_CATEGORY_ITEMS:
-      return Object.keys(action.items)
+      return [...new Set(state, Object.keys(action.items))]
     default:
       return state
   }
