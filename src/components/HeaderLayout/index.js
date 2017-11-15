@@ -44,7 +44,7 @@ const HeaderLayout = props => {
       <div
         className={classes.toolbar}
         style={relative ? 
-          {position:'relative', zIndex: theme.zIndex.appBar} :
+          {position:'relative', zIndex: 0} :
           {position:'fixed', zIndex: theme.zIndex.appBar+1}}
       >
         <CustomToolbar {...rest}/>

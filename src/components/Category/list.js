@@ -418,7 +418,7 @@ CategoryListContainer.propTypes = {
   classes: PropTypes.object.isRequired,
   categoryId: PropTypes.string.isRequired,
   settings: PropTypes.object.isRequired,
-  history: PropTypes.object.isRequired,
+  history: PropTypes.object,
   dense: PropTypes.bool,
   items: PropTypes.array.isRequired,
   fields: PropTypes.array.isRequired,
@@ -645,7 +645,7 @@ CategoryList.propTypes = {
     description: PropTypes.string,
     /**
      * One of: 'string','text','number','boolean','list','select','relation','date','currency'.
-     * When type is 'list', there should be either 'items' or 'relation' property.
+     * When type is 'list', there should be a 'relation' property.
      * When type is 'select', there should be either 'options' or 'relation' property.
      */
     type: PropTypes.oneOf(['string','text','number','boolean','list','select','relation','date','currency']),
@@ -658,18 +658,14 @@ CategoryList.propTypes = {
      */
     required: PropTypes.bool,
     /**
+     * If it accepts more than one value (only it's good at fields with type 'select').
+     */
+    multi: PropTypes.bool,
+    /**
      * Possible values when type is 'select'. Property 'relation' is also possible when
      * field is a one-to-many relation.
      */
     options: PropTypes.arrayOf(PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      label: PropTypes.string.isRequired
-    })),
-    /**
-     * Possible values when type is 'list'. Property 'relation' is also possible when
-     * field is a one-to-many relation.
-     */
-    items: PropTypes.arrayOf(PropTypes.shape({
       id: PropTypes.string.isRequired,
       label: PropTypes.string.isRequired
     })),

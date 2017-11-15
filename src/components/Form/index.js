@@ -26,8 +26,18 @@ class Item {
   }
 }
 
-const styles = () => ({
-
+const styles = theme => ({
+  form: {
+    padding: theme.spacing.unit*2,
+    display: 'grid',
+    gridAutoFlow: 'row',
+    gridGap: '0px 0px',
+    justifyContent: 'stretch',
+    alignItems: 'center'
+  },
+  field: {
+    padding: `${theme.spacing.unit/2}px ${theme.spacing.unit}px`
+  }
 })
 
 class Form extends Component {
@@ -95,18 +105,12 @@ class Form extends Component {
   }
 
   render = () => {
-    console.log(this.state)
-    const { view, cols, fields, theme } = this.props
+    console.log(this.state.item)
+    const { view, cols, fields, classes } = this.props
     const { item, size } = this.state
 
     const formStyle = cols => ({
-      padding: theme.spacing.unit*2,
-      display: 'grid',
-      gridAutoFlow: 'row',
-      gridTemplateColumns: `repeat(${cols}, 1fr)`,
-      gridGap: '0px 0px',
-      justifyContent: 'stretch',
-      alignItems: 'center'
+      gridTemplateColumns: `repeat(${cols}, 1fr)`
     })
 
     const formFieldStyle = (item, fieldView, fieldId, cols) => {
@@ -117,30 +121,27 @@ class Form extends Component {
         return {display: 'none'}
       }
   
-      let formFieldStyle = {
-        paddingTop: theme.spacing.unit/2,
-        paddingBottom: theme.spacing.unit/2,
-        paddingLeft: theme.spacing.unit,
-        paddingRight: theme.spacing.unit
-      }
       const { x, y, xs, ys } = fieldView
       let rightBottomX = (xs + x) || 0
       let rightBottomY = (ys + y) || 0
       if (rightBottomY > cols+1) {
         rightBottomY = cols+1
-      } 
-      formFieldStyle['gridArea'] = `
-        ${x || 'auto'}/
-        ${y || 'auto'}/
-        ${rightBottomX || (xs ? `span ${xs}` : 'span 1')}/
-        ${rightBottomY || (ys ? `span ${ys}` : `span ${cols+1}`)}
-      `
-      return formFieldStyle
+      }
+
+      return {
+        gridArea: `
+          ${x || 'auto'}/
+          ${y || 'auto'}/
+          ${rightBottomX || (xs ? `span ${xs}` : 'span 1')}/
+          ${rightBottomY || (ys ? `span ${ys}` : `span ${cols+1}`)}
+        `
+      }
     }
 
     return (
       <form 
         onSubmit={ event => this._handleSubmit(event)}
+        className={classes.form}
         style={formStyle(cols)}
       >
         {
@@ -154,17 +155,14 @@ class Form extends Component {
               fieldView &&
                 <div
                   key={field.id}
+                  className={classes.field}
                   style={formFieldStyle(item, fieldView, field.id, cols)}
                 >
                   <Field
-                    id={field.id}
-                    type={field.type}
+                    {...field}
+                    value={item ? item[field.id] : ''}
                     label={this._getFieldLabel(field.label, fieldView)}
                     description={this._getFieldDescription(field.description, fieldView)}
-                    required={field.required}
-                    value={item ? item[field.id] : ''}
-                    options={field.options}
-                    relation={field.relation}
                     order={fieldView.x || 0}
                     handleFormFieldChange={ (fieldId, value) =>
                       this.handleFieldChange(fieldId, value)
