@@ -9,7 +9,6 @@ import 'react-virtualized/styles.css'
 import 'react-virtualized-select/styles.css'
 import { FormControl, FormLabel } from 'material-ui/Form'
 import { getItemInfo } from '../../category/utils/helpers'
-import Field from './index.js'
 
 const OptionRenderer = ({ option, selectValue, style }) => (
   <div key={option.id} onClick={() => selectValue(option)} style={style}>
@@ -125,9 +124,17 @@ class SelectField extends Component {
   }
 }
 
-SelectField.propTypes = Field.propTypes
-
-SelectField.defaultProps = {
+SelectField.propTypes = {
+  id: PropTypes.string.isRequired,
+  type: PropTypes.string.isRequired,
+  label: PropTypes.string,
+  description: PropTypes.string,
+  required: PropTypes.bool,
+  options: PropTypes.array,
+  relation: PropTypes.string,
+  value: PropTypes.any,
+  order: PropTypes.number,
+  handleFormFieldChange: PropTypes.func
 }
 
 const mapStateToProps = ({ settings, items }, props) => {

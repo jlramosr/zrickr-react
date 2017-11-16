@@ -103,7 +103,7 @@ const styles = theme => ({
 let CategoryListContainer = class extends Component {
   state = {
     /* Agenda */
-    agendaShowingItems: [],
+    agendaShowingItems: null,
     showMenuItem: false,
     itemMenuClicked: null,
     anchorEl: null,
@@ -114,25 +114,6 @@ let CategoryListContainer = class extends Component {
     allowedPageSizes: [20,50,200,500,0],
     columnOrder: null,
     columnWidths: null
-  }
-
-  _changeCurrentPage = currentPage => this.setState({ currentPage })
-  
-  _changePageSize = pageSize => this.setState({ pageSize })
-
-  _changeColumnOrder = columnOrder => this.setState({ columnOrder })
-
-  _changeColumnWidths = columnWidths => this.setState({ columnWidths })
-
-  _changeSelection = tableSelectedIndexes => this.setState({tableSelectedIndexes})
-
-  _tableRowClick = item => {
-    const { categoryId, history } = this.props
-    history.push(`${categoryId}/${item.id}`)
-  }
-
-  _changeFiltering = filters => {
-    console.log(filters)
   }
 
   _updateSearchQuery = searchQuery => {
@@ -148,15 +129,40 @@ let CategoryListContainer = class extends Component {
     this.setState({ agendaShowingItems })
   }
 
-  _listItemClick(event, relationMode, id) {
-    if (relationMode) {
+  _changeCurrentPage = currentPage => this.setState({ currentPage })
+  
+  _changePageSize = pageSize => this.setState({ pageSize })
+
+  _changeColumnOrder = columnOrder => this.setState({ columnOrder })
+
+  _changeColumnWidths = columnWidths => this.setState({ columnWidths })
+
+  _changeSelection = tableSelectedIndexes => this.setState({tableSelectedIndexes})
+
+  _changeFiltering = filters => {
+    console.log(filters)
+  }
+
+  _tableRowClick = (event,itemId) => {
+    if (this.props.relationMode) {
       event.preventDefault()
-      this.props.openDetailDialog(id)
+      this.props.openDetailDialog(itemId)
+    } else {
+      const { categoryId, history } = this.props
+      history.push(`${categoryId}/${itemId}`)
+    }
+  }
+
+  _listItemClick(event, itemId) {
+    if (this.props.relationMode) {
+      event.preventDefault()
+      this.props.openDetailDialog(itemId)
     }
   }
 
   _handleMenuItemClick = (event, itemId) => {
     event.preventDefault()
+    event.stopPropagation()
     this.setState({ showMenuItem: true, anchorEl: event.currentTarget, itemMenuClicked: itemId })
   }
 
@@ -164,11 +170,9 @@ let CategoryListContainer = class extends Component {
     this.setState({ showMenuItem: false, itemMenuClicked: null })
   }
 
-  componentWillReceiveProps = props => {
-    if (this.props.searchQuery !== props.searchQuery) {
-      this._updateSearchQuery(props.searchQuery)
-    } else {
-      this.setState({agendaShowingItems: props.items})
+  componentWillReceiveProps = nextProps => {
+    if (this.props.searchQuery !== nextProps.searchQuery) {
+      this._updateSearchQuery(nextProps.searchQuery)
     }
   }
 
@@ -185,7 +189,6 @@ let CategoryListContainer = class extends Component {
       relationMode
     } = this.props
     const { 
-      agendaShowingItems,
       tableSelectedIndexes,
       currentPage,
       pageSize,
@@ -195,6 +198,7 @@ let CategoryListContainer = class extends Component {
     } = this.state
     
     const showingFields = fields.filter(field => field.views.list)
+    const agendaShowingItems = this.state.agendaShowingItems || items
 
     const defaultOrder = showingFields.map(field => field.id)
     const defaultColumnWidths = showingFields.reduce(
@@ -260,66 +264,76 @@ let CategoryListContainer = class extends Component {
               pageSize={pageSize}
               onPageSizeChange={this._changePageSize}
             />
-            <FilteringState
-              defaultFilters={[]}
-              onFiltersChange={this._changeFiltering}
-            />
-            <GroupingState
-              defaultGroups={[]}
-            />
-            <ColumnOrderState
-              defaultOrder={defaultOrder}
-              order={columnOrder || defaultOrder}
-              onOrderChange={this._changeColumnOrder}
-            />
+            {!relationMode &&
+              <FilteringState
+                defaultFilters={[]}
+                onFiltersChange={this._changeFiltering}
+              />
+            }
+            {!relationMode &&
+              <GroupingState
+                defaultGroups={[]}
+              />
+            }
+            {!relationMode &&
+              <ColumnOrderState
+                defaultOrder={defaultOrder}
+                order={columnOrder || defaultOrder}
+                onOrderChange={this._changeColumnOrder}
+              />
+            }
             <LocalSorting />
-            <LocalFiltering />
-            <LocalGrouping />
+            {!relationMode && <LocalFiltering />}
+            {!relationMode && <LocalGrouping />}
             <LocalPaging />
-            <DragDropContext />
+            {!relationMode && <DragDropContext />}
             <SelectionState
               defaultSelection={[]}
               onSelectionChange={this._changeSelection}
             />
             <TableView
-              allowColumnReordering
+              allowColumnReordering={!relationMode}
               tableRowTemplate={({ children, row, tableRow }) => (
                 <TableRow
                   hover
                   selected={tableSelectedIndexes.includes(tableRow.rowId)}
                   className={classes.tableRow}
-                  onClick={() => this._tableRowClick(row)}
+                  onClick={event => this._tableRowClick(event,row.id)}
                 >
                   {children}
                 </TableRow>
               )}
             />
-            <TableColumnResizing
-              columnWidths={columnWidths || defaultColumnWidths}
-              onColumnWidthsChange={this._changeColumnWidths}
-            />
+            {!relationMode &&
+              <TableColumnResizing
+                columnWidths={columnWidths || defaultColumnWidths}
+                onColumnWidthsChange={this._changeColumnWidths}
+              />
+            }
             <TableHeaderRow
               allowSorting
-              allowDragging
-              allowResizing
+              allowDragging={!relationMode}
+              allowResizing={!relationMode}
               //allowGroupingByClick 
             />
-            <TableFilterRow />
+            {!relationMode && <TableFilterRow />}
             <TableSelection />
             <PagingPanel
               allowedPageSizes={allowedPageSizes}
             />
-            <GroupingPanel
-              allowSorting
-              allowDragging
-              allowUngroupingByClick
-            />
-            <TableGroupRow />
+            {!relationMode &&
+              <GroupingPanel
+                allowSorting
+                allowDragging
+                allowUngroupingByClick
+              />
+            }
+            {!relationMode && <TableGroupRow />}
           </Grid>
 
           <Snackbar
             anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-            open={tableSelectedIndexes.length}
+            open={Boolean(tableSelectedIndexes.length)}
             className={classes.snackbar}
             transitionDuration={{
               enter: 200,
@@ -365,7 +379,7 @@ let CategoryListContainer = class extends Component {
                   key={item.id}
                   tabIndex={-1}
                   to={relationMode ? `/${categoryId}/${item.id}#dialog` : `/${categoryId}/${item.id}`}
-                  onClick={ event => this._listItemClick(event, relationMode, item.id)}
+                  onClick={event => this._listItemClick(event, item.id)}
                 >
                   <ListItem button disableRipple>
                     {showAvatar &&

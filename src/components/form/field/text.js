@@ -33,9 +33,16 @@ let CustomTextField = props => {
 }
 
 CustomTextField.propTypes = {
-}
-
-CustomTextField.defaultProps = {
+  id: PropTypes.string.isRequired,
+  type: PropTypes.string.isRequired,
+  label: PropTypes.string,
+  description: PropTypes.string,
+  required: PropTypes.bool,
+  options: PropTypes.array,
+  relation: PropTypes.string,
+  value: PropTypes.any,
+  order: PropTypes.number,
+  handleFormFieldChange: PropTypes.func
 }
 
 export default CustomTextField

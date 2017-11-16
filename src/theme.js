@@ -116,14 +116,9 @@ theme = {
       }
     },
     MuiTableRow: {
-      root: {
-      },
       head: {
+        height: theme.standards.tableRowHeight,
         background: theme.standards.colors.secondary[50]
-      }
-    },
-    MuiTableHead: {
-      root: {
       }
     },
     TableHeaderCell: {
