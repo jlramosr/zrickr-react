@@ -1,43 +1,103 @@
 import { combineReducers } from 'redux'
+import { RECEIVE_CATEGORIES } from '../actions/categories'
 import { REQUEST_CATEGORY_ITEMS } from '../actions/items'
-import { RECEIVE_CATEGORY_ITEMS } from '../actions/items'
 import { REQUEST_CATEGORY_ITEMS_ERROR } from '../actions/items'
+import { RECEIVE_CATEGORY_ITEMS } from '../actions/items'
+import { REQUEST_CATEGORY_ITEM } from '../actions/items'
+import { REQUEST_CATEGORY_ITEM_ERROR } from '../actions/items'
+import { RECEIVE_CATEGORY_ITEM } from '../actions/items'
 
-const initialFlowState = {
-  isFetching: false,
-  fetchingAt: null,
-  isUpdating: false,
-  updatedAt: null,
-  isReceived: false,
-  receivedAt: null,
-  categoryId: null
+const initialFlowState = {}
+const initialCategoryFlowState = {
+  isFetchingAll: false,
+  fetchedAllAt: null,
+  isReceivedAll: false,
+  receivedAllAt: null,
+  errorFetchingAll: null,
+  isFetchingItem: false,
+  fetchedItemAt: null,
+  itemFetched: null,
+  isReceivedItem: false,
+  errorFetchingItem: null
 }
-
 const initialByIdState = {}
-
 const initialAllIdsState = []
 
 const flow = (state = initialFlowState, action) => {
   switch (action.type) {
+    case RECEIVE_CATEGORIES:
+      return Object.keys(action.categories).reduce((categories, categoryId) => ({
+        ...categories, 
+        [categoryId]: {
+          ...state[categoryId],
+          ...initialCategoryFlowState
+        }
+      }), {})
     case REQUEST_CATEGORY_ITEMS:
       return {
         ...state,
-        isFetching: true,
-        fetchingAt: action.fetchingAt
-      }
-    case RECEIVE_CATEGORY_ITEMS:
-      return {
-        ...state,
-        isFetching: false,
-        isReceived: true,
-        receivedAt: action.receivedAt
+        [action.categoryId]: {
+          ...state[action.categoryId],
+          isFetchingAll: true,
+          fetchedAllAt: action.fetchedAllAt,
+          isReceivedAll: false,
+          errorFetchingAll: null
+        }
       }
     case REQUEST_CATEGORY_ITEMS_ERROR:
       return {
         ...state,
-        isFetching: false,
-        isReceived: false,
-        errorFetching: action.errorFetching
+        [action.categoryId]: {
+          ...state[action.categoryId],
+          isFetchingAll: false,
+          isReceivedAll: false,
+          errorFetchingAll: action.errorFetchingAll
+        }
+      }
+    case RECEIVE_CATEGORY_ITEMS:
+      return {
+        ...state,
+        [action.categoryId]: {
+          ...state[action.categoryId],
+          isFetchingAll: false,
+          isReceivedAll: true,
+          receivedAllAt: action.receivedAllAt,
+          errorFetchingAll: null
+        }
+      }
+    case REQUEST_CATEGORY_ITEM:
+      return {
+        ...state,
+        [action.categoryId]: {
+          ...state[action.categoryId],
+          isFetchingItem: true,
+          fetchedItemAt: action.fetchedItemAt,
+          itemFetched: action.itemId,
+          isReceivedItem: false,
+          errorFetchingItem: null
+        }
+      }
+    case REQUEST_CATEGORY_ITEM_ERROR:
+      return {
+        ...state,
+        [action.categoryId]: {
+          ...state[action.categoryId],
+          isFetchingItem: false,
+          isReceivedItem: false,
+          errorFetchingItem: action.errorFetchingItem
+        }
+      }
+    case RECEIVE_CATEGORY_ITEM:
+      return {
+        ...state,
+        [action.categoryId]: {
+          ...state[action.categoryId],
+          isFetchingItem: false,
+          isReceivedItem: true,
+          receivedItemAt: action.receivedItemAt,
+          itemReceived: action.itemId,
+          errorFetchingItem: null
+        }
       }
     default:
       return state
@@ -54,6 +114,14 @@ const byId = (state = initialByIdState, action) => {
           ...action.items[itemId]
         }
       }), state)
+    case RECEIVE_CATEGORY_ITEM:
+      return {
+        ...state,
+        [action.itemId]: {
+          ...state[action.itemId],
+          ...action.item
+        }
+      }
     default:
       return state
   }

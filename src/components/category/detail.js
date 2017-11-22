@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import HeaderLayout from '../headerLayout'
+import { fetchItem } from '../../actions/items'
 import Form from '../form'
 import ArrowBack from 'material-ui-icons/ArrowBack'
 import Close from 'material-ui-icons/Close'
@@ -9,10 +10,15 @@ import Check from 'material-ui-icons/Check'
 import Edit from 'material-ui-icons/Edit'
 import Delete from 'material-ui-icons/Delete'
 import { getItemInfo } from './utils/helpers'
+import NotFound from '../notFound'
 
 class CategoryItemDetail extends Component {
   state = {
     editMode: false
+  }
+
+  componentWillMount = () => {
+    this.props.fetchItem()
   }
 
   _updateItem = () => {
@@ -34,29 +40,39 @@ class CategoryItemDetail extends Component {
       categoryId,
       settings,
       isFetchingSettings,
-      isFetchingFields,
-      isFetchingItems,
       fields,
+      isFetchingFields,
       item,
+      isFetchingItem,
+      //itemReceived,
       dialog,
       closeDialog
     } = this.props
     const { editMode } = this.state
+
     return (
-      <HeaderLayout
-        relative={dialog}
-        title={item ? getItemInfo(settings.primaryFields, item) : ''}
-        loading={isFetchingSettings || isFetchingFields || isFetchingItems }
-        operations={[
-          {id:'arrowBack', icon:ArrowBack, hidden:dialog, to:`/${categoryId}`},
-          {id:'close', icon:Close, hidden:!dialog, onClick:closeDialog},
-          {id:'check', icon:Check, right:true, hidden:!editMode, onClick:this._updateItem},
-          {id:'edit', icon:Edit, right:true, hidden:editMode, onClick:() => this._changeEditMode(true)},
-          {id:'delete', icon:Delete, right:true, hidden:editMode, onClick:this._deleteItem}
-        ]}
-      >
-        <Form cols={12} view="detail" fields={fields} values={item}/>
-      </HeaderLayout>
+      //itemReceived ? (
+      item ? (
+        <HeaderLayout
+          relative={dialog}
+          title={item ? getItemInfo(settings.primaryFields, item) : ''}
+          loading={isFetchingSettings || isFetchingFields || isFetchingItem }
+          operations={[
+            {id:'arrowBack', icon:ArrowBack, hidden:dialog, to:`/${categoryId}`},
+            {id:'close', icon:Close, hidden:!dialog, onClick:closeDialog},
+            {id:'check', icon:Check, right:true, hidden:!editMode, onClick:this._updateItem},
+            {id:'edit', icon:Edit, right:true, hidden:editMode, onClick:() => this._changeEditMode(true)},
+            {id:'delete', icon:Delete, right:true, hidden:editMode, onClick:this._deleteItem}
+          ]}
+        >
+          <Form cols={12} view="detail" fields={fields} values={item}/>
+        </HeaderLayout>
+      ) : (
+        <NotFound text="Item Not Found" />
+      )
+      //) : (
+      //  <NotFound text="Loading Item ..." />
+      //)
     )
   }
 }
@@ -100,18 +116,29 @@ CategoryItemDetail.defaultProps = {
   dialog: false
 }
 
-const mapStateToProps = ({ settings, fields, items }, props) => {
+const mapStateToProps = ({ categories, settings, fields, items }, props) => {
+  const categoryId = props.categoryId
   const itemId = props.dialog ? props.itemId : props.match.params.itemId
+  const category = categories.byId[categoryId]
   return { 
-    settings: settings.byId[props.categorySettingsId],
-    isFetchingSettings: settings.flow.isFetching,
+    settings: category.settings ? settings.byId[category.settings] : {},
+    isFetchingSettings: settings.flow[categoryId].isFetchingAll,
     fields: Object.values(fields.byId).filter(
-      field => props.categoryFieldsIds.includes(field.id)
+      field => category.fields && category.fields.includes(field.id)
     ),
-    isFetchingFields: fields.flow.isFetching,
-    item: props.categoryItemsIds.includes(itemId) ? items.byId[itemId] : null,
-    isFetchingItems: items.flow.isFetching
+    isFetchingFields: fields.flow[categoryId].isFetchingAll,
+    item: category.items && category.items.includes(itemId) ? items.byId[itemId] : null,
+    isFetchingItem: items.flow[categoryId].isFetchingItem
+    //itemReceived: items.flow[categoryId].isReceivedItem || items.flow[categoryId].errorFetchingItem
   }
 }
 
-export default connect(mapStateToProps, null)(CategoryItemDetail)
+const mapDispatchToProps = (dispatch, props) => {
+  const categoryId = props.categoryId
+  const itemId = props.dialog ? props.itemId : props.match.params.itemId
+  return {
+    fetchItem: () => dispatch(fetchItem(categoryId,itemId))
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(CategoryItemDetail)

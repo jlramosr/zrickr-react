@@ -7,18 +7,18 @@ export const REQUEST_CATEGORIES_ERROR = 'REQUEST_CATEGORIES_ERROR'
 
 export const requestCategories = () => ({
   type: REQUEST_CATEGORIES,
-  fetchingAt: Date.now()
+  fetchingAllAt: Date.now()
 })
 
 export const receiveCategories = categories => ({
   type: RECEIVE_CATEGORIES,
-  receivedAt: Date.now(),
+  receivedAllAt: Date.now(),
   categories
 })
 
 export const errorFetchingCategories = (categoryId, error) => ({
   type: REQUEST_CATEGORIES_ERROR,
-  errorFetching: `${Date.now()} ${error}`,
+  errorFetchingAll: `${Date.now()} ${error}`,
   categoryId
 })
 
@@ -40,10 +40,10 @@ export const shouldFetchCategories = state => {
   const { categories } = state
   if (!categories) {
     return true
-  } else if (categories.flow.isFetching) {
+  } else if (categories.flow.isFetchingAll) {
     return false
   }
-  return !categories.flow.isReceived
+  return !categories.flow.isReceivedAll
 }
 
 export const fetchCategoriesIfNeeded = () => {

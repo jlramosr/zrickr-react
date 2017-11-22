@@ -3,20 +3,8 @@ import { REQUEST_CATEGORY_SETTINGS } from '../actions/settings'
 import { RECEIVE_CATEGORY_SETTINGS } from '../actions/settings'
 import { REQUEST_CATEGORY_SETTINGS_ERROR } from '../actions/settings'
 
-const initialFlowState = {
-  isFetching: false,
-  fetchedAt: null,
-  errorFetching: null,
-  isUpdating: false,
-  updatedAt: null,
-  errorUpdating: null,
-  isReceived: false,
-  receivedAt: null,
-  categoryId: null
-}
-
+const initialFlowState = {}
 const initialByIdState = {}
-
 const initialAllIdsState = []
 
 const flow = (state = initialFlowState, action) => {
@@ -24,25 +12,32 @@ const flow = (state = initialFlowState, action) => {
     case REQUEST_CATEGORY_SETTINGS:
       return {
         ...state,
-        isFetching: true,
-        fetchedAt: action.fetchedAt,
-        categoryId: action.categoryId
+        [action.categoryId]: {
+          ...state[action.categoryId],
+          isFetchingAll: true,
+          fetchedAllAt: action.fetchedAllAt,
+          isReceivedAll: false
+        }
       }
     case RECEIVE_CATEGORY_SETTINGS:
       return {
         ...state,
-        isFetching: false,
-        isReceived: true,
-        receivedAt: action.receivedAt,
-        categoryId: action.categoryId
+        [action.categoryId]: {
+          ...state[action.categoryId],
+          isFetchingAll: false,
+          isReceivedAll: true,
+          receivedAllAt: action.receivedAllAt
+        }
       }
     case REQUEST_CATEGORY_SETTINGS_ERROR:
       return {
         ...state,
-        isFetching: false,
-        isReceived: false,
-        errorFetching: action.errorFetching,
-        categoryId: action.categoryId
+        [action.categoryId]: {
+          ...state[action.categoryId],
+          isFetchingAll: false,
+          isReceivedAll: false,
+          errorFetchingAll: action.errorFetchingAll
+        }
       }
     default:
       return state

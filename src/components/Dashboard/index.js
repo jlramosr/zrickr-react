@@ -103,8 +103,8 @@ Dashboard.propTypes = {
 const mapStateToProps = ({ app, categories, drawer }) => ({
   appName: app.name,
   categories: Object.values(categories.byId), 
-  isFetchingCategories: categories.flow.isFetching,
-  isReceivedCategories: categories.flow.isReceived,
+  isFetchingCategories: categories.flow.isFetchingAll,
+  isReceivedCategories: categories.flow.isReceivedAll,
   drawerOpened: drawer.opened
 })
 

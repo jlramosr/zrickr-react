@@ -6,20 +6,17 @@ import { REQUEST_CATEGORIES_ERROR } from '../actions/categories'
 import { RECEIVE_CATEGORY_SETTINGS } from '../actions/settings'
 import { RECEIVE_CATEGORY_FIELDS } from '../actions/fields'
 import { RECEIVE_CATEGORY_ITEMS } from '../actions/items'
+import { RECEIVE_CATEGORY_ITEM } from '../actions/items'
 
 const initialFlowState = {
-  isFetching: false,
-  fetchedAt: null,
-  errorFetching: null,
-  isUpdating: false,
-  updatedAt: null,
-  errorUpdating: null,
-  isReceived: false,
-  receivedAt: null
+  isFetchingAll: false,
+  fetchedAllAt: null,
+  errorFetchingAll: null,
+  errorUpdatingAll: null,
+  isReceivedAll: false,
+  receivedAllAt: null
 }
-
 const initialByIdState = {}
-
 const initialAllIdsState = []
 
 const flow = (state = initialFlowState, action) => {
@@ -28,8 +25,8 @@ const flow = (state = initialFlowState, action) => {
       if (action.payload) {
         return {
           ...action.payload.categories.flow,
-          isFetching: false,
-          isReceived: false
+          isFetchingAll: false,
+          isReceivedAll: false
         }
       }
       return state
@@ -37,22 +34,22 @@ const flow = (state = initialFlowState, action) => {
     case REQUEST_CATEGORIES:
       return {
         ...state,
-        isFetching: true,
-        fetchedAt: action.fetchingAt
+        isFetchingAll: true,
+        fetchedAtAll: action.fetchingAllAt
       }
     case RECEIVE_CATEGORIES:
       return {
         ...state,
-        isFetching: false,
-        isReceived: true,
-        receivedAt: action.receivedAt
+        isFetchingAll: false,
+        isReceivedAll: true,
+        receivedAllAt: action.receivedAllAt
       }
     case REQUEST_CATEGORIES_ERROR:
       return {
         ...state,
-        isFetching: false,
-        isReceived: false,
-        errorFetching: action.errorFetching
+        isFetchingAll: false,
+        isReceivedAll: false,
+        errorFetchingAll: action.errorFetchingAll
       }
     default:
       return state
@@ -92,6 +89,15 @@ const byId = (state = initialByIdState, action) => {
         [action.categoryId]: {
           ...state[action.categoryId],
           items: Object.keys(action.items)
+        }
+      }
+    }
+    case RECEIVE_CATEGORY_ITEM: {
+      return {
+        ...state,
+        [action.categoryId]: {
+          ...state[action.categoryId],
+          items: [...state[action.categoryId].items || [], action.itemId]
         }
       }
     }

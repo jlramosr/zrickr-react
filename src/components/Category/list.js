@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
+import { fetchItems } from '../../actions/items'
 import HeaderLayout from '../headerLayout'
 import List, { ListItem, ListItemSecondaryAction, ListItemText } from 'material-ui/List'
 import Divider from 'material-ui/Divider'
@@ -91,6 +92,9 @@ const styles = theme => ({
     [theme.breakpoints.up('sm')]: {
       minHeight: theme.standards.toolbarHeights.tabletDesktop
     }
+  },
+  relativeSnackbar: {
+
   },
   snackbarContent: {
     width: '100%',
@@ -334,7 +338,7 @@ let CategoryListContainer = class extends Component {
           <Snackbar
             anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
             open={Boolean(tableSelectedIndexes.length)}
-            className={classes.snackbar}
+            className={relationMode ? classes.relativeSnackbar : classes.snackbar}
             transitionDuration={{
               enter: 200,
               exit: 0
@@ -458,7 +462,7 @@ class CategoryList extends Component {
     showNewDialog: false,
     showDetailDialog: false,
     dialogItemId: '',
-    tableMode: null
+    tableMode: true
   }
 
   /**
@@ -523,14 +527,15 @@ class CategoryList extends Component {
   componentWillReceiveProps = props => {
     this.setState({tableMode: props.tableMode})
   }
+
+  componentWillMount = () => {
+    this.props.fetchItems()
+  }
   
   render = () => {
     const {
       categoryId,
       categoryLabel,
-      categorySettingsId,
-      categoryFieldsIds,
-      categoryItemsIds,
       settings,
       isFetchingSettings,
       fields,
@@ -606,9 +611,6 @@ class CategoryList extends Component {
             itemId={dialogItemId}
             closeDialog={this.closeDetailDialog}
             categoryId={categoryId}
-            categorySettingsId={categorySettingsId}
-            categoryFieldsIds={categoryFieldsIds}
-            categoryItemsIds={categoryItemsIds}
           />
         </Dialog>
       </HeaderLayout>
@@ -626,23 +628,11 @@ CategoryList.propTypes = {
    */
   categoryLabel: PropTypes.string.isRequired,
   /**
-   * Id of settings category. It obtains from parent element.
-   */
-  categorySettingsId: PropTypes.string.isRequired,
-  /**
-   * All ids of category fields. It obtains from parent element.
-   */
-  categoryFieldsIds: PropTypes.array.isRequired,
-  /**
-   * All ids of category items. It obtains from parent element.
-   */
-  categoryItemsIds: PropTypes.array.isRequired,
-  /**
-   * Category settings like color, main fields to get the title of an item, etc., gotten from 'categorySettingsId'
+   * Category settings like color, main fields to get the title of an item, etc.
    */
   settings: PropTypes.object,
   /**
-   * All category fields gotten from 'categoryFieldsIds'. It only be shown fields with property 'view.list'.
+   * All category fields. It only be shown fields with property 'view.list'.
    */
   fields: PropTypes.arrayOf(PropTypes.shape({
     /**
@@ -702,7 +692,7 @@ CategoryList.propTypes = {
     }))
   })).isRequired,
   /**
-   * All category items gotten from 'categoryItemsIds'.
+   * All category items.
    */
   items: PropTypes.array,
   /**
@@ -743,6 +733,7 @@ CategoryList.propTypes = {
 CategoryList.defaultProps = {
   settings: {},
   isFetchingSettings: false,
+  fields: {},
   isFetchingFields: false,
   items: [],
   isFetchingItems: false,
@@ -751,13 +742,21 @@ CategoryList.defaultProps = {
   showAvatar: true
 }
 
-const mapStateToProps = ({ settings, fields, items }, props) => ({
-  settings: settings.byId[props.categorySettingsId],
-  isFetchingSettings: settings.flow.isFetching,
-  fields: Object.values(fields.byId).filter(field => props.categoryFieldsIds.includes(field.id)),
-  isFetchingFields: fields.flow.isFetching,
-  items: Object.values(items.byId).filter(item => props.categoryItemsIds.includes(item.id)),
-  isFetchingItems: items.flow.isFetching
+const mapStateToProps = ({ categories, settings, fields, items }, props) => {
+  const categoryId = props.categoryId
+  const category = categories.byId[categoryId]
+  return {
+    settings: category.settings ? settings.byId[category.settings] : {},
+    isFetchingSettings: settings.flow[categoryId].isFetchingAll,
+    fields: Object.values(fields.byId).filter(field => category.fields && category.fields.includes(field.id)),
+    isFetchingFields: fields.flow[categoryId].isFetchingAll,
+    items: Object.values(items.byId).filter(item => category.items && category.items.includes(item.id)),
+    isFetchingItems: items.flow[categoryId].isFetchingAll
+  }
+}
+
+const mapDispatchToProps = (dispatch, props) => ({
+  fetchItems: () => dispatch(fetchItems(props.categoryId))
 })
 
-export default connect(mapStateToProps)(CategoryList)
+export default connect(mapStateToProps, mapDispatchToProps)(CategoryList)

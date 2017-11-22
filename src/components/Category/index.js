@@ -5,7 +5,6 @@ import { renderRoutes } from 'react-router-config'
 import { fetchCategoriesIfNeeded } from '../../actions/categories'
 import { fetchSettings } from '../../actions/settings'
 import { fetchFields } from '../../actions/fields'
-import { fetchItems } from '../../actions/items'
 import NotFound from '../notFound'
 
 class Category extends Component {
@@ -13,18 +12,15 @@ class Category extends Component {
     this.props.fetchCategoriesIfNeeded()
     this.props.fetchSettings()
     this.props.fetchFields()
-    this.props.fetchItems()
   }
 
   componentDidUpdate = prevProps => {
     /* If multi-user */
     const prevPath = prevProps.location.pathname
     const currentPath = this.props.location.pathname
-    const categoryId = this.props.match.params.categoryId
-    if (prevPath !== currentPath && currentPath === `/${categoryId}`) {
+    if (prevPath !== currentPath) {
       this.props.fetchSettings()
       this.props.fetchFields()
-      this.props.fetchItems()
     }
   }
 
@@ -37,22 +33,21 @@ class Category extends Component {
     } = this.props
     const categoryId = match.params.categoryId
     const category = categories.find(category => category.id === categoryId)
-    return categoriesReceived ? (
-      category ? (
-        <div>
-          {renderRoutes(route.routes, {
-            categoryId,
-            categoryLabel: category.label,
-            categorySettingsId: category.settings || {},
-            categoryFieldsIds: category.fields || [],
-            categoryItemsIds: category.items || []
-          })}
-        </div> 
+    return (
+      categoriesReceived ? (
+        category ? (
+          <div>
+            {renderRoutes(route.routes, {
+              categoryId,
+              categoryLabel: category.label
+            })}
+          </div> 
+        ) : (
+          <NotFound text="Category Not Found" />
+        )
       ) : (
-        <NotFound text="Category Not Found" />
+        <NotFound text="Loading Categories ..." />
       )
-    ) : (
-      <NotFound text="Loading Categories ..." />
     )
   }
 }
@@ -62,7 +57,6 @@ Category.propTypes = {
   categoriesReceived: PropTypes.bool.isRequired,
   fetchSettings: PropTypes.func.isRequired,
   fetchFields: PropTypes.func.isRequired,
-  fetchItems: PropTypes.func.isRequired,
   match: PropTypes.shape({
     params: PropTypes.shape({
       categoryId: PropTypes.string.isRequired
@@ -73,7 +67,7 @@ Category.propTypes = {
 
 const mapStateToProps = ({ categories }) => ({ 
   categories: Object.values(categories.byId),
-  categoriesReceived: categories.flow.isReceived
+  categoriesReceived: categories.flow.isReceivedAll
 })
 
 const mapDispatchToProps = (dispatch, props) => {
@@ -81,8 +75,7 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     fetchCategoriesIfNeeded: () => dispatch(fetchCategoriesIfNeeded()),
     fetchSettings: () => dispatch(fetchSettings(categoryId)),
-    fetchFields: () => dispatch(fetchFields(categoryId)),
-    fetchItems: () => dispatch(fetchItems(categoryId))
+    fetchFields: () => dispatch(fetchFields(categoryId))
   }
 }
 

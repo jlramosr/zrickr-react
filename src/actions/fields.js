@@ -6,20 +6,20 @@ export const REQUEST_CATEGORY_FIELDS_ERROR = 'REQUEST_CATEGORY_FIELDS_ERROR'
 
 export const requestFields = categoryId => ({
   type: REQUEST_CATEGORY_FIELDS,
-  fetchingAt: Date.now(),
+  fetchedAllAt: Date.now(),
   categoryId
 })
 
 export const receiveFields = (categoryId, fields) => ({
   type: RECEIVE_CATEGORY_FIELDS,
-  receivedAt: Date.now(),
+  receivedAllAt: Date.now(),
   categoryId,
   fields
 })
 
 export const errorFetchingFields = (categoryId, error) => ({
   type: REQUEST_CATEGORY_FIELDS_ERROR,
-  errorFetching: `${Date.now()} ${error}`,
+  errorFetchingAll: `${Date.now()} ${error}`,
   categoryId
 })
 
@@ -35,4 +35,28 @@ export const fetchFields = categoryId => dispatch => {
         dispatch(errorFetchingFields(categoryId, error))
       }
     )
+}
+
+export const shouldFetchFields = (state, categoryId) => {
+  const { categories, fields } = state
+  if (!categories) {
+    return true
+  } else if (!fields) {
+    return true
+  } else if (!categories.byId[categoryId]) {
+    return true
+  } else if (!categories.byId[categoryId].fields) {
+    return true
+  } else if (fields.flow[categoryId].isFetchingAll) {
+    return false
+  }
+  return !fields.flow[categoryId].isReceivedAll
+}
+
+export const fetchFieldsIfNeeded = categoryId => {
+  return (dispatch, getState) => {
+    if (shouldFetchFields(getState(), categoryId)) {
+      return dispatch(fetchFields(categoryId))
+    }
+  }
 }

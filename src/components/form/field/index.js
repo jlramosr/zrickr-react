@@ -1,6 +1,10 @@
-import React from 'react'
+import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
+import { fetchCategoriesIfNeeded } from '../../../actions/categories'
+import { fetchSettingsIfNeeded } from '../../../actions/settings'
+import { fetchFieldsIfNeeded } from '../../../actions/fields'
+import { fetchItemsIfNeeded } from '../../../actions/items'
 import { withStyles } from 'material-ui/styles'
 import SelectField from './select'
 import SwitchField from './switch'
@@ -71,12 +75,28 @@ const styles = theme => ({
   }
 })
 
-let Field = props => {
-  switch(props.type) {
-    case 'select': return <SelectField {...props} />
-    case 'boolean': return <SwitchField {...props} />
-    case 'list': return <ListField {...props} />
-    default: return <TextField {...props} />
+class Field extends Component {
+
+  componentWillMount = () => {
+    if (this.props.relation) {
+      this.props.fetchCategoriesIfNeeded()
+      this.props.fetchSettingsIfNeeded()
+      this.props.fetchFieldsIfNeeded()
+      this.props.fetchItemsIfNeeded()
+    }
+  }
+
+  componentDidUpdate = () => {
+
+  }
+
+  render = () => {
+    switch(this.props.type) {
+      case 'select': return <SelectField {...this.props} />
+      case 'boolean': return <SwitchField {...this.props} />
+      case 'list': return <ListField {...this.props} />
+      default: return <TextField {...this.props} />
+    }
   }
 }
 
@@ -145,4 +165,17 @@ const mapStateToProps = ({ categories }, props) => {
   return {}
 }
 
-export default connect(mapStateToProps)(withStyles(styles, {withTheme: true})(Field))
+const mapDispatchToProps = (dispatch, props) => {
+  const categoryId = props.relation
+  if (categoryId) {
+    return {
+      fetchCategoriesIfNeeded: () => dispatch(fetchCategoriesIfNeeded()),
+      fetchSettingsIfNeeded: () => dispatch(fetchSettingsIfNeeded(categoryId)),
+      fetchFieldsIfNeeded: () => dispatch(fetchFieldsIfNeeded(categoryId)),
+      fetchItemsIfNeeded: () => dispatch(fetchItemsIfNeeded(categoryId))
+    }
+  }
+  return {}
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles, {withTheme: true})(Field))

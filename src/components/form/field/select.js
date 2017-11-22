@@ -36,10 +36,7 @@ const OptionRenderer = ({ option, selectValue, style }) => (
 )
 
 class SelectField extends Component {
-  state = {
-    options: []
-  }
-
+  
   _getOptions() {
     return this.props.relation ?
       this.props.items.map(item => ({
@@ -50,19 +47,7 @@ class SelectField extends Component {
       this.props.options
   }
 
-  _loadOptions = (input, callback) => {
-    const data = {
-      options: this.state.options,
-      complete: false
-    }
-    callback(null, data)
-  }
-
   _arrowRenderer = () => <span>+</span>
-
-  componentWillMount() {
-    this.setState({options: this._getOptions()})
-  }
 
   render = () => {
     const {
@@ -72,12 +57,11 @@ class SelectField extends Component {
       relation,
       multi,
       handleFormFieldChange,
+      isFetchingSettings,
       isFetchingItems,
       classes
     } = this.props
-
-    const { options } = this.state
-
+    const options = this._getOptions()
     return (
       <FormControl fullWidth>
         {label && (
@@ -100,8 +84,7 @@ class SelectField extends Component {
             null
           }
           multi={multi}
-          loadOptions={this._loadOptions}
-          isLoading={isFetchingItems}
+          isLoading={isFetchingSettings || isFetchingItems}
           labelKey="label"
           valueKey="id"
           onChange={selectedOptions => {
@@ -138,12 +121,13 @@ SelectField.propTypes = {
 }
 
 const mapStateToProps = ({ settings, items }, props) => {
-  if (props.relation) {
+  const categoryId = props.relation
+  if (categoryId) {
     return {
       settings: settings.byId[props.relationSettingsId],
-      isFetchingSettings: settings.flow.isFetching,
+      isFetchingSettings: settings.flow[categoryId].isFetchingAll,
       items: Object.values(items.byId).filter(item => props.relationItemsIds.includes(item.id)),
-      isFetchingItems: items.flow.isFetching
+      isFetchingItems: items.flow[categoryId].isFetchingAll
     }
   }
   return {}

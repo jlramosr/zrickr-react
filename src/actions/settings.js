@@ -7,13 +7,13 @@ export const REQUEST_CATEGORY_SETTINGS_ERROR = 'REQUEST_CATEGORY_SETTINGS_ERROR'
 
 export const requestSettings = categoryId => ({
   type: REQUEST_CATEGORY_SETTINGS,
-  fetchedAt: Date.now(),
+  fetchedAllAt: Date.now(),
   categoryId
 })
 
 export const receiveSettings = (categoryId, settingsId, settings) => ({
   type: RECEIVE_CATEGORY_SETTINGS,
-  receivedAt: Date.now(),
+  receivedAllAt: Date.now(),
   categoryId,
   settingsId,
   settings
@@ -21,7 +21,7 @@ export const receiveSettings = (categoryId, settingsId, settings) => ({
 
 export const errorFetchingSettings = (categoryId, error) => ({
   type: REQUEST_CATEGORY_SETTINGS_ERROR,
-  errorFetching: `${Date.now()} ${error}`,
+  errorFetchingAll: `${Date.now()} ${error}`,
   categoryId
 })
 
@@ -39,4 +39,28 @@ export const fetchSettings = categoryId => dispatch => {
         dispatch(errorFetchingSettings(categoryId, error))
       }
     )
+}
+
+export const shouldFetchSettings = (state, categoryId) => {
+  const { categories, settings } = state
+  if (!categories) {
+    return true
+  } else if (!settings) {
+    return true
+  } else if (!categories.byId[categoryId]) {
+    return true
+  } else if (!categories.byId[categoryId].settings) {
+    return true
+  } else if (settings.flow[categoryId].isFetchingAll) {
+    return false
+  }
+  return !settings.flow[categoryId].isReceivedAll
+}
+
+export const fetchSettingsIfNeeded = categoryId => {
+  return (dispatch, getState) => {
+    if (shouldFetchSettings(getState(), categoryId)) {
+      return dispatch(fetchSettings(categoryId))
+    }
+  }
 }

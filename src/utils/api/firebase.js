@@ -16,9 +16,10 @@ const database = firebase.database()
 
 export default class firebaseAPI {
 
-  static getCollection = (collection, collectionId) => {
+  static getCollection = (collection, collectionId, documentId) => {
     let ref = database.ref(collection)
     if (collectionId) ref = ref.child(collectionId)
+    if (documentId) ref = ref.child(documentId)
     return new Promise((resolve, reject) => {
       ref.once('value').then( snapshot =>
         snapshot.val() ?

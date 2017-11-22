@@ -105,7 +105,7 @@ class Form extends Component {
   }
 
   render = () => {
-    console.log(this.state.item)
+    //console.log("FORM", this.state.item)
     const { view, cols, fields, classes } = this.props
     const { item, size } = this.state
 

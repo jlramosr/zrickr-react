@@ -3,18 +3,8 @@ import { REQUEST_CATEGORY_FIELDS } from '../actions/fields'
 import { RECEIVE_CATEGORY_FIELDS } from '../actions/fields'
 import { REQUEST_CATEGORY_FIELDS_ERROR } from '../actions/fields'
 
-const initialFlowState = {
-  isFetching: false,
-  fetchingAt: null,
-  isUpdating: false,
-  updatedAt: null,
-  isReceived: false,
-  receivedAt: null,
-  categoryId: null
-}
-
+const initialFlowState = {}
 const initialByIdState = {}
-
 const initialAllIdsState = []
 
 const flow = (state = initialFlowState, action) => {
@@ -22,24 +12,32 @@ const flow = (state = initialFlowState, action) => {
     case REQUEST_CATEGORY_FIELDS:
       return {
         ...state,
-        isFetching: true,
-        fetchingAt: action.fetchingAt,
-        categoryId: action.categoryId
+        [action.categoryId]: {
+          ...state[action.categoryId],
+          isFetchingAll: true,
+          fetchedAllAt: action.fetchedAllAt,
+          isReceivedAll: false
+        }
       }
     case RECEIVE_CATEGORY_FIELDS:
       return {
         ...state,
-        isFetching: false,
-        isReceived: true,
-        receivedAt: action.receivedAt,
-        categoryId: action.categoryId
+        [action.categoryId]: {
+          ...state[action.categoryId],
+          isFetchingAll: false,
+          isReceivedAll: true,
+          receivedAllAt: action.receivedAllAt
+        }
       }
     case REQUEST_CATEGORY_FIELDS_ERROR:
       return {
         ...state,
-        isFetching: false,
-        isReceived: false,
-        errorFetching: action.errorFetching
+        [action.categoryId]: {
+          ...state[action.categoryId],
+          isFetchingAll: false,
+          isReceivedAll: false,
+          errorFetchingAll: action.errorFetchingAll
+        }
       }
     default:
       return state

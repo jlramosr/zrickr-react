@@ -4,17 +4,19 @@ import Paper from 'material-ui/Paper'
 import CategoryList from '../../category/list'
 
 let ListField = props => {
-  const { relation, label, classes } = props
+  const {
+    relation,
+    relationLabel,
+    label,
+    classes 
+  } = props
   return (
     <Paper elevation={4} className={classes.list}>
       <CategoryList
         relationMode={true}
         tableMode={false}
         categoryId={relation}
-        categoryLabel={label || props.relationLabel}
-        categorySettingsId={props.relationSettingsId}
-        categoryFieldsIds={props.relationFieldsIds}
-        categoryItemsIds={props.relationItemsIds}
+        categoryLabel={label || relationLabel}
         showAvatar={false}
       />
     </Paper>
