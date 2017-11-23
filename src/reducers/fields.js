@@ -1,22 +1,37 @@
 import { combineReducers } from 'redux'
+import { RECEIVE_CATEGORIES } from '../actions/categories'
 import { REQUEST_CATEGORY_FIELDS } from '../actions/fields'
 import { RECEIVE_CATEGORY_FIELDS } from '../actions/fields'
 import { REQUEST_CATEGORY_FIELDS_ERROR } from '../actions/fields'
 
 const initialFlowState = {}
+const initialCategoryFlowState = {
+  isFetchingAll: false,
+  fetchedAllAt: null,
+  isReceivedAll: false,
+  receivedAllAt: null,
+  errorFetchingAll: null
+}
 const initialByIdState = {}
 const initialAllIdsState = []
 
 const flow = (state = initialFlowState, action) => {
   switch (action.type) {
+    case RECEIVE_CATEGORIES:
+      return Object.keys(action.categories).reduce((categories, categoryId) => ({
+        ...categories, 
+        [categoryId]: {
+          ...initialCategoryFlowState,
+          ...state[categoryId]
+        }
+      }), {})
     case REQUEST_CATEGORY_FIELDS:
       return {
         ...state,
         [action.categoryId]: {
           ...state[action.categoryId],
           isFetchingAll: true,
-          fetchedAllAt: action.fetchedAllAt,
-          isReceivedAll: false
+          fetchedAllAt: action.fetchedAllAt
         }
       }
     case RECEIVE_CATEGORY_FIELDS:

@@ -17,7 +17,12 @@ class CategoryItemDetail extends Component {
     editMode: false
   }
 
+  componentWillUnmount = () => {
+    //console.log('DETAIL UNMOUNTED')
+  }
+
   componentWillMount = () => {
+    //console.log('DETAIL MOUNTED')
     this.props.fetchItem()
   }
 
@@ -49,7 +54,6 @@ class CategoryItemDetail extends Component {
       closeDialog
     } = this.props
     const { editMode } = this.state
-
     return (
       //itemReceived ? (
       item ? (
@@ -65,7 +69,7 @@ class CategoryItemDetail extends Component {
             {id:'delete', icon:Delete, right:true, hidden:editMode, onClick:this._deleteItem}
           ]}
         >
-          <Form cols={12} view="detail" fields={fields} values={item}/>
+          <Form key="1" cols={12} view="detail" fields={fields} values={item}/>
         </HeaderLayout>
       ) : (
         <NotFound text="Item Not Found" />
@@ -122,7 +126,7 @@ const mapStateToProps = ({ categories, settings, fields, items }, props) => {
   const category = categories.byId[categoryId]
   return { 
     settings: category.settings ? settings.byId[category.settings] : {},
-    isFetchingSettings: settings.flow[categoryId].isFetchingAll,
+    isFetchingSettings: settings.flow[categoryId].isFetching,
     fields: Object.values(fields.byId).filter(
       field => category.fields && category.fields.includes(field.id)
     ),

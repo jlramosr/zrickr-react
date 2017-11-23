@@ -1,22 +1,37 @@
 import { combineReducers } from 'redux'
+import { RECEIVE_CATEGORIES } from '../actions/categories'
 import { REQUEST_CATEGORY_SETTINGS } from '../actions/settings'
 import { RECEIVE_CATEGORY_SETTINGS } from '../actions/settings'
 import { REQUEST_CATEGORY_SETTINGS_ERROR } from '../actions/settings'
 
 const initialFlowState = {}
+const initialCategoryFlowState = {
+  isFetching: false,
+  fetchedAt: null,
+  isReceived: false,
+  receivedAt: null,
+  errorFetching: null
+}
 const initialByIdState = {}
 const initialAllIdsState = []
 
 const flow = (state = initialFlowState, action) => {
   switch (action.type) {
+    case RECEIVE_CATEGORIES:
+      return Object.keys(action.categories).reduce((categories, categoryId) => ({
+        ...categories, 
+        [categoryId]: {
+          ...initialCategoryFlowState,
+          ...state[categoryId]
+        }
+      }), {})
     case REQUEST_CATEGORY_SETTINGS:
       return {
         ...state,
         [action.categoryId]: {
           ...state[action.categoryId],
-          isFetchingAll: true,
-          fetchedAllAt: action.fetchedAllAt,
-          isReceivedAll: false
+          isFetching: true,
+          fetchedAt: action.fetchedAt
         }
       }
     case RECEIVE_CATEGORY_SETTINGS:
@@ -24,9 +39,9 @@ const flow = (state = initialFlowState, action) => {
         ...state,
         [action.categoryId]: {
           ...state[action.categoryId],
-          isFetchingAll: false,
-          isReceivedAll: true,
-          receivedAllAt: action.receivedAllAt
+          isFetching: false,
+          isReceived: true,
+          receivedAt: action.receivedAt
         }
       }
     case REQUEST_CATEGORY_SETTINGS_ERROR:
@@ -34,9 +49,9 @@ const flow = (state = initialFlowState, action) => {
         ...state,
         [action.categoryId]: {
           ...state[action.categoryId],
-          isFetchingAll: false,
-          isReceivedAll: false,
-          errorFetchingAll: action.errorFetchingAll
+          isFetching: false,
+          isReceived: false,
+          errorFetching: action.errorFetching
         }
       }
     default:

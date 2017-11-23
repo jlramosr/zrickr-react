@@ -1,26 +1,39 @@
-import React from 'react'
+import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
+import { fetchSettingsIfNeeded } from '../../../actions/settings'
+import { fetchFieldsIfNeeded } from '../../../actions/fields'
 import Paper from 'material-ui/Paper'
 import CategoryList from '../../category/list'
 
-let ListField = props => {
-  const {
-    relation,
-    relationLabel,
-    label,
-    classes 
-  } = props
-  return (
-    <Paper elevation={4} className={classes.list}>
-      <CategoryList
-        relationMode={true}
-        tableMode={false}
-        categoryId={relation}
-        categoryLabel={label || relationLabel}
-        showAvatar={false}
-      />
-    </Paper>
-  )
+class ListField extends Component {
+
+  componentWillMount = () => {
+    if (this.props.relation) {
+      this.props.fetchSettingsIfNeeded()
+      this.props.fetchFieldsIfNeeded()
+    }
+  }
+
+  render = () => {
+    const {
+      relation,
+      relationLabel,
+      label,
+      classes 
+    } = this.props
+    return (
+      <Paper elevation={4} className={classes.list}>
+        <CategoryList
+          categoryId={relation}
+          categoryLabel={label || relationLabel}
+          relationMode={true}
+          tableMode={false}
+          showAvatar={false}
+        />
+      </Paper>
+    )
+  }
 }
 
 ListField.propTypes = {
@@ -36,4 +49,12 @@ ListField.propTypes = {
   handleFormFieldChange: PropTypes.func
 }
 
-export default ListField
+const mapDispatchToProps = (dispatch, props) => {
+  const categoryId = props.relation
+  return {
+    fetchSettingsIfNeeded: () => dispatch(fetchSettingsIfNeeded(categoryId)),
+    fetchFieldsIfNeeded: () => dispatch(fetchFieldsIfNeeded(categoryId))
+  }
+}
+
+export default connect(null, mapDispatchToProps)(ListField)

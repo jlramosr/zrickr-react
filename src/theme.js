@@ -122,7 +122,7 @@ theme = {
       }
     },
     TableHeaderCell: {
-      title: {
+      cell: {
         fontWeight: 700
       }
     },
@@ -142,6 +142,11 @@ theme = {
     TableSelectCell: {
       cell: {
         paddingLeft: theme.spacing.unit*2
+      },
+      checkbox: {
+        width: theme.standards.tableRowHeight,
+        height: theme.standards.tableRowHeight,
+        marginTop: 2
       }
     },
     TableSelectAllCell: {

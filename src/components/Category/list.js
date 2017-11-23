@@ -17,7 +17,6 @@ import {
   LocalGrouping,
   FilteringState,
   LocalFiltering,
-  ColumnOrderState,
   TableColumnResizing
 } from '@devexpress/dx-react-grid'
 import {
@@ -197,14 +196,12 @@ let CategoryListContainer = class extends Component {
       currentPage,
       pageSize,
       allowedPageSizes,
-      columnOrder,
       columnWidths
     } = this.state
     
     const showingFields = fields.filter(field => field.views.list)
     const agendaShowingItems = this.state.agendaShowingItems || items
 
-    const defaultOrder = showingFields.map(field => field.id)
     const defaultColumnWidths = showingFields.reduce(
       (accumulator, currentField) => (
         {...accumulator, [currentField.id]: 100 * (currentField.views.list.ys || 1)}),
@@ -277,13 +274,6 @@ let CategoryListContainer = class extends Component {
             {!relationMode &&
               <GroupingState
                 defaultGroups={[]}
-              />
-            }
-            {!relationMode &&
-              <ColumnOrderState
-                defaultOrder={defaultOrder}
-                order={columnOrder || defaultOrder}
-                onOrderChange={this._changeColumnOrder}
               />
             }
             <LocalSorting />
@@ -529,7 +519,12 @@ class CategoryList extends Component {
   }
 
   componentWillMount = () => {
+    //if (!this.props.relationMode) console.log('LIST MOUNTED')
     this.props.fetchItems()
+  }
+
+  componentWillUnmount = () => {
+    //if (!this.props.relationMode) console.log('LIST UNMOUNTED')
   }
   
   render = () => {
@@ -747,10 +742,10 @@ const mapStateToProps = ({ categories, settings, fields, items }, props) => {
   const category = categories.byId[categoryId]
   return {
     settings: category.settings ? settings.byId[category.settings] : {},
-    isFetchingSettings: settings.flow[categoryId].isFetchingAll,
-    fields: Object.values(fields.byId).filter(field => category.fields && category.fields.includes(field.id)),
+    isFetchingSettings: settings.flow[categoryId].isFetching,
+    fields: Object.values(fields.byId).filter(field => category.fields.includes(field.id)),
     isFetchingFields: fields.flow[categoryId].isFetchingAll,
-    items: Object.values(items.byId).filter(item => category.items && category.items.includes(item.id)),
+    items: Object.values(items.byId).filter(item => category.items.includes(item.id)),
     isFetchingItems: items.flow[categoryId].isFetchingAll
   }
 }

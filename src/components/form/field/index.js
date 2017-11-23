@@ -1,10 +1,5 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
+import React from 'react'
 import PropTypes from 'prop-types'
-import { fetchCategoriesIfNeeded } from '../../../actions/categories'
-import { fetchSettingsIfNeeded } from '../../../actions/settings'
-import { fetchFieldsIfNeeded } from '../../../actions/fields'
-import { fetchItemsIfNeeded } from '../../../actions/items'
 import { withStyles } from 'material-ui/styles'
 import SelectField from './select'
 import SwitchField from './switch'
@@ -23,7 +18,7 @@ const inputCommon = theme => ({
   transition: theme.transitions.create(['border-color', 'box-shadow']),
   '&:focus': {
     borderColor: theme.palette.primary[500],
-    boxShadow: `0 0 0 0.1rem ${theme.palette.primary[500]}`
+    boxShadow: `0 0 0 0.1rem ${theme.palette.primary[500]}`,
   }
 })
 
@@ -46,7 +41,12 @@ const styles = theme => ({
       paddingLeft: 0
     },
     '& .Select-value': {
-      paddingLeft: `${paddingLeftCommon}px !important`
+      ...inputCommon(theme),
+      paddingLeft: `${paddingLeftCommon}px !important`,
+      border: 0
+    },
+    '& .Select-menu-outer': {
+      padding: 0
     }
   },
   textarea: {
@@ -75,28 +75,12 @@ const styles = theme => ({
   }
 })
 
-class Field extends Component {
-
-  componentWillMount = () => {
-    if (this.props.relation) {
-      this.props.fetchCategoriesIfNeeded()
-      this.props.fetchSettingsIfNeeded()
-      this.props.fetchFieldsIfNeeded()
-      this.props.fetchItemsIfNeeded()
-    }
-  }
-
-  componentDidUpdate = () => {
-
-  }
-
-  render = () => {
-    switch(this.props.type) {
-      case 'select': return <SelectField {...this.props} />
-      case 'boolean': return <SwitchField {...this.props} />
-      case 'list': return <ListField {...this.props} />
-      default: return <TextField {...this.props} />
-    }
+let Field = props => {
+  switch(props.type) {
+    case 'select': return <SelectField {...props} />
+    case 'boolean': return <SwitchField {...props} />
+    case 'list': return <ListField {...props} />
+    default: return <TextField {...props} />
   }
 }
 
@@ -153,29 +137,4 @@ Field.defaultProps = {
   type: 'string'
 }
 
-const mapStateToProps = ({ categories }, props) => {
-  if (props.relation) {
-    return {
-      relationLabel: categories.byId[props.relation].label || '',
-      relationSettingsId: categories.byId[props.relation].settings || {},
-      relationFieldsIds: categories.byId[props.relation].fields || [],
-      relationItemsIds: categories.byId[props.relation].items || []
-    }
-  }
-  return {}
-}
-
-const mapDispatchToProps = (dispatch, props) => {
-  const categoryId = props.relation
-  if (categoryId) {
-    return {
-      fetchCategoriesIfNeeded: () => dispatch(fetchCategoriesIfNeeded()),
-      fetchSettingsIfNeeded: () => dispatch(fetchSettingsIfNeeded(categoryId)),
-      fetchFieldsIfNeeded: () => dispatch(fetchFieldsIfNeeded(categoryId)),
-      fetchItemsIfNeeded: () => dispatch(fetchItemsIfNeeded(categoryId))
-    }
-  }
-  return {}
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles, {withTheme: true})(Field))
+export default (withStyles(styles, {withTheme: true})(Field))

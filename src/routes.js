@@ -6,12 +6,11 @@ import CategoryItemDetail from './components/category/detail'
 
 export default [{
   component: App,
-  exact: true,
   routes: [
     { path: '/', exact: true, component: Dashboard },
     { path: '/:categoryId', component: Category, routes: [
       { path: '/:categoryId', exact: true, component: CategoryList },
-      { path: '/:categoryId/:itemId', component: CategoryItemDetail }
+      { path: '/:categoryId/:itemId', exact: true, component: CategoryItemDetail }
     ]}
   ]
 }]

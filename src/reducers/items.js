@@ -29,8 +29,8 @@ const flow = (state = initialFlowState, action) => {
       return Object.keys(action.categories).reduce((categories, categoryId) => ({
         ...categories, 
         [categoryId]: {
-          ...state[categoryId],
-          ...initialCategoryFlowState
+          ...initialCategoryFlowState,
+          ...state[categoryId]
         }
       }), {})
     case REQUEST_CATEGORY_ITEMS:
@@ -40,7 +40,6 @@ const flow = (state = initialFlowState, action) => {
           ...state[action.categoryId],
           isFetchingAll: true,
           fetchedAllAt: action.fetchedAllAt,
-          isReceivedAll: false,
           errorFetchingAll: null
         }
       }
@@ -73,7 +72,6 @@ const flow = (state = initialFlowState, action) => {
           isFetchingItem: true,
           fetchedItemAt: action.fetchedItemAt,
           itemFetched: action.itemId,
-          isReceivedItem: false,
           errorFetchingItem: null
         }
       }

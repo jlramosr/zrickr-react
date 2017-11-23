@@ -41,19 +41,17 @@ export const fetchItems = categoryId => dispatch => {
 }
 
 export const shouldFetchItems = (state, categoryId) => {
-  const { categories, items } = state
-  if (!categories) {
+  const { items } = state
+  if (!items) {
     return true
-  } else if (!items) {
-    return true
-  } else if (!categories.byId[categoryId]) {
-    return true
-  } else if (!categories.byId[categoryId].items) {
+  } else if (!items.flow[categoryId]) {
     return true
   } else if (items.flow[categoryId].isFetchingAll) {
     return false
+  } else if (Date.now() - (items.flow[categoryId].fetchedAllAt || 100) < 100) {
+    return false
   }
-  return !items.flow[categoryId].isReceivedAll
+  return true
 }
 
 export const fetchItemsIfNeeded = categoryId => {
@@ -109,10 +107,10 @@ export const shouldFetchItem = (state, categoryId, itemId) => {
     return true
   } else if (!categories.byId[categoryId].items) {
     return true
+  } else if (items.flow[categoryId].isFetchingItem) {
+    return false
   } else if (!categories.byId[categoryId].items.find(item => item === itemId)) {
     return true
-  } else if (items.flow[categoryId].isFetchingItem && items.flow[categoryId].itemFetched === itemId) {
-    return false
   }
   return false
 }

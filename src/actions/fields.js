@@ -38,19 +38,17 @@ export const fetchFields = categoryId => dispatch => {
 }
 
 export const shouldFetchFields = (state, categoryId) => {
-  const { categories, fields } = state
-  if (!categories) {
+  const { fields } = state
+  if (!fields) {
     return true
-  } else if (!fields) {
-    return true
-  } else if (!categories.byId[categoryId]) {
-    return true
-  } else if (!categories.byId[categoryId].fields) {
+  } else if (!fields.flow[categoryId]) {
     return true
   } else if (fields.flow[categoryId].isFetchingAll) {
     return false
+  } else if (Date.now() - (fields.flow[categoryId].fetchedAllAt || 100) < 100) {
+    return false
   }
-  return !fields.flow[categoryId].isReceivedAll
+  return true
 }
 
 export const fetchFieldsIfNeeded = categoryId => {

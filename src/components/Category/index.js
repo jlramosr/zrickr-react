@@ -3,8 +3,8 @@ import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { renderRoutes } from 'react-router-config'
 import { fetchCategoriesIfNeeded } from '../../actions/categories'
-import { fetchSettings } from '../../actions/settings'
-import { fetchFields } from '../../actions/fields'
+import { fetchSettings, fetchSettingsIfNeeded } from '../../actions/settings'
+import { fetchFields, fetchFieldsIfNeeded } from '../../actions/fields'
 import NotFound from '../notFound'
 
 class Category extends Component {
@@ -19,8 +19,8 @@ class Category extends Component {
     const prevPath = prevProps.location.pathname
     const currentPath = this.props.location.pathname
     if (prevPath !== currentPath) {
-      this.props.fetchSettings()
-      this.props.fetchFields()
+      this.props.fetchSettingsIfNeeded()
+      this.props.fetchFieldsIfNeeded()
     }
   }
 
@@ -75,7 +75,9 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     fetchCategoriesIfNeeded: () => dispatch(fetchCategoriesIfNeeded()),
     fetchSettings: () => dispatch(fetchSettings(categoryId)),
-    fetchFields: () => dispatch(fetchFields(categoryId))
+    fetchSettingsIfNeeded: () => dispatch(fetchSettingsIfNeeded(categoryId)),
+    fetchFields: () => dispatch(fetchFields(categoryId)),
+    fetchFieldsIfNeeded: () => dispatch(fetchFieldsIfNeeded(categoryId))
   }
 }
 

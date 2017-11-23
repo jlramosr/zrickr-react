@@ -1,6 +1,9 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
+import { fetchSettingsIfNeeded } from '../../../actions/settings'
+import { fetchFieldsIfNeeded } from '../../../actions/fields'
+import { fetchItemsIfNeeded } from '../../../actions/items'
 import { ListItem, ListItemText } from 'material-ui/List'
 import Divider from 'material-ui/Divider'
 import VirtualizedSelect from 'react-virtualized-select'
@@ -36,7 +39,15 @@ const OptionRenderer = ({ option, selectValue, style }) => (
 )
 
 class SelectField extends Component {
-  
+
+  componentWillMount = () => {
+    if (this.props.relation) {
+      this.props.fetchSettingsIfNeeded()
+      this.props.fetchFieldsIfNeeded()
+      this.props.fetchItemsIfNeeded()
+    }
+  }
+
   _getOptions() {
     return this.props.relation ?
       this.props.items.map(item => ({
@@ -58,6 +69,7 @@ class SelectField extends Component {
       multi,
       handleFormFieldChange,
       isFetchingSettings,
+      isFetchingFields,
       isFetchingItems,
       classes
     } = this.props
@@ -84,7 +96,7 @@ class SelectField extends Component {
             null
           }
           multi={multi}
-          isLoading={isFetchingSettings || isFetchingItems}
+          isLoading={isFetchingSettings || isFetchingFields || isFetchingItems}
           labelKey="label"
           valueKey="id"
           onChange={selectedOptions => {
@@ -120,17 +132,32 @@ SelectField.propTypes = {
   handleFormFieldChange: PropTypes.func
 }
 
-const mapStateToProps = ({ settings, items }, props) => {
+const mapStateToProps = ({ categories, settings, fields, items }, props) => {
   const categoryId = props.relation
+  const category = categories.byId[categoryId]
   if (categoryId) {
     return {
-      settings: settings.byId[props.relationSettingsId],
-      isFetchingSettings: settings.flow[categoryId].isFetchingAll,
-      items: Object.values(items.byId).filter(item => props.relationItemsIds.includes(item.id)),
+      settings: category.settings ? settings.byId[category.settings] : {},
+      isFetchingSettings: settings.flow[categoryId].isFetching,
+      fields: Object.values(fields.byId).filter(item => category.fields.includes(item.id)),
+      isFetchingFields: fields.flow[categoryId].isFetchingAll,
+      items: Object.values(items.byId).filter(item => category.items.includes(item.id)),
       isFetchingItems: items.flow[categoryId].isFetchingAll
     }
   }
   return {}
 }
 
-export default connect(mapStateToProps)(SelectField)
+const mapDispatchToProps = (dispatch, props) => {
+  const categoryId = props.relation
+  if (categoryId) {
+    return {
+      fetchSettingsIfNeeded: () => dispatch(fetchSettingsIfNeeded(categoryId)),
+      fetchFieldsIfNeeded: () => dispatch(fetchFieldsIfNeeded(categoryId)),
+      fetchItemsIfNeeded: () => dispatch(fetchItemsIfNeeded(categoryId))
+    }
+  }
+  return {}
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(SelectField)

@@ -46,7 +46,8 @@ class Form extends Component {
     size: ''
   }
 
-  _getFieldLabel = (label, fieldView) => fieldView.nolabel ? ' ' : label
+  _getFieldLabel = (label, fieldView) =>
+    fieldView.nolabel ? ' ' : label
   
   _getFieldDescription = (description, fieldView) => 
     fieldView.nodescription ? '' : description || ''
@@ -81,6 +82,7 @@ class Form extends Component {
   }
 
   componentWillMount = () => {
+    //console.log('MOUNT FORM', this.props)
     const { fields, values, theme } = this.props
     let item = new Item(values)
     for (const field of fields) {
@@ -99,6 +101,7 @@ class Form extends Component {
   }
 
   componentWillUnmount = () => {
+    //console.log('UNMOUNT FORM')
     window.removeEventListener('resize', () =>
       this._resize(this.props.theme)
     )
@@ -191,4 +194,3 @@ Form.defaultProps = {
 }
 
 export default withStyles(styles, {withTheme:true})(Form)
-
