@@ -112,7 +112,22 @@ theme = {
 
     GridLayout: {
       headingPanel: {
-        background: theme.standards.colors.secondary[100]
+        background: theme.standards.colors.secondary[100],
+        fontSize: 14,
+        paddingTop: theme.spacing.unit/2,
+        paddingBottom: theme.spacing.unit/2,
+        paddingRigth: theme.spacing.unit*3,
+        paddingLeft: theme.spacing.unit*3,
+        height: 32,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden'
+      },
+      footerPanel: {
+        position: 'absolute',
+        bottom: 0,
+        right: 0,
+        width: '100%',
+        padding: theme.spacing.unit
       }
     },
     MuiTableRow: {
@@ -137,6 +152,14 @@ theme = {
         width: theme.standards.tableRowHeight,
         height: theme.standards.tableRowHeight,
         marginTop: 2
+      }
+    },
+    TableContainer: {
+      root: {
+        height: 'calc(100vh - 156px) !important',
+        [theme.breakpoints.up('sm')]: {
+          height: 'calc(100vh - 164px) !important'
+        }
       }
     },
     TableSelectCell: {

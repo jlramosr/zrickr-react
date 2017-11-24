@@ -1,6 +1,6 @@
-import { createStore, applyMiddleware, compose } from 'redux'
-import { persistCombineReducers , persistStore } from 'redux-persist'
-import storage from 'redux-persist/es/storage'
+import { createStore, applyMiddleware, combineReducers, compose } from 'redux'
+import { offline  } from '@redux-offline/redux-offline'
+import defaultConfig from '@redux-offline/redux-offline/lib/defaults'
 import { routerReducer, routerMiddleware } from 'react-router-redux'
 import createHistory from 'history/createBrowserHistory'
 import thunk from 'redux-thunk'
@@ -12,34 +12,29 @@ import fields from './reducers/fields'
 import items from './reducers/items'
 import drawer from './reducers/drawer'
 
-const config = {
-  key: 'root',
-  storage
+const offlineConfig = {
+  ...defaultConfig
 }
+
+const reducer = combineReducers({
+  router: routerReducer,
+  app,
+  categories,
+  settings,
+  fields,
+  items,
+  drawer
+})
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
 
 export const history = createHistory()
 
-const configureStore = () => {
-  const store = createStore(
-    persistCombineReducers(config, {
-      router: routerReducer,
-      app,
-      categories,
-      settings,
-      fields,
-      items,
-      drawer
-    }),
-    composeEnhancers(
-      applyMiddleware(thunk, routerMiddleware(history), /*logger*/)
-    )
-  )
-
-  const persistor = persistStore(store)
-
-  return { persistor, store }
-}
-
-export default configureStore
+export default createStore(
+  reducer,
+  undefined, //preloadedState
+  composeEnhancers(
+    applyMiddleware(thunk, routerMiddleware(history) /*logger*/),
+    offline(offlineConfig)
+  ),
+)

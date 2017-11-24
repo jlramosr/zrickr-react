@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
-import { fetchItems } from '../../actions/items'
+import { fetchItems, fetchItemsIfNeeded } from '../../actions/items'
 import HeaderLayout from '../headerLayout'
 import List, { ListItem, ListItemSecondaryAction, ListItemText } from 'material-ui/List'
 import Divider from 'material-ui/Divider'
@@ -21,7 +21,7 @@ import {
 } from '@devexpress/dx-react-grid'
 import {
   Grid,
-  TableView,
+  VirtualTableView,
   TableHeaderRow,
   TableFilterRow,
   TableGroupRow,
@@ -285,7 +285,8 @@ let CategoryListContainer = class extends Component {
               defaultSelection={[]}
               onSelectionChange={this._changeSelection}
             />
-            <TableView
+            <VirtualTableView
+              height={1280}
               allowColumnReordering={!relationMode}
               tableRowTemplate={({ children, row, tableRow }) => (
                 <TableRow
@@ -520,7 +521,7 @@ class CategoryList extends Component {
 
   componentWillMount = () => {
     //if (!this.props.relationMode) console.log('LIST MOUNTED')
-    this.props.fetchItems()
+    this.props.relationMode ? this.props.fetchItemsIfNeeded() : this.props.fetchItems()
   }
 
   componentWillUnmount = () => {
@@ -555,6 +556,7 @@ class CategoryList extends Component {
         miniToolbar={relationMode}
         relative={relationMode}
         relativeHeight={relationMode ? 200 : null}
+        overflow={tableMode ? 'hidden' : 'auto'}
         title={categoryLabel}
         updateSearchQuery={!tableMode ? this._updateSearchQuery : null}
         loading={isFetchingSettings || isFetchingFields || isFetchingItems}
@@ -751,7 +753,8 @@ const mapStateToProps = ({ categories, settings, fields, items }, props) => {
 }
 
 const mapDispatchToProps = (dispatch, props) => ({
-  fetchItems: () => dispatch(fetchItems(props.categoryId))
+  fetchItems: () => dispatch(fetchItems(props.categoryId)),
+  fetchItemsIfNeeded: () => dispatch(fetchItemsIfNeeded(props.categoryId))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(CategoryList)

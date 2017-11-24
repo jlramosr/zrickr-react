@@ -37,7 +37,7 @@ const styles = theme => ({
 })
 
 const HeaderLayout = props => {
-  const { children, classes, theme, relative, relativeHeight, ...rest } = props
+  const { children, classes, theme, relative, relativeHeight, overflow, ...rest } = props
 
   return (
     <div className={classes.root}>
@@ -51,10 +51,14 @@ const HeaderLayout = props => {
       </div>
       <div
         className={classes.content}
-        style={relative ? {
-          marginTop: 0,
-          maxHeight: relativeHeight
-        } : {
+        style={{
+          overflow : overflow || 'auto', 
+          ...(
+            relative ? {
+              marginTop: 0,
+              maxHeight: relativeHeight
+            } : {}
+          )
         }}
       >
         {children}
