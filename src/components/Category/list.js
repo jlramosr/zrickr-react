@@ -515,8 +515,8 @@ class CategoryList extends Component {
 	 */
   closeDetailDialog = () => this.setState({ showDetailDialog: false})
 
-  componentWillReceiveProps = props => {
-    this.setState({tableMode: props.tableMode})
+  componentWillReceiveProps = nextProps => {
+    this.setState({tableMode: nextProps.tableMode})
   }
 
   componentWillMount = () => {
@@ -599,7 +599,7 @@ class CategoryList extends Component {
         })}
 
         <Dialog fullScreen open={showNewDialog} onRequestClose={this._newDialogClosed}>
-          <ItemNew closeDialog={this.closeNewDialog} itemLabel={settings.itemLabel} />
+          <ItemNew closeDialog={this.closeNewDialog} categoryId={categoryId} itemLabel={settings.itemLabel}/>
         </Dialog>
 
         <Dialog fullWidth maxWidth="md" open={showDetailDialog} onRequestClose={this.detailDialogClosed}>
@@ -689,6 +689,10 @@ CategoryList.propTypes = {
     }))
   })).isRequired,
   /**
+   * Ids of items to filter. If it's null, then it will be showed all category items.
+   */
+  itemIds: PropTypes.array,
+  /**
    * All category items.
    */
   items: PropTypes.array,
@@ -732,6 +736,7 @@ CategoryList.defaultProps = {
   isFetchingSettings: false,
   fields: {},
   isFetchingFields: false,
+  itemIds: null,
   items: [],
   isFetchingItems: false,
   relationMode: false,
@@ -747,7 +752,9 @@ const mapStateToProps = ({ categories, settings, fields, items }, props) => {
     isFetchingSettings: settings.flow[categoryId].isFetching,
     fields: Object.values(fields.byId).filter(field => category.fields.includes(field.id)),
     isFetchingFields: fields.flow[categoryId].isFetchingAll,
-    items: Object.values(items.byId).filter(item => category.items.includes(item.id)),
+    items: Object.values(items.byId).filter(item => 
+      category.items.includes(item.id) && (props.itemIds ? props.itemIds.includes(item.id) : true)
+    ),
     isFetchingItems: items.flow[categoryId].isFetchingAll
   }
 }

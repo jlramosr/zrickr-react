@@ -10,7 +10,7 @@ const paddingLeftCommon = 6
 
 const inputCommon = theme => ({
   paddingLeft: paddingLeftCommon,
-  paddingRight: 2,
+  paddingRight: paddingLeftCommon,
   borderRadius: 4,
   border: `1px solid ${theme.palette.primary[500]}`,
   fontSize: 14,

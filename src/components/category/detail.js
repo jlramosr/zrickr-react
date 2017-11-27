@@ -69,7 +69,7 @@ class CategoryItemDetail extends Component {
             {id:'delete', icon:Delete, right:true, hidden:editMode, onClick:this._deleteItem}
           ]}
         >
-          <Form key="1" cols={12} view="detail" fields={fields} values={item}/>
+          <Form cols={12} view="detail" fields={fields} values={item}/>
         </HeaderLayout>
       ) : (
         <NotFound text="Item Not Found" />

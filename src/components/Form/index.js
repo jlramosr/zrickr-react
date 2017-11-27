@@ -37,6 +37,9 @@ const styles = theme => ({
   },
   field: {
     padding: `${theme.spacing.unit/2}px ${theme.spacing.unit}px`
+  },
+  selectField: {
+    padding: `${(theme.spacing.unit/2) - 2}px ${theme.spacing.unit}px ${(theme.spacing.unit/2) + 2}px`
   }
 })
 
@@ -56,8 +59,8 @@ class Form extends Component {
     this.state.item && field.id ? this.state.item[field.id] : ''
 
   _handleSubmit = event => {
-    console.log('SUBMIT', this.state.item)
     event.preventDefault()
+    this.props.handleSubmit(this.state.item)
   }
 
   _resize = theme => {
@@ -73,6 +76,16 @@ class Form extends Component {
     }
   }
 
+  _generateItem(fields, values) {
+    let item = new Item(values)
+    for (const field of fields) {
+      if (field.default && !(field.id in values)) {
+        item[field.id] = field.default
+      }
+    }
+    return item
+  }
+
   handleFieldChange = (fieldId, value) => {
     this.setState(prevState => {
       let item = prevState.item
@@ -84,19 +97,16 @@ class Form extends Component {
   componentWillMount = () => {
     //console.log('MOUNT FORM', this.props)
     const { fields, values, theme } = this.props
-    let item = new Item(values)
-    for (const field of fields) {
-      if (field.default && !(field.id in values)) {
-        item[field.id] = field.default
-      }
-    }
     this._resize(theme)
-    this.setState({item})
+    this.setState({item: this._generateItem(fields, values)})
   }
 
   componentDidMount = () => {
     window.addEventListener('resize', () =>
       this._resize(this.props.theme)
+    ),
+    window.addEventListener('onsubmit', () =>
+      this._handleSubmit(this.state.item)
     )
   }
 
@@ -105,6 +115,15 @@ class Form extends Component {
     window.removeEventListener('resize', () =>
       this._resize(this.props.theme)
     )
+    window.removeEventListener('onsubmit', () =>
+      this._handleSubmit(this.state.item)
+    )
+  }
+
+  componentWillReceiveProps = nextProps => {
+    if (JSON.stringify(nextProps) !== JSON.stringify(this.props)) {
+      this.setState({item: this._generateItem(nextProps.fields, nextProps.values)})
+    }
   }
 
   render = () => {
@@ -143,7 +162,6 @@ class Form extends Component {
 
     return (
       <form 
-        onSubmit={ event => this._handleSubmit(event)}
         className={classes.form}
         style={formStyle(cols)}
       >
@@ -158,7 +176,7 @@ class Form extends Component {
               fieldView &&
                 <div
                   key={field.id}
-                  className={classes.field}
+                  className={field.type==='select' ? classes.selectField : classes.field}
                   style={formFieldStyle(item, fieldView, field.id, cols)}
                 >
                   <Field

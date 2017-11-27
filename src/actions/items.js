@@ -6,6 +6,12 @@ export const RECEIVE_CATEGORY_ITEMS = 'RECEIVE_CATEGORY_ITEMS'
 export const REQUEST_CATEGORY_ITEM = 'REQUEST_CATEGORY_ITEM'
 export const REQUEST_CATEGORY_ITEM_ERROR = 'REQUEST_CATEGORY_ITEM_ERROR'
 export const RECEIVE_CATEGORY_ITEM = 'RECEIVE_CATEGORY_ITEM'
+export const NEW_CATEGORY_ITEM = 'NEW_CATEGORY_ITEM'
+export const NEW_CATEGORY_ITEM_ERROR = 'NEW_CATEGORY_ITEM_ERROR'
+export const CREATE_CATEGORY_ITEM = 'CREATE_CATEGORY_ITEM'
+export const EDITION_CATEGORY_ITEM = 'EDITION_CATEGORY_ITEM'
+export const EDITION_CATEGORY_ITEM_ERROR = 'EDITION_CATEGORY_ITEM_ERROR'
+export const UPDATE_CATEGORY_ITEM = 'UPDATE_CATEGORY_ITEM'
 
 export const requestItems = categoryId => ({
   type: REQUEST_CATEGORY_ITEMS,
@@ -28,7 +34,11 @@ export const receiveItems = (categoryId, items) => ({
 
 export const fetchItems = categoryId => dispatch => {
   dispatch(requestItems(categoryId))
-  return API('firebase').getCollection('categories_items', categoryId)
+  const params = {
+    collection: 'categories_items',
+    collectionId: categoryId
+  }
+  return API('firebase').fetch(params)
     .then(
       items => {
         dispatch(receiveItems(categoryId, items || {}))
@@ -85,7 +95,12 @@ export const receiveItem = (categoryId, itemId, item) => ({
 
 export const fetchItem = (categoryId, itemId) => dispatch => {
   dispatch(requestItem(categoryId))
-  return API('firebase').getCollection('categories_items', categoryId, itemId)
+  const params = {
+    collection: 'categories_items',
+    collectionId: categoryId,
+    documentId: itemId
+  }
+  return API('firebase').fetch(params)
     .then(
       item => {
         dispatch(receiveItem(categoryId, itemId, item || {}))
@@ -121,4 +136,44 @@ export const fetchItemIfNeeded = (categoryId, itemId) => {
       return dispatch(fetchItem(categoryId, itemId))
     }
   }
+}
+
+export const newItem = categoryId => ({
+  type: NEW_CATEGORY_ITEM,
+  fetchedItemAt: Date.now(),
+  categoryId
+})
+
+export const errorNewItem = (categoryId, error) => ({
+  type: NEW_CATEGORY_ITEM_ERROR,
+  errorFetchingItem: `${Date.now()} ${error}`,
+  categoryId
+})
+
+export const createItem = (categoryId, itemId, item) => ({
+  type: CREATE_CATEGORY_ITEM,
+  receivedItemAt: Date.now(),
+  categoryId,
+  itemId,
+  item
+})
+
+export const createNewItem = (categoryId, item) => dispatch => {
+  dispatch(newItem(categoryId))
+  const params = {
+    collection: 'categories_items',
+    collectionId: categoryId,
+    generateDocumentId: true,
+    document: item
+  }
+  return API('firebase').update(params)
+    .then(
+      documentId => {
+        dispatch(createItem(categoryId, documentId, item))
+      },
+      error => {
+        console.error(`An error occurred creating item of ${categoryId}:`, error)
+        dispatch(errorNewItem(categoryId, error))
+      }
+    )
 }

@@ -20,13 +20,22 @@ class ListField extends Component {
       relation,
       relationLabel,
       label,
+      value,
       classes 
     } = this.props
+    const itemIds = (
+      typeof value === 'object' ? 
+        Object.keys(value).reduce((ids, id) => (
+          value[id] ? [...ids, id] : [...ids]), []
+        ) :
+        value
+    )
     return (
       <Paper elevation={4} className={classes.list}>
         <CategoryList
           categoryId={relation}
           categoryLabel={label || relationLabel}
+          itemIds={itemIds || []}
           relationMode={true}
           tableMode={false}
           showAvatar={false}

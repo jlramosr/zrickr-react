@@ -24,7 +24,10 @@ export const errorFetchingCategories = (categoryId, error) => ({
 
 export const fetchCategories = () => dispatch => {
   dispatch(requestCategories())
-  return API('firebase').getCollection('categories')
+  const params = {
+    collection: 'categories'
+  }
+  return API('firebase').fetch(params)
     .then(
       categories => {
         dispatch(receiveCategories(categories || {}))

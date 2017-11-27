@@ -27,7 +27,11 @@ export const errorFetchingSettings = (categoryId, error) => ({
 
 export const fetchSettings = categoryId => dispatch => {
   dispatch(requestSettings(categoryId))
-  return API('firebase').getCollection('categories_settings', categoryId)
+  const params = {
+    collection: 'categories_settings',
+    collectionId: categoryId
+  }
+  return API('firebase').fetch(params)
     .then(
       settings => {
         const settingsId = Object.keys(settings)[0]
