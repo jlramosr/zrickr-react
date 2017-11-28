@@ -56,6 +56,23 @@ let theme = createMuiTheme({
         'A700': '#d50000',
         'contrastDefaultColor': 'light'
       },
+      success: {
+        '50': '#FAFCF7',
+        '100': '#EDF9E0',
+        '200': '#D3E7BC',
+        '300': '#A0D374',
+        '400': '#86BF54',
+        '500': '#689F38',
+        '600': '#5E9031',
+        '700': '#56852B',
+        '800': '#487321',
+        '900': '#355915',
+        'A100': '#D3E7BC',
+        'A200': '#86BF54',
+        'A400': '#5E9031',
+        'A700': '#355915',
+        'contrastDefaultColor': 'light'       
+      },
       grey: {
         '50': '#FAFAFA',
         '100': '#F5F5F5',

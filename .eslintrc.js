@@ -46,6 +46,10 @@ module.exports = {
         "no-console": 0,
         "no-debugger": 0,
         "react/jsx-uses-react": "error",
-        "react/jsx-uses-vars": "error"
+        "react/jsx-uses-vars": "error",
+        "no-unused-vars": [
+            "error", 
+            { "ignoreRestSiblings": true }
+        ]
     }
 };

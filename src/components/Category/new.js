@@ -2,18 +2,22 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import Form from '../form'
+import { notify } from '../../actions/notifier'
 import { createNewItem } from '../../actions/items'
 import HeaderLayout from '../headerLayout'
 import Close from 'material-ui-icons/Close'
 import Check from 'material-ui-icons/Check'
 
 class CategoryItemNew extends Component {
-
   _createItem = item => {
-    console.log(item)
-    this.props.createNewItem(item).then(() => {
-      this.props.closeDialog()
-    })
+    this.props.createNewItem(item).then(
+      () => {
+        this.props.notify('Item created succesfully', 'success')
+        this.props.closeDialog()
+      }, error => {
+        this.props.notify(`There has been an error creating the item: ${error}`, 'error')
+      }
+    )
   }
 
   render = () => {
@@ -26,17 +30,21 @@ class CategoryItemNew extends Component {
         operations={[
           {id:'close', icon:Close, onClick:closeDialog},
           {id:'check', icon:Check, right: true, onClick: () => {
-            this.form.dispatchEvent(new Event('onsubmit')) 
+            const event = new Event('submit', {
+              'bubbles'    : false,
+              'cancelable' : false
+            })
+            this.formElement.dispatchEvent(event)
           }}
         ]}
       >
         <Form
-          ref={form => { this.form = form }} 
           cols={12}
           view="detail"
           fields={fields}
           values={{}}
           handleSubmit={this._createItem}
+          formRef={el => this.formElement = el}
         />
       </HeaderLayout>
     )
@@ -61,7 +69,8 @@ const mapStateToProps = ({ categories, fields }, props) => {
 }
 
 const mapDispatchToProps = (dispatch, props) => ({
-  createNewItem: item => dispatch(createNewItem(props.categoryId, item))
+  createNewItem: item => dispatch(createNewItem(props.categoryId, item)),
+  notify: (message, type) => dispatch(notify(message, type))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(CategoryItemNew)

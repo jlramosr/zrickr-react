@@ -58,11 +58,6 @@ class Form extends Component {
   _getFieldValue = field =>
     this.state.item && field.id ? this.state.item[field.id] : ''
 
-  _handleSubmit = event => {
-    event.preventDefault()
-    this.props.handleSubmit(this.state.item)
-  }
-
   _resize = theme => {
     const width = window.innerWidth
     let size = 'small'
@@ -76,7 +71,7 @@ class Form extends Component {
     }
   }
 
-  _generateItem(fields, values) {
+  _generateItem = (fields, values) => {
     let item = new Item(values)
     for (const field of fields) {
       if (field.default && !(field.id in values)) {
@@ -85,6 +80,13 @@ class Form extends Component {
     }
     return item
   }
+
+  _handleSubmit = event => {
+    event.preventDefault()
+    event.stopPropagation()
+    const { evalCondition, ...values} = this.state.item
+    this.props.handleSubmit(values)
+  } 
 
   handleFieldChange = (fieldId, value) => {
     this.setState(prevState => {
@@ -98,15 +100,13 @@ class Form extends Component {
     //console.log('MOUNT FORM', this.props)
     const { fields, values, theme } = this.props
     this._resize(theme)
-    this.setState({item: this._generateItem(fields, values)})
+    const item = this._generateItem(fields, values)
+    this.setState({item})
   }
 
   componentDidMount = () => {
     window.addEventListener('resize', () =>
       this._resize(this.props.theme)
-    ),
-    window.addEventListener('onsubmit', () =>
-      this._handleSubmit(this.state.item)
     )
   }
 
@@ -114,9 +114,6 @@ class Form extends Component {
     //console.log('UNMOUNT FORM')
     window.removeEventListener('resize', () =>
       this._resize(this.props.theme)
-    )
-    window.removeEventListener('onsubmit', () =>
-      this._handleSubmit(this.state.item)
     )
   }
 
@@ -161,7 +158,9 @@ class Form extends Component {
     }
 
     return (
-      <form 
+      <form
+        ref={this.props.formRef}
+        onSubmit={event => this._handleSubmit(event)}
         className={classes.form}
         style={formStyle(cols)}
       >
@@ -199,12 +198,14 @@ class Form extends Component {
 }
 
 Form.propTypes = {
-  classes: PropTypes.object.isRequired,
-  theme: PropTypes.object.isRequired,
   cols: PropTypes.number,
   view: PropTypes.string.isRequired,
   fields: PropTypes.array.isRequired,
-  values: PropTypes.object.isRequired
+  values: PropTypes.object.isRequired,
+  handleSubmit: PropTypes.func.isRequired,
+  formRef: PropTypes.func.isRequired,
+  classes: PropTypes.object.isRequired,
+  theme: PropTypes.object.isRequired
 }
 
 Form.defaultProps = {

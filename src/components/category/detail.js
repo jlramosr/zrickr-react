@@ -4,6 +4,8 @@ import PropTypes from 'prop-types'
 import HeaderLayout from '../headerLayout'
 import { fetchItem } from '../../actions/items'
 import Form from '../form'
+import { notify } from '../../actions/notifier'
+import { renewItem, deleteItem } from '../../actions/items'
 import ArrowBack from 'material-ui-icons/ArrowBack'
 import Close from 'material-ui-icons/Close'
 import Check from 'material-ui-icons/Check'
@@ -14,7 +16,35 @@ import NotFound from '../notFound'
 
 class CategoryItemDetail extends Component {
   state = {
-    editMode: false
+    editMode: true
+  }
+
+  _changeEditMode = editMode => {
+    this.setState({editMode})
+  }
+
+  _updateItem = values => {
+    const { renewItem, notify } = this.props
+    renewItem(values).then(
+      () => {
+        notify('Item updated succesfully', 'success')
+        this._changeEditMode(false)
+      }, error => {
+        notify(`There has been an error updating the item: ${error}`, 'error')
+      }
+    )
+  }
+
+  _deleteItem = () => {
+    const { deleteItem, notify } = this.props
+    deleteItem().then(
+      () => {
+        notify('Item removed succesfully', 'success')
+        this._changeEditMode(false)
+      }, error => {
+        notify(`There has been an error removing the item: ${error}`, 'error')
+      }
+    )
   }
 
   componentWillUnmount = () => {
@@ -24,20 +54,6 @@ class CategoryItemDetail extends Component {
   componentWillMount = () => {
     //console.log('DETAIL MOUNTED')
     this.props.fetchItem()
-  }
-
-  _updateItem = () => {
-    console.log('UPDATE ITEM', this.state.item)
-    this._changeEditMode(false)
-  }
-
-  _deleteItem = () => {
-    console.log('DELETE ITEM', this.state.item)
-  }
-
-  _changeEditMode = editMode => {
-    console.log('EDIT MODE', editMode)
-    this.setState({editMode})
   }
 
   render = () => {
@@ -64,12 +80,26 @@ class CategoryItemDetail extends Component {
           operations={[
             {id:'arrowBack', icon:ArrowBack, hidden:dialog, to:`/${categoryId}`},
             {id:'close', icon:Close, hidden:!dialog, onClick:closeDialog},
-            {id:'check', icon:Check, right:true, hidden:!editMode, onClick:this._updateItem},
+            {id:'check', icon:Check, right:true, hidden:!editMode, onClick: () => {
+              const event = new Event('submit', {
+                'bubbles'    : false,
+                'cancelable' : false
+              })
+              this.formElement.dispatchEvent(event)
+            }},
             {id:'edit', icon:Edit, right:true, hidden:editMode, onClick:() => this._changeEditMode(true)},
             {id:'delete', icon:Delete, right:true, hidden:editMode, onClick:this._deleteItem}
           ]}
         >
-          <Form cols={12} view="detail" fields={fields} values={item}/>
+          <Form
+            cols={12}
+            view="detail"
+            readonly={!editMode}
+            fields={fields}
+            values={item}
+            handleSubmit={this._updateItem}
+            formRef={el => this.formElement = el}
+          />
         </HeaderLayout>
       ) : (
         <NotFound text="Item Not Found" />
@@ -141,7 +171,10 @@ const mapDispatchToProps = (dispatch, props) => {
   const categoryId = props.categoryId
   const itemId = props.dialog ? props.itemId : props.match.params.itemId
   return {
-    fetchItem: () => dispatch(fetchItem(categoryId,itemId))
+    fetchItem: () => dispatch(fetchItem(categoryId,itemId)),
+    renewItem: item => dispatch(renewItem(props.categoryId, itemId, item)),
+    deleteItem: () => dispatch(deleteItem(categoryId,itemId)),
+    notify: (message, type) => dispatch(notify(message, type))
   }
 }
 

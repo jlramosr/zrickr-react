@@ -41,10 +41,11 @@ import ViewList from 'material-ui-icons/ViewList'
 import ViewAgenda from 'material-ui-icons/ViewAgenda'
 import ArrowBack from 'material-ui-icons/ArrowBack'
 import MoreVert from 'material-ui-icons/MoreVert'
-import Dialog from 'material-ui/Dialog'
 import Icon from 'material-ui/Icon'
 import IconButton from 'material-ui/IconButton'
 import Menu, { MenuItem } from 'material-ui/Menu'
+import Dialog from 'material-ui/Dialog'
+import Slide from 'material-ui/transitions/Slide'
 import escapeRegExp from 'escape-string-regexp'
 import removeDiacritics from 'remove-diacritics'
 import ItemDetail from './detail'
@@ -102,6 +103,8 @@ const styles = theme => ({
     flexWrap: 'inherit'
   }
 })
+
+const Transition = props => (<Slide direction="up" {...props} />)
 
 let CategoryListContainer = class extends Component {
   state = {
@@ -329,7 +332,7 @@ let CategoryListContainer = class extends Component {
           <Snackbar
             anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
             open={Boolean(tableSelectedIndexes.length)}
-            className={relationMode ? classes.relativeSnackbar : classes.snackbar}
+            className={relationMode ? classes.relativeSnackbar : classes.snackbar}            
             transitionDuration={{
               enter: 200,
               exit: 0
@@ -515,9 +518,10 @@ class CategoryList extends Component {
 	 */
   closeDetailDialog = () => this.setState({ showDetailDialog: false})
 
-  componentWillReceiveProps = nextProps => {
+  /*componentWillReceiveProps = nextProps => {
+    console.log("PASA POR AQUI", nextProps);
     this.setState({tableMode: nextProps.tableMode})
-  }
+  }*/
 
   componentWillMount = () => {
     //if (!this.props.relationMode) console.log('LIST MOUNTED')
@@ -598,11 +602,26 @@ class CategoryList extends Component {
           tableMode, showAvatar, history, searchQuery
         })}
 
-        <Dialog fullScreen open={showNewDialog} onRequestClose={this._newDialogClosed}>
-          <ItemNew closeDialog={this.closeNewDialog} categoryId={categoryId} itemLabel={settings.itemLabel}/>
+        <Dialog
+          fullScreen
+          open={showNewDialog}
+          onRequestClose={this._newDialogClosed}
+          transition={Transition}
+        >
+          <ItemNew
+            closeDialog={this.closeNewDialog}
+            categoryId={categoryId}
+            itemLabel={settings.itemLabel}
+          />
         </Dialog>
 
-        <Dialog fullWidth maxWidth="md" open={showDetailDialog} onRequestClose={this.detailDialogClosed}>
+        <Dialog
+          fullWidth
+          maxWidth="md"
+          open={showDetailDialog}
+          onRequestClose={this.detailDialogClosed}
+          transition={Transition}
+        >
           <ItemDetail
             dialog
             itemId={dialogItemId}

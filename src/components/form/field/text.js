@@ -3,7 +3,17 @@ import PropTypes from 'prop-types'
 import TextField from 'material-ui/TextField'
 
 let CustomTextField = props => {
-  const { id, type, required, description, order, value, label, handleFormFieldChange, classes } = props
+  const {
+    id,
+    type,
+    required,
+    description,
+    order,
+    value,
+    label,
+    handleFormFieldChange,
+    classes
+  } = props
   return (
     <TextField
       inputClassName={classes.input}

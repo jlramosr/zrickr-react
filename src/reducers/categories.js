@@ -1,5 +1,4 @@
 import { combineReducers } from 'redux'
-//import { REHYDRATE } from '../actions/categories'
 import { REQUEST_CATEGORIES } from '../actions/categories'
 import { RECEIVE_CATEGORIES } from '../actions/categories'
 import { REQUEST_CATEGORIES_ERROR } from '../actions/categories'

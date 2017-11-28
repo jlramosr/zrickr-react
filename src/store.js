@@ -6,6 +6,7 @@ import createHistory from 'history/createBrowserHistory'
 import thunk from 'redux-thunk'
 //import logger from 'redux-logger'
 import app from './reducers/app'
+import notifier from './reducers/notifier'
 import categories from './reducers/categories'
 import settings from './reducers/settings'
 import fields from './reducers/fields'
@@ -13,12 +14,16 @@ import items from './reducers/items'
 import drawer from './reducers/drawer'
 
 const offlineConfig = {
-  ...defaultConfig
+  ...defaultConfig,
+  persistOptions: {
+    blacklist: ['notifier']
+  }
 }
 
 const reducer = combineReducers({
   router: routerReducer,
   app,
+  notifier,
   categories,
   settings,
   fields,

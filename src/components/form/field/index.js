@@ -32,6 +32,10 @@ const styles = theme => ({
   input: {
     ...inputCommon(theme)
   },
+  inputRequired: {
+    ...inputCommon(theme),
+    background: theme.palette.secondary[200]
+  },
   selectInput: {
     '& .Select-control': {
       ...inputCommon(theme),

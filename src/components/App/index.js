@@ -4,6 +4,7 @@ import PropTypes from 'prop-types'
 import { fetchCategories } from '../../actions/categories'
 import { renderRoutes } from 'react-router-config'
 import Drawer from '../drawer'
+import Notifier from '../notifier'
 
 /**
  * Main app component, with common drawer and first level routes.
@@ -24,8 +25,9 @@ class App extends Component {
 
   render = () => (
     <div>
-      <Drawer />
       {renderRoutes(this.props.route.routes)}
+      <Drawer />
+      <Notifier />
     </div>
   )
 }
