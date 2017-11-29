@@ -46,6 +46,7 @@ const styles = theme => ({
 class Form extends Component {
   state = {
     item: null,
+    isSubmitting: false,
     size: ''
   }
 
@@ -81,11 +82,14 @@ class Form extends Component {
     return item
   }
 
-  _handleSubmit = event => {
-    event.preventDefault()
-    event.stopPropagation()
-    const { evalCondition, ...values} = this.state.item
-    this.props.handleSubmit(values)
+  _handleSubmit = () => {
+    if (!this.state.isSubmitting) {
+      this.setState({isSubmitting: true})
+      const { evalCondition, ...values} = this.state.item
+      this.props.handleSubmit(values).then(() => {
+        this.setState({isSubmitting: false})
+      })
+    }
   } 
 
   handleFieldChange = (fieldId, value) => {
@@ -98,8 +102,7 @@ class Form extends Component {
 
   componentWillMount = () => {
     //console.log('MOUNT FORM', this.props)
-    const { fields, values, theme } = this.props
-    this._resize(theme)
+    const { fields, values } = this.props
     const item = this._generateItem(fields, values)
     this.setState({item})
   }
@@ -108,6 +111,7 @@ class Form extends Component {
     window.addEventListener('resize', () =>
       this._resize(this.props.theme)
     )
+    this._resize(this.props.theme)
   }
 
   componentWillUnmount = () => {
@@ -160,7 +164,7 @@ class Form extends Component {
     return (
       <form
         ref={this.props.formRef}
-        onSubmit={event => this._handleSubmit(event)}
+        onSubmit={this._handleSubmit}
         className={classes.form}
         style={formStyle(cols)}
       >

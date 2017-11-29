@@ -12,6 +12,7 @@ import Check from 'material-ui-icons/Check'
 import Edit from 'material-ui-icons/Edit'
 import Delete from 'material-ui-icons/Delete'
 import { getItemInfo } from './utils/helpers'
+import { capitalize } from '../../utils/helpers'
 import NotFound from '../notFound'
 
 class CategoryItemDetail extends Component {
@@ -24,25 +25,37 @@ class CategoryItemDetail extends Component {
   }
 
   _updateItem = values => {
-    const { renewItem, notify } = this.props
-    renewItem(values).then(
+    const { settings, renewItem, notify } = this.props
+    return renewItem(values).then(
       () => {
-        notify('Item updated succesfully', 'success')
+        notify(
+          `${capitalize(settings.itemLabel)} updated succesfully`,
+          'success'
+        )
         this._changeEditMode(false)
       }, error => {
-        notify(`There has been an error updating the item: ${error}`, 'error')
+        notify(
+          `There has been an error updating the ${settings.itemLabel.toLowerCase()}: ${error}`,
+          'error'
+        )
       }
     )
   }
 
   _deleteItem = () => {
-    const { deleteItem, notify } = this.props
-    deleteItem().then(
+    const { settings, deleteItem, notify } = this.props
+    return deleteItem().then(
       () => {
-        notify('Item removed succesfully', 'success')
+        notify(
+          `${capitalize(settings.itemLabel)} removed succesfully`,
+          'success'
+        )
         this._changeEditMode(false)
       }, error => {
-        notify(`There has been an error removing the item: ${error}`, 'error')
+        notify(
+          `There has been an error removing the ${settings.itemLabel.toLowerCase()}: ${error}`,
+          'error'
+        )
       }
     )
   }

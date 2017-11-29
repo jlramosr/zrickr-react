@@ -16,7 +16,7 @@ import drawer from './reducers/drawer'
 const offlineConfig = {
   ...defaultConfig,
   persistOptions: {
-    blacklist: ['notifier']
+    blacklist: ['notifier', 'drawer']
   }
 }
 

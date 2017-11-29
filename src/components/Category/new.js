@@ -7,34 +7,38 @@ import { createNewItem } from '../../actions/items'
 import HeaderLayout from '../headerLayout'
 import Close from 'material-ui-icons/Close'
 import Check from 'material-ui-icons/Check'
+import { capitalize } from '../../utils/helpers'
 
 class CategoryItemNew extends Component {
+
   _createItem = item => {
-    this.props.createNewItem(item).then(
+    const { createNewItem, notify, closeDialog } = this.props
+    return createNewItem(item).then(
       () => {
-        this.props.notify('Item created succesfully', 'success')
-        this.props.closeDialog()
+        notify(
+          `${capitalize(this.props.itemLabel)} created succesfully`,
+          'success'
+        )
+        closeDialog()
       }, error => {
-        this.props.notify(`There has been an error creating the item: ${error}`, 'error')
+        notify(
+          `There has been an error creating the ${this.props.itemLabel.toLowerCase()}: ${error}`,
+          'error'
+        )
       }
     )
   }
 
   render = () => {
-    const { closeDialog, fields, isFetchingFields, itemLabel } = this.props
-
+    const { closeDialog, fields, isFetchingFields, isCreatingItem, itemLabel } = this.props
     return (
       <HeaderLayout
         title={`New ${itemLabel}`}
-        loading={isFetchingFields}
+        loading={isFetchingFields || isCreatingItem}
         operations={[
           {id:'close', icon:Close, onClick:closeDialog},
-          {id:'check', icon:Check, right: true, onClick: () => {
-            const event = new Event('submit', {
-              'bubbles'    : false,
-              'cancelable' : false
-            })
-            this.formElement.dispatchEvent(event)
+          {id:'check', icon:Check, hidden: isFetchingFields || isCreatingItem, right: true, onClick: () => {
+            this.formElement.dispatchEvent(new Event('submit'))
           }}
         ]}
       >
@@ -59,12 +63,13 @@ CategoryItemNew.propTypes = {
   itemLabel: PropTypes.string
 }
 
-const mapStateToProps = ({ categories, fields }, props) => {
+const mapStateToProps = ({ categories, fields, items }, props) => {
   const categoryId = props.categoryId
   const category = categories.byId[categoryId]
   return {
     fields: Object.values(fields.byId).filter(field => category.fields.includes(field.id)),
-    isFetchingFields: fields.flow[categoryId].isFetchingAll
+    isFetchingFields: fields.flow[categoryId].isFetchingAll,
+    isCreatingItem: items.flow[categoryId].isUpdating
   }
 }
 

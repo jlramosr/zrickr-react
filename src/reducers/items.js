@@ -6,6 +6,15 @@ import { RECEIVE_CATEGORY_ITEMS } from '../actions/items'
 import { REQUEST_CATEGORY_ITEM } from '../actions/items'
 import { REQUEST_CATEGORY_ITEM_ERROR } from '../actions/items'
 import { RECEIVE_CATEGORY_ITEM } from '../actions/items'
+import { NEW_CATEGORY_ITEM } from '../actions/items'
+import { NEW_CATEGORY_ITEM_ERROR } from '../actions/items'
+import { CREATE_CATEGORY_ITEM } from '../actions/items'
+import { CHANGE_CATEGORY_ITEM } from '../actions/items'
+import { CHANGE_CATEGORY_ITEM_ERROR } from '../actions/items'
+import { UPDATE_CATEGORY_ITEM } from '../actions/items'
+import { DELETION_CATEGORY_ITEM } from '../actions/items'
+import { DELETION_CATEGORY_ITEM_ERROR } from '../actions/items'
+import { REMOVE_CATEGORY_ITEM } from '../actions/items'
 
 const initialFlowState = {}
 const initialCategoryFlowState = {
@@ -18,7 +27,9 @@ const initialCategoryFlowState = {
   fetchedItemAt: null,
   itemFetched: null,
   isReceivedItem: false,
-  errorFetchingItem: null
+  errorFetchingItem: null,
+  isUpdating: false,
+  errorUpdating: null
 }
 const initialByIdState = {}
 const initialAllIdsState = []
@@ -50,7 +61,7 @@ const flow = (state = initialFlowState, action) => {
           ...state[action.categoryId],
           isFetchingAll: false,
           isReceivedAll: false,
-          errorFetchingAll: action.errorFetchingAll
+          errorFetchingAll: action.error
         }
       }
     case RECEIVE_CATEGORY_ITEMS:
@@ -82,7 +93,7 @@ const flow = (state = initialFlowState, action) => {
           ...state[action.categoryId],
           isFetchingItem: false,
           isReceivedItem: false,
-          errorFetchingItem: action.errorFetchingItem
+          errorFetchingItem: action.error
         }
       }
     case RECEIVE_CATEGORY_ITEM:
@@ -95,6 +106,81 @@ const flow = (state = initialFlowState, action) => {
           receivedItemAt: action.receivedItemAt,
           itemReceived: action.itemId,
           errorFetchingItem: null
+        }
+      }
+    case NEW_CATEGORY_ITEM:
+      return {
+        ...state,
+        [action.categoryId]: {
+          ...state[action.categoryId],
+          isUpdating: true
+        }
+      }
+    case NEW_CATEGORY_ITEM_ERROR:
+      return {
+        ...state,
+        [action.categoryId]: {
+          ...state[action.categoryId],
+          isUpdating: false,
+          errorUpdating: action.error
+        }
+      }
+    case CREATE_CATEGORY_ITEM:
+      return {
+        ...state,
+        [action.categoryId]: {
+          ...state[action.categoryId],
+          isUpdating: false
+        }
+      }
+    case CHANGE_CATEGORY_ITEM:
+      return {
+        ...state,
+        [action.categoryId]: {
+          ...state[action.categoryId],
+          isUpdating: true
+        }
+      }
+    case CHANGE_CATEGORY_ITEM_ERROR:
+      return {
+        ...state,
+        [action.categoryId]: {
+          ...state[action.categoryId],
+          isUpdating: false,
+          errorUpdating: action.error
+        }
+      }
+    case UPDATE_CATEGORY_ITEM:
+      return {
+        ...state,
+        [action.categoryId]: {
+          ...state[action.categoryId],
+          isUpdating: false
+        }
+      }
+    case DELETION_CATEGORY_ITEM:
+      return {
+        ...state,
+        [action.categoryId]: {
+          ...state[action.categoryId],
+          isUpdating: true
+        }
+      }
+    case DELETION_CATEGORY_ITEM_ERROR:
+      return {
+        ...state,
+        [action.categoryId]: {
+          ...state[action.categoryId],
+          isUpdating: false,
+          errorUpdating: action.error
+        }
+      }
+    case REMOVE_CATEGORY_ITEM:
+      return {
+        ...state,
+        [action.categoryId]: {
+          ...state[action.categoryId],
+          isUpdating: false
         }
       }
     default:
@@ -120,6 +206,23 @@ const byId = (state = initialByIdState, action) => {
           ...action.item
         }
       }
+    case CREATE_CATEGORY_ITEM:
+      return {
+        ...state,
+        [action.itemId]: action.item
+      }
+    case UPDATE_CATEGORY_ITEM:
+      return {
+        ...state,
+        [action.itemId]: {
+          ...state[action.itemId],
+          ...action.item
+        }
+      }
+    case REMOVE_CATEGORY_ITEM: {
+      delete state[action.itemId]
+      return state
+    }
     default:
       return state
   }

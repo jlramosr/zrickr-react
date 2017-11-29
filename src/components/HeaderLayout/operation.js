@@ -13,19 +13,28 @@ const Operation = props => {
       {to ? (
         <Link to={to}>
           <IconButton color={color}>
-            <Icon aria-label={id} onClick={onClick}/>
+            <Icon
+              aria-label={id}
+              onClick={onClick}
+            />
           </IconButton>
         </Link> 
       ) : (
         description ? (
           <Tooltip title={description} placement="bottom" enterDelay={200}>
             <IconButton color={color} style={{cursor: onClick ? 'pointer' : 'default'}}>
-              <Icon aria-label={id} onClick={onClick}/>
+              <Icon
+                aria-label={id}
+                onClick={onClick}
+              />
             </IconButton>
           </Tooltip>
         ) : (
           <IconButton color={color} style={{cursor: onClick ? 'pointer' : 'default'}}>
-            <Icon aria-label={id} onClick={onClick}/>
+            <Icon
+              aria-label={id}
+              onClick={onClick}
+            />
           </IconButton>
         )
       )}

@@ -456,7 +456,7 @@ class CategoryList extends Component {
     showNewDialog: false,
     showDetailDialog: false,
     dialogItemId: '',
-    tableMode: true
+    tableMode: false
   }
 
   /**

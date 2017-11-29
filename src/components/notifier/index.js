@@ -58,13 +58,13 @@ class Notifier extends Component {
     const { notification, classes } = this.props
     return (
       <Snackbar
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         open={this.state.showNotification}
         onRequestClose={this._handleNotificationRequestClose}
         style={{
           className: classes.snackbar
         }}
-        autoHideDuration={5000}
+        autoHideDuration={3000}
         transitionDuration={{
           enter: 200,
           exit: this.state.moreThanOneNotification ? 0 : 200
