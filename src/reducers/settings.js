@@ -1,8 +1,8 @@
 import { combineReducers } from 'redux'
 import { RECEIVE_CATEGORIES } from '../actions/categories'
-import { REQUEST_CATEGORY_SETTINGS } from '../actions/settings'
+import { RECEIVING_CATEGORY_SETTINGS } from '../actions/settings'
+import { RECEIVING_CATEGORY_SETTINGS_ERROR } from '../actions/settings'
 import { RECEIVE_CATEGORY_SETTINGS } from '../actions/settings'
-import { REQUEST_CATEGORY_SETTINGS_ERROR } from '../actions/settings'
 
 const initialFlowState = {}
 const initialCategoryFlowState = {
@@ -25,13 +25,24 @@ const flow = (state = initialFlowState, action) => {
           ...state[categoryId]
         }
       }), {})
-    case REQUEST_CATEGORY_SETTINGS:
+    case RECEIVING_CATEGORY_SETTINGS: {
       return {
         ...state,
         [action.categoryId]: {
           ...state[action.categoryId],
           isFetching: true,
           fetchedAt: action.fetchedAt
+        }
+      }
+    }
+    case RECEIVING_CATEGORY_SETTINGS_ERROR:
+      return {
+        ...state,
+        [action.categoryId]: {
+          ...state[action.categoryId],
+          isFetching: false,
+          isReceived: false,
+          errorFetching: action.errorFetching
         }
       }
     case RECEIVE_CATEGORY_SETTINGS:
@@ -42,16 +53,6 @@ const flow = (state = initialFlowState, action) => {
           isFetching: false,
           isReceived: true,
           receivedAt: action.receivedAt
-        }
-      }
-    case REQUEST_CATEGORY_SETTINGS_ERROR:
-      return {
-        ...state,
-        [action.categoryId]: {
-          ...state[action.categoryId],
-          isFetching: false,
-          isReceived: false,
-          errorFetching: action.errorFetching
         }
       }
     default:
@@ -76,9 +77,8 @@ const byId = (state = initialByIdState, action) => {
 
 const allIds = (state = initialAllIdsState, action) => {
   switch (action.type) {
-    case RECEIVE_CATEGORY_SETTINGS: {
+    case RECEIVE_CATEGORY_SETTINGS:
       return [...new Set(state, action.settingsId)]
-    }
     default:
       return state
   }

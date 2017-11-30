@@ -213,7 +213,7 @@ let CategoryListContainer = class extends Component {
 
     return (
       tableMode ? (
-        <div>
+        <React.Fragment>
           <Grid
             rows={items}
             columns={showingFields.map(field => {
@@ -359,11 +359,11 @@ let CategoryListContainer = class extends Component {
               </IconButton>
             ]}
           />
-        </div>
+        </React.Fragment>
 
       ) : (
 
-        <div>
+        <React.Fragment>
           <List
             classes={{
               padding:classes.listPadding,
@@ -372,9 +372,8 @@ let CategoryListContainer = class extends Component {
             dense={dense}
           >
             {agendaShowingItems.map(item =>
-              <div key={item.id}>
+              <React.Fragment key={item.id}>
                 <Link
-                  key={item.id}
                   tabIndex={-1}
                   to={relationMode ? `/${categoryId}/${item.id}#dialog` : `/${categoryId}/${item.id}`}
                   onClick={event => this._listItemClick(event, item.id)}
@@ -396,10 +395,10 @@ let CategoryListContainer = class extends Component {
                         />
                       </IconButton>
                     </ListItemSecondaryAction>
-                  </ListItem> 
+                  </ListItem>
                 </Link>
                 <Divider/>
-              </div>
+              </React.Fragment>
             )}
           </List>
           <Menu
@@ -420,7 +419,7 @@ let CategoryListContainer = class extends Component {
               Delete
             </MenuItem>
           </Menu>
-        </div>
+        </React.Fragment>
       )
     )
   }
@@ -519,13 +518,14 @@ class CategoryList extends Component {
   closeDetailDialog = () => this.setState({ showDetailDialog: false})
 
   /*componentWillReceiveProps = nextProps => {
-    console.log("PASA POR AQUI", nextProps);
     this.setState({tableMode: nextProps.tableMode})
   }*/
 
   componentWillMount = () => {
     //if (!this.props.relationMode) console.log('LIST MOUNTED')
-    this.props.relationMode ? this.props.fetchItemsIfNeeded() : this.props.fetchItems()
+    this.props.relationMode ?
+      this.props.fetchItemsIfNeeded() :
+      this.props.fetchItemsIfNeeded() //this.props.fetchItems()
   }
 
   componentWillUnmount = () => {
@@ -611,6 +611,7 @@ class CategoryList extends Component {
           <ItemNew
             closeDialog={this.closeNewDialog}
             categoryId={categoryId}
+            history={history}
             itemLabel={settings.itemLabel}
           />
         </Dialog>

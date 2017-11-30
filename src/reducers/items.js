@@ -1,19 +1,19 @@
 import { combineReducers } from 'redux'
 import { RECEIVE_CATEGORIES } from '../actions/categories'
-import { REQUEST_CATEGORY_ITEMS } from '../actions/items'
-import { REQUEST_CATEGORY_ITEMS_ERROR } from '../actions/items'
+import { RECEIVING_CATEGORY_ITEMS } from '../actions/items'
+import { RECEIVING_CATEGORY_ITEMS_ERROR } from '../actions/items'
 import { RECEIVE_CATEGORY_ITEMS } from '../actions/items'
-import { REQUEST_CATEGORY_ITEM } from '../actions/items'
-import { REQUEST_CATEGORY_ITEM_ERROR } from '../actions/items'
+import { RECEIVING_CATEGORY_ITEM } from '../actions/items'
+import { RECEIVING_CATEGORY_ITEM_ERROR } from '../actions/items'
 import { RECEIVE_CATEGORY_ITEM } from '../actions/items'
-import { NEW_CATEGORY_ITEM } from '../actions/items'
-import { NEW_CATEGORY_ITEM_ERROR } from '../actions/items'
+import { CREATING_CATEGORY_ITEM } from '../actions/items'
+import { CREATING_CATEGORY_ITEM_ERROR } from '../actions/items'
 import { CREATE_CATEGORY_ITEM } from '../actions/items'
-import { CHANGE_CATEGORY_ITEM } from '../actions/items'
-import { CHANGE_CATEGORY_ITEM_ERROR } from '../actions/items'
+import { UPDATING_CATEGORY_ITEM } from '../actions/items'
+import { UPDATING_CATEGORY_ITEM_ERROR } from '../actions/items'
 import { UPDATE_CATEGORY_ITEM } from '../actions/items'
-import { DELETION_CATEGORY_ITEM } from '../actions/items'
-import { DELETION_CATEGORY_ITEM_ERROR } from '../actions/items'
+import { REMOVING_CATEGORY_ITEM } from '../actions/items'
+import { REMOVING_CATEGORY_ITEM_ERROR } from '../actions/items'
 import { REMOVE_CATEGORY_ITEM } from '../actions/items'
 
 const initialFlowState = {}
@@ -44,7 +44,7 @@ const flow = (state = initialFlowState, action) => {
           ...state[categoryId]
         }
       }), {})
-    case REQUEST_CATEGORY_ITEMS:
+    case RECEIVING_CATEGORY_ITEMS:
       return {
         ...state,
         [action.categoryId]: {
@@ -54,7 +54,7 @@ const flow = (state = initialFlowState, action) => {
           errorFetchingAll: null
         }
       }
-    case REQUEST_CATEGORY_ITEMS_ERROR:
+    case RECEIVING_CATEGORY_ITEMS_ERROR:
       return {
         ...state,
         [action.categoryId]: {
@@ -75,7 +75,7 @@ const flow = (state = initialFlowState, action) => {
           errorFetchingAll: null
         }
       }
-    case REQUEST_CATEGORY_ITEM:
+    case RECEIVING_CATEGORY_ITEM:
       return {
         ...state,
         [action.categoryId]: {
@@ -86,7 +86,7 @@ const flow = (state = initialFlowState, action) => {
           errorFetchingItem: null
         }
       }
-    case REQUEST_CATEGORY_ITEM_ERROR:
+    case RECEIVING_CATEGORY_ITEM_ERROR:
       return {
         ...state,
         [action.categoryId]: {
@@ -108,7 +108,7 @@ const flow = (state = initialFlowState, action) => {
           errorFetchingItem: null
         }
       }
-    case NEW_CATEGORY_ITEM:
+    case CREATING_CATEGORY_ITEM:
       return {
         ...state,
         [action.categoryId]: {
@@ -116,7 +116,7 @@ const flow = (state = initialFlowState, action) => {
           isUpdating: true
         }
       }
-    case NEW_CATEGORY_ITEM_ERROR:
+    case CREATING_CATEGORY_ITEM_ERROR:
       return {
         ...state,
         [action.categoryId]: {
@@ -133,7 +133,7 @@ const flow = (state = initialFlowState, action) => {
           isUpdating: false
         }
       }
-    case CHANGE_CATEGORY_ITEM:
+    case UPDATING_CATEGORY_ITEM:
       return {
         ...state,
         [action.categoryId]: {
@@ -141,7 +141,7 @@ const flow = (state = initialFlowState, action) => {
           isUpdating: true
         }
       }
-    case CHANGE_CATEGORY_ITEM_ERROR:
+    case UPDATING_CATEGORY_ITEM_ERROR:
       return {
         ...state,
         [action.categoryId]: {
@@ -158,7 +158,7 @@ const flow = (state = initialFlowState, action) => {
           isUpdating: false
         }
       }
-    case DELETION_CATEGORY_ITEM:
+    case REMOVING_CATEGORY_ITEM:
       return {
         ...state,
         [action.categoryId]: {
@@ -166,7 +166,7 @@ const flow = (state = initialFlowState, action) => {
           isUpdating: true
         }
       }
-    case DELETION_CATEGORY_ITEM_ERROR:
+    case REMOVING_CATEGORY_ITEM_ERROR:
       return {
         ...state,
         [action.categoryId]: {
@@ -220,8 +220,8 @@ const byId = (state = initialByIdState, action) => {
         }
       }
     case REMOVE_CATEGORY_ITEM: {
-      delete state[action.itemId]
-      return state
+      let {[action.itemId]: deleted, ...newState} = state
+      return newState
     }
     default:
       return state

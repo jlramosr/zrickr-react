@@ -8,6 +8,9 @@ import CloseIcon from 'material-ui-icons/Close'
 
 const styles = theme => ({
   snackbar: {
+    top: theme.spacing.unit,
+    right: theme.spacing.unit,
+    left: 'auto'
   },
   snackbarContentSuccess: {
     background: theme.palette.success[900]
@@ -61,9 +64,7 @@ class Notifier extends Component {
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         open={this.state.showNotification}
         onRequestClose={this._handleNotificationRequestClose}
-        style={{
-          className: classes.snackbar
-        }}
+        className={classes.snackbar}
         autoHideDuration={3000}
         transitionDuration={{
           enter: 200,

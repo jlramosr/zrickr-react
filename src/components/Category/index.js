@@ -10,8 +10,10 @@ import NotFound from '../notFound'
 class Category extends Component {
   componentWillMount = () => {
     this.props.fetchCategoriesIfNeeded()
-    this.props.fetchSettings()
-    this.props.fetchFields()
+    //this.props.fetchSettings()
+    this.props.fetchSettingsIfNeeded()
+    //this.props.fetchFields()
+    this.props.fetchFieldsIfNeeded()
   }
 
   componentDidUpdate = prevProps => {
@@ -36,12 +38,12 @@ class Category extends Component {
     return (
       categoriesReceived ? (
         category ? (
-          <div>
+          <React.Fragment key={categoryId}> 
             {renderRoutes(route.routes, {
               categoryId,
               categoryLabel: category.label
             })}
-          </div> 
+          </React.Fragment> 
         ) : (
           <NotFound text="Category Not Found" />
         )

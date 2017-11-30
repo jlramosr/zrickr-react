@@ -1,8 +1,8 @@
 import { combineReducers } from 'redux'
 import { RECEIVE_CATEGORIES } from '../actions/categories'
-import { REQUEST_CATEGORY_FIELDS } from '../actions/fields'
+import { RECEIVING_CATEGORY_FIELDS } from '../actions/fields'
+import { RECEIVING_CATEGORY_FIELDS_ERROR } from '../actions/fields'
 import { RECEIVE_CATEGORY_FIELDS } from '../actions/fields'
-import { REQUEST_CATEGORY_FIELDS_ERROR } from '../actions/fields'
 
 const initialFlowState = {}
 const initialCategoryFlowState = {
@@ -25,13 +25,23 @@ const flow = (state = initialFlowState, action) => {
           ...state[categoryId]
         }
       }), {})
-    case REQUEST_CATEGORY_FIELDS:
+    case RECEIVING_CATEGORY_FIELDS:
       return {
         ...state,
         [action.categoryId]: {
           ...state[action.categoryId],
           isFetchingAll: true,
           fetchedAllAt: action.fetchedAllAt
+        }
+      }
+    case RECEIVING_CATEGORY_FIELDS_ERROR:
+      return {
+        ...state,
+        [action.categoryId]: {
+          ...state[action.categoryId],
+          isFetchingAll: false,
+          isReceivedAll: false,
+          errorFetchingAll: action.errorFetchingAll
         }
       }
     case RECEIVE_CATEGORY_FIELDS:
@@ -42,16 +52,6 @@ const flow = (state = initialFlowState, action) => {
           isFetchingAll: false,
           isReceivedAll: true,
           receivedAllAt: action.receivedAllAt
-        }
-      }
-    case REQUEST_CATEGORY_FIELDS_ERROR:
-      return {
-        ...state,
-        [action.categoryId]: {
-          ...state[action.categoryId],
-          isFetchingAll: false,
-          isReceivedAll: false,
-          errorFetchingAll: action.errorFetchingAll
         }
       }
     default:
@@ -76,9 +76,8 @@ const byId = (state = initialByIdState, action) => {
 
 const allIds = (state = initialAllIdsState, action) => {
   switch (action.type) {
-    case RECEIVE_CATEGORY_FIELDS: {
+    case RECEIVE_CATEGORY_FIELDS:
       return [...new Set(state, Object.keys(action.fields))]
-    }
     default:
       return state
   }

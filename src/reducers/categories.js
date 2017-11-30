@@ -1,11 +1,13 @@
 import { combineReducers } from 'redux'
-import { REQUEST_CATEGORIES } from '../actions/categories'
+import { RECEIVING_CATEGORIES } from '../actions/categories'
+import { RECEIVING_CATEGORIES_ERROR } from '../actions/categories'
 import { RECEIVE_CATEGORIES } from '../actions/categories'
-import { REQUEST_CATEGORIES_ERROR } from '../actions/categories'
 import { RECEIVE_CATEGORY_SETTINGS } from '../actions/settings'
 import { RECEIVE_CATEGORY_FIELDS } from '../actions/fields'
 import { RECEIVE_CATEGORY_ITEMS } from '../actions/items'
 import { RECEIVE_CATEGORY_ITEM } from '../actions/items'
+import { CREATE_CATEGORY_ITEM } from '../actions/items'
+import { REMOVE_CATEGORY_ITEM } from '../actions/items'
 
 const initialFlowState = {
   isFetchingAll: false,
@@ -29,7 +31,7 @@ const flow = (state = initialFlowState, action) => {
       }
       return state
       // break omitted*/
-    case REQUEST_CATEGORIES:
+    case RECEIVING_CATEGORIES:
       return {
         ...state,
         isFetchingAll: true,
@@ -42,7 +44,7 @@ const flow = (state = initialFlowState, action) => {
         isReceivedAll: true,
         receivedAllAt: action.receivedAllAt
       }
-    case REQUEST_CATEGORIES_ERROR:
+    case RECEIVING_CATEGORIES_ERROR:
       return {
         ...state,
         isFetchingAll: false,
@@ -84,7 +86,7 @@ const byId = (state = initialByIdState, action) => {
           fields: Object.keys(action.fields)
         }
       }
-    case RECEIVE_CATEGORY_ITEMS: {
+    case RECEIVE_CATEGORY_ITEMS:
       return {
         ...state,
         [action.categoryId]: {
@@ -92,8 +94,20 @@ const byId = (state = initialByIdState, action) => {
           items: Object.keys(action.items)
         }
       }
-    }
-    case RECEIVE_CATEGORY_ITEM: {
+    case RECEIVE_CATEGORY_ITEM:
+      return {
+        ...state,
+        [action.categoryId]: {
+          ...state[action.categoryId],
+          items:
+            state[action.categoryId].items.includes(action.itemId) ? (
+              state[action.categoryId].items
+            ) : (
+              [...state[action.categoryId].items || [], action.itemId]
+            )
+        }
+      }
+    case CREATE_CATEGORY_ITEM:
       return {
         ...state,
         [action.categoryId]: {
@@ -101,7 +115,15 @@ const byId = (state = initialByIdState, action) => {
           items: [...state[action.categoryId].items || [], action.itemId]
         }
       }
-    }
+    case REMOVE_CATEGORY_ITEM:
+      return {
+        ...state,
+        [action.categoryId]: {
+          items: state[action.categoryId].items.filter(
+            itemId => itemId !== action.itemId
+          )
+        }
+      }
     default:
       return state
   }

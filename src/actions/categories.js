@@ -1,45 +1,53 @@
 import API from '../utils/api'
 
 //export const REHYDRATE = 'persist/REHYDRATE'
-export const REQUEST_CATEGORIES = 'REQUEST_CATEGORIES'
+export const RECEIVING_CATEGORIES = 'RECEIVING_CATEGORIES'
+export const RECEIVING_CATEGORIES_ERROR = 'RECEIVING_CATEGORIES_ERROR'
 export const RECEIVE_CATEGORIES = 'RECEIVE_CATEGORIES'
-export const REQUEST_CATEGORIES_ERROR = 'REQUEST_CATEGORIES_ERROR'
 
-export const requestCategories = () => ({
-  type: REQUEST_CATEGORIES,
+const _receivingCategoriesAction = () => ({
+  type: RECEIVING_CATEGORIES,
   fetchingAllAt: Date.now()
 })
 
-export const receiveCategories = categories => ({
+const _errorReceivingCategoriesAction = (categoryId, error) => ({
+  type: RECEIVING_CATEGORIES_ERROR,
+  errorFetchingAll: `${Date.now()} ${error}`,
+  categoryId
+})
+
+const _receiveCategoriesAction = categories => ({
   type: RECEIVE_CATEGORIES,
   receivedAllAt: Date.now(),
   categories
 })
 
-export const errorFetchingCategories = (categoryId, error) => ({
-  type: REQUEST_CATEGORIES_ERROR,
-  errorFetchingAll: `${Date.now()} ${error}`,
-  categoryId
-})
-
-export const fetchCategories = () => dispatch => {
-  dispatch(requestCategories())
+const _fetchCategories = () => dispatch => {
+  dispatch(_receivingCategoriesAction())
   const params = {
     collection: 'categories'
   }
   return API('firebase').fetch(params)
     .then(
       categories => {
-        dispatch(receiveCategories(categories || {}))
+        dispatch(_receiveCategoriesAction(categories || {}))
       },
       error => {
         console.error('An error occurred fetching categories:', error)
-        dispatch(errorFetchingCategories(error))
+        dispatch(_errorReceivingCategoriesAction(error))
       }
     )
 }
 
-export const shouldFetchCategories = state => {
+const _shouldFetchCategories = state => {
+  const { categories } = state
+  if (categories && categories.flow.isFetchingAll) {
+    return false
+  }
+  return true
+}
+
+const _shouldFetchCategoriesIfNeeded = state => {
   const { categories } = state
   if (!categories) {
     return true
@@ -49,10 +57,18 @@ export const shouldFetchCategories = state => {
   return !categories.flow.isReceivedAll
 }
 
+export const fetchCategories = () => {
+  return (dispatch, getState) => {
+    if (_shouldFetchCategories(getState())) {
+      return dispatch(_fetchCategories())
+    }
+  }
+}
+
 export const fetchCategoriesIfNeeded = () => {
   return (dispatch, getState) => {
-    if (shouldFetchCategories(getState())) {
-      return dispatch(fetchCategories())
+    if (_shouldFetchCategoriesIfNeeded(getState())) {
+      return dispatch(_fetchCategories())
     }
   }
 }

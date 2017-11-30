@@ -5,7 +5,7 @@ import HeaderLayout from '../headerLayout'
 import { fetchItem } from '../../actions/items'
 import Form from '../form'
 import { notify } from '../../actions/notifier'
-import { renewItem, deleteItem } from '../../actions/items'
+import { updateItem, removeItem } from '../../actions/items'
 import ArrowBack from 'material-ui-icons/ArrowBack'
 import Close from 'material-ui-icons/Close'
 import Check from 'material-ui-icons/Check'
@@ -25,8 +25,8 @@ class CategoryItemDetail extends Component {
   }
 
   _updateItem = values => {
-    const { settings, renewItem, notify } = this.props
-    return renewItem(values).then(
+    const { settings, updateItem, notify } = this.props
+    return updateItem(values).then(
       () => {
         notify(
           `${capitalize(settings.itemLabel)} updated succesfully`,
@@ -42,9 +42,9 @@ class CategoryItemDetail extends Component {
     )
   }
 
-  _deleteItem = () => {
-    const { settings, deleteItem, notify } = this.props
-    return deleteItem().then(
+  _removeItem = () => {
+    const { settings, removeItem, notify } = this.props
+    return removeItem().then(
       () => {
         notify(
           `${capitalize(settings.itemLabel)} removed succesfully`,
@@ -185,8 +185,8 @@ const mapDispatchToProps = (dispatch, props) => {
   const itemId = props.dialog ? props.itemId : props.match.params.itemId
   return {
     fetchItem: () => dispatch(fetchItem(categoryId,itemId)),
-    renewItem: item => dispatch(renewItem(props.categoryId, itemId, item)),
-    deleteItem: () => dispatch(deleteItem(categoryId,itemId)),
+    updateItem: item => dispatch(updateItem(props.categoryId, itemId, item)),
+    removeItem: () => dispatch(removeItem(categoryId,itemId)),
     notify: (message, type) => dispatch(notify(message, type))
   }
 }

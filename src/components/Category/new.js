@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import Form from '../form'
 import { notify } from '../../actions/notifier'
-import { createNewItem } from '../../actions/items'
+import { createItem } from '../../actions/items'
 import HeaderLayout from '../headerLayout'
 import Close from 'material-ui-icons/Close'
 import Check from 'material-ui-icons/Check'
@@ -12,13 +12,15 @@ import { capitalize } from '../../utils/helpers'
 class CategoryItemNew extends Component {
 
   _createItem = item => {
-    const { createNewItem, notify, closeDialog } = this.props
-    return createNewItem(item).then(
-      () => {
+    const { createItem, notify, closeDialog } = this.props
+    return createItem(item).then(
+      itemId => {
         notify(
           `${capitalize(this.props.itemLabel)} created succesfully`,
           'success'
         )
+        const { categoryId, history } = this.props
+        history.push(`${categoryId}/${itemId}`)
         closeDialog()
       }, error => {
         notify(
@@ -60,7 +62,8 @@ CategoryItemNew.propTypes = {
   categoryId: PropTypes.string,
   isFetchingFields: PropTypes.bool,
   fields: PropTypes.array,
-  itemLabel: PropTypes.string
+  itemLabel: PropTypes.string,
+  history: PropTypes.object
 }
 
 const mapStateToProps = ({ categories, fields, items }, props) => {
@@ -74,7 +77,7 @@ const mapStateToProps = ({ categories, fields, items }, props) => {
 }
 
 const mapDispatchToProps = (dispatch, props) => ({
-  createNewItem: item => dispatch(createNewItem(props.categoryId, item)),
+  createItem: item => dispatch(createItem(props.categoryId, item)),
   notify: (message, type) => dispatch(notify(message, type))
 })
 

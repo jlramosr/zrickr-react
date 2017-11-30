@@ -22,11 +22,11 @@ class CustomDrawer extends Component {
 
     return (
       <Drawer open={opened}>
-        <div>
+        <React.Fragment>
           <IconButton onClick={close}>
             <ChevronLeftIcon />
           </IconButton>
-        </div>
+        </React.Fragment>
         <Divider />
         {categories.map(category => (
           <Link

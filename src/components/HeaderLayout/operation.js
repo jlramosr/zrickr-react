@@ -4,38 +4,40 @@ import PropTypes from 'prop-types'
 import IconButton from 'material-ui/IconButton'
 import Tooltip from 'material-ui/Tooltip'
 
-const Operation = props => {
-  const { id, icon, color, hidden, to, description, onClick } = props
+const Action = props => {
+  const { id, to, icon, color, onClick } = props
   const Icon = icon
 
+  return (
+    <IconButton color={color} style={{cursor: onClick || to ? 'pointer' : 'default'}}>
+      <Icon aria-label={id} onClick={onClick} />
+    </IconButton>
+  )
+}
+
+const Operation = props => {
+  const { hidden, to, description } = props
+  
   return (
     <div hidden={hidden}>
       {to ? (
         <Link to={to}>
-          <IconButton color={color}>
-            <Icon
-              aria-label={id}
-              onClick={onClick}
-            />
-          </IconButton>
+          <Action {...props} />
         </Link> 
       ) : (
         description ? (
-          <Tooltip title={description} placement="bottom" enterDelay={200}>
-            <IconButton color={color} style={{cursor: onClick ? 'pointer' : 'default'}}>
-              <Icon
-                aria-label={id}
-                onClick={onClick}
-              />
-            </IconButton>
+          <Tooltip
+            title={description}
+            placement="left"
+            disableTriggerTouch
+            disableTriggerFocus
+            enterDelay={1000}
+            leaveDelay={0}
+          >
+            <Action {...props} />
           </Tooltip>
         ) : (
-          <IconButton color={color} style={{cursor: onClick ? 'pointer' : 'default'}}>
-            <Icon
-              aria-label={id}
-              onClick={onClick}
-            />
-          </IconButton>
+          <Action {...props} />
         )
       )}
     </div>

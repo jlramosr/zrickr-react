@@ -116,11 +116,10 @@ const styles = theme => ({
       display: 'none'
     }
   },
-  loading: {
+  progress: {
     display: 'flex',
     alignItems: 'center',
-    marginLeft: theme.spacing.unit,
-    marginRight: theme.spacing.unit
+    margin: `0 ${theme.spacing.unit}px`
   }
 })
 
@@ -268,8 +267,10 @@ class CustomToolbar extends Component {
           }
 
           <div className={classes.rightOperations}>
-            <div className={classes.loading}>
-              {loading && <CircularProgress size={30} color="accent"/>}
+            <div className={classes.progress}>
+              {loading &&
+                <CircularProgress size={20} thickness={7} color="accent" />
+              }
             </div>
             <div className={classes.searchOperation}>
               <Operation
