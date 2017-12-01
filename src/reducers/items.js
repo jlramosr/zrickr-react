@@ -194,8 +194,8 @@ const byId = (state = initialByIdState, action) => {
       return Object.keys(action.items).reduce((items, itemId) => ({
         ...items, 
         [itemId]: {
-          id: itemId,
-          ...action.items[itemId]
+          ...action.items[itemId],
+          id: itemId
         }
       }), state)
     case RECEIVE_CATEGORY_ITEM:
@@ -203,13 +203,17 @@ const byId = (state = initialByIdState, action) => {
         ...state,
         [action.itemId]: {
           ...state[action.itemId],
-          ...action.item
+          ...action.item,
+          id: action.itemId
         }
       }
     case CREATE_CATEGORY_ITEM:
       return {
         ...state,
-        [action.itemId]: action.item
+        [action.itemId]: {
+          ...action.item,
+          id: action.itemId
+        }
       }
     case UPDATE_CATEGORY_ITEM:
       return {

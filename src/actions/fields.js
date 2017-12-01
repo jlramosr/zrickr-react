@@ -61,10 +61,8 @@ const _shouldFetchFieldsIfNeeded = (state, categoryId) => {
   } else if (Date.now() - (fields.flow[categoryId].fetchedAllAt || 100) < 100) {
     return false
   }
-  return true
+  return !fields.flow[categoryId].isReceivedAll
 }
-
-
 
 export const fetchFields = categoryId => {
   return (dispatch, getState) => {

@@ -135,7 +135,7 @@ const _shouldFetchItemsIfNeeded = (state, categoryId) => {
   } else if (Date.now() - (items.flow[categoryId].fetchedAllAt || 100) < 100) {
     return false
   }
-  return true
+  return !items.flow[categoryId].isReceivedAll
 }
 
 const _shouldFetchItem = (state, categoryId) => {
@@ -294,7 +294,6 @@ export const fetchItems = categoryId => {
 export const fetchItemsIfNeeded = categoryId => {
   return (dispatch, getState) => {
     if (_shouldFetchItemsIfNeeded(getState(), categoryId)) {
-      console.log("HOLA")
       return dispatch(_fetchItems(categoryId))
     }
   }

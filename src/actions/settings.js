@@ -60,10 +60,10 @@ const _shouldFetchSettingsIfNeeded = (state, categoryId) => {
     return true
   } else if (settings.flow[categoryId].isFetching) {
     return false
-  } else if (Date.now() - (settings.flow[categoryId].fetchedAllAt || 100) < 100) {
+  } else if (Date.now() - (settings.flow[categoryId].fetchedAt || 100) < 100) {
     return false
   }
-  return true
+  return !settings.flow[categoryId].isReceived
 }
 
 export const fetchSettings = categoryId => {

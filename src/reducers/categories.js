@@ -119,6 +119,7 @@ const byId = (state = initialByIdState, action) => {
       return {
         ...state,
         [action.categoryId]: {
+          ...state[action.categoryId],
           items: state[action.categoryId].items.filter(
             itemId => itemId !== action.itemId
           )

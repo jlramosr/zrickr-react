@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import HeaderLayout from '../headerLayout'
-import { fetchItem } from '../../actions/items'
+import { fetchItemIfNeeded } from '../../actions/items'
 import Form from '../form'
 import { notify } from '../../actions/notifier'
 import { updateItem, removeItem } from '../../actions/items'
@@ -43,14 +43,14 @@ class CategoryItemDetail extends Component {
   }
 
   _removeItem = () => {
-    const { settings, removeItem, notify } = this.props
+    const { categoryId, settings, removeItem, notify, history } = this.props
     return removeItem().then(
       () => {
         notify(
           `${capitalize(settings.itemLabel)} removed succesfully`,
           'success'
         )
-        this._changeEditMode(false)
+        history.push(`/${categoryId}`)
       }, error => {
         notify(
           `There has been an error removing the ${settings.itemLabel.toLowerCase()}: ${error}`,
@@ -66,7 +66,7 @@ class CategoryItemDetail extends Component {
 
   componentWillMount = () => {
     //console.log('DETAIL MOUNTED')
-    this.props.fetchItem()
+    this.props.fetchItemIfNeeded() //this.props.fetchItem()
   }
 
   render = () => {
@@ -101,7 +101,7 @@ class CategoryItemDetail extends Component {
               this.formElement.dispatchEvent(event)
             }},
             {id:'edit', icon:Edit, right:true, hidden:editMode, onClick:() => this._changeEditMode(true)},
-            {id:'delete', icon:Delete, right:true, hidden:editMode, onClick:this._deleteItem}
+            {id:'delete', icon:Delete, right:true, hidden:editMode, onClick:this._removeItem}
           ]}
         >
           <Form
@@ -184,7 +184,7 @@ const mapDispatchToProps = (dispatch, props) => {
   const categoryId = props.categoryId
   const itemId = props.dialog ? props.itemId : props.match.params.itemId
   return {
-    fetchItem: () => dispatch(fetchItem(categoryId,itemId)),
+    fetchItemIfNeeded: () => dispatch(fetchItemIfNeeded(categoryId,itemId)),
     updateItem: item => dispatch(updateItem(props.categoryId, itemId, item)),
     removeItem: () => dispatch(removeItem(categoryId,itemId)),
     notify: (message, type) => dispatch(notify(message, type))

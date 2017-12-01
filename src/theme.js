@@ -195,8 +195,11 @@ theme = {
       }
     },
     PageSizeSelector: {
-      select: {
-        width: 30
+      pageSizeSelector: {
+        display: 'flex',
+        alignItems: 'center',
+        paddingBottom: 2,
+        color: theme.standards.colors.primary[900]
       }
     },
 
