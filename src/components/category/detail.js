@@ -17,7 +17,7 @@ import NotFound from '../notFound'
 
 class CategoryItemDetail extends Component {
   state = {
-    editMode: true
+    editMode: false
   }
 
   _changeEditMode = editMode => {
@@ -79,6 +79,7 @@ class CategoryItemDetail extends Component {
       item,
       isFetchingItem,
       //itemReceived,
+      isUpdating,
       dialog,
       closeDialog
     } = this.props
@@ -89,7 +90,7 @@ class CategoryItemDetail extends Component {
         <HeaderLayout
           relative={dialog}
           title={item ? getItemInfo(settings.primaryFields, item) : ''}
-          loading={isFetchingSettings || isFetchingFields || isFetchingItem }
+          loading={isFetchingSettings || isFetchingFields || isFetchingItem || isUpdating }
           operations={[
             {id:'arrowBack', icon:ArrowBack, hidden:dialog, to:`/${categoryId}`},
             {id:'close', icon:Close, hidden:!dialog, onClick:closeDialog},
@@ -107,7 +108,7 @@ class CategoryItemDetail extends Component {
           <Form
             cols={12}
             view="detail"
-            readonly={!editMode}
+            infoMode={!editMode}
             fields={fields}
             values={item}
             handleSubmit={this._updateItem}
@@ -175,8 +176,9 @@ const mapStateToProps = ({ categories, settings, fields, items }, props) => {
     ),
     isFetchingFields: fields.flow[categoryId].isFetchingAll,
     item: category.items && category.items.includes(itemId) ? items.byId[itemId] : null,
-    isFetchingItem: items.flow[categoryId].isFetchingItem
+    isFetchingItem: items.flow[categoryId].isFetchingItem,
     //itemReceived: items.flow[categoryId].isReceivedItem || items.flow[categoryId].errorFetchingItem
+    isUpdating: items.flow[categoryId].isUpdating
   }
 }
 

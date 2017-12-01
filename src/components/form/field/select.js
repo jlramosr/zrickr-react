@@ -13,6 +13,18 @@ import 'react-virtualized-select/styles.css'
 import { FormControl, FormLabel } from 'material-ui/Form'
 import { getItemInfo } from '../../category/utils/helpers'
 
+const _getInputClassName = (classes, infoMode, readonly, required) => {
+  let className = 'inputSelect'
+  if (infoMode) {
+    className += 'Info'
+  } else if (readonly) {
+    className += 'Readonly'
+  } else if (required) {
+    className += 'Required'
+  }
+  return classes[className]
+}
+
 const OptionRenderer = ({ option, selectValue, style }) => (
   <div key={option.id} onClick={() => selectValue(option)} style={style}>
     <ListItem
@@ -65,25 +77,30 @@ class SelectField extends Component {
       id,
       value,
       label,
+      required,
+      readonly,
+      infoMode,
       relation,
       multi,
       handleFormFieldChange,
       isFetchingSettings,
       isFetchingFields,
       isFetchingItems,
+      isUpdating,
       classes
     } = this.props
     const options = this._getOptions()
     return (
       <FormControl fullWidth>
         {label && (
-          <FormLabel className={classes.inputSelectLabel}>
+          <FormLabel className={classes.labelSelect}>
             {label}
           </FormLabel>
         )}
         <VirtualizedSelect
-          className={classes.selectInput}
-          arrowRenderer={multi ? this._arrowRenderer : undefined}
+          className={_getInputClassName(classes, infoMode, readonly, required)}
+          disabled={readonly || infoMode}
+          arrowRenderer={infoMode ? null : multi ? this._arrowRenderer : undefined}
           placeholder=""
           optionRenderer={OptionRenderer}
           options={options}
@@ -96,7 +113,7 @@ class SelectField extends Component {
             null
           }
           multi={multi}
-          isLoading={isFetchingSettings || isFetchingFields || isFetchingItems}
+          isLoading={isFetchingSettings || isFetchingFields || isFetchingItems || isUpdating}
           labelKey="label"
           valueKey="id"
           onChange={selectedOptions => {
@@ -125,6 +142,8 @@ SelectField.propTypes = {
   label: PropTypes.string,
   description: PropTypes.string,
   required: PropTypes.bool,
+  readonly: PropTypes.bool,
+  infoMode: PropTypes.bool,
   options: PropTypes.array,
   relation: PropTypes.string,
   value: PropTypes.any,
@@ -142,7 +161,8 @@ const mapStateToProps = ({ categories, settings, fields, items }, props) => {
       fields: Object.values(fields.byId).filter(item => category.fields.includes(item.id)),
       isFetchingFields: fields.flow[categoryId].isFetchingAll,
       items: Object.values(items.byId).filter(item => category.items.includes(item.id)),
-      isFetchingItems: items.flow[categoryId].isFetchingAll
+      isFetchingItems: items.flow[categoryId].isFetchingAll,
+      isUpdating: items.flow[categoryId].isUpdating
     }
   }
   return {}

@@ -125,6 +125,11 @@ theme = {
         width: theme.standards.drawerWidth
       }
     },
+    MuiInput: {
+      disabled: {
+        outline: 'none'
+      }
+    },
 
 
     GridLayout: {

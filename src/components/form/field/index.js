@@ -6,76 +6,137 @@ import SwitchField from './switch'
 import ListField from './list'
 import TextField from './text'
 
-const paddingLeftCommon = 6
+const paddingLeft = 6
 
-const inputCommon = theme => ({
-  paddingLeft: paddingLeftCommon,
-  paddingRight: paddingLeftCommon,
+const input = theme => ({
+  paddingLeft: paddingLeft,
+  paddingRight: paddingLeft,
   borderRadius: 4,
   border: `1px solid ${theme.palette.primary[500]}`,
-  fontSize: 14,
   background: theme.palette.secondary[50],
-  transition: theme.transitions.create(['border-color', 'box-shadow']),
+  fontSize: 14,
+  transition: theme.transitions.create(
+    ['box-shadow']
+  ),
   '&:focus': {
-    borderColor: theme.palette.primary[500],
-    boxShadow: `0 0 0 0.1rem ${theme.palette.primary[500]}`,
+    boxShadow: `0 0 0 0.1rem ${theme.palette.primary[500]}`
   }
 })
 
-const inputLabelCommon = theme => ({
-  fontWeight: 300,
-  paddingLeft: paddingLeftCommon-2,
+const label = theme => ({
+  fontWeight: 500,
+  paddingLeft: paddingLeft-2,
   color: theme.palette.primary[500]
 })
 
+
 const styles = theme => ({
-  input: {
-    ...inputCommon(theme)
+  inputText: {
+    ...input(theme)
   },
-  inputRequired: {
-    ...inputCommon(theme),
+  inputTextRequired: {
+    ...input(theme),
     background: theme.palette.secondary[200]
   },
-  selectInput: {
+  inputTextReadonly: {
+    ...input(theme),
+    background: theme.palette.grey[200]    
+  },
+  inputTextInfo: {
+    padding: `1px ${paddingLeft-2}px`,
+    borderRadius: 4,
+    border: 0,
+    background: 'transparent',
+    fontSize: 14,
+    color: theme.palette.grey[700],
+    borderBottom: `1px solid ${theme.palette.primary[200]}`
+  },
+  inputSelect: {
     '& .Select-control': {
-      ...inputCommon(theme),
+      ...input(theme),
       borderBottomLeftRadius: 0,
       borderBottomRightRadius: 0,
       tableLayout: 'fixed',
       paddingLeft: 0
     },
     '& .Select-value': {
-      ...inputCommon(theme),
-      paddingLeft: `${paddingLeftCommon}px !important`,
+      ...input(theme),
+      paddingLeft: `${paddingLeft}px !important`,
       border: 0
     },
     '& .Select-menu-outer': {
       padding: 0
     }
   },
+  inputSelectRequired: {
+    '& .Select-control': {
+      ...input(theme),
+      background: theme.palette.secondary[200],
+      borderBottomLeftRadius: 0,
+      borderBottomRightRadius: 0,
+      tableLayout: 'fixed',
+      paddingLeft: 0
+    },
+    '& .Select-value': {
+      ...input(theme),
+      background: theme.palette.secondary[200],
+      paddingLeft: `${paddingLeft}px !important`,
+      border: 0
+    },
+    '& .Select-menu-outer': {
+      padding: 0
+    }
+  },
+  inputSelectReadonly: {
+    '& .Select-control': {
+      ...input(theme),
+      background: theme.palette.grey[200]
+    },
+    '& .Select-value': {
+      ...input(theme),
+      background: theme.palette.grey[200]
+    }
+  },
+  inputSelectInfo: {
+    '& .Select-control': {
+      border: 0
+    },
+    '& .Select-value': {
+      background: 'transparent',
+      fontSize: 14,
+      paddingLeft: `${paddingLeft-2}px !important`
+    }
+  },
+  inputSwitchFalse: {
+    color: theme.palette.grey[200]
+  },
+  inputSwitchTrue: {
+    color: theme.palette.primary[400]
+  },
+  inputList: {
+  },
+  labelText: {
+    ...label(theme)
+  },
+  labelSwitch: {
+    ...label(theme),
+    fontSize: 11,
+    paddingBottom: 1,
+    cursor: 'default'
+  },
+  labelSelect: {
+    ...label(theme),
+    fontSize: 12,
+    paddingBottom: 3
+  },
   textarea: {
     display: 'inline',
     marginRight: 10,
     padding: 0
   },
-  inputLabel: {
-    ...inputLabelCommon(theme)
-  },
-  inputSwitchLabel: {
-    ...inputLabelCommon(theme),
-    fontSize: 11,
-    paddingBottom: 1
-  },
-  inputSelectLabel: {
-    ...inputLabelCommon(theme),
-    fontSize: 12,
-    paddingBottom: 3
-  },
   helperText: {
     marginTop: 2,
     paddingLeft: 4
-  },
-  list: {
   }
 })
 
@@ -90,10 +151,12 @@ let Field = props => {
 
 Field.propTypes = {
   id: PropTypes.string.isRequired,
-  type: PropTypes.string.isRequired,
+  type: PropTypes.string,
   label: PropTypes.string,
   description: PropTypes.string,
   required: PropTypes.bool,
+  readonly: PropTypes.bool,
+  editMode: PropTypes.bool,
   options: PropTypes.array,
   relation: PropTypes.string,
   value: PropTypes.any,

@@ -129,7 +129,7 @@ class Form extends Component {
 
   render = () => {
     //console.log("FORM", this.state.item)
-    const { view, cols, fields, classes } = this.props
+    const { view, cols, fields, infoMode, classes } = this.props
     const { item, size } = this.state
 
     const formStyle = cols => ({
@@ -184,6 +184,7 @@ class Form extends Component {
                 >
                   <Field
                     {...field}
+                    infoMode={infoMode}
                     value={item ? item[field.id] : ''}
                     label={this._getFieldLabel(field.label, fieldView)}
                     description={this._getFieldDescription(field.description, fieldView)}
@@ -203,6 +204,7 @@ class Form extends Component {
 
 Form.propTypes = {
   cols: PropTypes.number,
+  infoMode: PropTypes.bool,
   view: PropTypes.string.isRequired,
   fields: PropTypes.array.isRequired,
   values: PropTypes.object.isRequired,
@@ -213,7 +215,8 @@ Form.propTypes = {
 }
 
 Form.defaultProps = {
-  cols: 10
+  cols: 10,
+  infoMode: false
 }
 
 export default withStyles(styles, {withTheme:true})(Form)
