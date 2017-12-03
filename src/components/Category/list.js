@@ -211,8 +211,8 @@ let CategoryListContainer = class extends Component {
       {}
     )
 
-    return (
-      tableMode ? (
+    if (tableMode) {
+      return (
         <React.Fragment>
           <Grid
             rows={items}
@@ -360,67 +360,67 @@ let CategoryListContainer = class extends Component {
             ]}
           />
         </React.Fragment>
-
-      ) : (
-
-        <React.Fragment>
-          <List
-            classes={{
-              padding:classes.listPadding,
-              dense:classes.listDense
-            }}
-            dense={dense}
-          >
-            {agendaShowingItems.map(item =>
-              <React.Fragment key={item.id}>
-                <Link
-                  tabIndex={-1}
-                  to={relationMode ? `/${categoryId}/${item.id}#dialog` : `/${categoryId}/${item.id}`}
-                  onClick={event => this._listItemClick(event, item.id)}
-                >
-                  <ListItem button disableRipple>
-                    {showAvatar &&
-                      <Avatar>
-                        <Icon>{settings.icon}</Icon>
-                      </Avatar>
-                    }
-                    <ListItemText
-                      primary={getItemInfo(settings.primaryFields, item)}
-                      secondary={getItemInfo(settings.secondaryFields, item)}
-                    />
-                    <ListItemSecondaryAction>
-                      <IconButton aria-label="Item Menu">
-                        <MoreVert
-                          onClick={ event => this._handleMenuItemClick(event, item.id)}
-                        />
-                      </IconButton>
-                    </ListItemSecondaryAction>
-                  </ListItem>
-                </Link>
-                <Divider/>
-              </React.Fragment>
-            )}
-          </List>
-          <Menu
-            elevation={4}
-            transformOrigin={{ vertical: 'top', horizontal: 'left'}}
-            anchorEl={this.state.anchorEl}
-            open={this.state.showMenuItem}
-            onRequestClose={this._handleMenuItemClose}
-            className={classes.menu}
-          >
-            <MenuItem onClick={this._handleMenuItemClose}>
-              View
-            </MenuItem>
-            <MenuItem onClick={this._handleMenuItemClose}>
-              Edit
-            </MenuItem>
-            <MenuItem onClick={this._handleMenuItemClose}>
-              Delete
-            </MenuItem>
-          </Menu>
-        </React.Fragment>
       )
+    }
+
+    return (
+      <React.Fragment>
+        <List
+          classes={{
+            padding:classes.listPadding,
+            dense:classes.listDense
+          }}
+          dense={dense}
+        >
+          {agendaShowingItems.map(item =>
+            <React.Fragment key={item.id}>
+              <Link
+                tabIndex={-1}
+                to={relationMode ? `/${categoryId}/${item.id}#dialog` : `/${categoryId}/${item.id}`}
+                onClick={event => this._listItemClick(event, item.id)}
+              >
+                <ListItem button disableRipple>
+                  {showAvatar &&
+                    <Avatar>
+                      <Icon>{settings.icon}</Icon>
+                    </Avatar>
+                  }
+                  <ListItemText
+                    primary={getItemInfo(settings.primaryFields, item)}
+                    secondary={getItemInfo(settings.secondaryFields, item)}
+                  />
+                  <ListItemSecondaryAction>
+                    <IconButton aria-label="Item Menu">
+                      <MoreVert
+                        onClick={ event => this._handleMenuItemClick(event, item.id)}
+                      />
+                    </IconButton>
+                  </ListItemSecondaryAction>
+                </ListItem>
+              </Link>
+              <Divider/>
+            </React.Fragment>
+          )}
+        </List>
+        <Menu
+          elevation={4}
+          transformOrigin={{ vertical: 'top', horizontal: 'left'}}
+          anchorEl={this.state.anchorEl}
+          open={this.state.showMenuItem}
+          onRequestClose={this._handleMenuItemClose}
+          className={classes.menu}
+        >
+          <MenuItem onClick={this._handleMenuItemClose}>
+            View
+          </MenuItem>
+          <MenuItem onClick={this._handleMenuItemClose}>
+            Edit
+          </MenuItem>
+          <MenuItem onClick={this._handleMenuItemClose}>
+            Delete
+          </MenuItem>
+        </Menu>
+      </React.Fragment>
     )
   }
 }
@@ -557,7 +557,6 @@ class CategoryList extends Component {
 
     return (
       <HeaderLayout
-        miniToolbar={relationMode}
         relative={relationMode}
         relativeHeight={relationMode ? 200 : null}
         overflow={tableMode ? 'hidden' : 'auto'}

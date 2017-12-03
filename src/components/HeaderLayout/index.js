@@ -47,7 +47,7 @@ const HeaderLayout = props => {
           {position:'relative', zIndex: 0} :
           {position:'fixed', zIndex: theme.zIndex.appBar+1}}
       >
-        <CustomToolbar {...rest}/>
+        <CustomToolbar relative={relative} {...rest}/>
       </div>
       <div
         className={classes.content}
@@ -70,13 +70,12 @@ const HeaderLayout = props => {
 HeaderLayout.propTypes = {
   classes: PropTypes.object.isRequired,
   children: PropTypes.node.isRequired,
-  relative: PropTypes.bool.isRequired,
+  relative: PropTypes.bool,
+  relativeHeight: PropTypes.number,
   operations: PropTypes.array,
   title: PropTypes.string,
   updateSearchQuery: PropTypes.func,
-  loading: PropTypes.bool,
-  miniToolbar: PropTypes.bool,
-  relativeHeight: PropTypes.number
+  loading: PropTypes.bool
 }
 
 HeaderLayout.defaultProps = {

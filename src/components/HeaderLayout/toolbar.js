@@ -98,8 +98,8 @@ const styles = theme => ({
   searchBarInputFocused: {
     background: theme.palette.primary[300]
   },
-  searchBarInputFocusedMiniToolbar: {
-    background: theme.palette.primary[700]
+  searchBarInputFocusedRelative: {
+    background: theme.palette.primary[600]
   },
   searchBarCloseIcon: {
     position: 'absolute',
@@ -144,8 +144,7 @@ Operations = withStyles(styles)(Operations)
 
 class CustomToolbar extends Component {
   state = {
-    searchQuery: '',
-    showMiniSearch: false
+    searchQuery: ''
   }
 
   _openMiniSearch = () => {
@@ -158,26 +157,26 @@ class CustomToolbar extends Component {
   }
 
   render = () => {
-    const { operations, title, updateSearchQuery, classes, theme, miniToolbar, loading } = this.props
+    const { operations, title, updateSearchQuery, relative, loading, classes, theme } = this.props
     const { searchQuery, showMiniSearch } = this.state
 
-    const miniToolbarHeight = 40
+    const relativeToolbarHeight = 40
+    const relativeToolbarBackground = theme.palette.primary[800]
+    const relativeSearchBackground = theme.palette.primary[700]
 
     return (
       <AppBar
         className={classes.root}
         style={
-          miniToolbar ? {
-            height: miniToolbarHeight,
-            background: theme.palette.primary[800]
+          relative ? {
+            height: relativeToolbarHeight,
+            background: relativeToolbarBackground
           } : {
           }
         }
         position="static"
       >
-        <Toolbar style={
-          miniToolbar ? {minHeight: miniToolbarHeight} : {}
-        }>
+        <Toolbar style={relative ? {minHeight: relativeToolbarHeight} : {}}>
 
           <div className={classes.leftOperations}>
             {React.createElement(Operations, {
@@ -188,7 +187,7 @@ class CustomToolbar extends Component {
           <div className={classes.title}>
             <Typography
               className={classes.titleText}
-              type={miniToolbar ? 'subheading' : 'title'}
+              type={relative ? 'subheading' : 'title'}
               color='inherit'
             >
               {title}
@@ -197,12 +196,12 @@ class CustomToolbar extends Component {
 
           <div
             className={classes.search}
-            style={miniToolbar ? {justifyContent: 'flex-end'}: {}}
+            style={relative ? {justifyContent: 'flex-end'}: {}}
           >
             {updateSearchQuery &&
             <div
               className={classes.searchBar}
-              style={miniToolbar ? {background: theme.palette.primary[700]}: {}}
+              style={relative ? {background: relativeSearchBackground}: {}}
             >
               <Search
                 size={20}
@@ -211,14 +210,14 @@ class CustomToolbar extends Component {
               />
               <Input
                 classes={{
-                  root:classes.searchBarInput,
-                  focused: miniToolbar ? 
-                    classes.searchBarInputFocusedMiniToolbar : 
+                  root: classes.searchBarInput,
+                  focused: relative ? 
+                    classes.searchBarInputFocusedRelative : 
                     classes.searchBarInputFocused
                 }}
                 color="contrast"
                 placeholder="Buscar"
-                disableUnderline={miniToolbar ? false : true}
+                disableUnderline={relative ? false : true}
                 value={searchQuery}
                 onChange={ event => this._updateSearchQuery(event.target.value) }
               />
@@ -249,7 +248,7 @@ class CustomToolbar extends Component {
                   }}
                   color="contrast"
                   placeholder="Buscar"
-                  disableUnderline={miniToolbar}
+                  disableUnderline={relative}
                   value={searchQuery}
                   onChange={ event => this._updateSearchQuery(event.target.value) }
                 />
@@ -299,12 +298,12 @@ CustomToolbar.propTypes = {
   title: PropTypes.string,
   updateSearchQuery: PropTypes.func,
   loading: PropTypes.bool.isRequired,
-  miniToolbar: PropTypes.bool
+  relative: PropTypes.bool
 }
 
 CustomToolbar.defaultProps = {
   loading: false,
-  miniToolbar: false
+  relative: false
 }
 
 export default withStyles(styles, {withTheme: true})(CustomToolbar)
