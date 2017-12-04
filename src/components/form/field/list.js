@@ -19,10 +19,13 @@ class ListField extends Component {
     const {
       relation,
       relationLabel,
+      infoMode,
+      readonly,
       label,
       value,
       classes 
     } = this.props
+
     const itemIds = (
       typeof value === 'object' ? 
         Object.keys(value).reduce((ids, id) => (
@@ -30,6 +33,7 @@ class ListField extends Component {
         ) :
         value
     )
+
     return (
       <Paper elevation={4} className={classes.list}>
         <CategoryList
@@ -37,6 +41,7 @@ class ListField extends Component {
           categoryLabel={label || relationLabel}
           itemIds={itemIds || []}
           relationMode={true}
+          editMode={!infoMode && !readonly}
           tableMode={false}
           showAvatar={false}
         />
@@ -51,6 +56,8 @@ ListField.propTypes = {
   label: PropTypes.string,
   description: PropTypes.string,
   required: PropTypes.bool,
+  readonly: PropTypes.bool,
+  infoMode: PropTypes.bool,
   options: PropTypes.array,
   relation: PropTypes.string,
   value: PropTypes.any,

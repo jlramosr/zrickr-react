@@ -10,6 +10,7 @@ import ArrowBack from 'material-ui-icons/ArrowBack'
 import Close from 'material-ui-icons/Close'
 import Check from 'material-ui-icons/Check'
 import Edit from 'material-ui-icons/Edit'
+import ChromeReaderMode from 'material-ui-icons/ChromeReaderMode'
 import Delete from 'material-ui-icons/Delete'
 import { getItemInfo } from './utils/helpers'
 import { capitalize } from '../../utils/helpers'
@@ -80,7 +81,8 @@ class CategoryItemDetail extends Component {
       isFetchingItem,
       //itemReceived,
       isUpdating,
-      dialog,
+      dialogMode,
+      relationMode,
       closeDialog
     } = this.props
     const { editMode } = this.state
@@ -88,21 +90,22 @@ class CategoryItemDetail extends Component {
       //itemReceived ? (
       item ? (
         <HeaderLayout
-          relative={dialog}
+          relative={relationMode}
           title={item ? getItemInfo(settings.primaryFields, item) : ''}
           loading={isFetchingSettings || isFetchingFields || isFetchingItem || isUpdating }
           operations={[
-            {id:'arrowBack', icon:ArrowBack, hidden:dialog, to:`/${categoryId}`},
-            {id:'close', icon:Close, hidden:!dialog, onClick:closeDialog},
+            {id:'arrowBack', icon:ArrowBack, hidden:dialogMode, to:`/${categoryId}`},
+            {id:'close', icon:Close, hidden:!dialogMode, onClick:closeDialog},
+            {id:'edit', icon:Edit, right:true, hidden:editMode, onClick:() => this._changeEditMode(true)},
+            {id:'view', icon:ChromeReaderMode, right:true, hidden:!editMode, onClick:() => this._changeEditMode(false)},
+            {id:'delete', icon:Delete, right:true, hidden:editMode || dialogMode, onClick:this._removeItem},
             {id:'check', icon:Check, right:true, hidden:!editMode, onClick: () => {
               const event = new Event('submit', {
                 'bubbles'    : false,
                 'cancelable' : false
               })
               this.formElement.dispatchEvent(event)
-            }},
-            {id:'edit', icon:Edit, right:true, hidden:editMode, onClick:() => this._changeEditMode(true)},
-            {id:'delete', icon:Delete, right:true, hidden:editMode, onClick:this._removeItem}
+            }}
           ]}
         >
           <Form
@@ -129,7 +132,7 @@ CategoryItemDetail.propTypes = {
   categoryId: PropTypes.string.isRequired,
   dialog: PropTypes.bool,
   itemId: (props, propName, componentName) => {
-    if (props.dialog) {
+    if (props.dialogMode) {
       if (!props.itemId) {
         return new Error(
           `The prop ${propName} is marked as required in ${componentName} when this component is shown in a dialog, but its value is ${props.itemId}`
@@ -145,7 +148,7 @@ CategoryItemDetail.propTypes = {
   settings: PropTypes.object.isRequired,
   fields: PropTypes.array.isRequired,
   closeDialog: (props, propName, componentName) => {
-    if (props.dialog) {
+    if (props.dialogMode) {
       if (!props.closeDialog) {
         return new Error(
           `The prop ${propName} is marked as required in ${componentName} when this component is shown in a dialog, but its value is ${props.closeDialog}`
@@ -161,12 +164,12 @@ CategoryItemDetail.propTypes = {
 }
 
 CategoryItemDetail.defaultProps = {
-  dialog: false
+  dialogMode: false
 }
 
 const mapStateToProps = ({ categories, settings, fields, items }, props) => {
   const categoryId = props.categoryId
-  const itemId = props.dialog ? props.itemId : props.match.params.itemId
+  const itemId = props.dialogMode ? props.itemId : props.match.params.itemId
   const category = categories.byId[categoryId]
   return { 
     settings: category.settings ? settings.byId[category.settings] : {},
@@ -184,7 +187,7 @@ const mapStateToProps = ({ categories, settings, fields, items }, props) => {
 
 const mapDispatchToProps = (dispatch, props) => {
   const categoryId = props.categoryId
-  const itemId = props.dialog ? props.itemId : props.match.params.itemId
+  const itemId = props.dialogMode ? props.itemId : props.match.params.itemId
   return {
     fetchItemIfNeeded: () => dispatch(fetchItemIfNeeded(categoryId,itemId)),
     updateItem: item => dispatch(updateItem(props.categoryId, itemId, item)),

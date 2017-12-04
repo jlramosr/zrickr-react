@@ -20,7 +20,7 @@ let theme = createMuiTheme({
         'A400': '#5E9031',
         'A700': '#355915',
         'contrastDefaultColor': 'light',
-        ...grey
+        
       },
       secondary: {
         '50': '#FFF6EC',
@@ -139,7 +139,7 @@ theme = {
         paddingTop: theme.spacing.unit/2,
         paddingBottom: theme.spacing.unit/2,
         paddingRigth: theme.spacing.unit*3,
-        paddingLeft: theme.spacing.unit*3,
+        paddingLeft: theme.spacing.unit*2,
         height: 32,
         whiteSpace: 'nowrap',
         overflow: 'hidden'
@@ -160,13 +160,20 @@ theme = {
     },
     TableHeaderCell: {
       cell: {
-        fontWeight: 700
+        fontWeight: 700,
+        paddingLeft: theme.spacing.unit*2
       }
     },
     TableFilterCell: {
       cell: {
         paddingTop: 0,
-        paddingRight: 12
+        paddingRight: 12,
+        paddingLeft: theme.spacing.unit*2
+      }
+    },
+    TableCell: {
+      cell: {
+        paddingLeft: theme.spacing.unit*2
       }
     },
     MuiCheckbox: {

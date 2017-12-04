@@ -156,7 +156,7 @@ Field.propTypes = {
   description: PropTypes.string,
   required: PropTypes.bool,
   readonly: PropTypes.bool,
-  editMode: PropTypes.bool,
+  infoMode: PropTypes.bool,
   options: PropTypes.array,
   relation: PropTypes.string,
   value: PropTypes.any,

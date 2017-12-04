@@ -99,7 +99,7 @@ const styles = theme => ({
     background: theme.palette.primary[300]
   },
   searchBarInputFocusedRelative: {
-    background: theme.palette.primary[600]
+    background: theme.palette.primary[50]
   },
   searchBarCloseIcon: {
     position: 'absolute',
@@ -124,12 +124,12 @@ const styles = theme => ({
 })
 
 let Operations = props => {
-  const { operations, classes } = props
+  const { operations, color, classes } = props
 
   return (
     <div className={classes.operations}>
       {operations.map(operation => 
-        <Operation key={operation.id} {...operation} />
+        <Operation key={operation.id} color={color} {...operation} />
       )}
     </div>
   )
@@ -161,8 +161,8 @@ class CustomToolbar extends Component {
     const { searchQuery, showMiniSearch } = this.state
 
     const relativeToolbarHeight = 40
-    const relativeToolbarBackground = theme.palette.primary[800]
-    const relativeSearchBackground = theme.palette.primary[700]
+    const relativeToolbarBackground = theme.palette.primary[200]
+    const relativeSearchBackground = theme.palette.primary[100]
 
     return (
       <AppBar
@@ -176,19 +176,27 @@ class CustomToolbar extends Component {
         }
         position="static"
       >
-        <Toolbar style={relative ? {minHeight: relativeToolbarHeight} : {}}>
+        <Toolbar
+          style={relative ? {
+            minHeight: relativeToolbarHeight,
+            paddingLeft: theme.spacing.unit*2,
+            paddingRight: theme.spacing.unit/2
+          } : {
+          }}
+        >
 
           <div className={classes.leftOperations}>
-            {React.createElement(Operations, {
-              operations: operations.filter(operation => !operation.right)
-            })}
+            <Operations
+              operations={operations.filter(operation => !operation.right)}
+              color={relative ? 'primary' : 'contrast'}
+            />
           </div>
 
           <div className={classes.title}>
             <Typography
               className={classes.titleText}
               type={relative ? 'subheading' : 'title'}
-              color='inherit'
+              color={relative ? 'primary' : 'inherit'}
             >
               {title}
             </Typography>
@@ -205,7 +213,7 @@ class CustomToolbar extends Component {
             >
               <Search
                 size={20}
-                color="contrast"
+                color={relative ? theme.palette.primary[600] : theme.palette.primary[900]}
                 className={classes.searchBarSearchIcon}
               />
               <Input
@@ -224,7 +232,7 @@ class CustomToolbar extends Component {
               {searchQuery && 
                 <Close
                   size={20}
-                  color="inherit"
+                  color={relative ? theme.palette.primary[600] : theme.palette.primary[900]}
                   className={classes.searchBarCloseIcon}
                   onClick={ () => this._updateSearchQuery('')}
                 />
@@ -275,14 +283,15 @@ class CustomToolbar extends Component {
               <Operation
                 id="search-small"
                 icon={Search}
-                color={showMiniSearch ? 'accent' : 'contrast'}
+                color={showMiniSearch ? 'accent' : 'primary'}
                 hidden={!updateSearchQuery}
                 onClick={this._openMiniSearch}
               />
             </div>
-            {React.createElement(Operations, {
-              operations: operations.filter(operation => operation.right)
-            })}
+            <Operations
+              operations={operations.filter(operation => operation.right)}
+              color={relative ? 'primary' : 'contrast'}
+            />
           </div>
 
         </Toolbar>

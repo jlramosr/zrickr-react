@@ -184,6 +184,8 @@ class Form extends Component {
                 >
                   <Field
                     {...field}
+                    required={item.evalCondition(field.required,field.id)}
+                    readonly={item.evalCondition(field.readonly,field.id)}
                     infoMode={infoMode}
                     value={item ? item[field.id] : ''}
                     label={this._getFieldLabel(field.label, fieldView)}
