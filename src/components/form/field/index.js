@@ -151,6 +151,7 @@ let Field = props => {
 
 Field.propTypes = {
   id: PropTypes.string.isRequired,
+  categoryId: PropTypes.string.isRequired,
   type: PropTypes.string,
   label: PropTypes.string,
   description: PropTypes.string,

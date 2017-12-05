@@ -70,17 +70,28 @@ class SelectField extends Component {
       this.props.options
   }
 
-  _arrowRenderer = () => <span>+</span>
+  _getValue() {
+    const { value } = this.props
+    return (
+      typeof value === 'object' && !Array.isArray(value) ? (
+        Object.keys(value).reduce((ids, id) => (
+          value[id] ? [...ids, id] : [...ids]
+        ), [])
+      ) : (
+        value || []
+      )
+    )
+  }
+
+  _arrowMultiRenderer = () => <span>+</span>
 
   render = () => {
     const {
       id,
-      value,
       label,
       required,
       readonly,
       infoMode,
-      relation,
       multi,
       handleFormFieldChange,
       isFetchingSettings,
@@ -90,25 +101,27 @@ class SelectField extends Component {
       classes
     } = this.props
     const options = this._getOptions()
+    const processedValue = this._getValue()
+
     return (
       <FormControl fullWidth>
         {label && (
           <FormLabel className={classes.labelSelect}>
-            {label}
+            {label}{required && !infoMode && ' *'}
           </FormLabel>
         )}
         <VirtualizedSelect
           className={_getInputClassName(classes, infoMode, readonly, required)}
           disabled={readonly || infoMode}
-          arrowRenderer={infoMode ? null : multi ? this._arrowRenderer : undefined}
+          arrowRenderer={infoMode ? null : multi ? this._arrowMultiRenderer : undefined}
           placeholder=""
           optionRenderer={OptionRenderer}
           options={options}
-          value={value ?
+          value={processedValue ?
             (
-              Array.isArray(value) ?
-                options.filter(option => value.includes(relation ? option.id : option.label)) :
-                options.find(option => (relation ? option.id : option.label) === value)
+              Array.isArray(processedValue) ?
+                options.filter(option => processedValue.includes(option.id)) :
+                options.find(option => option.id === processedValue)
             ) :
             null
           }
@@ -120,12 +133,13 @@ class SelectField extends Component {
             let value = null
             if (selectedOptions) {
               if (multi) {
+                //selectedOptions is an array [{id,label}]
                 value = selectedOptions.reduce((value, option) => [
-                  ...value, relation ? option.id : option.label
+                  ...value, option.id
                 ], [])
               } else {
-                //options is an object {id,label}
-                value = relation ? selectedOptions.id : selectedOptions.label
+                //selectedOptions is an object {id,label}
+                value = selectedOptions.id
               }
             }
             handleFormFieldChange(id, value)

@@ -198,7 +198,7 @@ const byId = (state = initialByIdState, action) => {
           id: itemId
         }
       }), state)
-    case RECEIVE_CATEGORY_ITEM:
+    case RECEIVE_CATEGORY_ITEM: {
       return {
         ...state,
         [action.itemId]: {
@@ -207,6 +207,7 @@ const byId = (state = initialByIdState, action) => {
           id: action.itemId
         }
       }
+    }
     case CREATE_CATEGORY_ITEM:
       return {
         ...state,

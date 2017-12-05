@@ -15,35 +15,45 @@ class ListField extends Component {
     }
   }
 
+  _getItemIds() {
+    const { value } = this.props
+    return (
+      typeof value === 'object' && !Array.isArray(value) ? (
+        Object.keys(value).reduce((ids, id) => (
+          value[id] ? [...ids, id] : [...ids]
+        ), [])
+      ) : (
+        value || []
+      )
+    )
+  }
+
   render = () => {
     const {
+      id,
       relation,
       relationLabel,
       infoMode,
       readonly,
       label,
-      value,
+      handleFormFieldChange,
       classes 
     } = this.props
-
-    const itemIds = (
-      typeof value === 'object' ? 
-        Object.keys(value).reduce((ids, id) => (
-          value[id] ? [...ids, id] : [...ids]), []
-        ) :
-        value
-    )
-
+    const processedItemIds = this._getItemIds()
     return (
       <Paper elevation={4} className={classes.list}>
         <CategoryList
           categoryId={relation}
           categoryLabel={label || relationLabel}
-          itemIds={itemIds || []}
+          itemIds={processedItemIds}
           relationMode={true}
+          relationFieldId={id}
           editMode={!infoMode && !readonly}
           tableMode={false}
           showAvatar={false}
+          handleFormFieldChange={newItemIds =>
+            handleFormFieldChange(id, newItemIds, true)
+          }
         />
       </Paper>
     )

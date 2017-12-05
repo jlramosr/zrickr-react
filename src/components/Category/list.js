@@ -38,6 +38,7 @@ import Avatar from 'material-ui/Avatar'
 import Add from 'material-ui-icons/Add'
 import AddCircleOutline from 'material-ui-icons/AddCircleOutline'
 import RemoveCircleOutline from 'material-ui-icons/RemoveCircleOutline'
+import Undo from 'material-ui-icons/Undo'
 import Delete from 'material-ui-icons/Delete'
 import ViewList from 'material-ui-icons/ViewList'
 import ViewAgenda from 'material-ui-icons/ViewAgenda'
@@ -56,6 +57,12 @@ import { getItemInfo } from './utils/helpers'
 import { withStyles } from 'material-ui/styles'
 
 const styles = theme => ({
+  markAddedItem: {
+    background: theme.palette.success[50]
+  },
+  markRemovedItem: {
+    background: theme.palette.error[50]
+  },
   listPadding: {
     paddingTop: 0,
     paddingBottom: 0,
@@ -111,6 +118,8 @@ const Transition = props => (<Slide direction="up" {...props} />)
 let CategoryAgendaView = class extends Component {
   state = {
     showingItems: null,
+    addMarkedItems: [],
+    removeMarkedItems: [],
     showMenuItem: false,
     itemMenuClicked: null,
     anchorEl: null
@@ -142,6 +151,26 @@ let CategoryAgendaView = class extends Component {
     this.setState({ showMenuItem: true, anchorEl: event.currentTarget, itemMenuClicked: itemId })
   }
 
+  _removeRelationItems = (event, itemIds) => {
+    event.preventDefault()
+    event.stopPropagation()
+    this.setState(prevState => ({
+      ...prevState,
+      removeMarkedItems: [...prevState.removeMarkedItems, ...itemIds]
+    }))
+    this.props.removeRelationItems(itemIds)
+  }
+
+  _undoRemoveRelationItems = (event, itemIds) => {
+    event.preventDefault()
+    event.stopPropagation()
+    this.setState(prevState => {
+      const removeMarkedItems = prevState.removeMarkedItems.filter(item => !itemIds.includes(item))
+      return {...prevState, removeMarkedItems}
+    })
+    this.props.removeRelationItems(itemIds)
+  }
+
   _handleMenuItemClose = () => {
     this.setState({ showMenuItem: false, itemMenuClicked: null })
   }
@@ -163,6 +192,7 @@ let CategoryAgendaView = class extends Component {
       relationMode,
       editMode
     } = this.props
+    const { addMarkedItems, removeMarkedItems } = this.state
     
     const showingItems = this.state.showingItems || items
 
@@ -175,44 +205,67 @@ let CategoryAgendaView = class extends Component {
           }}
           dense={dense}
         >
-          {showingItems.map(item =>
-            <React.Fragment key={item.id}>
-              <Link
-                tabIndex={-1}
-                to={relationMode ? `/${categoryId}/${item.id}#dialog` : `/${categoryId}/${item.id}`}
-                onClick={event => this._itemClick(event, item.id)}
-              >
-                <ListItem button disableRipple>
-                  {showAvatar &&
-                    <Avatar>
-                      <Icon>{settings.icon}</Icon>
-                    </Avatar>
-                  }
-                  <ListItemText
-                    primary={getItemInfo(settings.primaryFields, item)}
-                    secondary={getItemInfo(settings.secondaryFields, item)}
-                  />
-                  {editMode && 
-                    <ListItemSecondaryAction>
-                      <IconButton aria-label="Item Menu">
-                        {!relationMode &&
-                          <MoreVert style={{display: !editMode ? 'none' : 'inherit'}}
-                            onClick={ event => this._handleMenuItemClick(event, item.id)}
-                          />
-                        }
-                        {relationMode &&
-                          <RemoveCircleOutline
-                            onClick={ event => this._handleMenuItemClick(event, item.id)}
-                          />
-                        }
-                      </IconButton>
-                    </ListItemSecondaryAction>
-                  }
-                </ListItem>
-              </Link>
-              <Divider/>
-            </React.Fragment>
-          )}
+          {showingItems.map(item => {
+            const isMarkedForRemove = removeMarkedItems.includes(item.id)
+            const isMarkedForAdd = addMarkedItems.includes(item.id)
+            const isMarked = isMarkedForRemove || isMarkedForAdd
+            return (
+              <React.Fragment key={item.id}>
+                <Link
+                  tabIndex={-1}
+                  to={relationMode ? `/${categoryId}/${item.id}#dialog` : `/${categoryId}/${item.id}`}
+                  onClick={event => this._itemClick(event, item.id)}
+                >
+                  <ListItem
+                    button={!isMarkedForRemove}
+                    disableRipple
+                    className={
+                      isMarkedForRemove ? classes.markRemovedItem : (
+                        isMarkedForAdd ? classes.markAddedItem : {}
+                      )
+                    }
+                  >
+                    {showAvatar &&
+                      <Avatar>
+                        <Icon>{settings.icon}</Icon>
+                      </Avatar>
+                    }
+                    <ListItemText
+                      primary={getItemInfo(settings.primaryFields, item)}
+                      secondary={getItemInfo(settings.secondaryFields, item)}
+                    />
+                    {editMode &&
+                      <ListItemSecondaryAction>
+                        <IconButton aria-label="Item Menu">
+                          {!relationMode &&
+                            <MoreVert style={{display: !editMode ? 'none' : 'inherit'}}
+                              onClick={event => this._handleMenuItemClick(event, item.id)}
+                            />
+                          }
+                          {relationMode && isMarkedForAdd &&
+                            <Undo
+                              onClick={event => this._undoRemoveRelationItems(event, [item.id])}
+                            />
+                          }
+                          {relationMode && isMarkedForRemove &&
+                            <Undo
+                              onClick={event => this._undoRemoveRelationItems(event, [item.id])}
+                            />
+                          }
+                          {relationMode && !isMarked &&
+                            <RemoveCircleOutline
+                              onClick={event => this._removeRelationItems(event, [item.id])}
+                            />
+                          }
+                        </IconButton>
+                      </ListItemSecondaryAction>
+                    }
+                  </ListItem>
+                </Link>
+                <Divider/>
+              </React.Fragment>
+            )
+          })}
         </List>
         <Menu
           elevation={4}
@@ -559,6 +612,13 @@ class CategoryList extends Component {
     }
   }
 
+  removeRelationItems = itemIds => {
+    const tempItemsIds = this.props.itemIds.filter(itemId => 
+      !itemIds.includes(itemId)
+    )
+    this.props.handleFormFieldChange(tempItemsIds)
+  }
+
   /*componentWillReceiveProps = nextProps => {
     this.setState({tableMode: nextProps.tableMode})
   }*/
@@ -662,6 +722,7 @@ class CategoryList extends Component {
           React.createElement(CategoryAgendaView, {
             dense: relationMode,
             openDetailDialog: relationMode ? itemId => this.openDialog('detail', itemId) : null,
+            removeRelationItems: relationMode ? itemIds => this.removeRelationItems(itemIds) : null,
             relationMode, categoryId, settings, items, fields,
             showAvatar, history, searchQuery, editMode
           })
@@ -765,11 +826,11 @@ CategoryList.propTypes = {
     /**
      * Necessary condition for field to be required.
      */
-    required: PropTypes.string,
+    required: PropTypes.string || PropTypes.bool,
     /**
      * Necessary condition for field not to be editable.
      */
-    readonly: PropTypes.string,
+    readonly: PropTypes.string || PropTypes.bool,
     /**
      * If it accepts more than one value (only it's good at fields with type 'select').
      */

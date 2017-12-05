@@ -16,6 +16,18 @@ export const REMOVING_CATEGORY_ITEM = 'REMOVING_CATEGORY_ITEM'
 export const REMOVING_CATEGORY_ITEM_ERROR = 'REMOVING_CATEGORY_ITEM_ERROR'
 export const REMOVE_CATEGORY_ITEM = 'REMOVE_CATEGORY_ITEM'
 
+const convertArraysToObject = item => {
+  for (const fieldKey of Object.keys(item)) {
+    const fieldValue = item[fieldKey]
+    if (Array.isArray(fieldValue)) {
+      item[fieldKey] = fieldValue.reduce((obj,subvalue) => {
+        return {...obj, [subvalue]: true}
+      }, {})
+    } 
+  }
+  return item
+} 
+
 const _receivingItemsAction = categoryId => ({
   type: RECEIVING_CATEGORY_ITEMS,
   fetchedAllAt: Date.now(),
@@ -211,7 +223,7 @@ const _fetchItem = (categoryId, itemId) => dispatch => {
 
 const _createItem = (categoryId, item) => dispatch => {
   dispatch(_creatingItemAction(categoryId))
-  const newItem = {createdAt: Date.now(), ...item}
+  const newItem = {createdAt: Date.now(), ...convertArraysToObject(item)}
   const params = {
     collection: 'categories_items',
     collectionId: categoryId,
@@ -234,13 +246,14 @@ const _createItem = (categoryId, item) => dispatch => {
 
 const _updateItem = (categoryId, itemId, item) => dispatch => {
   dispatch(_updatingItemAction(categoryId))
-  const updatedItem = {updatedAt: Date.now(), ...item}
+  const updatedItem = {updatedAt: Date.now(), ...convertArraysToObject(item)}
   const params = {
     collection: 'categories_items',
     collectionId: categoryId,
     documentId: itemId,
     document: item
   }
+  
   return new Promise((resolve, reject) => {
     API('firebase').update(params).then(
       documentId => {

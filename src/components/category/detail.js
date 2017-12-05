@@ -13,7 +13,7 @@ import Edit from 'material-ui-icons/Edit'
 import ChromeReaderMode from 'material-ui-icons/ChromeReaderMode'
 import Delete from 'material-ui-icons/Delete'
 import { getItemInfo } from './utils/helpers'
-import { capitalize } from '../../utils/helpers'
+import { capitalize, isEqual } from '../../utils/helpers'
 import NotFound from '../notFound'
 
 class CategoryItemDetail extends Component {
@@ -27,20 +27,28 @@ class CategoryItemDetail extends Component {
 
   _updateItem = values => {
     const { settings, updateItem, notify } = this.props
-    return updateItem(values).then(
-      () => {
-        notify(
-          `${capitalize(settings.itemLabel)} updated succesfully`,
-          'success'
-        )
-        this._changeEditMode(false)
-      }, error => {
-        notify(
-          `There has been an error updating the ${settings.itemLabel.toLowerCase()}: ${error}`,
-          'error'
-        )
-      }
+    if (!isEqual(this.props.item, values)) {
+      return updateItem(values).then(
+        () => {
+          notify(
+            `${capitalize(settings.itemLabel)} updated succesfully`,
+            'success'
+          )
+          this._changeEditMode(false)
+        }, error => {
+          notify(
+            `There has been an error updating the ${settings.itemLabel.toLowerCase()}: ${error}`,
+            'error'
+          )
+        }
+      )
+    }
+    notify(
+      `There has been no change updating this ${settings.itemLabel}`,
+      'info'
     )
+    this._changeEditMode(false)
+    return new Promise(resolve => resolve())
   }
 
   _removeItem = () => {

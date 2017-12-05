@@ -3,6 +3,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import Field from './field/'
 import { withStyles } from 'material-ui/styles'
+import { isEqual } from '../../utils/helpers'
 
 class Item {
   constructor(item) {
@@ -46,6 +47,7 @@ const styles = theme => ({
 class Form extends Component {
   state = {
     item: null,
+    itemListFields: {},
     isSubmitting: false,
     size: ''
   }
@@ -85,14 +87,37 @@ class Form extends Component {
   _handleSubmit = () => {
     if (!this.state.isSubmitting) {
       this.setState({isSubmitting: true})
-      const { evalCondition, ...values} = this.state.item
-      this.props.handleSubmit(values).then(() => {
+      const { item, itemListFields } = this.state
+      const { evalCondition, ...values} = item
+      const newValues = {...values, ...itemListFields}
+      this.props.handleSubmit(newValues).then(() => {
         this.setState({isSubmitting: false})
       })
     }
-  } 
-
-  handleFieldChange = (fieldId, value) => {
+  }
+  
+  /**
+   * Update the item state based on user input. Only changes produced
+   * on relation fields of list type will be uncontrolled. In return,
+   * this temporary changes are stored in other variable state, without
+   * removing any entity of lists yet on item state (since submit process). 
+	 * 
+	 * @public
+   * @param {string} fieldId The field whose value has changed.
+   * @param {string} value The new value.
+   * @param {bool} isList If the field is a relational list, meaning that value are uncontrolled.
+   * @returns {void}
+	 */
+  handleFieldChange = (fieldId, value, isList=false) => {
+    if (isList) {
+      this.setState(prevState => ({
+        itemListFields: {
+          ...prevState.itemListFields,
+          [fieldId]: value
+        }
+      }))
+      return
+    }
     this.setState(prevState => {
       let item = prevState.item
       item[fieldId] = value
@@ -122,7 +147,7 @@ class Form extends Component {
   }
 
   componentWillReceiveProps = nextProps => {
-    if (JSON.stringify(nextProps) !== JSON.stringify(this.props)) {
+    if (!isEqual(nextProps,this.props)) {
       this.setState({item: this._generateItem(nextProps.fields, nextProps.values)})
     }
   }
@@ -191,8 +216,8 @@ class Form extends Component {
                     label={this._getFieldLabel(field.label, fieldView)}
                     description={this._getFieldDescription(field.description, fieldView)}
                     order={fieldView.x || 0}
-                    handleFormFieldChange={ (fieldId, value) =>
-                      this.handleFieldChange(fieldId, value)
+                    handleFormFieldChange={ (fieldId, value, isList) =>
+                      this.handleFieldChange(fieldId, value, isList)
                     }
                   />
                 </div>
