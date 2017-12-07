@@ -27,6 +27,7 @@ class CategoryItemDetail extends Component {
 
   _updateItem = values => {
     const { settings, updateItem, notify } = this.props
+    console.log(JSON.stringify(this.props.item), "\n\n", JSON.stringify(values))
     if (!isEqual(this.props.item, values)) {
       return updateItem(values).then(
         () => {
@@ -94,6 +95,7 @@ class CategoryItemDetail extends Component {
       closeDialog
     } = this.props
     const { editMode } = this.state
+
     return (
       //itemReceived ? (
       item ? (

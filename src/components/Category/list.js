@@ -35,6 +35,8 @@ import Button from 'material-ui/Button'
 import Snackbar from 'material-ui/Snackbar'
 import { LinearProgress } from 'material-ui/Progress'
 import Avatar from 'material-ui/Avatar'
+import ArrowBack from 'material-ui-icons/ArrowBack'
+import Close from 'material-ui-icons/Close'
 import Add from 'material-ui-icons/Add'
 import AddCircleOutline from 'material-ui-icons/AddCircleOutline'
 import RemoveCircleOutline from 'material-ui-icons/RemoveCircleOutline'
@@ -42,7 +44,6 @@ import Undo from 'material-ui-icons/Undo'
 import Delete from 'material-ui-icons/Delete'
 import ViewList from 'material-ui-icons/ViewList'
 import ViewAgenda from 'material-ui-icons/ViewAgenda'
-import ArrowBack from 'material-ui-icons/ArrowBack'
 import MoreVert from 'material-ui-icons/MoreVert'
 import Icon from 'material-ui/Icon'
 import IconButton from 'material-ui/IconButton'
@@ -61,7 +62,8 @@ const styles = theme => ({
     background: theme.palette.success[50]
   },
   markRemovedItem: {
-    background: theme.palette.error[50]
+    background: theme.palette.error[50],
+    opacity: 0.5
   },
   listPadding: {
     paddingTop: 0,
@@ -154,21 +156,17 @@ let CategoryAgendaView = class extends Component {
   _removeRelationItems = (event, itemIds) => {
     event.preventDefault()
     event.stopPropagation()
-    this.setState(prevState => ({
-      ...prevState,
-      removeMarkedItems: [...prevState.removeMarkedItems, ...itemIds]
-    }))
-    this.props.removeRelationItems(itemIds)
+    const removeMarkedItems = [...this.state.removeMarkedItems, ...itemIds]
+    this.setState({removeMarkedItems})   
+    this.props.removeRelationItems(removeMarkedItems)
   }
 
   _undoRemoveRelationItems = (event, itemIds) => {
     event.preventDefault()
     event.stopPropagation()
-    this.setState(prevState => {
-      const removeMarkedItems = prevState.removeMarkedItems.filter(item => !itemIds.includes(item))
-      return {...prevState, removeMarkedItems}
-    })
-    this.props.removeRelationItems(itemIds)
+    const removeMarkedItems = this.state.removeMarkedItems.filter(item => !itemIds.includes(item))
+    this.setState({removeMarkedItems})
+    this.props.removeRelationItems(removeMarkedItems)
   }
 
   _handleMenuItemClose = () => {
@@ -357,7 +355,7 @@ let CategoryTableView = class extends Component {
       allowedPageSizes,
       columnWidths
     } = this.state
-    
+
     const showingFields = fields.filter(field => field.views.table)
 
     const defaultColumnWidths = showingFields.reduce(
@@ -650,7 +648,8 @@ class CategoryList extends Component {
       editMode,
       dialogMode,
       showAvatar,
-      history
+      history,
+      closeDialog
     } = this.props
     const {
       searchQuery,
@@ -673,8 +672,14 @@ class CategoryList extends Component {
           { 
             id: 'arrowBack',
             icon: ArrowBack,
-            hidden: relationMode,
+            hidden: relationMode || dialogMode,
             to: '/'
+          },
+          { 
+            id: 'close',
+            icon: Close,
+            hidden: !dialogMode,
+            onClick: closeDialog
           },
           {
             id: 'viewAgenda',
@@ -767,14 +772,16 @@ class CategoryList extends Component {
           transition={Transition}
         >
           <CategoryList
+            //{...this.props}
+            itemIds={null}
+            dense
             dialogMode
             closeDialog={() => this.closeDialog('list')}
             categoryId={categoryId}
             categoryLabel={categoryLabel}
-            itemIds={[]}
             tableMode={false}
             relationMode={false}
-            editMode={true}
+            editMode
             showAvatar={false}
           />
         </Dialog>
@@ -826,11 +833,17 @@ CategoryList.propTypes = {
     /**
      * Necessary condition for field to be required.
      */
-    required: PropTypes.string || PropTypes.bool,
+    required: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.bool
+    ]),
     /**
      * Necessary condition for field not to be editable.
      */
-    readonly: PropTypes.string || PropTypes.bool,
+    readonly: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.bool
+    ]),
     /**
      * If it accepts more than one value (only it's good at fields with type 'select').
      */
@@ -930,6 +943,7 @@ CategoryList.defaultProps = {
 const mapStateToProps = ({ categories, settings, fields, items }, props) => {
   const categoryId = props.categoryId
   const category = categories.byId[categoryId]
+  console.log('A VER SI LLEGA AQUI', categoryId)
   return {
     settings: category.settings ? settings.byId[category.settings] : {},
     isFetchingSettings: settings.flow[categoryId].isFetching,

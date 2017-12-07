@@ -70,24 +70,12 @@ class SelectField extends Component {
       this.props.options
   }
 
-  _getValue() {
-    const { value } = this.props
-    return (
-      typeof value === 'object' && !Array.isArray(value) ? (
-        Object.keys(value).reduce((ids, id) => (
-          value[id] ? [...ids, id] : [...ids]
-        ), [])
-      ) : (
-        value || []
-      )
-    )
-  }
-
   _arrowMultiRenderer = () => <span>+</span>
 
   render = () => {
     const {
       id,
+      value,
       label,
       required,
       readonly,
@@ -101,7 +89,6 @@ class SelectField extends Component {
       classes
     } = this.props
     const options = this._getOptions()
-    const processedValue = this._getValue()
 
     return (
       <FormControl fullWidth>
@@ -117,11 +104,11 @@ class SelectField extends Component {
           placeholder=""
           optionRenderer={OptionRenderer}
           options={options}
-          value={processedValue ?
+          value={value ?
             (
-              Array.isArray(processedValue) ?
-                options.filter(option => processedValue.includes(option.id)) :
-                options.find(option => option.id === processedValue)
+              Array.isArray(value) ?
+                options.filter(option => value.includes(option.id)) :
+                options.find(option => option.id === value)
             ) :
             null
           }

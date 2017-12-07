@@ -6,15 +6,50 @@ import { withStyles } from 'material-ui/styles'
 import { isEqual } from '../../utils/helpers'
 
 class Item {
-  constructor(item) {
-    Object.assign(this, item)
+  constructor(props) {
+    const { fields, values } = props
+    const _values = {}
+    for (const field of fields) {
+      let value = values[field.id]
+      if (value) {
+        _values[field.id] = value
+      } else if (!Object.keys(values).length && field.default) {
+        _values[field.id] = field.default
+        value = field.default
+      }
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
+        _values[field.id] = Object.keys(value).reduce((ids, id) => (
+          value[id] ? [...ids, id] : [...ids]
+        ), [])
+      }
+    }
+    Object.assign(this, {values: _values, fields})
+  }
+
+  addValue(value) {
+    this.values = {...this.values, ...value}
+  }
+
+  changeValue(fieldId, value) {
+    this.values[fieldId] = value
+  }
+
+  valuesToStore() {
+    const _values = {...this.values}
+    for (const fieldId of Object.keys(_values)) {
+      const value = _values[fieldId]
+      if (Array.isArray(value)) {
+        _values[fieldId] = value.reduce((obj,id) => ({...obj, [id]: true}), {})
+      } 
+    }
+    return _values
   }
 
   /*jslint evil: true */
   evalCondition = (condition, fieldId) => {
     let fulfilledCondition = false
     try {
-      fulfilledCondition = eval(condition)
+      fulfilledCondition = eval(condition.replace('[','this.values['))
     }
     catch (e) {
       if (e instanceof EvalError || e instanceof SyntaxError) {
@@ -58,9 +93,6 @@ class Form extends Component {
   _getFieldDescription = (description, fieldView) => 
     fieldView.nodescription ? '' : description || ''
 
-  _getFieldValue = field =>
-    this.state.item && field.id ? this.state.item[field.id] : ''
-
   _resize = theme => {
     const width = window.innerWidth
     let size = 'small'
@@ -74,23 +106,12 @@ class Form extends Component {
     }
   }
 
-  _generateItem = (fields, values) => {
-    let item = new Item(values)
-    for (const field of fields) {
-      if (field.default && !(field.id in values)) {
-        item[field.id] = field.default
-      }
-    }
-    return item
-  }
-
   _handleSubmit = () => {
     if (!this.state.isSubmitting) {
       this.setState({isSubmitting: true})
       const { item, itemListFields } = this.state
-      const { evalCondition, ...values} = item
-      const newValues = {...values, ...itemListFields}
-      this.props.handleSubmit(newValues).then(() => {
+      item.addValue(itemListFields)
+      this.props.handleSubmit(item.valuesToStore()).then(() => {
         this.setState({isSubmitting: false})
       })
     }
@@ -120,7 +141,7 @@ class Form extends Component {
     }
     this.setState(prevState => {
       let item = prevState.item
-      item[fieldId] = value
+      item.changeValue(fieldId,value)
       return {...prevState, item}
     })
   }
@@ -128,8 +149,7 @@ class Form extends Component {
   componentWillMount = () => {
     //console.log('MOUNT FORM', this.props)
     const { fields, values } = this.props
-    const item = this._generateItem(fields, values)
-    this.setState({item})
+    this.setState({item: new Item({fields, values})})
   }
 
   componentDidMount = () => {
@@ -147,18 +167,21 @@ class Form extends Component {
   }
 
   componentWillReceiveProps = nextProps => {
+    /*console.log("HOLA", nextProps)
     if (!isEqual(nextProps,this.props)) {
       this.setState({item: this._generateItem(nextProps.fields, nextProps.values)})
-    }
+    }*/
   }
 
   render = () => {
     //console.log("FORM", this.state.item)
-    const { view, cols, fields, infoMode, classes } = this.props
+    const { view, cols, infoMode, classes } = this.props
     const { item, size } = this.state
 
-    const formStyle = cols => ({
-      gridTemplateColumns: `repeat(${cols}, 1fr)`
+    const formStyle = (cols, infoMode) => ({
+      gridTemplateColumns: `repeat(${cols}, 1fr)`,
+      opacity: infoMode ? 0.9 : 1,
+      background: infoMode ? '#f9f9f9' : 'inherit'
     })
 
     const formFieldStyle = (item, fieldView, fieldId, cols) => {
@@ -191,10 +214,10 @@ class Form extends Component {
         ref={this.props.formRef}
         onSubmit={this._handleSubmit}
         className={classes.form}
-        style={formStyle(cols)}
+        style={formStyle(cols, infoMode)}
       >
         {
-          fields.map(field => {
+          item.fields.map(field => {
             let fieldView = field.views ? field.views[view] : null
             if (fieldView && size in fieldView) {
               fieldView = fieldView[size]
@@ -212,7 +235,7 @@ class Form extends Component {
                     required={item.evalCondition(field.required,field.id)}
                     readonly={item.evalCondition(field.readonly,field.id)}
                     infoMode={infoMode}
-                    value={item ? item[field.id] : ''}
+                    value={item.values ? item.values[field.id] : ''}
                     label={this._getFieldLabel(field.label, fieldView)}
                     description={this._getFieldDescription(field.description, fieldView)}
                     order={fieldView.x || 0}

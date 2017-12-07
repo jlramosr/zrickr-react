@@ -15,22 +15,10 @@ class ListField extends Component {
     }
   }
 
-  _getItemIds() {
-    const { value } = this.props
-    return (
-      typeof value === 'object' && !Array.isArray(value) ? (
-        Object.keys(value).reduce((ids, id) => (
-          value[id] ? [...ids, id] : [...ids]
-        ), [])
-      ) : (
-        value || []
-      )
-    )
-  }
-
   render = () => {
     const {
       id,
+      value,
       relation,
       relationLabel,
       infoMode,
@@ -39,13 +27,13 @@ class ListField extends Component {
       handleFormFieldChange,
       classes 
     } = this.props
-    const processedItemIds = this._getItemIds()
+    
     return (
       <Paper elevation={4} className={classes.list}>
         <CategoryList
           categoryId={relation}
           categoryLabel={label || relationLabel}
-          itemIds={processedItemIds}
+          itemIds={value || []}
           relationMode={true}
           relationFieldId={id}
           editMode={!infoMode && !readonly}
