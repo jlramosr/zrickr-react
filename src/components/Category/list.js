@@ -48,12 +48,11 @@ import MoreVert from 'material-ui-icons/MoreVert'
 import Icon from 'material-ui/Icon'
 import IconButton from 'material-ui/IconButton'
 import Menu, { MenuItem } from 'material-ui/Menu'
-import Dialog from 'material-ui/Dialog'
-import Slide from 'material-ui/transitions/Slide'
 import escapeRegExp from 'escape-string-regexp'
 import removeDiacritics from 'remove-diacritics'
 import ItemDetail from './detail'
 import ItemNew from './new'
+import ControlledDialog from '../dialog'
 import { getItemInfo } from './utils/helpers'
 import { withStyles } from 'material-ui/styles'
 
@@ -114,8 +113,6 @@ const styles = theme => ({
     flexWrap: 'inherit'
   }
 })
-
-const Transition = props => (<Slide direction="up" {...props} />)
 
 let CategoryAgendaView = class extends Component {
   state = {
@@ -660,8 +657,6 @@ class CategoryList extends Component {
       tableMode
     } = this.state
 
-    console.log("LIST", fields)
-
     return (
       <HeaderLayout
         relative={relationMode}
@@ -735,13 +730,11 @@ class CategoryList extends Component {
           })
         )}
 
-        <Dialog
+        <ControlledDialog
+          dialogId={`${categoryId}-new`}
           fullScreen={!dialogMode}
-          fullWidth
-          maxWidth="md"
           open={showNewDialog}
           onRequestClose={() => this._dialogClosed('new')}
-          transition={Transition}
         >
           <ItemNew
             closeDialog={() => this.closeDialog('new')}
@@ -749,15 +742,13 @@ class CategoryList extends Component {
             categoryId={categoryId}
             itemLabel={settings.itemLabel}
           />
-        </Dialog>
+        </ControlledDialog>
 
         {relationMode &&
-          <Dialog
-            fullWidth
-            maxWidth="md"
+          <ControlledDialog
+            dialogId={`${categoryId}-${detailDialogItemId}-detail`}
             open={showDetailDialog}
             onRequestClose={() => this._dialogClosed('detail')}
-            transition={Transition}
           >
             <ItemDetail
               dialogMode
@@ -765,16 +756,14 @@ class CategoryList extends Component {
               categoryId={categoryId}
               itemId={detailDialogItemId}
             />
-          </Dialog>
+          </ControlledDialog>
         }
 
         {relationMode &&
-          <Dialog
-            fullWidth
-            maxWidth="md"
+          <ControlledDialog
+            dialogId={`${categoryId}-list`}
             open={showListDialog}
             onRequestClose={() => this._dialogClosed('list')}
-            transition={Transition}
           >
             <CategoryList
               //{...this.props}
@@ -789,7 +778,7 @@ class CategoryList extends Component {
               editMode
               showAvatar={false}
             />
-          </Dialog>
+          </ControlledDialog>
         }
 
       </HeaderLayout>
@@ -928,7 +917,8 @@ CategoryList.propTypes = {
   /**
    * If it should be shown avatar in agenda view.
    */
-  showAvatar: PropTypes.bool
+  showAvatar: PropTypes.bool,
+  openedDialogs: PropTypes.array.isRequired
 }
 
 CategoryList.defaultProps = {
@@ -946,7 +936,7 @@ CategoryList.defaultProps = {
   showAvatar: true
 }
 
-const mapStateToProps = ({ categories, settings, fields, items }, props) => {
+const mapStateToProps = ({ categories, settings, fields, items, dialogs }, props) => {
   const categoryId = props.categoryId
   const category = categories.byId[categoryId]
   return {
@@ -957,7 +947,8 @@ const mapStateToProps = ({ categories, settings, fields, items }, props) => {
     items: Object.values(items.byId).filter(item => 
       category.items.includes(item.id) && (props.itemIds ? props.itemIds.includes(item.id) : true)
     ),
-    isFetchingItems: items.flow[categoryId].isFetchingAll
+    isFetchingItems: items.flow[categoryId].isFetchingAll,
+    openedDialogs: dialogs.openedDialogs
   }
 }
 

@@ -7,17 +7,18 @@ import createHistory from 'history/createBrowserHistory'
 //import createActionBuffer from 'redux-action-buffer'
 //import logger from 'redux-logger'
 import app from './reducers/app'
-import notifier from './reducers/notifier'
 import categories from './reducers/categories'
 import settings from './reducers/settings'
 import fields from './reducers/fields'
 import items from './reducers/items'
+import dialogs from './reducers/dialogs'
 import drawer from './reducers/drawer'
+import notifier from './reducers/notifier'
 
 const offlineConfig = {
   ...defaultConfig,
   persistOptions: {
-    blacklist: ['notifier', 'drawer'],
+    blacklist: ['dialogs', 'drawer', 'notifier'],
     keyPrefix: 'reduxPersist:'
   }
 }
@@ -29,12 +30,13 @@ export const history = createHistory()
 const reducer = combineReducers({
   router: routerReducer,
   app,
-  notifier,
   categories,
-  settings,
+  dialogs,
+  drawer,
   fields,
   items,
-  drawer
+  notifier,
+  settings
 })
 
 const enhancer = composeEnhancers(

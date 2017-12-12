@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { FormControlLabel } from 'material-ui/Form'
-import Switch from 'material-ui/Switch'
+import Checkbox from 'material-ui/Checkbox'
 import Tooltip from 'material-ui/Tooltip'
 
 let SwitchField = props => {
@@ -13,6 +13,7 @@ let SwitchField = props => {
       }}
       control={
         <Tooltip
+          ref={e1 => this.e = e1}
           disableTriggerFocus={!infoMode}
           disableTriggerHover={!infoMode}
           disableTriggerTouch={!infoMode}
@@ -20,11 +21,11 @@ let SwitchField = props => {
           title={value ? 'Yes' : 'No'}
         >
           <div>
-            <Switch
+            <Checkbox
               classes={{
                 disabled: value ?
-                  classes.inputSwitchTrue :
-                  classes.inputSwitchFalse,
+                  classes.inputSwitchDisabled :
+                  classes.inputSwitchDisabled,
                 default: value ?
                   classes.inputSwitchTrue :
                   classes.inputSwitchFalse

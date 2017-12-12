@@ -109,11 +109,7 @@ class CategoryItemDetail extends Component {
             {id:'view', icon:ChromeReaderMode, right:true, hidden:!editMode, onClick:() => this._changeEditMode(false)},
             {id:'delete', icon:Delete, right:true, hidden:editMode || dialogMode, onClick:this._removeItem},
             {id:'check', icon:Check, right:true, hidden:!editMode, onClick: () => {
-              const event = new Event('submit', {
-                'bubbles'    : false,
-                'cancelable' : false
-              })
-              this.formElement.dispatchEvent(event)
+              this.formElement.dispatchEvent(new Event('submit'))
             }}
           ]}
         >

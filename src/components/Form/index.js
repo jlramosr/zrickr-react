@@ -3,22 +3,33 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import Field from './field/'
 import { withStyles } from 'material-ui/styles'
-import { isEqual } from '../../utils/helpers'
 
+/**
+ * It represents an item and all changes that may affect it,
+ * transforming relational fields to may be read by inputs and
+ * evaluating fields conditions. 
+ */
 class Item {
   constructor(props) {
     const { fields, values } = props
     const _values = {}
-    for (const field of fields) {
-      let value = values[field.id]
+    for (const fieldId of Object.keys(values)) {
+      let value = values[fieldId]
+      const field = fields.filter(_field => _field.id === fieldId)
+      if (!field) {
+        _values[fieldId] = value
+        continue
+      }
       if (value) {
-        _values[field.id] = value
+        _values[fieldId] = value
       } else if (!Object.keys(values).length && field.default) {
-        _values[field.id] = field.default
+        _values[fieldId] = field.default
         value = field.default
+      } else {
+        continue
       }
       if (value && typeof value === 'object' && !Array.isArray(value)) {
-        _values[field.id] = Object.keys(value).reduce((ids, id) => (
+        _values[fieldId] = Object.keys(value).reduce((ids, id) => (
           value[id] ? [...ids, id] : [...ids]
         ), [])
       }
@@ -79,6 +90,9 @@ const styles = theme => ({
   }
 })
 
+/**
+ * A form with fields and values.
+ */
 class Form extends Component {
   state = {
     item: null,
@@ -87,12 +101,36 @@ class Form extends Component {
     size: ''
   }
 
+  /**
+   * It obtains the final label of the field depending on 
+   * the view information of itself. If it has 'nolabel' attribute, 
+   * description won't show.
+	 * @public
+   * @param {string} label The label of the field.
+   * @param {object} fieldView The information about the view of the field.
+   * @returns {boolean}
+	 */
   _getFieldLabel = (label, fieldView) =>
     fieldView.nolabel ? ' ' : label
-  
+
+  /**
+   * It obtains the final description of the field depending on 
+   * the view information of itself. If it has 'nodescription' attribute, 
+   * description won't show.
+	 * @public
+   * @param {string} description The description of the field.
+   * @param {object} fieldView The information about the view of the field.
+   * @returns {boolean}
+	 */
   _getFieldDescription = (description, fieldView) => 
     fieldView.nodescription ? '' : description || ''
 
+  /**
+   * Update size variable of the state to control the fields position.
+	 * @public
+   * @param {object} theme The theme with breakpoints variables.
+   * @returns {void}
+	 */ 
   _resize = theme => {
     const width = window.innerWidth
     let size = 'small'
@@ -106,6 +144,12 @@ class Form extends Component {
     }
   }
 
+  /**
+   * Call submit function which comes from parent. It uses temporary and
+   * controlled values stored in the component state.
+	 * @public
+   * @returns {void}
+	 */  
   _handleSubmit = () => {
     if (!this.state.isSubmitting) {
       this.setState({isSubmitting: true})
@@ -122,7 +166,6 @@ class Form extends Component {
    * on relation fields of list type will be uncontrolled. In return,
    * this temporary changes are stored in other variable state, without
    * removing any entity of lists yet on item state (since submit process). 
-	 * 
 	 * @public
    * @param {string} fieldId The field whose value has changed.
    * @param {string} value The new value.

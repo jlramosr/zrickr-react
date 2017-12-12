@@ -110,10 +110,13 @@ const styles = theme => ({
     }
   },
   inputSwitchFalse: {
-    color: theme.palette.grey[200]
+    color: theme.palette.primary[300]
   },
   inputSwitchTrue: {
     color: theme.palette.primary[400]
+  },
+  inputSwitchDisabled: {
+    color: theme.palette.grey[400]
   },
   inputList: {
   },

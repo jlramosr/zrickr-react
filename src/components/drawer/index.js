@@ -17,7 +17,7 @@ const styles = {
 }
 
 class CustomDrawer extends Component {
-  render = _ => {
+  render = () => {
     const { categories, opened, close, classes } = this.props
 
     return (
