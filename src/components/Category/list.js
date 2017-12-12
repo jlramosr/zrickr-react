@@ -660,6 +660,8 @@ class CategoryList extends Component {
       tableMode
     } = this.state
 
+    console.log("LIST", fields)
+
     return (
       <HeaderLayout
         relative={relationMode}
@@ -749,42 +751,46 @@ class CategoryList extends Component {
           />
         </Dialog>
 
-        <Dialog
-          fullWidth
-          maxWidth="md"
-          open={showDetailDialog}
-          onRequestClose={() => this._dialogClosed('detail')}
-          transition={Transition}
-        >
-          <ItemDetail
-            dialogMode
-            closeDialog={() => this.closeDialog('detail')}
-            categoryId={categoryId}
-            itemId={detailDialogItemId}
-          />
-        </Dialog>
+        {relationMode &&
+          <Dialog
+            fullWidth
+            maxWidth="md"
+            open={showDetailDialog}
+            onRequestClose={() => this._dialogClosed('detail')}
+            transition={Transition}
+          >
+            <ItemDetail
+              dialogMode
+              closeDialog={() => this.closeDialog('detail')}
+              categoryId={categoryId}
+              itemId={detailDialogItemId}
+            />
+          </Dialog>
+        }
 
-        <Dialog
-          fullWidth
-          maxWidth="md"
-          open={showListDialog}
-          onRequestClose={() => this._dialogClosed('list')}
-          transition={Transition}
-        >
-          <CategoryList
-            //{...this.props}
-            itemIds={null}
-            dense
-            dialogMode
-            closeDialog={() => this.closeDialog('list')}
-            categoryId={categoryId}
-            categoryLabel={categoryLabel}
-            tableMode={false}
-            relationMode={false}
-            editMode
-            showAvatar={false}
-          />
-        </Dialog>
+        {relationMode &&
+          <Dialog
+            fullWidth
+            maxWidth="md"
+            open={showListDialog}
+            onRequestClose={() => this._dialogClosed('list')}
+            transition={Transition}
+          >
+            <CategoryList
+              //{...this.props}
+              itemIds={null}
+              dense
+              dialogMode
+              closeDialog={() => this.closeDialog('list')}
+              categoryId={categoryId}
+              categoryLabel={categoryLabel}
+              tableMode={false}
+              relationMode={false}
+              editMode
+              showAvatar={false}
+            />
+          </Dialog>
+        }
 
       </HeaderLayout>
     )
@@ -928,7 +934,7 @@ CategoryList.propTypes = {
 CategoryList.defaultProps = {
   settings: {},
   isFetchingSettings: false,
-  fields: {},
+  fields: [],
   isFetchingFields: false,
   itemIds: null,
   items: [],
@@ -943,7 +949,6 @@ CategoryList.defaultProps = {
 const mapStateToProps = ({ categories, settings, fields, items }, props) => {
   const categoryId = props.categoryId
   const category = categories.byId[categoryId]
-  console.log('A VER SI LLEGA AQUI', categoryId)
   return {
     settings: category.settings ? settings.byId[category.settings] : {},
     isFetchingSettings: settings.flow[categoryId].isFetching,

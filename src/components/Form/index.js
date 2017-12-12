@@ -167,21 +167,18 @@ class Form extends Component {
   }
 
   componentWillReceiveProps = nextProps => {
-    /*console.log("HOLA", nextProps)
-    if (!isEqual(nextProps,this.props)) {
+    /*if (!isEqual(nextProps,this.props)) {
       this.setState({item: this._generateItem(nextProps.fields, nextProps.values)})
     }*/
   }
 
   render = () => {
-    //console.log("FORM", this.state.item)
-    const { view, cols, infoMode, classes } = this.props
+    const { view, cols, infoMode, formRef, classes } = this.props
     const { item, size } = this.state
 
     const formStyle = (cols, infoMode) => ({
       gridTemplateColumns: `repeat(${cols}, 1fr)`,
-      opacity: infoMode ? 0.9 : 1,
-      background: infoMode ? '#f9f9f9' : 'inherit'
+      opacity: infoMode ? 0.9 : 1
     })
 
     const formFieldStyle = (item, fieldView, fieldId, cols) => {
@@ -211,7 +208,7 @@ class Form extends Component {
 
     return (
       <form
-        ref={this.props.formRef}
+        ref={formRef}
         onSubmit={this._handleSubmit}
         className={classes.form}
         style={formStyle(cols, infoMode)}

@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { withStyles } from 'material-ui/styles'
 import SelectField from './select'
 import SwitchField from './switch'
 import ListField from './list'
 import TextField from './text'
+import { isEqual } from '../../../utils/helpers'
 
 const paddingLeft = 6
 
@@ -49,7 +50,8 @@ const styles = theme => ({
     background: 'transparent',
     fontSize: 14,
     color: theme.palette.grey[700],
-    borderBottom: `1px solid ${theme.palette.primary[200]}`
+    borderBottom: `1px solid ${theme.palette.primary[200]}`,
+    cursor: 'default'
   },
   inputSelect: {
     '& .Select-control': {
@@ -140,13 +142,24 @@ const styles = theme => ({
   }
 })
 
-let Field = props => {
-  switch(props.type) {
-    case 'select': return <SelectField {...props} />
-    case 'boolean': return <SwitchField {...props} />
-    case 'list': return <ListField {...props} />
-    default: return <TextField {...props} />
+class Field extends Component {
+
+  shouldComponentUpdate = nextProps => {
+    if (!isEqual(this.props, nextProps)) {
+      return true
+    }
+    return false
   }
+
+  render = () => {
+    switch(this.props.type) {
+      case 'select': return <SelectField {...this.props} />
+      case 'boolean': return <SwitchField {...this.props} />
+      case 'list': return <ListField {...this.props} />
+      default: return <TextField {...this.props} />
+    }
+  }
+
 }
 
 Field.propTypes = {
