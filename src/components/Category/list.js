@@ -747,7 +747,7 @@ class CategoryList extends Component {
         {relationMode &&
           <ControlledDialog
             dialogId={`${categoryId}-${detailDialogItemId}-detail`}
-            open={showDetailDialog}
+            open={showDetailDialog && detailDialogItemId}
             onRequestClose={() => this._dialogClosed('detail')}
           >
             <ItemDetail
@@ -917,8 +917,7 @@ CategoryList.propTypes = {
   /**
    * If it should be shown avatar in agenda view.
    */
-  showAvatar: PropTypes.bool,
-  openedDialogs: PropTypes.array.isRequired
+  showAvatar: PropTypes.bool
 }
 
 CategoryList.defaultProps = {
@@ -936,7 +935,7 @@ CategoryList.defaultProps = {
   showAvatar: true
 }
 
-const mapStateToProps = ({ categories, settings, fields, items, dialogs }, props) => {
+const mapStateToProps = ({ categories, settings, fields, items }, props) => {
   const categoryId = props.categoryId
   const category = categories.byId[categoryId]
   return {
@@ -947,8 +946,7 @@ const mapStateToProps = ({ categories, settings, fields, items, dialogs }, props
     items: Object.values(items.byId).filter(item => 
       category.items.includes(item.id) && (props.itemIds ? props.itemIds.includes(item.id) : true)
     ),
-    isFetchingItems: items.flow[categoryId].isFetchingAll,
-    openedDialogs: dialogs.openedDialogs
+    isFetchingItems: items.flow[categoryId].isFetchingAll
   }
 }
 

@@ -1,12 +1,12 @@
-export const OPEN_DIALOG = 'OPEN_DIALOG'
-export const CLOSE_DIALOG = 'CLOSE_DIALOG'
+export const ADD_OPEN_DIALOG = 'ADD_OPENED_DIALOG'
+export const REMOVE_OPEN_DIALOG = 'REMOVE_OPENED_DIALOG'
 
-export const openDialog = dialogId => ({
-  type: OPEN_DIALOG,
+export const addOpenDialog = dialogId => ({
+  type: ADD_OPEN_DIALOG,
   dialogId
 })
 
-export const closeDialog = dialogId => ({
-  type: CLOSE_DIALOG,
+export const removeOpenDialog = dialogId => ({
+  type: REMOVE_OPEN_DIALOG,
   dialogId
 })

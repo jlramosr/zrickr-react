@@ -150,7 +150,8 @@ class Form extends Component {
 	 * @public
    * @returns {void}
 	 */  
-  _handleSubmit = () => {
+  _handleSubmit = event => {
+    event.stopPropagation()
     if (!this.state.isSubmitting) {
       this.setState({isSubmitting: true})
       const { item, itemListFields } = this.state

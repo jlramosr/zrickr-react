@@ -1,33 +1,30 @@
-import { OPEN_DIALOG } from '../actions/dialogs'
-import { CLOSE_DIALOG } from '../actions/dialogs'
+import { ADD_OPEN_DIALOG } from '../actions/dialogs'
+import { REMOVE_OPEN_DIALOG } from '../actions/dialogs'
 
 const initialDialogsState = {
   openedDialogs: []
 }
 
 const dialogs = (state = initialDialogsState, action) => {
-  const dialogId = action.dialogId
   switch (action.type) {
-    case OPEN_DIALOG: {
-      if (state.openedDialogs.includes(dialogId)) {
+    case ADD_OPEN_DIALOG: {
+      if (state.openedDialogs.includes(action.dialogId)) {
         return state
       }
       return {
         ...state,
         openedDialogs: [
           ...state.openedDialogs,
-          dialogId
+          action.dialogId
         ]
       }
     }
-    case CLOSE_DIALOG: {
-      const [dialogId, ...openedDialogs] = state.openedDialogs
-      if (!openedDialogs.length) {
-        return initialDialogsState
-      }
+    case REMOVE_OPEN_DIALOG: {
       return {
         ...state,
-        openedDialogs
+        openedDialogs: state.openedDialogs.filter(dialogId => 
+          dialogId !== action.dialogId
+        )
       }
     }
     default:

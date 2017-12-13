@@ -26,6 +26,7 @@ class CategoryItemDetail extends Component {
   }
 
   _updateItem = values => {
+    console.log("UPDATE", this.props.dialogMod, this.props.item, values)
     const { settings, updateItem, notify } = this.props
     if (!isEqual(this.props.item, values)) {
       return updateItem(values).then(
@@ -109,7 +110,7 @@ class CategoryItemDetail extends Component {
             {id:'view', icon:ChromeReaderMode, right:true, hidden:!editMode, onClick:() => this._changeEditMode(false)},
             {id:'delete', icon:Delete, right:true, hidden:editMode || dialogMode, onClick:this._removeItem},
             {id:'check', icon:Check, right:true, hidden:!editMode, onClick: () => {
-              this.formElement.dispatchEvent(new Event('submit'))
+              this.formElement.dispatchEvent(new Event('submit'),{bubbles:false})
             }}
           ]}
         >
@@ -134,23 +135,25 @@ class CategoryItemDetail extends Component {
 }
 
 CategoryItemDetail.propTypes = {
+  /**
+   * Category id of the item.
+   */
   categoryId: PropTypes.string.isRequired,
-  dialog: PropTypes.bool,
-  itemId: (props, propName, componentName) => {
-    if (props.dialogMode) {
-      if (!props.itemId) {
-        return new Error(
-          `The prop ${propName} is marked as required in ${componentName} when this component is shown in a dialog, but its value is ${props.itemId}`
-        )
-      }
-      if (typeof props.itemId !== 'string') {
-        return new Error(
-          `Invalid prop ${propName} of type ${typeof props.itemId} supplied to ${componentName}, expected 'string'`
-        )
-      }
-    }
-  },
+  /**
+   * If it's shown in a dialog.
+   */
+  dialogMode: PropTypes.bool,
+  /**
+   * Item id if it's shown in a dialog (if not, itemId will be caught from route).
+   */
+  itemId: PropTypes.string,
+  /**
+   * Settings of the category obtained from Redux Store.
+   */
   settings: PropTypes.object.isRequired,
+  /**
+   * Fields of the category obtained from Redux Store.
+   */
   fields: PropTypes.array.isRequired,
   closeDialog: (props, propName, componentName) => {
     if (props.dialogMode) {
