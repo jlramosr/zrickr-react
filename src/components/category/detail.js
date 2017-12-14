@@ -96,6 +96,8 @@ class CategoryItemDetail extends Component {
     } = this.props
     const { editMode } = this.state
 
+    //console.log(categoryId, item)
+
     return (
       //itemReceived ? (
       item ? (

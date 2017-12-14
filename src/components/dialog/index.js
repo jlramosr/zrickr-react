@@ -24,7 +24,7 @@ const styles = theme => ({
 
 const Transition = props => (<Slide direction="up" {...props} />)
 
-const numMaxOpenedDialogs = 4
+const numMaxopenDialogs = 3
 
 class ControlledDialog extends Component {
   state = {
@@ -43,16 +43,16 @@ class ControlledDialog extends Component {
   }
 
   componentWillReceiveProps = nextProps => {
-    const { openedDialogs } = this.props
+    const { openDialogs } = this.props
     if (this.props.open !== nextProps.open) {
       if (nextProps.open) {
-        if (openedDialogs.includes(nextProps.dialogId)) {
+        if (openDialogs.includes(nextProps.dialogId)) {
           this.setState({showAlreadyOpenDialog: true})
         }
-        else if (openedDialogs.length >= numMaxOpenedDialogs) {
+        else if (openDialogs.length >= numMaxopenDialogs) {
           this.setState({showTooMuchDialogs: true})
         } else {
-          this.setState({open: true, level:openedDialogs.length})
+          this.setState({open: true, level:openDialogs.length})
           this.props.addOpenDialog(nextProps.dialogId)
         }
       }
@@ -73,7 +73,7 @@ class ControlledDialog extends Component {
       children,
       addOpenDialog,
       removeOpenDialog,
-      openedDialogs,
+      openDialogs,
       dialogId,
       onRequestClose,
       classes,
@@ -152,11 +152,11 @@ ControlledDialog.propTypes = {
   children: PropTypes.node.isRequired,
   addOpenDialog: PropTypes.func.isRequired,
   removeOpenDialog: PropTypes.func.isRequired,
-  openedDialogs: PropTypes.array.isRequired
+  openDialogs: PropTypes.array.isRequired
 }
 
 const mapStateToProps = state => ({
-  openedDialogs: state.dialogs.openedDialogs
+  openDialogs: state.dialogs.openDialogs
 })
 
 const mapDispatchToProps = dispatch => ({

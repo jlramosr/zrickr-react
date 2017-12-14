@@ -5,6 +5,7 @@ import { fetchCategories, fetchCategoriesIfNeeded } from '../../actions/categori
 import { renderRoutes } from 'react-router-config'
 import Drawer from '../drawer'
 import Notifier from '../notifier'
+import ControlledDialog from '../dialog/index2'
 
 /**
  * Main app component, with common drawer and first level routes.
@@ -28,6 +29,7 @@ class App extends Component {
       {renderRoutes(this.props.route.routes)}
       <Drawer />
       <Notifier />
+      <ControlledDialog />
     </React.Fragment>
   )
 }

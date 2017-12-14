@@ -53,6 +53,7 @@ import removeDiacritics from 'remove-diacritics'
 import ItemDetail from './detail'
 import ItemNew from './new'
 import ControlledDialog from '../dialog'
+import { addOpenDialog, removeOpenDialog } from '../../actions/dialogs'
 import { getItemInfo } from './utils/helpers'
 import { withStyles } from 'material-ui/styles'
 
@@ -573,11 +574,12 @@ class CategoryList extends Component {
    * @param {string} itemId Unique id of the item pertaining to the dialog (if it's a detail dialog).
 	 * @returns {void}
 	 */
-  openDialog = (dialog, itemId='') => {
+  openDialog = (dialog, categoryId, itemId='') => {
     if (dialog === 'new') {
       this.setState({ showNewDialog: true})
     } else if (dialog === 'detail') {
-      this.setState({ showDetailDialog: true, detailDialogItemId: itemId})
+      this.props.addOpenDialog(categoryId, itemId)
+      //this.setState({ showDetailDialog: true, detailDialogItemId: itemId})
     } else if (dialog === 'list') {
       this.setState({ showListDialog: true})
     }
@@ -601,7 +603,7 @@ class CategoryList extends Component {
     if (dialog === 'new') {
       this.setState({ showNewDialog: false })
     } else if (dialog === 'detail') {
-      this.setState({ showDetailDialog: false, detailDialogItemId: '' })
+      this.props.removeOpenDialog()
     } else if (dialog === 'list') {
       this.setState({ showListDialog: false })
     }
@@ -716,14 +718,14 @@ class CategoryList extends Component {
         {tableMode ? (
           React.createElement(CategoryTableView, {
             dense: relationMode,
-            openDetailDialog: relationMode ? itemId => this.openDialog('detail', itemId) : null,
+            openDetailDialog: relationMode ? itemId => this.openDialog('detail', categoryId, itemId) : null,
             relationMode, categoryId, settings, items, fields,
             history, editMode
           })
         ) : (
           React.createElement(CategoryAgendaView, {
             dense: relationMode,
-            openDetailDialog: relationMode ? itemId => this.openDialog('detail', itemId) : null,
+            openDetailDialog: relationMode ? itemId => this.openDialog('detail', categoryId, itemId) : null,
             removeRelationItems: relationMode ? itemIds => this.removeRelationItems(itemIds) : null,
             relationMode, categoryId, settings, items, fields,
             showAvatar, history, searchQuery, editMode
@@ -952,7 +954,9 @@ const mapStateToProps = ({ categories, settings, fields, items }, props) => {
 
 const mapDispatchToProps = (dispatch, props) => ({
   fetchItems: () => dispatch(fetchItems(props.categoryId)),
-  fetchItemsIfNeeded: () => dispatch(fetchItemsIfNeeded(props.categoryId))
+  fetchItemsIfNeeded: () => dispatch(fetchItemsIfNeeded(props.categoryId)),
+  addOpenDialog: (dialog, content) => dispatch(addOpenDialog(dialog, content)),
+  removeOpenDialog: () => dispatch(removeOpenDialog())
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(CategoryList)
