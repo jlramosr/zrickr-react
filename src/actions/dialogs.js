@@ -25,12 +25,12 @@ export const addOpenDialog = (categoryId, itemId) => dispatch => {
   dispatch(addingOpenDialog())
   setTimeout(() => {
     dispatch(addOpenDialog2(categoryId, itemId))
-  },200)
+  }, 10)
 }
 
 export const removeOpenDialog = () => dispatch => {
   dispatch(removingOpenDialog())
   setTimeout(() => {
     dispatch(removeOpenDialog2())
-  },200)
+  }, 2000)
 }

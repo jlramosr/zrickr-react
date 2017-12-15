@@ -29,28 +29,43 @@ class ControlledDialog extends Component {
 
     console.log(currentDialogProps)
     //if (isChangingDialogs) return (<div>{"hola"}</div>)
-    return (
-      <Dialog
-        open={numActiveDialogs && !isChangingDialogs}
-        maxWidth="lg"
-        fullWidth
-        transition={Transition}
-        onRequestClose={this._handleRequestClose}
-      >
-        {!isChangingDialogs ?
+    if (numActiveDialogs) return (
+      <React.Fragment> 
+        <Dialog
+          open={numActiveDialogs % 2 === 0 || (numActiveDialogs % 2 === 1  && isChangingDialogs)}
+          maxWidth="lg"
+          fullWidth
+          transition={Transition}
+          onRequestClose={this._handleRequestClose}
+        >
           <ItemDetail
             dialogMode
             closeDialog={() => {
               removeOpenDialog()
             }}
-            categoryId="clients"
-            itemId={11231}
             {...currentDialogProps}
-          /> :
-          <div>hola</div>
+          />
+          }
+        </Dialog>
+        <Dialog
+          open={numActiveDialogs % 2 === 1 || (numActiveDialogs % 2 === 0  && isChangingDialogs)}
+          maxWidth="lg"
+          fullWidth
+          transition={Transition}
+          onRequestClose={this._handleRequestClose}
+        >
+          <ItemDetail
+            dialogMode
+            closeDialog={() => {
+              removeOpenDialog()
+            }}
+            {...currentDialogProps}
+          />
         }
-      </Dialog>
+        </Dialog>
+      </React.Fragment>    
     )
+    return <React.Fragment><div></div></React.Fragment>
   }
 }
 
