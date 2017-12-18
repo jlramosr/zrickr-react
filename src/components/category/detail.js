@@ -1,31 +1,32 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
-import HeaderLayout from '../headerLayout'
+import Dialog from 'material-ui/Dialog'
 import { fetchItemIfNeeded } from '../../actions/items'
 import Form from '../form'
 import { notify } from '../../actions/notifier'
+import { addOpenDialog, removeOpenDialog } from '../../actions/dialogs'
 import { updateItem, removeItem } from '../../actions/items'
-import ArrowBack from 'material-ui-icons/ArrowBack'
-import Close from 'material-ui-icons/Close'
-import Check from 'material-ui-icons/Check'
-import Edit from 'material-ui-icons/Edit'
-import ChromeReaderMode from 'material-ui-icons/ChromeReaderMode'
-import Delete from 'material-ui-icons/Delete'
 import { getItemInfo } from './utils/helpers'
 import { capitalize, isEqual } from '../../utils/helpers'
-import NotFound from '../notFound'
+import ItemHeaderLayout from './detail2'
+import ItemTabsLayout from './detail3'
 
 class CategoryItemDetail extends Component {
   state = {
     editMode: false
   }
 
-  _changeEditMode = editMode => {
+  changeEditMode = editMode => {
     this.setState({editMode})
   }
 
-  _updateItem = values => {
+  getTitle = () => {
+    const { settings, item } = this.props
+    return item ? getItemInfo(settings.primaryFields, item) : ''
+  }
+
+  updateItem = values => {
     console.log("UPDATE", this.props.dialogMod, this.props.item, values)
     const { settings, updateItem, notify } = this.props
     if (!isEqual(this.props.item, values)) {
@@ -52,7 +53,7 @@ class CategoryItemDetail extends Component {
     return new Promise(resolve => resolve())
   }
 
-  _removeItem = () => {
+  removeItem = () => {
     const { categoryId, settings, removeItem, notify, history } = this.props
     return removeItem().then(
       () => {
@@ -79,61 +80,51 @@ class CategoryItemDetail extends Component {
     this.props.fetchItemIfNeeded() //this.props.fetchItem()
   }
 
-  render = () => {
-    const {
-      categoryId,
-      settings,
-      isFetchingSettings,
-      fields,
-      isFetchingFields,
-      item,
-      isFetchingItem,
-      //itemReceived,
-      isUpdating,
-      dialogMode,
-      relationMode,
-      closeDialog
-    } = this.props
+  renderForm = () => {
+    const { fields, item } = this.props
     const { editMode } = this.state
 
-    //console.log(categoryId, item)
-
     return (
-      //itemReceived ? (
-      item ? (
-        <HeaderLayout
-          relative={relationMode}
-          title={item ? getItemInfo(settings.primaryFields, item) : ''}
-          loading={isFetchingSettings || isFetchingFields || isFetchingItem || isUpdating }
-          operations={[
-            {id:'arrowBack', icon:ArrowBack, hidden:dialogMode, to:`/${categoryId}`},
-            {id:'close', icon:Close, hidden:!dialogMode, onClick:closeDialog},
-            {id:'edit', icon:Edit, right:true, hidden:editMode, onClick:() => this._changeEditMode(true)},
-            {id:'view', icon:ChromeReaderMode, right:true, hidden:!editMode, onClick:() => this._changeEditMode(false)},
-            {id:'delete', icon:Delete, right:true, hidden:editMode || dialogMode, onClick:this._removeItem},
-            {id:'check', icon:Check, right:true, hidden:!editMode, onClick: () => {
-              this.formElement.dispatchEvent(new Event('submit'),{bubbles:false})
-            }}
-          ]}
-        >
-          <Form
-            cols={12}
-            view="detail"
-            infoMode={!editMode}
-            fields={fields}
-            values={item}
-            handleSubmit={this._updateItem}
-            formRef={el => this.formElement = el}
-          />
-        </HeaderLayout>
-      ) : (
-        <NotFound text="Item Not Found" />
-      )
-      //) : (
-      //  <NotFound text="Loading Item ..." />
-      //)
+      <Form
+        cols={12}
+        view="detail"
+        infoMode={!editMode}
+        fields={fields}
+        values={item}
+        handleSubmit={this._updateItem}
+        formRef={el => this.formElement = el}
+      />
     )
   }
+
+  render = () => (
+    this.props.dialogMode ? (
+      <ItemTabsLayout
+        editMode={this.state.editMode}
+        changeEditMode={this.changeEditMode}
+        title={this.getTitle()}
+      >
+        {this.renderForm()}
+      </ItemTabsLayout>
+    ) : (
+      <ItemHeaderLayout
+        {...this.props}
+        editMode={this.state.editMode}
+        changeEditMode={this.changeEditMode}
+        title={this.getTitle()}
+      >
+        <React.Fragment>
+          {this.renderForm()}
+          <Dialog open={this.props.openDialogs.length}>
+            <CategoryItemDetail
+              dialogMode
+              level={this.props.openDialogs.length}
+            />
+          </Dialog>
+        </React.Fragment>
+      </ItemHeaderLayout>
+    )
+  )
 }
 
 CategoryItemDetail.propTypes = {
@@ -177,9 +168,11 @@ CategoryItemDetail.defaultProps = {
   dialogMode: false
 }
 
-const mapStateToProps = ({ categories, settings, fields, items }, props) => {
-  const categoryId = props.categoryId
-  const itemId = props.dialogMode ? props.itemId : props.match.params.itemId
+const mapStateToProps = ({ categories, settings, fields, items, dialogs }, props) => {
+  const openDialogs = dialogs.openDialogs
+  const categoryId = props.dialogMode ? openDialogs[openDialogs.length-1].categoryId : props.categoryId
+  console.log(openDialogs[openDialogs.length-1])
+  const itemId = props.dialogMode ? openDialogs[openDialogs.length-1].itemId : props.match.params.itemId
   const category = categories.byId[categoryId]
   return { 
     settings: category.settings ? settings.byId[category.settings] : {},
@@ -191,7 +184,8 @@ const mapStateToProps = ({ categories, settings, fields, items }, props) => {
     item: category.items && category.items.includes(itemId) ? items.byId[itemId] : null,
     isFetchingItem: items.flow[categoryId].isFetchingItem,
     //itemReceived: items.flow[categoryId].isReceivedItem || items.flow[categoryId].errorFetchingItem
-    isUpdating: items.flow[categoryId].isUpdating
+    isUpdating: items.flow[categoryId].isUpdating,
+    openDialogs
   }
 }
 
@@ -202,7 +196,9 @@ const mapDispatchToProps = (dispatch, props) => {
     fetchItemIfNeeded: () => dispatch(fetchItemIfNeeded(categoryId,itemId)),
     updateItem: item => dispatch(updateItem(props.categoryId, itemId, item)),
     removeItem: () => dispatch(removeItem(categoryId,itemId)),
-    notify: (message, type) => dispatch(notify(message, type))
+    notify: (message, type) => dispatch(notify(message, type)),
+    addOpenDialog: (categoryId, itemId) => dispatch(addOpenDialog(categoryId, itemId)),
+    removeOpenDialog: () => dispatch(removeOpenDialog())
   }
 }
 

@@ -50,9 +50,8 @@ import IconButton from 'material-ui/IconButton'
 import Menu, { MenuItem } from 'material-ui/Menu'
 import escapeRegExp from 'escape-string-regexp'
 import removeDiacritics from 'remove-diacritics'
-import ItemDetail from './detail'
 import ItemNew from './new'
-import ControlledDialog from '../dialog'
+import Dialog from '../dialog'
 import { addOpenDialog, removeOpenDialog } from '../../actions/dialogs'
 import { getItemInfo } from './utils/helpers'
 import { withStyles } from 'material-ui/styles'
@@ -579,7 +578,7 @@ class CategoryList extends Component {
       this.setState({ showNewDialog: true})
     } else if (dialog === 'detail') {
       this.props.addOpenDialog(categoryId, itemId)
-      //this.setState({ showDetailDialog: true, detailDialogItemId: itemId})
+      this.setState({ showDetailDialog: true, detailDialogItemId: itemId})
     } else if (dialog === 'list') {
       this.setState({ showListDialog: true})
     }
@@ -603,7 +602,7 @@ class CategoryList extends Component {
     if (dialog === 'new') {
       this.setState({ showNewDialog: false })
     } else if (dialog === 'detail') {
-      this.props.removeOpenDialog()
+      this.setState({ showDetailDialog: false })
     } else if (dialog === 'list') {
       this.setState({ showListDialog: false })
     }
@@ -732,8 +731,7 @@ class CategoryList extends Component {
           })
         )}
 
-        <ControlledDialog
-          dialogId={`${categoryId}-new`}
+        <Dialog
           fullScreen={!dialogMode}
           open={showNewDialog}
           onRequestClose={() => this._dialogClosed('new')}
@@ -744,26 +742,10 @@ class CategoryList extends Component {
             categoryId={categoryId}
             itemLabel={settings.itemLabel}
           />
-        </ControlledDialog>
+        </Dialog>
 
         {relationMode &&
-          <ControlledDialog
-            dialogId={`${categoryId}-${detailDialogItemId}-detail`}
-            open={showDetailDialog && detailDialogItemId}
-            onRequestClose={() => this._dialogClosed('detail')}
-          >
-            <ItemDetail
-              dialogMode
-              closeDialog={() => this.closeDialog('detail')}
-              categoryId={categoryId}
-              itemId={detailDialogItemId}
-            />
-          </ControlledDialog>
-        }
-
-        {relationMode &&
-          <ControlledDialog
-            dialogId={`${categoryId}-list`}
+          <Dialog
             open={showListDialog}
             onRequestClose={() => this._dialogClosed('list')}
           >
@@ -780,7 +762,7 @@ class CategoryList extends Component {
               editMode
               showAvatar={false}
             />
-          </ControlledDialog>
+          </Dialog>
         }
 
       </HeaderLayout>
@@ -937,7 +919,7 @@ CategoryList.defaultProps = {
   showAvatar: true
 }
 
-const mapStateToProps = ({ categories, settings, fields, items }, props) => {
+const mapStateToProps = ({ categories, settings, fields, items, dialogs }, props) => {
   const categoryId = props.categoryId
   const category = categories.byId[categoryId]
   return {
@@ -948,14 +930,15 @@ const mapStateToProps = ({ categories, settings, fields, items }, props) => {
     items: Object.values(items.byId).filter(item => 
       category.items.includes(item.id) && (props.itemIds ? props.itemIds.includes(item.id) : true)
     ),
-    isFetchingItems: items.flow[categoryId].isFetchingAll
+    isFetchingItems: items.flow[categoryId].isFetchingAll,
+    openDialogs: dialogs.openDialogs
   }
 }
 
 const mapDispatchToProps = (dispatch, props) => ({
   fetchItems: () => dispatch(fetchItems(props.categoryId)),
   fetchItemsIfNeeded: () => dispatch(fetchItemsIfNeeded(props.categoryId)),
-  addOpenDialog: (dialog, content) => dispatch(addOpenDialog(dialog, content)),
+  addOpenDialog: (categoryId, itemId) => dispatch(addOpenDialog(categoryId, itemId)),
   removeOpenDialog: () => dispatch(removeOpenDialog())
 })
 
