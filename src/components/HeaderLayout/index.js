@@ -37,17 +37,33 @@ const styles = theme => ({
 })
 
 const HeaderLayout = props => {
-  const { children, classes, theme, relative, relativeHeight, overflow, ...rest } = props
+  const {
+    relative,
+    relativeHeight,
+    overflow,
+    contentToolbar,
+    secondaryToolbar,
+    operations,
+    children,
+    classes,
+    theme,
+    ...rest 
+  } = props
 
   return (
     <div className={classes.root}>
       <div
         className={classes.toolbar}
-        style={relative ? 
+        style={relative ?
           {position:'relative', zIndex: 0} :
           {position:'fixed', zIndex: theme.zIndex.appBar+1}}
       >
-        <CustomToolbar relative={relative} {...rest}/>
+        <CustomToolbar
+          secondary={secondaryToolbar}
+          customContent={contentToolbar}
+          operations={operations || []}
+          {...rest}
+        />
       </div>
       <div
         className={classes.content}
@@ -74,7 +90,9 @@ HeaderLayout.propTypes = {
   relativeHeight: PropTypes.number,
   operations: PropTypes.array,
   title: PropTypes.string,
+  overflow: PropTypes.bool,
   updateSearchQuery: PropTypes.func,
+  contentToolbar: PropTypes.node,
   loading: PropTypes.bool
 }
 

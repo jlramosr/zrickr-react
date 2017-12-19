@@ -52,7 +52,7 @@ import escapeRegExp from 'escape-string-regexp'
 import removeDiacritics from 'remove-diacritics'
 import ItemNew from './new'
 import Dialog from '../dialog'
-import { addOpenDialog, removeOpenDialog } from '../../actions/dialogs'
+import { addOpenRelation, removeOpenRelation } from '../../actions/relations'
 import { getItemInfo } from './utils/helpers'
 import { withStyles } from 'material-ui/styles'
 
@@ -577,8 +577,8 @@ class CategoryList extends Component {
     if (dialog === 'new') {
       this.setState({ showNewDialog: true})
     } else if (dialog === 'detail') {
-      this.props.addOpenDialog(categoryId, itemId)
-      this.setState({ showDetailDialog: true, detailDialogItemId: itemId})
+      this.props.addOpenRelation(categoryId, itemId)
+      //this.setState({ showDetailDialog: true, detailDialogItemId: itemId})
     } else if (dialog === 'list') {
       this.setState({ showListDialog: true})
     }
@@ -919,7 +919,7 @@ CategoryList.defaultProps = {
   showAvatar: true
 }
 
-const mapStateToProps = ({ categories, settings, fields, items, dialogs }, props) => {
+const mapStateToProps = ({ categories, settings, fields, items }, props) => {
   const categoryId = props.categoryId
   const category = categories.byId[categoryId]
   return {
@@ -930,16 +930,15 @@ const mapStateToProps = ({ categories, settings, fields, items, dialogs }, props
     items: Object.values(items.byId).filter(item => 
       category.items.includes(item.id) && (props.itemIds ? props.itemIds.includes(item.id) : true)
     ),
-    isFetchingItems: items.flow[categoryId].isFetchingAll,
-    openDialogs: dialogs.openDialogs
+    isFetchingItems: items.flow[categoryId].isFetchingAll
   }
 }
 
 const mapDispatchToProps = (dispatch, props) => ({
   fetchItems: () => dispatch(fetchItems(props.categoryId)),
   fetchItemsIfNeeded: () => dispatch(fetchItemsIfNeeded(props.categoryId)),
-  addOpenDialog: (categoryId, itemId) => dispatch(addOpenDialog(categoryId, itemId)),
-  removeOpenDialog: () => dispatch(removeOpenDialog())
+  addOpenRelation: (categoryId, itemId) => dispatch(addOpenRelation(categoryId, itemId)),
+  removeOpenRelation: () => dispatch(removeOpenRelation())
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(CategoryList)

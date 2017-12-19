@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import AppBar from 'material-ui/AppBar'
 import Tabs, { Tab } from 'material-ui/Tabs'
-import { removeOpenDialog } from '../../actions/dialogs'
+import { removeOpenRelation } from '../../actions/relations'
 
 class CategoryItemDetailTabs extends Component {
   state = {
@@ -19,7 +19,7 @@ class CategoryItemDetailTabs extends Component {
     const {
       children,
       openDialogs,
-      removeOpenDialog,
+      removeOpenRelation,
       isChangingDialogs } = this.props
     const { value } = this.state
 
@@ -63,7 +63,7 @@ const mapStateToProps = ( {dialogs} ) => ({
 })
 
 const mapDispatchToProps = (dispatch, props) => ({
-  removeOpenDialog: () => dispatch(removeOpenDialog())
+  removeOpenRelation: () => dispatch(removeOpenRelation())
 })
 
 export default connect(mapStateToProps,mapDispatchToProps)(CategoryItemDetailTabs)

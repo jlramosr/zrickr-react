@@ -10,70 +10,92 @@ import Search from 'material-ui-icons/Search'
 import Close from 'material-ui-icons/Close'
 import CircularProgress from 'material-ui/Progress/CircularProgress'
 
+const appBarStyle = {
+  width: '-webkit-fill-available'
+}
+
+const toolbarStyle = {
+  justifyContent: 'center'
+}
+
+const secondaryProperties = {
+  height: 30
+}
+
 const styles = theme => ({
-  root: {
-    width: '-webkit-fill-available'
+  /* Bar */
+  normalAppBar: {
+    ...appBarStyle
   },
+  secondaryAppBar: {
+    ...appBarStyle,
+    height: secondaryProperties.height,
+    background: theme.palette.primary[200]
+  },
+  normalToolbar: {
+    ...toolbarStyle
+  },
+  secondaryToolbar: {
+    ...toolbarStyle,
+    minHeight: secondaryProperties.height
+  },
+
+  /* Operations and Content */
   leftOperations: {
-    order: 1,
-    display: 'flex',
-    justifyContent: 'flex-start'
+    
   },
-  title: {
-    order: 2,
+  content: {
     display: 'flex',
+    overflow: 'hidden',
+    flex: 1
+  },
+  rightOperations: {
+
+  },
+
+  /* Content */
+  title: {
+    display: 'flex',
+    alignItems: 'center',
     overflow: 'hidden',
     marginRight: theme.spacing.unit*4
   },
   search: {
-    order: 3,
     display: 'none',
-    flex: 0,
     height: '100%',
     [theme.breakpoints.up('sm')]: {
       flex: 1,
       display: 'flex',
       justifyContent: 'center',
-      marginLeft: theme.spacing.unit*4,
-      marginRight: theme.spacing.unit*4
-    }
-  },
-  rightOperations: {
-    order: 4,
-    flex: 1,
-    display: 'flex',
-    justifyContent: 'flex-end',
-    [theme.breakpoints.up('sm')]: {
-      flex: 0
+      marginLeft: theme.spacing.unit*2,
+      marginRight: theme.spacing.unit*2
     }
   },
   operations: {
     display: 'flex'
   },
-  miniSearch: {
-    position: 'absolute',
-    left: theme.spacing.unit*2,
-    top: '50%',
-    transform: 'translate(0, -50%)',
-    width: '50%',
-    zIndex: 5,
-    [theme.breakpoints.up('sm')]: {
-      display: 'none'
-    }
-  },
+
+  /* Title */
   titleText: {
+    flex: 1,
     marginBottom: 2,
+    fontWeight: 400,
     textTransform: 'capitalize',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap'
   },
+  progress: {
+    margin: `0 ${theme.spacing.unit}px`
+  },
+
+  /* Search */
   searchBar: {
     display: 'flex',
     position: 'relative',
     justifyContent: 'center',
     alignItems: 'center',
-    maxWidth: 520,
+    maxWidth: 620,
     background: theme.palette.primary[400],
     width: '100%'
   },
@@ -98,9 +120,6 @@ const styles = theme => ({
   searchBarInputFocused: {
     background: theme.palette.primary[300]
   },
-  searchBarInputFocusedRelative: {
-    background: theme.palette.primary[50]
-  },
   searchBarCloseIcon: {
     position: 'absolute',
     right: 0,
@@ -115,11 +134,6 @@ const styles = theme => ({
     [theme.breakpoints.up('sm')]: {
       display: 'none'
     }
-  },
-  progress: {
-    display: 'flex',
-    alignItems: 'center',
-    margin: `0 ${theme.spacing.unit}px`
   }
 })
 
@@ -147,151 +161,96 @@ class CustomToolbar extends Component {
     searchQuery: ''
   }
 
-  _openMiniSearch = () => {
-    this.setState({showMiniSearch: !this.state.showMiniSearch})
-  }
-
   _updateSearchQuery = searchQuery => {
     this.setState({searchQuery})
     this.props.updateSearchQuery(searchQuery)
   }
 
   render = () => {
-    const { operations, title, updateSearchQuery, relative, loading, classes, theme } = this.props
-    const { searchQuery, showMiniSearch } = this.state
+    const {
+      title,
+      operations,
+      updateSearchQuery,
+      customContent,
+      secondary,
+      loading,
+      classes,
+      theme 
+    } = this.props
+    const { searchQuery } = this.state
 
-    const relativeToolbarHeight = 40
-    const relativeToolbarBackground = theme.palette.primary[200]
-    const relativeSearchBackground = theme.palette.primary[100]
+    const leftOperations = operations.filter(operation => !operation.right)
+    let rightOperations = operations.filter(operation => operation.right)
 
+    if (updateSearchQuery) {
+      rightOperations = [
+        {id:'search-small', icon:Search, right:true, onClick: () => {}},//TODO}},
+        ...rightOperations
+      ]
+    }
+    
     return (
       <AppBar
-        className={classes.root}
-        style={
-          relative ? {
-            height: relativeToolbarHeight,
-            background: relativeToolbarBackground
-          } : {
-          }
-        }
         position="static"
+        className={secondary ? classes.secondaryAppBar : classes.normalAppBar}
       >
-        <Toolbar
-          style={relative ? {
-            minHeight: relativeToolbarHeight,
-            paddingLeft: theme.spacing.unit*2,
-            paddingRight: theme.spacing.unit/2
-          } : {
-          }}
-        >
+        <Toolbar className={secondary ? classes.secondaryToolbar : classes.normalAppBar}>
 
           <div className={classes.leftOperations}>
-            <Operations
-              operations={operations.filter(operation => !operation.right)}
-              color={relative ? 'primary' : 'contrast'}
-            />
+            <Operations operations={leftOperations} color="contrast"/>
           </div>
 
-          <div className={classes.title}>
-            <Typography
-              className={classes.titleText}
-              type={relative ? 'subheading' : 'title'}
-              color={relative ? 'primary' : 'inherit'}
-            >
-              {title}
-            </Typography>
-          </div>
+          <div className={classes.content}>
+            {customContent !== undefined && customContent}
+            {customContent === undefined &&
+              <React.Fragment>
+                <div className={classes.title}>
+                  <Typography
+                    className={classes.titleText}
+                    type={secondary ? 'subheading' : 'title'}
+                    color={secondary ? 'contrast' : 'inherit'}
+                  >
+                    {title}
+                  </Typography>
+                  {loading &&
+                    <div className={classes.progress}>
+                      <CircularProgress size={20} thickness={7} color="accent" />
+                    </div>
+                  }
+                </div>
 
-          <div
-            className={classes.search}
-            style={relative ? {justifyContent: 'flex-end'}: {}}
-          >
-            {updateSearchQuery &&
-            <div
-              className={classes.searchBar}
-              style={relative ? {background: relativeSearchBackground}: {}}
-            >
-              <Search
-                size={20}
-                color={relative ? theme.palette.primary[600] : theme.palette.primary[900]}
-                className={classes.searchBarSearchIcon}
-              />
-              <Input
-                classes={{
-                  root: classes.searchBarInput,
-                  focused: relative ? 
-                    classes.searchBarInputFocusedRelative : 
-                    classes.searchBarInputFocused
-                }}
-                color="contrast"
-                placeholder="Buscar"
-                disableUnderline={relative ? false : true}
-                value={searchQuery}
-                onChange={ event => this._updateSearchQuery(event.target.value) }
-              />
-              {searchQuery && 
-                <Close
-                  size={20}
-                  color={relative ? theme.palette.primary[600] : theme.palette.primary[900]}
-                  className={classes.searchBarCloseIcon}
-                  onClick={ () => this._updateSearchQuery('')}
-                />
-              }
-            </div>
+                {updateSearchQuery &&
+                  <div className={classes.search}>
+                    <div className={classes.searchBar}>
+                      <Search size={20} className={classes.searchBarSearchIcon}/>
+                      <Input
+                        classes={{
+                          root: classes.searchBarInput,
+                          focused: classes.searchBarInputFocused   
+                        }}
+                        color="contrast"
+                        placeholder="Buscar"
+                        disableUnderline={secondary ? false : true}
+                        value={searchQuery}
+                        onChange={event => this._updateSearchQuery(event.target.value)}
+                      />
+                      {searchQuery && 
+                        <Close
+                          size={20}
+                          color={secondary ? theme.palette.primary[600] : theme.palette.primary[900]}
+                          className={classes.searchBarCloseIcon}
+                          onClick={ () => this._updateSearchQuery('')}
+                        />
+                      }
+                    </div>
+                  </div>
+                }
+              </React.Fragment>
             }
           </div>
 
-          {updateSearchQuery && showMiniSearch &&
-            <div className={classes.miniSearch}>
-              <div className={classes.searchBar}>
-                <Search
-                  size={20}
-                  color="inherit"
-                  className={classes.searchBarSearchIcon}
-                />
-                <Input
-                  classes={{
-                    root:classes.searchBarInput,
-                    focused:classes.searchBarInputFocused
-                  }}
-                  color="contrast"
-                  placeholder="Buscar"
-                  disableUnderline={relative}
-                  value={searchQuery}
-                  onChange={ event => this._updateSearchQuery(event.target.value) }
-                />
-                {searchQuery && 
-                  <Close
-                    size={20}
-                    color="inherit"
-                    className={classes.searchBarCloseIcon}
-                    onClick={ () => this._updateSearchQuery('')}
-                  />
-                }
-              </div>
-            </div>
-            
-          }
-
           <div className={classes.rightOperations}>
-            <div className={classes.progress}>
-              {loading &&
-                <CircularProgress size={20} thickness={7} color="accent" />
-              }
-            </div>
-            <div className={classes.searchOperation}>
-              <Operation
-                id="search-small"
-                icon={Search}
-                color={showMiniSearch ? 'accent' : 'primary'}
-                hidden={!updateSearchQuery}
-                onClick={this._openMiniSearch}
-              />
-            </div>
-            <Operations
-              operations={operations.filter(operation => operation.right)}
-              color={relative ? 'primary' : 'contrast'}
-            />
+            <Operations operations={rightOperations} color="contrast" />
           </div>
 
         </Toolbar>
@@ -303,16 +262,16 @@ class CustomToolbar extends Component {
 CustomToolbar.propTypes = {
   theme: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
-  operations: PropTypes.array,
+  operations: PropTypes.array.isRequired,
   title: PropTypes.string,
   updateSearchQuery: PropTypes.func,
   loading: PropTypes.bool.isRequired,
-  relative: PropTypes.bool
+  secondary: PropTypes.bool
 }
 
 CustomToolbar.defaultProps = {
   loading: false,
-  relative: false
+  secondary: false
 }
 
 export default withStyles(styles, {withTheme: true})(CustomToolbar)

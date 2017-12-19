@@ -21,7 +21,9 @@ class CustomDialog extends Component {
         fullWidth
         transition={Transition}
         onRequestClose={() => {
-          onRequestClose()
+          if (onRequestClose) {
+            onRequestClose()
+          }
         }}
       >
         {children}

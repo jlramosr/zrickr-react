@@ -5,7 +5,6 @@ import Dialog from 'material-ui/Dialog'
 import { fetchItemIfNeeded } from '../../actions/items'
 import Form from '../form'
 import { notify } from '../../actions/notifier'
-import { addOpenDialog, removeOpenDialog } from '../../actions/dialogs'
 import { updateItem, removeItem } from '../../actions/items'
 import { getItemInfo } from './utils/helpers'
 import { capitalize, isEqual } from '../../utils/helpers'
@@ -99,6 +98,7 @@ class CategoryItemDetail extends Component {
 
   render = () => (
     this.props.dialogMode ? (
+
       <ItemTabsLayout
         editMode={this.state.editMode}
         changeEditMode={this.changeEditMode}
@@ -106,7 +106,9 @@ class CategoryItemDetail extends Component {
       >
         {this.renderForm()}
       </ItemTabsLayout>
+
     ) : (
+
       <ItemHeaderLayout
         {...this.props}
         editMode={this.state.editMode}
@@ -123,6 +125,7 @@ class CategoryItemDetail extends Component {
           </Dialog>
         </React.Fragment>
       </ItemHeaderLayout>
+
     )
   )
 }
@@ -171,7 +174,6 @@ CategoryItemDetail.defaultProps = {
 const mapStateToProps = ({ categories, settings, fields, items, dialogs }, props) => {
   const openDialogs = dialogs.openDialogs
   const categoryId = props.dialogMode ? openDialogs[openDialogs.length-1].categoryId : props.categoryId
-  console.log(openDialogs[openDialogs.length-1])
   const itemId = props.dialogMode ? openDialogs[openDialogs.length-1].itemId : props.match.params.itemId
   const category = categories.byId[categoryId]
   return { 
