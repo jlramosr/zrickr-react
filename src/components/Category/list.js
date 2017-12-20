@@ -662,6 +662,7 @@ class CategoryList extends Component {
       <HeaderLayout
         relative={relationMode}
         relativeHeight={relationMode ? 200 : null}
+        secondaryToolbar={relationMode}
         overflow={tableMode ? 'hidden' : 'auto'}
         title={categoryLabel}
         updateSearchQuery={!tableMode ? this._updateSearchQuery : null}

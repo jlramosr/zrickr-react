@@ -3,6 +3,14 @@ import PropTypes from 'prop-types'
 import CustomToolbar from './toolbar'
 import { withStyles } from 'material-ui/styles'
 
+const secondaryToolbarProperties = {
+  height: 42,
+  color: 'primary',
+  tone: 200,
+  fontColor: 'primary',
+  fontTone: 800
+}
+
 const styles = theme => ({
   root: {
     display: 'flex',
@@ -38,11 +46,13 @@ const styles = theme => ({
 
 const HeaderLayout = props => {
   const {
+    hidden,
     relative,
     relativeHeight,
     overflow,
     contentToolbar,
     secondaryToolbar,
+    secondaryToolbarHeight,
     operations,
     children,
     classes,
@@ -50,35 +60,63 @@ const HeaderLayout = props => {
     ...rest 
   } = props
 
+  let toolbarComputedStyle = {
+    display:'block',
+    position:'fixed',
+    zIndex: theme.zIndex.appBar+1
+  }
+  const secondaryToolbarProps = {
+    ...secondaryToolbarProperties,
+    height: secondaryToolbarHeight || secondaryToolbarProperties.height
+  }
+  let contentComputedStyle = {overflow : overflow || 'auto'}
+  if (relative) {
+    toolbarComputedStyle = {
+      ...toolbarComputedStyle,
+      position:'relative',
+      zIndex: 0
+    }
+    contentComputedStyle = {
+      ...contentComputedStyle,
+      marginTop: 0,
+      maxHeight: relativeHeight
+    }
+  }
+  if (secondaryToolbar && !hidden) {
+    contentComputedStyle = {
+      height: `calc(100vh - ${secondaryToolbarProps.height}px)`,
+      marginTop: secondaryToolbarProps.height,
+      ...contentComputedStyle
+    }
+  }
+  if (hidden) {
+    toolbarComputedStyle = {
+      display: 'none'
+    }
+    contentComputedStyle = {
+      marginTop: 0,
+      ...contentComputedStyle,
+      height: '100vh'
+    }
+  }
+
   return (
     <div className={classes.root}>
-      <div
-        className={classes.toolbar}
-        style={relative ?
-          {position:'relative', zIndex: 0} :
-          {position:'fixed', zIndex: theme.zIndex.appBar+1}}
-      >
+
+      <div className={classes.toolbar} style={toolbarComputedStyle}>
         <CustomToolbar
           secondary={secondaryToolbar}
+          secondaryProps={secondaryToolbarProps}
           customContent={contentToolbar}
           operations={operations || []}
           {...rest}
         />
       </div>
-      <div
-        className={classes.content}
-        style={{
-          overflow : overflow || 'auto', 
-          ...(
-            relative ? {
-              marginTop: 0,
-              maxHeight: relativeHeight
-            } : {}
-          )
-        }}
-      >
+
+      <div className={classes.content} style={contentComputedStyle}>
         {children}
       </div>
+
     </div>
   )
 }
@@ -86,11 +124,12 @@ const HeaderLayout = props => {
 HeaderLayout.propTypes = {
   classes: PropTypes.object.isRequired,
   children: PropTypes.node.isRequired,
+  hidden: PropTypes.bool,
   relative: PropTypes.bool,
   relativeHeight: PropTypes.number,
   operations: PropTypes.array,
   title: PropTypes.string,
-  overflow: PropTypes.bool,
+  overflow: PropTypes.string,
   updateSearchQuery: PropTypes.func,
   contentToolbar: PropTypes.node,
   loading: PropTypes.bool

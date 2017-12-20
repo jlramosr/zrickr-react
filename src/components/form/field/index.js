@@ -30,7 +30,6 @@ const label = theme => ({
   color: theme.palette.primary[500]
 })
 
-
 const styles = theme => ({
   inputText: {
     ...input(theme)

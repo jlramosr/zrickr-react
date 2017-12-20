@@ -9,40 +9,20 @@ import Typography from 'material-ui/Typography'
 import Search from 'material-ui-icons/Search'
 import Close from 'material-ui-icons/Close'
 import CircularProgress from 'material-ui/Progress/CircularProgress'
-
-const appBarStyle = {
-  width: '-webkit-fill-available'
-}
-
-const toolbarStyle = {
-  justifyContent: 'center'
-}
-
-const secondaryProperties = {
-  height: 30
-}
+import { transformColor } from './utils/helpers'
 
 const styles = theme => ({
   /* Bar */
-  normalAppBar: {
-    ...appBarStyle
+  appBar: {
+    width: '-webkit-fill-available'
   },
-  secondaryAppBar: {
-    ...appBarStyle,
-    height: secondaryProperties.height,
-    background: theme.palette.primary[200]
+  toolbar: {
+    justifyContent: 'center'
   },
-  normalToolbar: {
-    ...toolbarStyle
-  },
-  secondaryToolbar: {
-    ...toolbarStyle,
-    minHeight: secondaryProperties.height
-  },
+
 
   /* Operations and Content */
   leftOperations: {
-    
   },
   content: {
     display: 'flex',
@@ -50,7 +30,6 @@ const styles = theme => ({
     flex: 1
   },
   rightOperations: {
-
   },
 
   /* Content */
@@ -96,8 +75,8 @@ const styles = theme => ({
     justifyContent: 'center',
     alignItems: 'center',
     maxWidth: 620,
-    background: theme.palette.primary[400],
-    width: '100%'
+    width: '100%',
+    backgroundColor: transformColor(theme.palette.primary[500],16)
   },
   searchBarSearchIcon: {
     position: 'absolute',
@@ -113,12 +92,15 @@ const styles = theme => ({
     outline: 'none',
     border: 'none',
     fontSize: 16,
-    background: 'transparent',
     paddingLeft: theme.spacing.unit*5,
     paddingRight: theme.spacing.unit*4
   },
   searchBarInputFocused: {
-    background: theme.palette.primary[300]
+    transition: theme.transitions.create(['background-color'], {
+      duration: theme.transitions.duration.sharp,
+      easing: theme.transitions.easing.sharp
+    }),
+    backgroundColor: transformColor(theme.palette.primary[500],24)
   },
   searchBarCloseIcon: {
     position: 'absolute',
@@ -173,6 +155,7 @@ class CustomToolbar extends Component {
       updateSearchQuery,
       customContent,
       secondary,
+      secondaryProps,
       loading,
       classes,
       theme 
@@ -181,23 +164,47 @@ class CustomToolbar extends Component {
 
     const leftOperations = operations.filter(operation => !operation.right)
     let rightOperations = operations.filter(operation => operation.right)
-
     if (updateSearchQuery) {
       rightOperations = [
         {id:'search-small', icon:Search, right:true, onClick: () => {}},//TODO}},
         ...rightOperations
       ]
     }
+
+    let appBarComputedStyle = {}
+    let toolbarComputedStyle = {}
+    let contentComputedStyle = {
+      color: 'white'
+    }
+    let searchBarComputedStyle = {}
+    if (secondary && secondaryProps) {
+      appBarComputedStyle = {
+        ...appBarComputedStyle,
+        height: secondaryProps.height,
+        background: theme.palette[secondaryProps.color][secondaryProps.tone]
+      }
+      toolbarComputedStyle = {
+        ...toolbarComputedStyle,
+        minHeight: secondaryProps.height,
+        paddingLeft: theme.spacing.unit * (leftOperations.filter(op => !op.hidden).length ? 1 : 3),
+        paddingRight: theme.spacing.unit * (rightOperations.filter(op => !op.hidden).length ? 1 : 3)
+      }
+      contentComputedStyle = {
+        ...contentComputedStyle,
+        color: theme.palette[secondaryProps.fontColor][secondaryProps.fontTone]
+      }
+      searchBarComputedStyle = {
+        ...searchBarComputedStyle,
+        backgroundColor: theme.palette[secondaryProps.color][secondaryProps.tone]
+      }
+    }
     
     return (
-      <AppBar
-        position="static"
-        className={secondary ? classes.secondaryAppBar : classes.normalAppBar}
-      >
-        <Toolbar className={secondary ? classes.secondaryToolbar : classes.normalAppBar}>
+      <AppBar position="static" className={classes.appBar} style={appBarComputedStyle}>
+        <Toolbar className={classes.appBar} style={toolbarComputedStyle}>
 
           <div className={classes.leftOperations}>
-            <Operations operations={leftOperations} color="contrast"/>
+            <Operations operations={leftOperations} color={contentComputedStyle.color} />
           </div>
 
           <div className={classes.content}>
@@ -206,9 +213,10 @@ class CustomToolbar extends Component {
               <React.Fragment>
                 <div className={classes.title}>
                   <Typography
+                    color="inherit"
                     className={classes.titleText}
+                    style={contentComputedStyle}
                     type={secondary ? 'subheading' : 'title'}
-                    color={secondary ? 'contrast' : 'inherit'}
                   >
                     {title}
                   </Typography>
@@ -221,14 +229,18 @@ class CustomToolbar extends Component {
 
                 {updateSearchQuery &&
                   <div className={classes.search}>
-                    <div className={classes.searchBar}>
-                      <Search size={20} className={classes.searchBarSearchIcon}/>
+                    <div className={classes.searchBar} style={searchBarComputedStyle}>
+                      <Search
+                        size={20}
+                        className={classes.searchBarSearchIcon}
+                        style={contentComputedStyle}
+                      />
                       <Input
                         classes={{
                           root: classes.searchBarInput,
-                          focused: classes.searchBarInputFocused   
+                          ...(secondary ? {} : {focused: classes.searchBarInputFocused})
                         }}
-                        color="contrast"
+                        style={contentComputedStyle}
                         placeholder="Buscar"
                         disableUnderline={secondary ? false : true}
                         value={searchQuery}
@@ -237,8 +249,8 @@ class CustomToolbar extends Component {
                       {searchQuery && 
                         <Close
                           size={20}
-                          color={secondary ? theme.palette.primary[600] : theme.palette.primary[900]}
                           className={classes.searchBarCloseIcon}
+                          style={contentComputedStyle}
                           onClick={ () => this._updateSearchQuery('')}
                         />
                       }
@@ -250,7 +262,7 @@ class CustomToolbar extends Component {
           </div>
 
           <div className={classes.rightOperations}>
-            <Operations operations={rightOperations} color="contrast" />
+            <Operations operations={rightOperations} color={contentComputedStyle.color} />
           </div>
 
         </Toolbar>

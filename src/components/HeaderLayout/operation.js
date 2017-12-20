@@ -7,9 +7,8 @@ import Tooltip from 'material-ui/Tooltip'
 const Action = props => {
   const { id, to, icon, color, onClick } = props
   const Icon = icon
-
   return (
-    <IconButton color={color} style={{cursor: onClick || to ? 'pointer' : 'default'}}>
+    <IconButton style={{cursor: onClick || to ? 'pointer' : 'default', color}}>
       <Icon aria-label={id} onClick={onClick} />
     </IconButton>
   )
