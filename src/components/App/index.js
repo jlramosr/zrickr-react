@@ -21,11 +21,15 @@ class App extends Component {
   resize = theme => {
     const width = window.innerWidth
     const { windowSize, updateWindowSize } = this.props
-    let size = 'small'
-    if (width > theme.breakpoints.values['lg']) {
-      size = 'large'
-    } else if (width > theme.breakpoints.values['sm']) {
-      size = 'medium'
+    let size = 'xs'
+    if (width >= theme.breakpoints.values['xl']) {
+      size = 'xl'
+    } else if (width >= theme.breakpoints.values['lg']) {
+      size = 'lg'
+    }else if (width >= theme.breakpoints.values['md']) {
+      size = 'md'
+    } else if (width >= theme.breakpoints.values['sm']) {
+      size = 'sm'
     }
     if (size !== windowSize) {
       updateWindowSize(size)

@@ -56,12 +56,15 @@ const styles = theme => ({
   /* Title */
   titleText: {
     flex: 1,
-    marginBottom: 2,
+    marginBottom: -1,
     fontWeight: 400,
     textTransform: 'capitalize',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap'
+    whiteSpace: 'nowrap',
+    [theme.breakpoints.up('sm')]: {
+      marginBottom: 2
+    }
   },
   progress: {
     margin: `0 ${theme.spacing.unit}px`

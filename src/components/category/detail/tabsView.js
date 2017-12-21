@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import HeaderLayout from '../../headerLayout'
 import Form from '../../form'
 import Check from 'material-ui-icons/Check'
@@ -10,19 +11,17 @@ import { withStyles } from 'material-ui/styles'
 
 const styles = theme => ({
   tabs: {
-    paddingTop: 0,
-    paddingBottom: 0,
-    width: '100%',
-    marginBottom: -17
+    marginTop: 16,
+    width: '100%'
+  },
+  tabsScrollingContainer: {
+    overflow: 'hidden'
   },
   tabsButton: {
-    color: theme.palette.primary[700],
-    marginBottom: 17,
-    width: 32,
-    height: 32
+    color: theme.palette.primary[700]
   },
   tab: {
-    color: theme.palette.primary[400],
+    color: theme.palette.grey[400],
     height: '100%',
     overflow: 'hidden'
   },
@@ -77,6 +76,7 @@ class CategoryItemDetailTabs extends Component {
       updateItem,
       changeEditMode,
       closeRelations,
+      windowSize,
       classes
     } = this.props
     const { tabTitles } = this.state
@@ -89,20 +89,21 @@ class CategoryItemDetailTabs extends Component {
           overflow="hidden"
           hidden={openRelations.length < 2}
           secondaryToolbar
-          secondaryToolbarHeight={46}
+          secondaryToolbarHeight={windowSize === 'xs' ? 64 : 32}
           contentToolbar={
             <Tabs
               value={activeIndex}
               onChange={this.handleChangeTab}
               classes={{
                 root: classes.tabs,
-                buttonAuto: classes.tabsButton
+                buttonAuto: classes.tabsButton,
+                scrollingContainer: classes.tabsScrollingContainer
               }}
               textColor="primary"
               indicatorColor="accent"
               fullWidth            
               scrollable
-              scrollButtons="auto"
+              scrollButtons={windowSize === 'xs' ? 'on' : 'auto'}
             >
               {tabTitles.map((title, index) =>
                 <Tab
@@ -149,4 +150,10 @@ class CategoryItemDetailTabs extends Component {
   }
 }
 
-export default withStyles(styles)(CategoryItemDetailTabs)
+const mapStateToProps = ({ interactions }) => ({ 
+  windowSize: interactions.windowSize,
+})
+
+export default connect(mapStateToProps)(
+  withStyles(styles)(CategoryItemDetailTabs)
+)

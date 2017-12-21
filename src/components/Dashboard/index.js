@@ -18,31 +18,36 @@ const styles = theme => ({
     display: 'flex',
     flexWrap: 'wrap',
     justifyContent: 'space-around',
-    overflow: 'hidden'
+    marginTop: theme.spacing.unit*2
   },
   gridList: {
     justifyContent: 'center',
-    maxWidth: 2800,
+    width: '100%',
+    maxWidth: 2520,
     textTransform: 'capitalize'
   },
   gridTile: {
-    height: '280px !important'
+    '& :hover': {
+      opacity: 0.95
+    }
   },
   gridImage: {
-    width: 250,
-    height: 250,
+    maxWidth: 560,
+    height: 'auto',
     objectFit: 'cover'
   }
 })
 
 class Dashboard extends Component  {
 
-  computeNumCols = () => {
+  computeColsRows = () => {
     switch (this.props.windowSize) {
-      case 'small': return 1
-      case 'medium': return 2
-      case 'large': return 4
-      default: return 2
+      case 'xs': return {c:1,r:1}
+      case 'sm': return {c:2,r:1}
+      case 'md': return {c:3,r:1}
+      case 'lg': return {c:4,r:1}
+      case 'xl': return {c:5,r:2}
+      default: return {c:2,r:1}
     }
   }
 
@@ -57,6 +62,20 @@ class Dashboard extends Component  {
       classes
     } = this.props
 
+    if (!isReceivedCategories) {
+      return (
+        <div className={classes.emptyContainer}>
+          <span>Loading categories ...</span>
+        </div>
+      )
+    }
+
+    if (!categories.length) {
+      <div className={classes.emptyContainer}>
+        <span>There is no categories</span>
+      </div>
+    }
+
     return (
       <HeaderLayout
         title={appName}
@@ -65,39 +84,30 @@ class Dashboard extends Component  {
           {id:'menu', icon: MenuIcon, onClick: () => toggleDrawer(!drawerOpen)}
         ]}
       >
-
-        {isReceivedCategories && (
-          categories.length ? (
-            <div className={classes.gridContainer}>
-              <GridList cols={this.computeNumCols()} spacing={16} className={classes.gridList}>
-                {categories.map(category => (
-                  <GridListTile key={category.id} className={classes.gridTile}>
-                    <Link key={category.id} to={`/${category.id}`}>
-                      <img
-                        className={classes.gridImage}
-                        src={category.image || 'https://blogs.ntu.edu.sg/files/2014/07/change_default_category.jpg'}
-                        alt={category.label}
-                      />
-                      <GridListTileBar
-                        title={category.label || ''}
-                        subtitle={<span>{category.description}</span>}
-                        actionIcon={
-                          <IconButton>
-                            <InfoIcon color="contrast" />
-                          </IconButton>
-                        }
-                      />
-                    </Link>
-                  </GridListTile>
-                ))}
-              </GridList>
-            </div>
-          ) : (
-            <div className={classes.emptyContainer}>
-              <span>There is no categories</span>
-            </div>
-          )
-        )}
+        <div className={classes.gridContainer}>
+          <GridList cols={this.computeColsRows().c} spacing={16} className={classes.gridList}>
+            {categories.map(category => (
+              <GridListTile key={category.id} className={classes.gridTile} rows={this.computeColsRows().r}>
+                <Link key={category.id} to={`/${category.id}`}>
+                  <img
+                    className={classes.gridImage}
+                    src={category.image || 'https://blogs.ntu.edu.sg/files/2014/07/change_default_category.jpg'}
+                    alt={category.label}
+                  />
+                  <GridListTileBar
+                    title={category.label || ''}
+                    subtitle={<span>{category.description}</span>}
+                    actionIcon={
+                      <IconButton>
+                        <InfoIcon color="contrast" />
+                      </IconButton>
+                    }
+                  />
+                </Link>
+              </GridListTile>
+            ))}
+          </GridList>
+        </div>
       </HeaderLayout>
     )
   }

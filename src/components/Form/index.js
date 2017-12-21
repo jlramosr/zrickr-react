@@ -221,6 +221,13 @@ class Form extends Component {
       }
     }
 
+    let size = 'small'
+    if (windowSize === 'sm' || windowSize === 'md') {
+      size = 'medium'
+    } else if (windowSize === 'lg' || windowSize === 'xl') {
+      size = 'large'
+    }
+
     return (
       <form
         ref={formRef}
@@ -231,8 +238,8 @@ class Form extends Component {
         {
           item.fields.map(field => {
             let fieldView = field.views ? field.views[view] : null
-            if (fieldView && windowSize in fieldView) {
-              fieldView = fieldView[windowSize]
+            if (fieldView && size in fieldView) {
+              fieldView = fieldView[size]
             }
 
             return (
@@ -281,7 +288,7 @@ Form.defaultProps = {
   infoMode: false
 }
 
-const mapStateToProps = ({ interactions }, props) => ({ 
+const mapStateToProps = ({ interactions }) => ({ 
   windowSize: interactions.windowSize
 })
 
