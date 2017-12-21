@@ -20,7 +20,6 @@ const styles = theme => ({
     justifyContent: 'center'
   },
 
-
   /* Operations and Content */
   leftOperations: {
   },
@@ -97,7 +96,7 @@ const styles = theme => ({
   },
   searchBarInputFocused: {
     transition: theme.transitions.create(['background-color'], {
-      duration: theme.transitions.duration.sharp,
+      duration: theme.transitions.duration.complex,
       easing: theme.transitions.easing.sharp
     }),
     backgroundColor: transformColor(theme.palette.primary[500],24)
@@ -191,6 +190,7 @@ class CustomToolbar extends Component {
       }
       contentComputedStyle = {
         ...contentComputedStyle,
+        marginBottom: 0,
         color: theme.palette[secondaryProps.fontColor][secondaryProps.fontTone]
       }
       searchBarComputedStyle = {
@@ -211,21 +211,23 @@ class CustomToolbar extends Component {
             {customContent !== undefined && customContent}
             {customContent === undefined &&
               <React.Fragment>
-                <div className={classes.title}>
-                  <Typography
-                    color="inherit"
-                    className={classes.titleText}
-                    style={contentComputedStyle}
-                    type={secondary ? 'subheading' : 'title'}
-                  >
-                    {title}
-                  </Typography>
-                  {loading &&
-                    <div className={classes.progress}>
-                      <CircularProgress size={20} thickness={7} color="accent" />
-                    </div>
-                  }
-                </div>
+                {title &&
+                  <div className={classes.title}>
+                    <Typography
+                      color="inherit"
+                      className={classes.titleText}
+                      style={contentComputedStyle}
+                      type={secondary ? 'subheading' : 'title'}
+                    >
+                      {title}
+                    </Typography>
+                    {loading &&
+                      <div className={classes.progress}>
+                        <CircularProgress size={20} thickness={7} color="accent" />
+                      </div>
+                    }
+                  </div>
+                }
 
                 {updateSearchQuery &&
                   <div className={classes.search}>

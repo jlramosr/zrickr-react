@@ -11,14 +11,12 @@ import categories from './reducers/categories'
 import settings from './reducers/settings'
 import fields from './reducers/fields'
 import items from './reducers/items'
-import relations from './reducers/relations'
-import drawer from './reducers/drawer'
-import notifier from './reducers/notifier'
+import interactions from './reducers/interactions'
 
 const offlineConfig = {
   ...defaultConfig,
   persistOptions: {
-    blacklist: ['relations', 'drawer', 'notifier'],
+    blacklist: ['interactions'],
     keyPrefix: 'reduxPersist:'
   }
 }
@@ -31,11 +29,9 @@ const reducer = combineReducers({
   router: routerReducer,
   app,
   categories,
-  relations,
-  drawer,
   fields,
+  interactions,
   items,
-  notifier,
   settings
 })
 

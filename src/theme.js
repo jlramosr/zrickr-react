@@ -1,5 +1,4 @@
 import { createMuiTheme } from 'material-ui/styles'
-import grey from 'material-ui/colors/grey'
 
 let theme = createMuiTheme({
   standards: {
@@ -19,8 +18,7 @@ let theme = createMuiTheme({
         'A200': '#86BF54',
         'A400': '#5E9031',
         'A700': '#355915',
-        'contrastDefaultColor': 'light',
-        //...grey
+        'contrastDefaultColor': 'light'
       },
       secondary: {
         '50': '#FFF6EC',

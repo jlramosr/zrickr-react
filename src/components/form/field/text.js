@@ -2,8 +2,8 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import TextField from 'material-ui/TextField'
 
-const _getInputClassName = (classes, infoMode, readonly, required) => {
-  let className = 'inputText'
+const _getInputClassName = (classes, type, infoMode, readonly, required) => {
+  let className = type === 'text' ? 'textarea' : 'inputText'
   if (infoMode) {
     className += 'Info'
   } else if (readonly) {
@@ -28,10 +28,19 @@ let CustomTextField = props => {
     handleFormFieldChange,
     classes
   } = props
+  const InputProps = {
+    inputProps: {
+      className: _getInputClassName(classes, type, infoMode, readonly, required)
+    },
+    tabIndex: order,
+    disableUnderline: true
+  }
+  const InputLabelProps = {
+    shrink: true
+  }
+
   return (
     <TextField
-      inputClassName={_getInputClassName(classes, infoMode, readonly, required)}
-      labelClassName={classes.labelText}
       error={required && !value}
       multiline={type==='text'}
       rowsMax="10"
@@ -44,12 +53,9 @@ let CustomTextField = props => {
       helperText={description}
       FormHelperTextProps={{className: classes.helperText}}
       value={value || ''}
-      InputProps={{
-        className: type==='text' ? classes.textarea: {},
-        tabIndex: order,
-        disableUnderline: true
-      }}
-      InputLabelProps={{shrink: true}}
+      InputProps={InputProps}
+      InputLabelProps={InputLabelProps}
+      labelClassName={classes.labelText}
       onChange={event =>
         handleFormFieldChange(id, event.target.value)
       }

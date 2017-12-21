@@ -1,15 +1,50 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
+import { updateWindowSize } from '../../actions/interactions'
 import { fetchCategories, fetchCategoriesIfNeeded } from '../../actions/categories'
 import { renderRoutes } from 'react-router-config'
 import Drawer from '../drawer'
 import Notifier from '../notifier'
+import { withStyles } from 'material-ui/styles'
 
 /**
  * Main app component, with common drawer and first level routes.
  */
 class App extends Component {
+  /**
+   * Update size variable of the state to control the fields position.
+	 * @public
+   * @param {object} theme The theme with breakpoints variables.
+   * @returns {void}
+	 */ 
+  resize = theme => {
+    const width = window.innerWidth
+    const { windowSize, updateWindowSize } = this.props
+    let size = 'small'
+    if (width > theme.breakpoints.values['lg']) {
+      size = 'large'
+    } else if (width > theme.breakpoints.values['sm']) {
+      size = 'medium'
+    }
+    if (size !== windowSize) {
+      updateWindowSize(size)
+    }
+  }
+
+  componentDidMount = () => {
+    window.addEventListener('resize', () =>
+      this.resize(this.props.theme)
+    )
+    this.resize(this.props.theme)
+  }
+
+  componentWillUnmount = () => {
+    window.removeEventListener('resize', () =>
+      this.resize(this.props.theme)
+    )
+  }
+
   componentWillMount = () => {
     this.props.fetchCategories() 
   }
@@ -46,9 +81,16 @@ App.propTypes = {
   fetchCategoriesIfNeeded: PropTypes.func.isRequired
 }
 
+const mapStateToProps = ({ interactions }, props) => ({ 
+  windowSize: interactions.windowSize
+})
+
 const mapDispatchToProps = dispatch => ({
+  updateWindowSize: size => dispatch(updateWindowSize(size)),
   fetchCategories: () => dispatch(fetchCategories()),
   fetchCategoriesIfNeeded: () => dispatch(fetchCategoriesIfNeeded())
 })
 
-export default connect(null, mapDispatchToProps)(App)
+export default connect(mapStateToProps, mapDispatchToProps)(
+  withStyles(null, {withTheme: true})(App)
+)

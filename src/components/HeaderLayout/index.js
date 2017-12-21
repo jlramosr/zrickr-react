@@ -40,7 +40,11 @@ const styles = theme => ({
     [theme.breakpoints.up('sm')]: {
       marginTop: theme.standards.toolbarHeights.tabletDesktop,
       height: `calc(100vh - ${theme.standards.toolbarHeights.tabletDesktop}px)`
-    }
+    },
+    transition: theme.transitions.create(['margin-top'], {
+      easing: theme.transitions.easing.easeIn,
+      duration: theme.transitions.duration.complex
+    })
   }
 })
 
@@ -61,7 +65,7 @@ const HeaderLayout = props => {
   } = props
 
   let toolbarComputedStyle = {
-    display:'block',
+    display: 'block',
     position:'fixed',
     zIndex: theme.zIndex.appBar+1
   }
@@ -99,6 +103,12 @@ const HeaderLayout = props => {
       height: '100vh'
     }
   }
+  if (!children) {
+    contentComputedStyle = {
+      ...contentComputedStyle,
+      height: 0
+    }
+  }
 
   return (
     <div className={classes.root}>
@@ -112,7 +122,7 @@ const HeaderLayout = props => {
           {...rest}
         />
       </div>
-
+      
       <div className={classes.content} style={contentComputedStyle}>
         {children}
       </div>
@@ -123,7 +133,7 @@ const HeaderLayout = props => {
 
 HeaderLayout.propTypes = {
   classes: PropTypes.object.isRequired,
-  children: PropTypes.node.isRequired,
+  children: PropTypes.node,
   hidden: PropTypes.bool,
   relative: PropTypes.bool,
   relativeHeight: PropTypes.number,

@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
-import { toggleDrawer } from '../../actions/drawer'
+import { toggleDrawer } from '../../actions/interactions'
 import { withStyles } from 'material-ui/styles'
 import Drawer from 'material-ui/Drawer'
 import { MenuItem } from 'material-ui/Menu'
@@ -18,10 +18,10 @@ const styles = {
 
 class CustomDrawer extends Component {
   render = () => {
-    const { categories, opened, close, classes } = this.props
+    const { categories, open, close, classes } = this.props
 
     return (
-      <Drawer open={opened}>
+      <Drawer open={open}>
         <React.Fragment>
           <IconButton onClick={close}>
             <ChevronLeftIcon />
@@ -44,16 +44,16 @@ class CustomDrawer extends Component {
 
 CustomDrawer.propTypes = {
   categories: PropTypes.array.isRequired,
-  opened: PropTypes.bool.isRequired,
+  open: PropTypes.bool.isRequired,
   close: PropTypes.func.isRequired,
   classes: PropTypes.object.isRequired
 }
 
 const mapStateToProps = state => {
-  const { categories, drawer } = state
+  const { categories, interactions } = state
   return {
     categories: Object.values(categories.byId),
-    opened: drawer.opened
+    open: interactions.drawerOpen
   }
 }
 

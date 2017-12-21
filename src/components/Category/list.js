@@ -21,7 +21,7 @@ import {
 } from '@devexpress/dx-react-grid'
 import {
   Grid,
-  VirtualTableView,
+  VirtualTable,
   TableHeaderRow,
   TableFilterRow,
   TableGroupRow,
@@ -52,8 +52,8 @@ import escapeRegExp from 'escape-string-regexp'
 import removeDiacritics from 'remove-diacritics'
 import ItemNew from './new'
 import Dialog from '../dialog'
-import { addOpenRelation, removeOpenRelation } from '../../actions/relations'
-import { getItemInfo } from './utils/helpers'
+import { showRelations, addOpenRelation } from '../../actions/interactions'
+import { getItemString } from './utils/helpers'
 import { withStyles } from 'material-ui/styles'
 
 const styles = theme => ({
@@ -84,6 +84,13 @@ const styles = theme => ({
   },
   listDense: {
     padding: 0
+  },
+  listItemText: {
+    overflow: 'hidden'
+  },
+  listItemTextContent: {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis'
   },
   tableRow: {
     cursor: 'pointer',
@@ -131,7 +138,7 @@ let CategoryAgendaView = class extends Component {
       const cleanQuery = removeDiacritics(searchQuery.trim())
       const match = new RegExp(escapeRegExp(cleanQuery), 'i')
       showingItems = items.filter(item => (
-        match.test(removeDiacritics(getItemInfo(settings.primaryFields, item)))
+        match.test(removeDiacritics(getItemString(settings.primaryFields, item)))
       ))
     }
     this.setState({ showingItems })
@@ -216,7 +223,7 @@ let CategoryAgendaView = class extends Component {
                     disableRipple
                     className={
                       isMarkedForRemove ? classes.markRemovedItem : (
-                        isMarkedForAdd ? classes.markAddedItem : {}
+                        isMarkedForAdd ? classes.markAddedItem : ''
                       )
                     }
                   >
@@ -226,8 +233,12 @@ let CategoryAgendaView = class extends Component {
                       </Avatar>
                     }
                     <ListItemText
-                      primary={getItemInfo(settings.primaryFields, item)}
-                      secondary={getItemInfo(settings.secondaryFields, item)}
+                      classes={{
+                        root: classes.listItemText,
+                        text: classes.listItemTextContent
+                      }}
+                      primary={getItemString(settings.primaryFields, item)}
+                      secondary={getItemString(settings.secondaryFields, item)}
                     />
                     {editMode &&
                       <ListItemSecondaryAction>
@@ -267,7 +278,7 @@ let CategoryAgendaView = class extends Component {
           transformOrigin={{ vertical: 'top', horizontal: 'left'}}
           anchorEl={this.state.anchorEl}
           open={this.state.showMenuItem}
-          onRequestClose={this._handleMenuItemClose}
+          onClose={this._handleMenuItemClose}
           className={classes.menu}
         >
           <MenuItem onClick={this._handleMenuItemClose}>
@@ -442,7 +453,7 @@ let CategoryTableView = class extends Component {
               onSelectionChange={this._changeSelection}
             />
           }
-          <VirtualTableView
+          <VirtualTable
             height={1280}
             allowColumnReordering={!relationMode}
             tableRowTemplate={({ children, row, tableRow }) => (
@@ -544,8 +555,6 @@ class CategoryList extends Component {
   state = {
     searchQuery: '',
     showNewDialog: false,
-    showDetailDialog: false,
-    detailDialogItemId: '',
     showListDialog: false,
     tableMode: false
   }
@@ -576,11 +585,14 @@ class CategoryList extends Component {
   openDialog = (dialog, categoryId, itemId='') => {
     if (dialog === 'new') {
       this.setState({ showNewDialog: true})
-    } else if (dialog === 'detail') {
-      this.props.addOpenRelation(categoryId, itemId)
-      //this.setState({ showDetailDialog: true, detailDialogItemId: itemId})
     } else if (dialog === 'list') {
       this.setState({ showListDialog: true})
+    } else if (dialog === 'detail') {
+      const { addOpenRelation, showRelations, isShowingRelations } = this.props
+      addOpenRelation(categoryId, itemId)
+      if (!isShowingRelations) {
+        showRelations()
+      }
     }
   }
 
@@ -593,16 +605,15 @@ class CategoryList extends Component {
   _dialogClosed = dialog => this.closeDialog(dialog)
 
   /**
-	 * Update the state indicating dialog is not showing.
+	 * Update the state indicating dialog is not showing. Closed process of 
+   * 'detail' dialog will take over the own detail element. 
 	 * @public
-   * @param {string} dialog Dialog to close. One of: 'new','detail','list'.
+   * @param {string} dialog Dialog to close. One of: 'new','list'.
    * @returns {void}
 	 */
   closeDialog = dialog => {
     if (dialog === 'new') {
       this.setState({ showNewDialog: false })
-    } else if (dialog === 'detail') {
-      this.setState({ showDetailDialog: false })
     } else if (dialog === 'list') {
       this.setState({ showListDialog: false })
     }
@@ -652,9 +663,7 @@ class CategoryList extends Component {
     const {
       searchQuery,
       showNewDialog,
-      showDetailDialog,
       showListDialog,
-      detailDialogItemId,
       tableMode
     } = this.state
 
@@ -735,7 +744,7 @@ class CategoryList extends Component {
         <Dialog
           fullScreen={!dialogMode}
           open={showNewDialog}
-          onRequestClose={() => this._dialogClosed('new')}
+          onClose={() => this._dialogClosed('new')}
         >
           <ItemNew
             closeDialog={() => this.closeDialog('new')}
@@ -748,7 +757,7 @@ class CategoryList extends Component {
         {relationMode &&
           <Dialog
             open={showListDialog}
-            onRequestClose={() => this._dialogClosed('list')}
+            onClose={() => this._dialogClosed('list')}
           >
             <CategoryList
               //{...this.props}
@@ -920,7 +929,7 @@ CategoryList.defaultProps = {
   showAvatar: true
 }
 
-const mapStateToProps = ({ categories, settings, fields, items }, props) => {
+const mapStateToProps = ({ categories, settings, fields, items, interactions }, props) => {
   const categoryId = props.categoryId
   const category = categories.byId[categoryId]
   return {
@@ -931,15 +940,16 @@ const mapStateToProps = ({ categories, settings, fields, items }, props) => {
     items: Object.values(items.byId).filter(item => 
       category.items.includes(item.id) && (props.itemIds ? props.itemIds.includes(item.id) : true)
     ),
-    isFetchingItems: items.flow[categoryId].isFetchingAll
+    isFetchingItems: items.flow[categoryId].isFetchingAll,
+    isShowingRelations: interactions.relations.isShowing
   }
 }
 
 const mapDispatchToProps = (dispatch, props) => ({
   fetchItems: () => dispatch(fetchItems(props.categoryId)),
   fetchItemsIfNeeded: () => dispatch(fetchItemsIfNeeded(props.categoryId)),
-  addOpenRelation: (categoryId, itemId) => dispatch(addOpenRelation(categoryId, itemId)),
-  removeOpenRelation: () => dispatch(removeOpenRelation())
+  showRelations: () => dispatch(showRelations()),
+  addOpenRelation: (categoryId, itemId) => dispatch(addOpenRelation(categoryId, itemId))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(CategoryList)

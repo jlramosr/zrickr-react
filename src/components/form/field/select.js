@@ -11,7 +11,7 @@ import 'react-select/dist/react-select.css'
 import 'react-virtualized/styles.css'
 import 'react-virtualized-select/styles.css'
 import { FormControl, FormLabel } from 'material-ui/Form'
-import { getItemInfo } from '../../category/utils/helpers'
+import { getItemString } from '../../category/utils/helpers'
 
 const _getInputClassName = (classes, infoMode, readonly, required) => {
   let className = 'inputSelect'
@@ -64,8 +64,8 @@ class SelectField extends Component {
     return this.props.relation ?
       this.props.items.map(item => ({
         id: item.id,
-        label: getItemInfo(this.props.settings.primaryFields, item),
-        secondaryLabel: getItemInfo(this.props.settings.secondaryFields, item)
+        label: getItemString(this.props.settings.primaryFields, item),
+        secondaryLabel: getItemString(this.props.settings.secondaryFields, item)
       })) :
       this.props.options
   }

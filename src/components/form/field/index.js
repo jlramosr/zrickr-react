@@ -9,7 +9,7 @@ import { isEqual } from '../../../utils/helpers'
 
 const paddingLeft = 6
 
-const input = theme => ({
+const inputStyle = theme => ({
   paddingLeft: paddingLeft,
   paddingRight: paddingLeft,
   borderRadius: 4,
@@ -24,7 +24,31 @@ const input = theme => ({
   }
 })
 
-const label = theme => ({
+const textareaStyle = {
+  display: 'inline',
+  paddingRight: 0
+}
+
+const requiredStyle = theme => ({
+  background: theme.palette.secondary[200]
+})
+
+const readonlyStyle = theme => ({
+  background: theme.palette.grey[200] 
+})
+
+const infoStyle = theme => ({
+  padding: `1px ${paddingLeft-2}px`,
+  borderRadius: 4,
+  border: 0,
+  background: 'transparent',
+  fontSize: 14,
+  color: theme.palette.grey[700],
+  borderBottom: `1px solid ${theme.palette.primary[200]}`,
+  cursor: 'default'
+})
+
+const labelStyle = theme => ({
   fontWeight: 500,
   paddingLeft: paddingLeft-2,
   color: theme.palette.primary[500]
@@ -32,36 +56,48 @@ const label = theme => ({
 
 const styles = theme => ({
   inputText: {
-    ...input(theme)
+    ...inputStyle(theme)
   },
   inputTextRequired: {
-    ...input(theme),
-    background: theme.palette.secondary[200]
+    ...inputStyle(theme),
+    ...requiredStyle(theme)
   },
   inputTextReadonly: {
-    ...input(theme),
-    background: theme.palette.grey[200]    
+    ...inputStyle(theme),
+    ...readonlyStyle(theme)
   },
   inputTextInfo: {
-    padding: `1px ${paddingLeft-2}px`,
-    borderRadius: 4,
-    border: 0,
-    background: 'transparent',
-    fontSize: 14,
-    color: theme.palette.grey[700],
-    borderBottom: `1px solid ${theme.palette.primary[200]}`,
-    cursor: 'default'
+    ...infoStyle(theme)
+  },
+  textarea: {
+    ...inputStyle(theme),
+    ...textareaStyle
+  },
+  textareaRequired: {
+    ...inputStyle(theme),
+    ...requiredStyle(theme),
+    ...textareaStyle
+  },
+  textareaReadonly: {
+    ...inputStyle(theme),
+    ...readonlyStyle(theme),
+    ...textareaStyle
+  },
+  textareaInfo: {
+    ...inputStyle(theme),
+    ...infoStyle(theme),
+    ...textareaStyle
   },
   inputSelect: {
     '& .Select-control': {
-      ...input(theme),
+      ...inputStyle(theme),
       borderBottomLeftRadius: 0,
       borderBottomRightRadius: 0,
       tableLayout: 'fixed',
       paddingLeft: 0
     },
     '& .Select-value': {
-      ...input(theme),
+      ...inputStyle(theme),
       paddingLeft: `${paddingLeft}px !important`,
       border: 0
     },
@@ -71,7 +107,7 @@ const styles = theme => ({
   },
   inputSelectRequired: {
     '& .Select-control': {
-      ...input(theme),
+      ...inputStyle(theme),
       background: theme.palette.secondary[200],
       borderBottomLeftRadius: 0,
       borderBottomRightRadius: 0,
@@ -79,7 +115,7 @@ const styles = theme => ({
       paddingLeft: 0
     },
     '& .Select-value': {
-      ...input(theme),
+      ...inputStyle(theme),
       background: theme.palette.secondary[200],
       paddingLeft: `${paddingLeft}px !important`,
       border: 0
@@ -90,11 +126,11 @@ const styles = theme => ({
   },
   inputSelectReadonly: {
     '& .Select-control': {
-      ...input(theme),
+      ...inputStyle(theme),
       background: theme.palette.grey[200]
     },
     '& .Select-value': {
-      ...input(theme),
+      ...inputStyle(theme),
       background: theme.palette.grey[200]
     }
   },
@@ -120,23 +156,18 @@ const styles = theme => ({
   inputList: {
   },
   labelText: {
-    ...label(theme)
+    ...labelStyle(theme)
   },
   labelSwitch: {
-    ...label(theme),
+    ...labelStyle(theme),
     fontSize: 11,
     paddingBottom: 1,
     cursor: 'default'
   },
   labelSelect: {
-    ...label(theme),
+    ...labelStyle(theme),
     fontSize: 12,
     paddingBottom: 3
-  },
-  textarea: {
-    display: 'inline',
-    marginRight: 10,
-    padding: 0
   },
   helperText: {
     marginTop: 2,

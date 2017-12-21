@@ -1,5 +1,6 @@
 /*eslint-disable no-eval*/
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import Field from './field/'
 import { withStyles } from 'material-ui/styles'
@@ -97,8 +98,7 @@ class Form extends Component {
   state = {
     item: null,
     itemListFields: {},
-    isSubmitting: false,
-    size: ''
+    isSubmitting: false
   }
 
   /**
@@ -110,7 +110,7 @@ class Form extends Component {
    * @param {object} fieldView The information about the view of the field.
    * @returns {boolean}
 	 */
-  _getFieldLabel = (label, fieldView) =>
+  getFieldLabel = (label, fieldView) =>
     fieldView.nolabel ? ' ' : label
 
   /**
@@ -122,27 +122,8 @@ class Form extends Component {
    * @param {object} fieldView The information about the view of the field.
    * @returns {boolean}
 	 */
-  _getFieldDescription = (description, fieldView) => 
+  getFieldDescription = (description, fieldView) => 
     fieldView.nodescription ? '' : description || ''
-
-  /**
-   * Update size variable of the state to control the fields position.
-	 * @public
-   * @param {object} theme The theme with breakpoints variables.
-   * @returns {void}
-	 */ 
-  _resize = theme => {
-    const width = window.innerWidth
-    let size = 'small'
-    if (width > theme.breakpoints.values['lg']) {
-      size = 'large'
-    } else if (width > theme.breakpoints.values['sm']) {
-      size = 'medium'
-    }
-    if (size !== this.state.size) {
-      this.setState({size})
-    }
-  }
 
   /**
    * Call submit function which comes from parent. It uses temporary and
@@ -150,7 +131,7 @@ class Form extends Component {
 	 * @public
    * @returns {void}
 	 */  
-  _handleSubmit = event => {
+  handleSubmit = event => {
     event.stopPropagation()
     if (!this.state.isSubmitting) {
       this.setState({isSubmitting: true})
@@ -196,29 +177,19 @@ class Form extends Component {
     this.setState({item: new Item({fields, values})})
   }
 
-  componentDidMount = () => {
-    window.addEventListener('resize', () =>
-      this._resize(this.props.theme)
-    )
-    this._resize(this.props.theme)
-  }
-
   componentWillUnmount = () => {
     //console.log('UNMOUNT FORM')
-    window.removeEventListener('resize', () =>
-      this._resize(this.props.theme)
-    )
   }
 
   componentWillReceiveProps = nextProps => {
     /*if (!isEqual(nextProps,this.props)) {
-      this.setState({item: this._generateItem(nextProps.fields, nextProps.values)})
+      this.setState({item: this.generateItem(nextProps.fields, nextProps.values)})
     }*/
   }
 
   render = () => {
-    const { view, cols, infoMode, formRef, classes } = this.props
-    const { item, size } = this.state
+    const { view, cols, infoMode, formRef, windowSize, classes } = this.props
+    const { item } = this.state
 
     const formStyle = (cols, infoMode) => ({
       gridTemplateColumns: `repeat(${cols}, 1fr)`,
@@ -253,15 +224,15 @@ class Form extends Component {
     return (
       <form
         ref={formRef}
-        onSubmit={this._handleSubmit}
+        onSubmit={this.handleSubmit}
         className={classes.form}
         style={formStyle(cols, infoMode)}
       >
         {
           item.fields.map(field => {
             let fieldView = field.views ? field.views[view] : null
-            if (fieldView && size in fieldView) {
-              fieldView = fieldView[size]
+            if (fieldView && windowSize in fieldView) {
+              fieldView = fieldView[windowSize]
             }
 
             return (
@@ -277,8 +248,8 @@ class Form extends Component {
                     readonly={item.evalCondition(field.readonly,field.id)}
                     infoMode={infoMode}
                     value={item.values ? item.values[field.id] : ''}
-                    label={this._getFieldLabel(field.label, fieldView)}
-                    description={this._getFieldDescription(field.description, fieldView)}
+                    label={this.getFieldLabel(field.label, fieldView)}
+                    description={this.getFieldDescription(field.description, fieldView)}
                     order={fieldView.x || 0}
                     handleFormFieldChange={ (fieldId, value, isList) =>
                       this.handleFieldChange(fieldId, value, isList)
@@ -310,4 +281,10 @@ Form.defaultProps = {
   infoMode: false
 }
 
-export default withStyles(styles, {withTheme:true})(Form)
+const mapStateToProps = ({ interactions }, props) => ({ 
+  windowSize: interactions.windowSize
+})
+
+export default connect(mapStateToProps)(
+  withStyles(styles, {withTheme:true})(Form)
+)

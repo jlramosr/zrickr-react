@@ -1,13 +1,13 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
-import { fetchItemIfNeeded } from '../../../actions/items'
-import { notify } from '../../../actions/notifier'
-import { updateItem, removeItem } from '../../../actions/items'
-import { getItemInfo } from '../utils/helpers'
+import { fetchItemIfNeeded, updateItem, removeItem } from '../../../actions/items'
+import { notify, removeAllOpenRelations,closeRelations } from '../../../actions/interactions'
+import { getItemString } from '../utils/helpers'
 import { capitalize, isEqual } from '../../../utils/helpers'
-import CategoryItemDetailHeader  from './headerLayout'
-import CategoryItemDetailTabs  from './tabsLayout'
+import CategoryItemDetailHeader  from './standardView'
+import CategoryItemDetailTabs  from './tabsView'
+import NotFound from '../../notFound'
 
 class CategoryItemDetail extends Component {
   state = {
@@ -16,7 +16,7 @@ class CategoryItemDetail extends Component {
 
   getTitle = () => {
     const { settings, item } = this.props
-    return item ? getItemInfo(settings.primaryFields, item) : ''
+    return item ? getItemString(settings.primaryFields, item) : ''
   }
 
   changeEditMode = editMode => {
@@ -74,30 +74,34 @@ class CategoryItemDetail extends Component {
       changeEditMode: this.changeEditMode
     }
 
-    if (this.props.dialogMode) {
-      return (
-        <CategoryItemDetailTabs {...commonProps} />
-      )
+    if (!this.props.item) {
+      return <NotFound text="Item Not Found" />
     }
-    return (
-      <CategoryItemDetailHeader {...commonProps} />
-    )
+
+    if (this.props.dialogMode) {
+      return <CategoryItemDetailTabs {...commonProps} />
+    }
+    return <CategoryItemDetailHeader {...commonProps} />
   }
 }
 
 CategoryItemDetail.propTypes = {
   /**
-   * Category id of the item.
-   */
-  categoryId: PropTypes.string.isRequired,
-  /**
    * If it's shown in a dialog.
    */
   dialogMode: PropTypes.bool,
   /**
+   * Category id of the item in case of detail item is not shown in a tab of a dialog.
+   */
+  categoryId: PropTypes.string,
+  /**
+   * Category id of the item in case of detail item is shown in in a tab of a dialog.
+   */
+  activeCategoryId: PropTypes.string,
+  /**
    * Item id if it's shown in a dialog (if not, itemId will be caught from route).
    */
-  itemId: PropTypes.string,
+  activeItemId: PropTypes.string,
   /**
    * Settings of the category obtained from Redux Store.
    */
@@ -113,7 +117,7 @@ CategoryItemDetail.defaultProps = {
   dialogMode: false
 }
 
-const mapStateToProps = ({ categories, settings, fields, items, relations }, props) => {
+const mapStateToProps = ({ categories, settings, fields, items, interactions }, props) => {
   const categoryId = props.dialogMode ? props.activeCategoryId : props.categoryId
   const itemId = props.dialogMode ? props.activeItemId : props.match.params.itemId
   const category = categories.byId[categoryId]
@@ -128,7 +132,8 @@ const mapStateToProps = ({ categories, settings, fields, items, relations }, pro
     isFetchingItem: items.flow[categoryId].isFetchingItem,
     //itemReceived: items.flow[categoryId].isReceivedItem || items.flow[categoryId].errorFetchingItem
     isUpdating: items.flow[categoryId].isUpdating,
-    openRelations: relations.openRelations
+    openRelations: interactions.relations.openRelations,
+    shouldShowRelations: interactions.relations.isShowing
   }
 }
 
@@ -139,6 +144,8 @@ const mapDispatchToProps = (dispatch, props) => {
     fetchItemIfNeeded: () => dispatch(fetchItemIfNeeded(categoryId,itemId)),
     updateItem: item => dispatch(updateItem(props.categoryId, itemId, item)),
     removeItem: () => dispatch(removeItem(categoryId,itemId)),
+    removeAllOpenRelations: () => dispatch(removeAllOpenRelations()),
+    closeRelations: () => dispatch(closeRelations()),
     notify: (message, type) => dispatch(notify(message, type))
   }
 }

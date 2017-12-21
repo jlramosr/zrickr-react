@@ -29,7 +29,7 @@ class Notifier extends Component {
     moreThanOneNotification: false
   }
 
-  _handleNotificationRequestClose = (event, reason) => {
+  _handleNotificationClose = (event, reason) => {
     if (reason === 'clickaway') return
     this.setState({showNotification: false})
   }
@@ -63,7 +63,7 @@ class Notifier extends Component {
       <Snackbar
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         open={this.state.showNotification}
-        onRequestClose={this._handleNotificationRequestClose}
+        onClose={this._handleNotificationClose}
         className={classes.snackbar}
         autoHideDuration={3000}
         transitionDuration={{
@@ -79,7 +79,7 @@ class Notifier extends Component {
             key="close"
             aria-label="Close"
             color="inherit"
-            onClick={this._handleNotificationRequestClose}
+            onClick={this._handleNotificationClose}
           >
             <CloseIcon />
           </IconButton>
@@ -94,8 +94,8 @@ Notifier.propTypes = {
   classes: PropTypes.object.isRequired
 }
 
-const mapStateToProps = ({ notifier }) => ({
-  notification: notifier
+const mapStateToProps = ({ interactions }) => ({
+  notification: interactions.notifications
 })
 
 export default connect(mapStateToProps, null)(withStyles(styles)(Notifier))

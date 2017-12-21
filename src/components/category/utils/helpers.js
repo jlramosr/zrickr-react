@@ -1,4 +1,4 @@
-export const getItemInfo = (fieldNames=[], item) => {
+export const getItemString = (fieldNames=[], item) => {
   const info = fieldNames
     .reduce((info, currentField) => 
       info + (item[currentField] ? item[currentField] : '') + ' ', '')

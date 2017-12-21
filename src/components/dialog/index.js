@@ -9,22 +9,16 @@ class CustomDialog extends Component {
   render = () => {
     const {
       children,
-      onRequestClose,
       classes,
       ...rest
     } = this.props
 
     return (
       <Dialog
-        {...rest}
-        maxWidth="lg"
+        maxWidth="md"
         fullWidth
         transition={Transition}
-        onRequestClose={() => {
-          if (onRequestClose) {
-            onRequestClose()
-          }
-        }}
+        {...rest}
       >
         {children}
       </Dialog>
