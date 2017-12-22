@@ -55,19 +55,43 @@ class CategoryItemDetailTabs extends Component {
     })
   }
 
+  componentDidUpdate = () => {
+    
+  }
+
   componentWillReceiveProps = nextProps => {
     const oldNumOpenRelations = this.props.openRelations.length
     const newNumOpenRelations = nextProps.openRelations.length
-    if (oldNumOpenRelations !== newNumOpenRelations) {
-      this.setState(prevState => ({
-        tabTitles: [...prevState.tabTitles, nextProps.title]
-      }))
+    const hasChangedNumRelations = oldNumOpenRelations !== newNumOpenRelations
+
+    const oldTitle = this.props.title
+    const newTitle = nextProps.title
+    const hasChangedTitle = oldTitle != newTitle
+
+    if (hasChangedNumRelations || hasChangedTitle) {
+      let tabTitles = this.state.tabTitles
+      if (hasChangedNumRelations) {
+        tabTitles = [...tabTitles, newTitle]
+      } else {
+        const oldOpenRelations = this.props.openRelations
+        tabTitles = oldOpenRelations.reduce((titles, relation, index) => {
+          const { categoryId, itemId } = relation
+          const { activeCategoryId, activeItemId } = nextProps
+          return [
+            ...titles,
+            categoryId === activeCategoryId && itemId === activeItemId ? newTitle : tabTitles[index]
+          ]
+        }, [])
+      }
+      this.setState({tabTitles})
     }
+    
   }
 
   render = () => {
     const {
       editMode,
+      title,
       isFetchingSettings,
       fields,
       isFetchingFields,
@@ -134,7 +158,7 @@ class CategoryItemDetailTabs extends Component {
 
         <HeaderLayout
           key={activeIndex}
-          title={tabTitles[activeIndex]}
+          title={title}
           loading={isFetchingSettings || isFetchingFields || isFetchingItem || isUpdating }
           operations={[
             {id:'close', icon:Close, hidden:openRelations.length > 1, onClick:closeRelations},

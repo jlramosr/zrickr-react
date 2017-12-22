@@ -56,7 +56,7 @@ const styles = theme => ({
   /* Title */
   titleText: {
     flex: 1,
-    marginBottom: 1,
+    marginBottom: 2,
     fontWeight: 400,
     textTransform: 'capitalize',
     overflow: 'hidden',
