@@ -10,15 +10,18 @@ import Close from 'material-ui-icons/Close'
 import { withStyles } from 'material-ui/styles'
 
 const styles = theme => ({
-  tabs: {
-    marginTop: 16,
-    width: '100%'
+  spaceBetween: {
+    height: 6,
+    background: `linear-gradient(${theme.palette.primary[500]}, ${theme.palette.primary[500]})`
   },
-  tabsScrollingContainer: {
-    overflow: 'hidden'
+  tabs: {
+    paddingBottom: 0,
+    width: '100%',
+    marginBottom: -17
   },
   tabsButton: {
-    color: theme.palette.primary[700]
+    color: theme.palette.primary[700],
+    marginBottom: 16
   },
   tab: {
     color: theme.palette.grey[400],
@@ -80,6 +83,8 @@ class CategoryItemDetailTabs extends Component {
       classes
     } = this.props
     const { tabTitles } = this.state
+    const smallSize = windowSize === 'xs' || windowSize === 'sm'
+
     return (
       <React.Fragment>
         <HeaderLayout
@@ -89,39 +94,44 @@ class CategoryItemDetailTabs extends Component {
           overflow="hidden"
           hidden={openRelations.length < 2}
           secondaryToolbar
-          secondaryToolbarHeight={windowSize === 'xs' ? 64 : 32}
+          secondaryToolbarHeight={smallSize ? 64 : 32}
           contentToolbar={
-            <Tabs
-              value={activeIndex}
-              onChange={this.handleChangeTab}
-              classes={{
-                root: classes.tabs,
-                buttonAuto: classes.tabsButton,
-                scrollingContainer: classes.tabsScrollingContainer
-              }}
-              textColor="primary"
-              indicatorColor="accent"
-              fullWidth            
-              scrollable
-              scrollButtons={windowSize === 'xs' ? 'on' : 'auto'}
-            >
-              {tabTitles.map((title, index) =>
-                <Tab
-                  key={index}
-                  label={title}
-                  disableRipple
-                  classes={{
-                    rootPrimary: classes.tab,
-                    rootPrimarySelected: classes.tabSelected,
-                    wrapper: classes.tabWrapper,
-                    labelContainer: classes.tabLabelContainer
-                  }}
-                />
-              )}
-            </Tabs>
+            <div style={{width:'100%', paddingTop: smallSize ? 4 : 1}}>
+              <Tabs
+                value={activeIndex}
+                onChange={this.handleChangeTab}
+                classes={{
+                  root: classes.tabs,
+                  buttonAuto: classes.tabsButton
+                }}
+                
+                textColor="primary"
+                indicatorColor="accent"
+                fullWidth            
+                scrollable
+                scrollButtons="auto"
+              >
+                {tabTitles.map((title, index) =>
+                  <Tab
+                    key={index}
+                    label={title}
+                    disableRipple
+                    classes={{
+                      rootPrimary: classes.tab,
+                      rootPrimarySelected: classes.tabSelected,
+                      wrapper: classes.tabWrapper,
+                      labelContainer: classes.tabLabelContainer
+                    }}
+                  />
+                )}
+              </Tabs>
+            </div>
           }
         >
         </HeaderLayout>
+
+        <div className={classes.spaceBetween}></div>
+
         <HeaderLayout
           key={activeIndex}
           title={tabTitles[activeIndex]}
@@ -151,7 +161,7 @@ class CategoryItemDetailTabs extends Component {
 }
 
 const mapStateToProps = ({ interactions }) => ({ 
-  windowSize: interactions.windowSize,
+  windowSize: interactions.windowSize
 })
 
 export default connect(mapStateToProps)(
