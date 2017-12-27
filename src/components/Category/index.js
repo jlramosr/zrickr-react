@@ -35,21 +35,22 @@ class Category extends Component {
     } = this.props
     const categoryId = match.params.categoryId
     const category = categories.find(category => category.id === categoryId)
+
+    if (!categoriesReceived) {
+      return <NotFound text="Loading Categories ..." />
+    }
+
+    if (!category) {
+      return <NotFound text="Category Not Found" />
+    }
+    
     return (
-      categoriesReceived ? (
-        category ? (
-          <React.Fragment key={categoryId}> 
-            {renderRoutes(route.routes, {
-              categoryId,
-              categoryLabel: category.label
-            })}
-          </React.Fragment> 
-        ) : (
-          <NotFound text="Category Not Found" />
-        )
-      ) : (
-        <NotFound text="Loading Categories ..." />
-      )
+      <React.Fragment key={categoryId}> 
+        {renderRoutes(route.routes, {
+          categoryId,
+          categoryLabel: category.label
+        })}
+      </React.Fragment> 
     )
   }
 }

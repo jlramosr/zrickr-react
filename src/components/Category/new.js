@@ -11,16 +11,17 @@ import { capitalize } from '../../utils/helpers'
 
 class CategoryItemNew extends Component {
 
-  _createItem = item => {
-    const { createItem, notify, closeDialog } = this.props
+  createItem = item => {
+    const { createItem, notify, closeDialog, categoryId, history } = this.props
     return createItem(item).then(
       itemId => {
         notify(
           `${capitalize(this.props.itemLabel)} created succesfully`,
           'success'
         )
-        const { categoryId, history } = this.props
-        history.push(`${categoryId}/${itemId}`)
+        if (history) {
+          history.push(`${categoryId}/${itemId}`)
+        }
         closeDialog()
       }, error => {
         notify(
@@ -49,7 +50,7 @@ class CategoryItemNew extends Component {
           view="detail"
           fields={fields}
           values={{}}
-          handleSubmit={this._createItem}
+          handleSubmit={this.createItem}
           formRef={el => this.formElement = el}
         />
       </HeaderLayout>

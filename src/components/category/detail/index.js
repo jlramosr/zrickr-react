@@ -81,6 +81,7 @@ class CategoryItemDetail extends Component {
     if (this.props.dialogMode) {
       return <CategoryItemDetailTabs {...commonProps} />
     }
+    
     return <CategoryItemDetailHeader {...commonProps} />
   }
 }

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import { fetchSettingsIfNeeded } from '../../../actions/settings'
 import { fetchFieldsIfNeeded } from '../../../actions/fields'
 import Paper from 'material-ui/Paper'
-import CategoryList from '../../category/list'
+import CategoryList from '../../category/list/'
 
 class ListField extends Component {
 
@@ -34,7 +34,7 @@ class ListField extends Component {
           categoryId={relation}
           categoryLabel={label || relationLabel}
           itemIds={value || []}
-          relationMode={true}
+          relationMode
           relationFieldId={id}
           editMode={!infoMode && !readonly}
           tableMode={false}

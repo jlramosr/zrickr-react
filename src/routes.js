@@ -1,7 +1,7 @@
 import App from './components/app'
 import Dashboard from './components/dashboard'
 import Category from './components/category'
-import CategoryList from './components/category/list'
+import CategoryList from './components/category/list/'
 import CategoryItemDetail from './components/category/detail/'
 
 export default [{

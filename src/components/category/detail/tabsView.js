@@ -34,6 +34,9 @@ const styles = theme => ({
   tabWrapper: {
     display: 'inline'
   },
+  tabLabel: {
+    whiteSpace: 'nowrap'
+  },
   tabLabelContainer: {
     overflow: 'hidden',
     textOverflow: 'ellipsis'
@@ -66,7 +69,7 @@ class CategoryItemDetailTabs extends Component {
 
     const oldTitle = this.props.title
     const newTitle = nextProps.title
-    const hasChangedTitle = oldTitle != newTitle
+    const hasChangedTitle = oldTitle !== newTitle
 
     if (hasChangedNumRelations || hasChangedTitle) {
       let tabTitles = this.state.tabTitles
@@ -144,6 +147,7 @@ class CategoryItemDetailTabs extends Component {
                       rootPrimary: classes.tab,
                       rootPrimarySelected: classes.tabSelected,
                       wrapper: classes.tabWrapper,
+                      label: classes.tabLabel,
                       labelContainer: classes.tabLabelContainer
                     }}
                   />

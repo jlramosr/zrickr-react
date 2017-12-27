@@ -71,9 +71,11 @@ class Dashboard extends Component  {
     }
 
     if (!categories.length) {
-      <div className={classes.emptyContainer}>
-        <span>There is no categories</span>
-      </div>
+      return (
+        <div className={classes.emptyContainer}>
+          <span>There is no categories</span>
+        </div>
+      )
     }
 
     return (
