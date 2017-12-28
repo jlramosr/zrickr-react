@@ -24,6 +24,7 @@ class CategoryItemDetail extends Component {
   }
 
   updateItem = values => {
+    console.log(this.props.item,values)
     const { item, settings, updateItem, notify } = this.props
     const itemLabel = settings.itemLabel
     if (!isEqual(item, values)) {

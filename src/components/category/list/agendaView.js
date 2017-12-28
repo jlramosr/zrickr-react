@@ -12,15 +12,9 @@ import IconButton from 'material-ui/IconButton'
 import Menu, { MenuItem } from 'material-ui/Menu'
 import { getItemString } from './../utils/helpers'
 import { withStyles } from 'material-ui/styles'
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 
 const styles = theme => ({
-  markAddedItem: {
-    background: theme.palette.success[50]
-  },
-  markRemovedItem: {
-    background: theme.palette.error[50],
-    opacity: 0.5
-  },
   padding: {
     paddingTop: 0,
     paddingBottom: 0,
@@ -49,26 +43,63 @@ const styles = theme => ({
   itemTextContent: {
     overflow: 'hidden',
     textOverflow: 'ellipsis'
+  },
+  unmarkedItem: {
+    background: theme.palette.white,
+    transition: 'background 300ms ease-out'
+  },
+  markAddedItem: {
+    background: theme.palette.success[50],
+    opacity: 0.95
+  },
+  markRemovedItem: {
+    background: theme.palette.error[50],
+    opacity: 0.8,
+    transition: 'opacity 300ms ease-out, background 300ms ease-out'
+  },
+  animationEnter: {
+    opacity: 0.01,
+    background: theme.palette.white,
+    transform: 'translate(-10em, 0)'
+  },
+  animationEnterActive: {
+    opacity: 1,
+    background: theme.palette.success[50],
+    transition: 'opacity 300ms ease-out, transform 300ms ease-out, background 300ms ease-out',
+    transform: 'translate(0,0)' 
+  },
+  animationLeave: {
+    background: theme.palette.error[50],
+    transform: 'translate(0,0)'
+  },
+  animationLeaveActive: {
+    transition: 'transform 300ms ease-out',
+    transform: 'translate(-100em, 0)'
+  },
+  animationAppear: {
+    transform: 'translate(0, 10em)'
+  },
+  animationAppearActive: {
+    transition: 'transform 300ms ease-out',
+    transform: 'translate(0,0)'
   }
 })
 
 let CategoryAgendaView = class extends Component {
   state = {
-    addMarkedItems: [],
-    removeMarkedItems: [],
     showMenuItem: false,
     itemMenuClicked: null,
     anchorEl: null
   }
 
   itemClick(event, itemId) {
-    const { relationMode, dialogMode, openDetailDialog } = this.props
+    const { relationMode, dialogMode, openDetailDialog, markAddItems } = this.props
     if (relationMode) {
       event.preventDefault()
       openDetailDialog(itemId)
     } else if (dialogMode) {
       event.preventDefault()
-      this.addItems([itemId])
+      markAddItems([itemId])
     }
   }
 
@@ -78,45 +109,25 @@ let CategoryAgendaView = class extends Component {
     this.setState({ showMenuItem: true, anchorEl: event.currentTarget, itemMenuClicked: itemId })
   }
 
-  addItems = itemIds => {
-    const addMarkedItems = [...this.state.addMarkedItems, ...itemIds]
-    this.setState({addMarkedItems})   
-    this.props.addItems(addMarkedItems)
-  }
-
-  removeItems = (event, itemIds) => {
-    event.preventDefault()
-    event.stopPropagation()
-    const removeMarkedItems = [...this.state.removeMarkedItems, ...itemIds]
-    this.setState({removeMarkedItems})   
-    this.props.removeItems(removeMarkedItems)
-  }
-
-  undoRemoveItems = (event, itemIds) => {
-    event.preventDefault()
-    event.stopPropagation()
-    const removeMarkedItems = this.state.removeMarkedItems.filter(item => !itemIds.includes(item))
-    this.setState({removeMarkedItems})
-    this.props.removeItems(removeMarkedItems)
-  }
-
   handleMenuItemClose = () => {
     this.setState({ showMenuItem: false, itemMenuClicked: null })
   }
 
   render = () => {
     const {
-      classes,
       categoryId,
       settings,
       items,
       showAvatar,
       dialogMode,
       relationMode,
-      editMode
+      editMode,
+      tempAddItemIds,
+      markRemoveItems,
+      unmarkRemoveItems,
+      tempRemoveItemIds,
+      classes
     } = this.props
-    const { addMarkedItems, removeMarkedItems } = this.state
-    console.log(addMarkedItems, removeMarkedItems, items)
 
     return (
       <React.Fragment>
@@ -127,71 +138,83 @@ let CategoryAgendaView = class extends Component {
           }}
           dense={relationMode || dialogMode}
         >
-          {items.map(item => {
-            const isMarkedForRemove = removeMarkedItems.includes(item.id)
-            const isMarkedForAdd = addMarkedItems.includes(item.id)
-            const isMarked = isMarkedForRemove || isMarkedForAdd
-            return (
-              <React.Fragment key={item.id}>
-                <Link
-                  tabIndex={-1}
-                  to={`/${categoryId}/${item.id}`}
-                  onClick={event => this.itemClick(event, item.id)}
-                >
-                  <ListItem
-                    button={!isMarkedForRemove}
-                    disableRipple
-                    className={
-                      isMarkedForRemove ? classes.markRemovedItem : (
-                        isMarkedForAdd ? classes.markAddedItem : ''
-                      )
-                    }
+          <ReactCSSTransitionGroup
+            transitionName={{
+              enter: classes.animationEnter,
+              enterActive: classes.animationEnterActive,
+              leave: classes.animationLeave,
+              leaveActive: classes.animationLeaveActive,
+              appear: classes.animationAppear,
+              appearActive: classes.animationAppearActive
+            }}
+            transitionAppear={relationMode}
+            transitionAppearTimeout={relationMode ? 300 : false}
+            transitionEnterTimeout={relationMode ? 300 : false}
+            transitionLeaveTimeout={relationMode ? 300 : false}
+          >
+            {items.map(item => {
+              const isMarkedForAdd = tempAddItemIds ? tempAddItemIds.includes(item.id) : false
+              const isMarkedForRemove = tempRemoveItemIds ? tempRemoveItemIds.includes(item.id) : false
+              let itemClassName = classes[
+                isMarkedForRemove ? 'markRemovedItem' : (isMarkedForAdd ? 'markAddedItem' : 'unmarkedItem')
+              ]
+              return (
+                <div key={item.id} className={itemClassName}>
+                  <Link
+                    tabIndex={-1}
+                    to={`/${categoryId}/${item.id}`}
+                    onClick={event => this.itemClick(event, item.id)}
                   >
-                    {showAvatar &&
-                      <Avatar>
-                        <Icon>{settings.icon}</Icon>
-                      </Avatar>
-                    }
-                    <ListItemText
-                      classes={{
-                        root: classes.itemText,
-                        text: classes.itemTextContent
-                      }}
-                      primary={getItemString(settings.primaryFields, item)}
-                      secondary={getItemString(settings.secondaryFields, item)}
-                    />
-                    {editMode &&
-                      <ListItemSecondaryAction>
-                        <IconButton aria-label="Item Menu">
-                          {!relationMode &&
-                            <MoreVert style={{display: !editMode ? 'none' : 'inherit'}}
-                              onClick={event => this.handleMenuItemClick(event, item.id)}
-                            />
-                          }
-                          {relationMode && isMarkedForAdd &&
-                            <Undo
-                              onClick={event => this.undoRemoveItems(event, [item.id])}
-                            />
-                          }
-                          {relationMode && isMarkedForRemove &&
-                            <Undo
-                              onClick={event => this.undoRemoveItems(event, [item.id])}
-                            />
-                          }
-                          {relationMode && !isMarked &&
-                            <RemoveCircleOutline
-                              onClick={event => this.removeItems(event, [item.id])}
-                            />
-                          }
-                        </IconButton>
-                      </ListItemSecondaryAction>
-                    }
-                  </ListItem>
-                </Link>
-                <Divider/>
-              </React.Fragment>
-            )
-          })}
+                    <ListItem button={!isMarkedForRemove} disableRipple>
+                      {showAvatar &&
+                        <Avatar>
+                          <Icon>{settings.icon}</Icon>
+                        </Avatar>
+                      }
+                      <ListItemText
+                        classes={{
+                          root: classes.itemText,
+                          text: classes.itemTextContent
+                        }}
+                        primary={getItemString(settings.primaryFields, item)}
+                        secondary={getItemString(settings.secondaryFields, item)}
+                      />
+                      {editMode &&
+                        <ListItemSecondaryAction>
+                          <IconButton aria-label="Item Menu">
+                            {!relationMode &&
+                              <MoreVert style={{display: !editMode ? 'none' : 'inherit'}}
+                                onClick={event => this.handleMenuItemClick(event, item.id)}
+                              />
+                            }
+                            {relationMode && isMarkedForRemove &&
+                              <Undo
+                                onClick={event => {
+                                  event.preventDefault()
+                                  event.stopPropagation()  
+                                  unmarkRemoveItems([item.id])
+                                }}
+                              />
+                            }
+                            {relationMode && !isMarkedForRemove &&
+                              <RemoveCircleOutline
+                                onClick={event => {
+                                  event.preventDefault()
+                                  event.stopPropagation()
+                                  markRemoveItems([item.id])
+                                }}
+                              />
+                            }
+                          </IconButton>
+                        </ListItemSecondaryAction>
+                      }
+                    </ListItem>
+                  </Link>
+                  <Divider/>
+                </div>
+              )
+            })}
+          </ReactCSSTransitionGroup>
         </List>
         <Menu
           elevation={4}

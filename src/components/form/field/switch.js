@@ -5,7 +5,7 @@ import Checkbox from 'material-ui/Checkbox'
 import Tooltip from 'material-ui/Tooltip'
 
 let SwitchField = props => {
-  const { id, value, readonly, infoMode, label, handleFormFieldChange, classes } = props
+  const { id, value, readonly, infoMode, label, sendFormFieldChange, classes } = props
   return (
     <FormControlLabel
       classes={{
@@ -32,7 +32,7 @@ let SwitchField = props => {
               }}
               disabled={readonly || infoMode}
               checked={Boolean(value)}
-              onChange={(event, value) => handleFormFieldChange(id, value)}
+              onChange={(event, value) => sendFormFieldChange(id, value)}
             />
           </div>
         </Tooltip>
@@ -54,7 +54,7 @@ SwitchField.propTypes = {
   relation: PropTypes.string,
   value: PropTypes.any,
   order: PropTypes.number,
-  handleFormFieldChange: PropTypes.func
+  sendFormFieldChange: PropTypes.func
 }
 
 export default SwitchField

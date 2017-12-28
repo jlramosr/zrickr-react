@@ -81,7 +81,7 @@ class SelectField extends Component {
       readonly,
       infoMode,
       multi,
-      handleFormFieldChange,
+      sendFormFieldChange,
       isFetchingSettings,
       isFetchingFields,
       isFetchingItems,
@@ -129,7 +129,7 @@ class SelectField extends Component {
                 value = selectedOptions.id
               }
             }
-            handleFormFieldChange(id, value)
+            sendFormFieldChange(id, value)
           }}
         />
       </FormControl>
@@ -149,7 +149,7 @@ SelectField.propTypes = {
   relation: PropTypes.string,
   value: PropTypes.any,
   order: PropTypes.number,
-  handleFormFieldChange: PropTypes.func
+  sendFormFieldChange: PropTypes.func
 }
 
 const mapStateToProps = ({ categories, settings, fields, items }, props) => {

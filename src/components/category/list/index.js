@@ -23,9 +23,10 @@ import removeDiacritics from 'remove-diacritics'
  */
 class CategoryList extends Component {
   state = {
-    foundItems: [],
-    tempAddingItems: [],
     searchQuery: '',
+    foundItems: [],
+    tempAddItemIds: [],
+    tempRemoveItemIds: [],
     showNewDialog: false,
     showListDialog: false,
     tableMode: false
@@ -104,31 +105,45 @@ class CategoryList extends Component {
     this.setState({ showNewDialog: false, showListDialog: false })
   }
 
-  addRelations = addItemIds => {
-    const { relationMode, itemIds, handleFormFieldChange } = this.props
+  markAddRelations = markedItemIds => {
+    const { relationMode, itemIds, sendFormFieldChange } = this.props
     if (relationMode) {
-      const tempItemsIds = [...itemIds, ...addItemIds]
-      handleFormFieldChange(tempItemsIds)
-      this.setState(prevState => ({
-        tempAddingItems: [...prevState.tempAddingItems, ...tempItemsIds]
-      }))
+      const tempAddItemIds = [...this.state.tempAddItemIds, ...markedItemIds]
+      const tempItemIds = [...itemIds, ...tempAddItemIds]
+      console.log(tempItemIds)
+      sendFormFieldChange(tempItemIds)
+      this.setState({tempAddItemIds})
       this.closeDialog()
     }
   }
 
-  removeRelations = removeItemIds => {
-    const { relationMode, itemIds, handleFormFieldChange } = this.props
+  markRemoveRelations = markedItemIds => {
+    const { relationMode, itemIds, sendFormFieldChange } = this.props
     if (relationMode) {
-      const tempItemsIds = itemIds.filter(itemId => 
-        !removeItemIds.includes(itemId)
+      const tempRemoveItemIds = [...this.state.tempRemoveItemIds, ...markedItemIds]
+      const tempItemIds = [...itemIds, ...this.state.tempAddItemIds].filter(itemId =>
+        ![...markedItemIds, ...tempRemoveItemIds].includes(itemId)
       )
-      handleFormFieldChange(tempItemsIds)
+      console.log(tempItemIds)
+      sendFormFieldChange(tempItemIds)
+      this.setState({tempRemoveItemIds})
     }
   }
 
-  /*componentWillReceiveProps = nextProps => {
-    this.setState({tableMode: nextProps.tableMode})
-  }*/
+  unmarkRemoveRelations = unmarkedItemIds => {
+    const { relationMode, itemIds, sendFormFieldChange } = this.props
+    if (relationMode) {
+      const tempRemoveItemIds = [...this.state.tempRemoveItemIds.filter(itemId => 
+        !unmarkedItemIds.includes(itemId)
+      )]
+      const tempItemIds = [...itemIds, ...this.state.tempAddItemIds].filter(itemId =>
+        !tempRemoveItemIds.includes(itemId)
+      )
+      console.log(tempItemIds)
+      sendFormFieldChange(tempItemIds)
+      this.setState({tempRemoveItemIds})
+    }
+  }
 
   componentWillMount = () => {
     //if (!this.props.relationMode) console.log('LIST MOUNTED')
@@ -144,9 +159,13 @@ class CategoryList extends Component {
   }
 
   componentWillReceiveProps = nextProps => {
-    /*if (this.props.searchQuery !== nextProps.searchQuery) {
-      this.updateSearchQuery(nextProps.searchQuery)
-    }*/
+    if (this.props.editMode !== nextProps.editMode) {
+      this.setState({
+        tempAddItemIds: [],
+        tempRemoveItemIds: [],
+        searchQuery: ''
+      })
+    }
   }
   
   render = () => {
@@ -162,16 +181,20 @@ class CategoryList extends Component {
       relationMode,
       editMode,
       dialogMode,
-      addRelationsFromDialog,
       history
     } = this.props
-    const { foundItems, showNewDialog, showListDialog, tableMode } = this.state
+    const {
+      foundItems,
+      showNewDialog,
+      showListDialog,
+      tempAddItemIds,
+      tempRemoveItemIds,
+      tableMode 
+    } = this.state
 
-    const showingItems = itemIds ? 
-      Object.values(foundItems).filter(item => 
-        itemIds.includes(item.id) || this.state.tempAddingItems.includes(item.id)
-      ) :
-      foundItems
+    const showingItems = Object.values(foundItems).filter(item => 
+      tempAddItemIds.includes(item.id) || (itemIds ? itemIds.includes(item.id) : true)
+    )
 
     return (
       <HeaderLayout
@@ -240,8 +263,10 @@ class CategoryList extends Component {
           <CategoryAgendaView
             {...this.props}
             openDetailDialog={this.openDetailDialog}
-            addItems={addRelationsFromDialog}
-            removeItems={itemIds => this.removeRelations(itemIds)}
+            tempAddItemIds={tempAddItemIds}
+            markRemoveItems={this.markRemoveRelations}
+            unmarkRemoveItems={this.unmarkRemoveRelations}
+            tempRemoveItemIds={tempRemoveItemIds}
             items={showingItems}
           />
         )}
@@ -272,7 +297,7 @@ class CategoryList extends Component {
               relationMode={false}
               showAvatar={false}
               dialogMode
-              addRelationsFromDialog={itemIds => this.addRelations(itemIds)}
+              markAddItems={this.markAddRelations}
               closeDialog={this.closeDialog}
             />
           </Dialog>

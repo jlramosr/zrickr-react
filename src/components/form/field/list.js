@@ -24,7 +24,7 @@ class ListField extends Component {
       infoMode,
       readonly,
       label,
-      handleFormFieldChange,
+      sendFormFieldChange,
       classes 
     } = this.props
     
@@ -39,8 +39,8 @@ class ListField extends Component {
           editMode={!infoMode && !readonly}
           tableMode={false}
           showAvatar={false}
-          handleFormFieldChange={newItemIds =>
-            handleFormFieldChange(id, newItemIds, true)
+          sendFormFieldChange={newItemIds =>
+            sendFormFieldChange(id, newItemIds, true)
           }
         />
       </Paper>
@@ -60,7 +60,7 @@ ListField.propTypes = {
   relation: PropTypes.string,
   value: PropTypes.any,
   order: PropTypes.number,
-  handleFormFieldChange: PropTypes.func
+  sendFormFieldChange: PropTypes.func
 }
 
 const mapDispatchToProps = (dispatch, props) => {

@@ -207,7 +207,7 @@ Field.propTypes = {
   relation: PropTypes.string,
   value: PropTypes.any,
   order: PropTypes.number,
-  handleFormFieldChange: PropTypes.func,
+  sendFormFieldChange: PropTypes.func,
   itemsSelect: (props, propName, componentName) => {
     if (props.type === 'select' && !props.options && !props.relation) {
       return new Error(

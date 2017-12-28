@@ -55,8 +55,8 @@ let theme = createMuiTheme({
         'contrastDefaultColor': 'light'
       },
       success: {
-        '50': '#FAFCF7',
-        '100': '#EDF9E0',
+        '50': '#E6F8E0',
+        '100': '#D8F6CE',
         '200': '#D3E7BC',
         '300': '#A0D374',
         '400': '#86BF54',

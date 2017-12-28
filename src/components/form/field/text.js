@@ -25,7 +25,7 @@ let CustomTextField = props => {
     order,
     value,
     label,
-    handleFormFieldChange,
+    sendFormFieldChange,
     classes
   } = props
   const InputProps = {
@@ -57,7 +57,7 @@ let CustomTextField = props => {
       InputLabelProps={InputLabelProps}
       labelClassName={classes.labelText}
       onChange={event =>
-        handleFormFieldChange(id, event.target.value)
+        sendFormFieldChange(id, event.target.value)
       }
     />
   )
@@ -75,7 +75,7 @@ CustomTextField.propTypes = {
   relation: PropTypes.string,
   value: PropTypes.any,
   order: PropTypes.number,
-  handleFormFieldChange: PropTypes.func
+  sendFormFieldChange: PropTypes.func
 }
 
 export default CustomTextField

@@ -258,9 +258,7 @@ class Form extends Component {
                     label={this.getFieldLabel(field.label, fieldView)}
                     description={this.getFieldDescription(field.description, fieldView)}
                     order={fieldView.x || 0}
-                    handleFormFieldChange={ (fieldId, value, isList) =>
-                      this.handleFieldChange(fieldId, value, isList)
-                    }
+                    sendFormFieldChange={this.handleFieldChange}
                   />
                 </div>
             )
