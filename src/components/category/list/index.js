@@ -109,10 +109,11 @@ class CategoryList extends Component {
     const { relationMode, itemIds, sendFormFieldChange } = this.props
     if (relationMode) {
       const tempAddItemIds = [...this.state.tempAddItemIds, ...markedItemIds]
-      const tempItemIds = [...itemIds, ...tempAddItemIds]
-      console.log(tempItemIds)
-      sendFormFieldChange(tempItemIds)
+      const tempItemIds = [...itemIds, ...tempAddItemIds].filter(itemId =>
+        !this.state.tempRemoveItemIds.includes(itemId)
+      )
       this.setState({tempAddItemIds})
+      sendFormFieldChange(tempItemIds)
       this.closeDialog()
     }
   }
@@ -122,11 +123,10 @@ class CategoryList extends Component {
     if (relationMode) {
       const tempRemoveItemIds = [...this.state.tempRemoveItemIds, ...markedItemIds]
       const tempItemIds = [...itemIds, ...this.state.tempAddItemIds].filter(itemId =>
-        ![...markedItemIds, ...tempRemoveItemIds].includes(itemId)
+        !tempRemoveItemIds.includes(itemId)
       )
-      console.log(tempItemIds)
-      sendFormFieldChange(tempItemIds)
       this.setState({tempRemoveItemIds})
+      sendFormFieldChange(tempItemIds)
     }
   }
 
@@ -139,7 +139,6 @@ class CategoryList extends Component {
       const tempItemIds = [...itemIds, ...this.state.tempAddItemIds].filter(itemId =>
         !tempRemoveItemIds.includes(itemId)
       )
-      console.log(tempItemIds)
       sendFormFieldChange(tempItemIds)
       this.setState({tempRemoveItemIds})
     }
@@ -162,8 +161,7 @@ class CategoryList extends Component {
     if (this.props.editMode !== nextProps.editMode) {
       this.setState({
         tempAddItemIds: [],
-        tempRemoveItemIds: [],
-        searchQuery: ''
+        tempRemoveItemIds: []
       })
     }
   }
@@ -185,16 +183,28 @@ class CategoryList extends Component {
     } = this.props
     const {
       foundItems,
+      searchQuery,
       showNewDialog,
       showListDialog,
       tempAddItemIds,
       tempRemoveItemIds,
-      tableMode 
+      tableMode
     } = this.state
 
     const showingItems = Object.values(foundItems).filter(item => 
       tempAddItemIds.includes(item.id) || (itemIds ? itemIds.includes(item.id) : true)
     )
+
+    const commonProps = {
+      ...this.props,
+      items: showingItems,
+      searchQuery,
+      openDetailDialog: this.openDetailDialog,
+      tempAddItemIds,
+      markRemoveItems: this.markRemoveRelations,
+      unmarkRemoveItems: this.unmarkRemoveRelations,
+      tempRemoveItemIds
+    }
 
     return (
       <HeaderLayout
@@ -253,23 +263,10 @@ class CategoryList extends Component {
         ]}
       >
 
-        {tableMode ? (
-          <CategoryTableView
-            {...this.props}
-            openDetailDialog={this.openDetailDialog}
-            items={showingItems}
-          />
-        ) : (
-          <CategoryAgendaView
-            {...this.props}
-            openDetailDialog={this.openDetailDialog}
-            tempAddItemIds={tempAddItemIds}
-            markRemoveItems={this.markRemoveRelations}
-            unmarkRemoveItems={this.unmarkRemoveRelations}
-            tempRemoveItemIds={tempRemoveItemIds}
-            items={showingItems}
-          />
-        )}
+        {tableMode ? 
+          <CategoryTableView {...commonProps} /> : 
+          <CategoryAgendaView {...commonProps} />
+        }
 
         <Dialog
           fullScreen={!dialogMode}
@@ -291,7 +288,10 @@ class CategoryList extends Component {
           >
             <CategoryList
               {...this.props}
-              itemIds={null}
+              itemIds={this.props.items.map(item => item.id).filter(itemId =>
+                !showingItems.map(item => item.id).includes(itemId)
+              )}
+              //TODO allItemIds get from redux
               editMode={false}
               tableMode={false}
               relationMode={false}

@@ -46,7 +46,10 @@ const styles = theme => ({
   },
   unmarkedItem: {
     background: theme.palette.white,
-    transition: 'background 300ms ease-out'
+    transition: theme.transitions.create('background', {
+      easing: theme.transitions.easing.easeOut,
+      duration: 600
+    })
   },
   markAddedItem: {
     background: theme.palette.success[50],
@@ -54,8 +57,11 @@ const styles = theme => ({
   },
   markRemovedItem: {
     background: theme.palette.error[50],
-    opacity: 0.8,
-    transition: 'opacity 300ms ease-out, background 300ms ease-out'
+    opacity: 0.9,
+    transition: theme.transitions.create(['opacity','background'], {
+      easing: theme.transitions.easing.easeOut,
+      duration: 600
+    })
   },
   animationEnter: {
     opacity: 0.01,
@@ -65,23 +71,32 @@ const styles = theme => ({
   animationEnterActive: {
     opacity: 1,
     background: theme.palette.success[50],
-    transition: 'opacity 300ms ease-out, transform 300ms ease-out, background 300ms ease-out',
-    transform: 'translate(0,0)' 
+    transform: 'translate(0,0)', 
+    transition: theme.transitions.create(['background','transform','opacity'], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.standard
+    })
   },
   animationLeave: {
     background: theme.palette.error[50],
-    transform: 'translate(0,0)'
+    opacity: 1
   },
   animationLeaveActive: {
-    transition: 'transform 300ms ease-out',
-    transform: 'translate(-100em, 0)'
+    opacity: 0.01,
+    transition: theme.transitions.create('opacity', {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.standard
+    })
   },
   animationAppear: {
-    transform: 'translate(0, 10em)'
+    transform: 'translate(0, -10em)'
   },
   animationAppearActive: {
-    transition: 'transform 300ms ease-out',
-    transform: 'translate(0,0)'
+    transform: 'translate(0,0)',
+    transition: theme.transitions.create('transform', {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.shorter
+    })
   }
 })
 
@@ -89,7 +104,8 @@ let CategoryAgendaView = class extends Component {
   state = {
     showMenuItem: false,
     itemMenuClicked: null,
-    anchorEl: null
+    anchorEl: null,
+    isSearching: false
   }
 
   itemClick(event, itemId) {
@@ -111,6 +127,12 @@ let CategoryAgendaView = class extends Component {
 
   handleMenuItemClose = () => {
     this.setState({ showMenuItem: false, itemMenuClicked: null })
+  }
+
+  componentWillReceiveProps = nextProps => {
+    this.setState({isSearching: 
+      this.props.searchQuery !== nextProps.searchQuery
+    })
   }
 
   render = () => {
@@ -147,10 +169,12 @@ let CategoryAgendaView = class extends Component {
               appear: classes.animationAppear,
               appearActive: classes.animationAppearActive
             }}
+            transitionEnter={relationMode && !this.state.isSearching}
+            transitionEnterTimeout={300}
+            transitionLeave={relationMode && !this.state.isSearching}
+            transitionLeaveTimeout={300}
             transitionAppear={relationMode}
-            transitionAppearTimeout={relationMode ? 300 : false}
-            transitionEnterTimeout={relationMode ? 300 : false}
-            transitionLeaveTimeout={relationMode ? 300 : false}
+            transitionAppearTimeout={200}
           >
             {items.map(item => {
               const isMarkedForAdd = tempAddItemIds ? tempAddItemIds.includes(item.id) : false

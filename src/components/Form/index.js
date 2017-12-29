@@ -21,7 +21,7 @@ class Item {
         _values[fieldId] = value
         continue
       }
-      if (value) {
+      if (value || value === false) {
         _values[fieldId] = value
       } else if (!Object.keys(values).length && field.default) {
         _values[fieldId] = field.default

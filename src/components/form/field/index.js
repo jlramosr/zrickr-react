@@ -16,9 +16,10 @@ const inputStyle = theme => ({
   border: `1px solid ${theme.palette.primary[500]}`,
   background: theme.palette.secondary[50],
   fontSize: 14,
-  transition: theme.transitions.create(
-    ['box-shadow']
-  ),
+  transition: theme.transitions.create(['box-shadow', 'background'], {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.complex
+  }),
   '&:focus': {
     boxShadow: `0 0 0 0.1rem ${theme.palette.primary[500]}`
   }
@@ -45,7 +46,11 @@ const infoStyle = theme => ({
   fontSize: 14,
   color: theme.palette.grey[700],
   borderBottom: `1px solid ${theme.palette.primary[200]}`,
-  cursor: 'default'
+  cursor: 'default',
+  transition: theme.transitions.create('background', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.complex
+  })
 })
 
 const labelStyle = theme => ({
