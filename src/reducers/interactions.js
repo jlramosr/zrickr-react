@@ -64,7 +64,8 @@ const interactions = (state = initialInteractionsState, action) => {
           openRelations: [
             ...state.relations.openRelations, {
               categoryId: action.categoryId,
-              itemId: action.itemId
+              itemId: action.itemId,
+              editMode: false
             }
           ]
         }

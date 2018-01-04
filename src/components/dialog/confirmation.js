@@ -9,11 +9,11 @@ const Transition = props => (<Slide direction="up" {...props} />)
 
 class ConfirmationDialog extends Component {
 
-  handleClose = (answer='cancel') => {
+  handleClose = answer => {
     const { onClose, onAccept, onCancel } = this.props
     if (answer === 'accept' && onAccept) {
       onAccept()
-    } else if (answer === 'accept' && onCancel) {
+    } else if (answer === 'cancel' && onCancel) {
       onCancel()
     }
     onClose()
@@ -22,16 +22,14 @@ class ConfirmationDialog extends Component {
   render = () => {
     const {
       open,
-      message,
-      ...rest
+      message
     } = this.props
 
     return (
       <Dialog
         open={open}
-        onClose={this.handleDialog}
+        onClose={this.handleClose}
         transition={Transition}
-        {...rest}
       >
         <DialogContent>
           <DialogContentText>
@@ -39,7 +37,7 @@ class ConfirmationDialog extends Component {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={this.handleClose} color="primary">
+          <Button onClick={() => this.handleClose('cancel')} color="primary">
             No
           </Button>
           <Button onClick={() => this.handleClose('accept')} color="primary" autoFocus>

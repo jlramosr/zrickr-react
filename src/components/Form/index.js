@@ -3,6 +3,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import Field from './field/'
+import { isEqual } from '../../utils/helpers'
 import { withStyles } from 'material-ui/styles'
 
 /**
@@ -171,20 +172,37 @@ class Form extends Component {
     })
   }
 
-  componentWillMount = () => {
-    //console.log('MOUNT FORM', this.props)
+  restartForm = () => {
     const { fields, values } = this.props
     this.setState({item: new Item({fields, values})})
   }
 
+  componentDidMount() {
+    // When the component is mounted, add your DOM listener to the "nv" elem.
+    // (The "nv" elem is assigned in the render function.)
+    document.addEventListener('restart-form', this.restartForm)
+  }
+
+  componentWillMount = () => {
+    //console.log('MOUNT FORM', this.props)
+    this.restartForm()
+  }
+
   componentWillUnmount = () => {
     //console.log('UNMOUNT FORM')
+    document.removeEventListener('restart-form', this.restartForm)
   }
 
   componentWillReceiveProps = nextProps => {
-    /*if (!isEqual(nextProps,this.props)) {
-      this.setState({item: this.generateItem(nextProps.fields, nextProps.values)})
-    }*/
+    const { isChangingToInfoMode, values } = this.props
+    if (nextProps.isChangingToInfoMode !== isChangingToInfoMode && nextProps.isChangingToInfoMode) { 
+      if (!isEqual(this.state.item.valuesToStore(),values)) {
+        this.props.openDialog()
+      } else {
+        this.props.noOpenDialog()
+      }
+    }
+
   }
 
   render = () => {

@@ -7,6 +7,7 @@ import Edit from 'material-ui-icons/Edit'
 import ChromeReaderMode from 'material-ui-icons/ChromeReaderMode'
 import Tabs, { Tab } from 'material-ui/Tabs'
 import Close from 'material-ui-icons/Close'
+import FiberManualRecord from 'material-ui-icons/FiberManualRecord'
 import { withStyles } from 'material-ui/styles'
 
 const styles = theme => ({
@@ -65,25 +66,31 @@ const styles = theme => ({
 
 class CategoryItemDetailTabs extends Component {
   initialState = {
-    tabTitles: [],
+    tabs: [],
     hoverTab: -1,
-    showConfirmDialogs: {
-      closeView: false,
-      changeMode: false,
-      changeTabNum: -1
-    }
+    showConfirmDialog: false,
+    isChangingToInfoMode: false
   }
 
   state = this.initialState
 
+  openDialog = () => {
+    this.setState({showConfirmDialog: true})
+  }
+
+  noOpenDialog = () => {
+    this.props.changeEditMode(false)
+    this.setState({isChangingToInfoMode: false, showConfirmDialog:false})
+  }
+
   handleChangeTab = (event, activeTab) => {
     const { editMode, changeTab } = this.props
     if (editMode) {
-      this.setState({
+      /*this.setState({
         showConfirmDialogs: {
           changeTabNum: activeTab
         }
-      })
+      })*/
     } else { 
       changeTab(activeTab)
     }
@@ -92,13 +99,13 @@ class CategoryItemDetailTabs extends Component {
   handleCloseView = () => {
     const { editMode, closeRelations } = this.props
     if (editMode) {
-      this.setState({
+      /*this.setState({
         showConfirmDialogs: {
           closeView: true
         }
-      })
+      })*/
     } else {
-      this.setState({tabTitles: []})
+      this.setState({tabs: []})
       closeRelations()
     }
   }
@@ -107,18 +114,20 @@ class CategoryItemDetailTabs extends Component {
     event.preventDefault()
     event.stopPropagation()
     this.props.removeOpenRelation(index)
-    this.setState(prevState => ({
-      tabTitles: [
-        ...prevState.tabTitles.slice(0,index),
-        ...prevState.tabTitles.slice(index+1)
+    /*this.setState(prevState => ({
+      tabs: [
+        ...prevState.tabs.slice(0,index),
+        ...prevState.tabs.slice(index+1)
       ]
-    }))
-
+    }))*/
   }
 
   componentDidMount = () => {
     this.setState({
-      tabTitles:[this.props.title]
+      tabs:[{
+        title:this.props.title,
+        editMode: false
+      }]
     })
   }
 
@@ -136,21 +145,32 @@ class CategoryItemDetailTabs extends Component {
     const hasChangedTitle = oldTitle !== newTitle
 
     if (diffNumRelations > 0 || hasChangedTitle) {
-      let tabTitles = this.state.tabTitles
+      let tabs = this.state.tabs
       if (diffNumRelations > 0) {
-        tabTitles = [...tabTitles, newTitle]
+        tabs = [
+          ...tabs, {
+            title: newTitle, editMode: false
+          }
+        ]
       } else {
         const newOpenRelations = nextProps.openRelations
-        tabTitles = newOpenRelations.reduce((titles, relation, index) => {
+        tabs = newOpenRelations.reduce((titlesAndModes, relation, index) => {
           const { categoryId, itemId } = relation
           const { activeCategoryId, activeItemId } = nextProps
+          const editMode = tabs[index].editMode
           return [
-            ...titles,
-            categoryId === activeCategoryId && itemId === activeItemId ? newTitle : tabTitles[index]
+            ...titlesAndModes,
+            categoryId === activeCategoryId && itemId === activeItemId ? {
+              title: newTitle,
+              editMode
+            } : {
+              title: tabs[index].title,
+              editMode
+            }
           ]
         }, [])
       }
-      this.setState({tabTitles})
+      this.setState({tabs})
     }
     
   }
@@ -174,8 +194,7 @@ class CategoryItemDetailTabs extends Component {
       windowSize,
       classes
     } = this.props
-    const { tabTitles, showConfirmDialogs } = this.state
-    const { closeView, changeMode, changeTabNum } = showConfirmDialogs
+    const { tabs, showConfirmDialog, isChangingToInfoMode } = this.state
     const messageNoSave = 'Your changes have not been saved yet. Are you sure to want to continue?'
 
     const smallSize = windowSize === 'xs' || windowSize === 'sm'
@@ -208,8 +227,9 @@ class CategoryItemDetailTabs extends Component {
                 scrollable
                 scrollButtons="auto"
               >
-                {tabTitles.map((title, index) => {
+                {tabs.map((tab, index) => {
                   const isVisibleIconClose = this.state.hoverTab === index || activeIndex === index
+                  const isVisibleIconCircle = true
                   return (
                     <Tab
                       key={index}
@@ -217,15 +237,17 @@ class CategoryItemDetailTabs extends Component {
                       onMouseOut={() => this.setState({hoverTab: -1})}
                       label={
                         <React.Fragment>
-                          <span>{title}</span>
+                          <span>{tab.title}</span>
                           <div className={classes.tabIconContainer}>
-                            <Close
-                              style={{
-                                visibility: isVisibleIconClose ? 'visible' : 'hidden'
-                              }}
-                              className={classes.tabIcon}
-                              onClick={event => this.removeTab(event,index)}
-                            />
+                            {isVisibleIconClose &&
+                              <Close
+                                className={classes.tabIcon}
+                                onClick={event => this.removeTab(event,index)}
+                              />
+                            }
+                            {isVisibleIconCircle &&
+                              <FiberManualRecord className={classes.tabIcon} />
+                            }
                           </div>
                         </React.Fragment>
                       }
@@ -256,11 +278,7 @@ class CategoryItemDetailTabs extends Component {
             {id:'close', icon:Close, hidden:openRelations.length > 1, onClick:this.handleCloseView},
             {id:'edit', icon:Edit, right:true, hidden:editMode, onClick:() => changeEditMode(true)},
             {id:'view', icon:ChromeReaderMode, right:true, hidden:!editMode, onClick:() =>
-              this.setState({
-                showConfirmDialogs: {
-                  changeMode: true
-                }
-              })
+              this.setState({isChangingToInfoMode: true})
             },
             {id:'check', icon:Check, right:true, hidden:!editMode, onClick:() => {
               this.formElement.dispatchEvent(
@@ -277,51 +295,21 @@ class CategoryItemDetailTabs extends Component {
             values={item}
             handleSubmit={updateItem}
             formRef={el => this.formElement = el}
+            isChangingToInfoMode={isChangingToInfoMode}
+            openDialog={this.openDialog}
+            noOpenDialog={this.noOpenDialog}
           />
         </HeaderLayout>
 
         <ConfirmationDialog
-          open={closeView}
+          open={showConfirmDialog}
           message={messageNoSave}
           onClose={() => 
-            this.setState({
-              showConfirmDialogs: {
-                closeView: false
-              }
-            })
+            this.setState({isChangingToInfoMode: false, showConfirmDialog:false})
           }
           onAccept={() => {
             this.setState({tabTitles: []})
             closeRelations()
-          }}
-        />
-
-        <ConfirmationDialog
-          open={changeMode}
-          message={messageNoSave}
-          onClose={() => 
-            this.setState({
-              showConfirmDialogs: {
-                changeMode: false
-              }
-            })
-          }
-          onAccept={() => changeEditMode(false)}
-        />
-
-        <ConfirmationDialog
-          open={changeTabNum >= 0}
-          message={messageNoSave}
-          onClose={() => 
-            this.setState({
-              showConfirmDialogs: {
-                changeTabNum: -1
-              }
-            })
-          }
-          onAccept={() => {
-            changeTab(changeTabNum)
-            changeEditMode(false)
           }}
         />
 

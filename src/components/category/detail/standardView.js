@@ -17,10 +17,20 @@ class CategoryItemDetailHeader extends Component {
       activeCategoryId: '',
       activeItemId: ''
     },
-    showConfirmDialog: false
+    showConfirmDialog: false,
+    isChangingToInfoMode: false
   }
 
   state = this.initialState
+
+  openDialog = () => {
+    this.setState({showConfirmDialog: true})
+  }
+
+  noOpenDialog = () => {
+    this.props.changeEditMode(false)
+    this.setState({isChangingToInfoMode: false, showConfirmDialog:false})
+  }
 
   changeTab = (activeTab, openRelations) => {
     if (!openRelations) {
@@ -67,7 +77,7 @@ class CategoryItemDetailHeader extends Component {
       closeRelations,
       removeAllOpenRelations
     } = this.props
-    const { relations, showConfirmDialog } = this.state
+    const { relations, isChangingToInfoMode, showConfirmDialog } = this.state
 
     return (
       <HeaderLayout
@@ -77,11 +87,13 @@ class CategoryItemDetailHeader extends Component {
           {id:'arrowBack', icon:ArrowBack, to:`/${categoryId}`},
           {id:'edit', icon:Edit, right:true, hidden:editMode, onClick:() => changeEditMode(true)},
           {id:'view', icon:ChromeReaderMode, right:true, hidden:!editMode, onClick:() => 
-            this.setState({showConfirmDialog: true})
+            this.setState({isChangingToInfoMode: true})
           },
           {id:'delete', icon:Delete, right:true, hidden:editMode, onClick:removeItem},
           {id:'check', icon:Check, right:true, hidden:!editMode, onClick:() => {
-            this.formElement.dispatchEvent(new Event('submit'),{bubbles:false})
+            this.formElement.dispatchEvent(
+              new Event('submit'),{bubbles:false}
+            )
           }}
         ]}
       >
@@ -89,11 +101,14 @@ class CategoryItemDetailHeader extends Component {
           <Form
             cols={12}
             view="detail"
-            infoMode={!editMode}
             fields={fields}
             values={item}
             handleSubmit={updateItem}
             formRef={el => this.formElement = el}
+            infoMode={!editMode}
+            isChangingToInfoMode={isChangingToInfoMode}
+            openDialog={this.openDialog}
+            noOpenDialog={this.noOpenDialog}
           />
 
           <LargeDialog
@@ -111,8 +126,13 @@ class CategoryItemDetailHeader extends Component {
           <ConfirmationDialog
             open={showConfirmDialog}
             message='Your changes have not been saved yet. Are you sure to want to continue?'
-            onClose={() => this.setState({showConfirmDialog: false})}
-            onAccept={() => changeEditMode(false)}
+            onClose={() => {
+              this.setState({isChangingToInfoMode: false, showConfirmDialog: false})
+            }}
+            onAccept={() => {
+              changeEditMode(false)
+              document.dispatchEvent(new Event('restart-form'))
+            }}
           />
 
         </React.Fragment>
