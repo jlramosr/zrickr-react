@@ -41,9 +41,9 @@ const styles = theme => ({
       marginTop: theme.standards.toolbarHeights.tabletDesktop,
       height: `calc(100vh - ${theme.standards.toolbarHeights.tabletDesktop}px)`
     },
-    transition: theme.transitions.create(['margin-top'], {
-      easing: theme.transitions.easing.easeIn,
-      duration: theme.transitions.duration.complex
+    transition: theme.transitions.create('margin-top', {
+      easing: theme.transitions.easing.easeInOut,
+      duration: theme.transitions.duration.shorter
     })
   }
 })

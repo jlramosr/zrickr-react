@@ -5,7 +5,7 @@ import Slide from 'material-ui/transitions/Slide'
 
 const Transition = props => (<Slide direction="up" {...props} />)
 
-class CustomDialog extends Component {
+class LargeDialog extends Component {
   render = () => {
     const {
       children,
@@ -26,8 +26,8 @@ class CustomDialog extends Component {
   }
 }
 
-CustomDialog.propTypes = {
+LargeDialog.propTypes = {
   children: PropTypes.node.isRequired
 }
 
-export default CustomDialog
+export default LargeDialog

@@ -74,7 +74,10 @@ const interactions = (state = initialInteractionsState, action) => {
         ...state,
         relations: {
           ...state.relations,
-          openRelations: state.openRelations.slice(0,state.openRelations.length-1)
+          openRelations: [
+            ...state.relations.openRelations.slice(0,action.index),
+            ...state.relations.openRelations.slice(action.index+1)
+          ]
         }
       }
     case REMOVE_ALL_OPEN_RELATIONS:

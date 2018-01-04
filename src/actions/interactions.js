@@ -37,8 +37,9 @@ export const addOpenRelation = (categoryId, itemId) => ({
   itemId
 })
 
-export const removeOpenRelation = () => ({
-  type: REMOVE_OPEN_RELATION
+export const removeOpenRelation = index => ({
+  type: REMOVE_OPEN_RELATION,
+  index
 })
 
 export const removeAllOpenRelations = () => ({

@@ -2,7 +2,8 @@ import React, { Component } from 'react'
 import HeaderLayout from '../../headerLayout'
 import Form from '../../form'
 import CategoryItemDetail from './'
-import Dialog from '../../dialog'
+import LargeDialog from '../../dialog/large'
+import ConfirmationDialog from '../../dialog/confirmation'
 import ArrowBack from 'material-ui-icons/ArrowBack'
 import Check from 'material-ui-icons/Check'
 import Edit from 'material-ui-icons/Edit'
@@ -15,12 +16,16 @@ class CategoryItemDetailHeader extends Component {
       activeIndex: -1,
       activeCategoryId: '',
       activeItemId: ''
-    }
+    },
+    showConfirmDialog: false
   }
 
   state = this.initialState
 
   changeTab = (activeTab, openRelations) => {
+    if (!openRelations) {
+      openRelations = this.props.openRelations
+    }
     if (activeTab < 0) {
       this.setState(this.initialState)
     } else {
@@ -36,10 +41,11 @@ class CategoryItemDetailHeader extends Component {
   }
 
   componentWillReceiveProps = nextProps => {
+    const newOpenRelations = nextProps.openRelations
     const oldNumOpenRelations = this.props.openRelations.length
-    const newNumOpenRelations = nextProps.openRelations.length
-    if (oldNumOpenRelations !== newNumOpenRelations) {
-      this.changeTab(newNumOpenRelations - 1, nextProps.openRelations)
+    const newNumOpenRelations = newOpenRelations.length
+    if (newNumOpenRelations !== oldNumOpenRelations) {
+      this.changeTab(newNumOpenRelations - 1, newOpenRelations)
     }
   }
 
@@ -61,7 +67,7 @@ class CategoryItemDetailHeader extends Component {
       closeRelations,
       removeAllOpenRelations
     } = this.props
-    const { relations } = this.state
+    const { relations, showConfirmDialog } = this.state
 
     return (
       <HeaderLayout
@@ -70,7 +76,9 @@ class CategoryItemDetailHeader extends Component {
         operations={[
           {id:'arrowBack', icon:ArrowBack, to:`/${categoryId}`},
           {id:'edit', icon:Edit, right:true, hidden:editMode, onClick:() => changeEditMode(true)},
-          {id:'view', icon:ChromeReaderMode, right:true, hidden:!editMode, onClick:() => changeEditMode(false)},
+          {id:'view', icon:ChromeReaderMode, right:true, hidden:!editMode, onClick:() => 
+            this.setState({showConfirmDialog: true})
+          },
           {id:'delete', icon:Delete, right:true, hidden:editMode, onClick:removeItem},
           {id:'check', icon:Check, right:true, hidden:!editMode, onClick:() => {
             this.formElement.dispatchEvent(new Event('submit'),{bubbles:false})
@@ -87,18 +95,26 @@ class CategoryItemDetailHeader extends Component {
             handleSubmit={updateItem}
             formRef={el => this.formElement = el}
           />
-          <Dialog
+
+          <LargeDialog
             open={shouldShowRelations}
-            transitionDuration={{ enter: 200, exit: 200 }}
             onClose={closeRelations}
             onExited={removeAllOpenRelations}
           >
             <CategoryItemDetail
               dialogMode
-              handleChangeTab={this.changeTab}
+              changeTab={this.changeTab}
               {...relations}
             />
-          </Dialog>
+          </LargeDialog>
+
+          <ConfirmationDialog
+            open={showConfirmDialog}
+            message='Your changes have not been saved yet. Are you sure to want to continue?'
+            onClose={() => this.setState({showConfirmDialog: false})}
+            onAccept={() => changeEditMode(false)}
+          />
+
         </React.Fragment>
       </HeaderLayout>
     )

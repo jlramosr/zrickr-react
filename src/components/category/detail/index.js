@@ -2,11 +2,11 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { fetchItemIfNeeded, updateItem, removeItem } from '../../../actions/items'
-import { notify, removeAllOpenRelations,closeRelations } from '../../../actions/interactions'
+import { notify, removeOpenRelation, removeAllOpenRelations,closeRelations } from '../../../actions/interactions'
 import { getItemString } from '../utils/helpers'
 import { capitalize, isEqual } from '../../../utils/helpers'
-import CategoryItemDetailHeader  from './standardView'
-import CategoryItemDetailTabs  from './tabsView'
+import StandardView from './standardView'
+import TabsView from './tabsView'
 import NotFound from '../../notFound'
 
 class CategoryItemDetail extends Component {
@@ -19,9 +19,7 @@ class CategoryItemDetail extends Component {
     return item ? getItemString(settings.primaryFields, item) : ''
   }
 
-  changeEditMode = editMode => {
-    this.setState({editMode})
-  }
+  changeEditMode = editMode => this.setState({editMode})
 
   updateItem = values => {
     const { item, settings, updateItem, notify } = this.props
@@ -79,10 +77,10 @@ class CategoryItemDetail extends Component {
     }
 
     if (this.props.dialogMode) {
-      return <CategoryItemDetailTabs {...commonProps} />
+      return <TabsView {...commonProps} />
     }
-    
-    return <CategoryItemDetailHeader {...commonProps} />
+
+    return <StandardView {...commonProps} />
   }
 }
 
@@ -134,7 +132,8 @@ const mapStateToProps = ({ categories, settings, fields, items, interactions }, 
     //itemReceived: items.flow[categoryId].isReceivedItem || items.flow[categoryId].errorFetchingItem
     isUpdating: items.flow[categoryId].isUpdating,
     openRelations: interactions.relations.openRelations,
-    shouldShowRelations: interactions.relations.isShowing
+    shouldShowRelations: interactions.relations.isShowing,
+    windowSize: interactions.windowSize
   }
 }
 
@@ -145,9 +144,10 @@ const mapDispatchToProps = (dispatch, props) => {
     fetchItemIfNeeded: () => dispatch(fetchItemIfNeeded(categoryId,itemId)),
     updateItem: item => dispatch(updateItem(props.categoryId, itemId, item)),
     removeItem: () => dispatch(removeItem(categoryId,itemId)),
+    notify: (message, type) => dispatch(notify(message, type)),
+    removeOpenRelation: index => dispatch(removeOpenRelation(index)),
     removeAllOpenRelations: () => dispatch(removeAllOpenRelations()),
-    closeRelations: () => dispatch(closeRelations()),
-    notify: (message, type) => dispatch(notify(message, type))
+    closeRelations: () => dispatch(closeRelations())
   }
 }
 

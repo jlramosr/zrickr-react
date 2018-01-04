@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
 import HeaderLayout from '../../headerLayout'
 import Form from '../../form'
+import ConfirmationDialog from '../../dialog/confirmation'
 import Check from 'material-ui-icons/Check'
 import Edit from 'material-ui-icons/Edit'
 import ChromeReaderMode from 'material-ui-icons/ChromeReaderMode'
@@ -24,32 +24,96 @@ const styles = theme => ({
     marginBottom: 16
   },
   tab: {
-    color: theme.palette.grey[400],
+    color: theme.palette.grey[500],
     height: '100%',
-    overflow: 'hidden'
+    overflow: 'hidden',
+    marginLeft: 2,
+    marginRight: 2
   },
   tabSelected: {
     color: theme.palette.secondary[500]
   },
   tabWrapper: {
-    display: 'inline'
-  },
-  tabLabel: {
-    whiteSpace: 'nowrap'
+    display: 'inline',
+    paddingLeft: theme.spacing.unit,
+    paddingRight: theme.spacing.unit
   },
   tabLabelContainer: {
     overflow: 'hidden',
-    textOverflow: 'ellipsis'
+    textOverflow: 'ellipsis',
+    paddingLeft: 1
+  },
+  tabLabel: {
+    whiteSpace: 'nowrap',
+    textAlign: 'left',
+    marginRight: theme.spacing.unit
+  },
+  tabIconContainer: {
+    position: 'absolute',
+    right: 0,
+    top: '50%',
+    paddingRight: theme.spacing.unit
+  },
+  tabIcon: {
+    position:'relative',
+    transform: 'translate(0, -50%)',
+    marginTop: 1,
+    width:16,
+    height:16
   }
 })
 
 class CategoryItemDetailTabs extends Component {
-  state = {
-    tabTitles: []
+  initialState = {
+    tabTitles: [],
+    hoverTab: -1,
+    showConfirmDialogs: {
+      closeView: false,
+      changeMode: false,
+      changeTabNum: -1
+    }
   }
 
+  state = this.initialState
+
   handleChangeTab = (event, activeTab) => {
-    this.props.handleChangeTab(activeTab, this.props.openRelations)
+    const { editMode, changeTab } = this.props
+    if (editMode) {
+      this.setState({
+        showConfirmDialogs: {
+          changeTabNum: activeTab
+        }
+      })
+    } else { 
+      changeTab(activeTab)
+    }
+  }
+
+  handleCloseView = () => {
+    const { editMode, closeRelations } = this.props
+    if (editMode) {
+      this.setState({
+        showConfirmDialogs: {
+          closeView: true
+        }
+      })
+    } else {
+      this.setState({tabTitles: []})
+      closeRelations()
+    }
+  }
+
+  removeTab = (event,index) => {
+    event.preventDefault()
+    event.stopPropagation()
+    this.props.removeOpenRelation(index)
+    this.setState(prevState => ({
+      tabTitles: [
+        ...prevState.tabTitles.slice(0,index),
+        ...prevState.tabTitles.slice(index+1)
+      ]
+    }))
+
   }
 
   componentDidMount = () => {
@@ -65,19 +129,19 @@ class CategoryItemDetailTabs extends Component {
   componentWillReceiveProps = nextProps => {
     const oldNumOpenRelations = this.props.openRelations.length
     const newNumOpenRelations = nextProps.openRelations.length
-    const hasChangedNumRelations = oldNumOpenRelations !== newNumOpenRelations
+    const diffNumRelations = newNumOpenRelations - oldNumOpenRelations
 
     const oldTitle = this.props.title
     const newTitle = nextProps.title
     const hasChangedTitle = oldTitle !== newTitle
 
-    if (hasChangedNumRelations || hasChangedTitle) {
+    if (diffNumRelations > 0 || hasChangedTitle) {
       let tabTitles = this.state.tabTitles
-      if (hasChangedNumRelations) {
+      if (diffNumRelations > 0) {
         tabTitles = [...tabTitles, newTitle]
       } else {
-        const oldOpenRelations = this.props.openRelations
-        tabTitles = oldOpenRelations.reduce((titles, relation, index) => {
+        const newOpenRelations = nextProps.openRelations
+        tabTitles = newOpenRelations.reduce((titles, relation, index) => {
           const { categoryId, itemId } = relation
           const { activeCategoryId, activeItemId } = nextProps
           return [
@@ -93,7 +157,6 @@ class CategoryItemDetailTabs extends Component {
 
   render = () => {
     const {
-      editMode,
       title,
       isFetchingSettings,
       fields,
@@ -101,29 +164,38 @@ class CategoryItemDetailTabs extends Component {
       item,
       isFetchingItem,
       isUpdating,
+      editMode,
+      changeEditMode,
+      changeTab,
       activeIndex,
       openRelations,
       updateItem,
-      changeEditMode,
       closeRelations,
       windowSize,
       classes
     } = this.props
-    const { tabTitles } = this.state
-    const smallSize = windowSize === 'xs' || windowSize === 'sm'
+    const { tabTitles, showConfirmDialogs } = this.state
+    const { closeView, changeMode, changeTabNum } = showConfirmDialogs
+    const messageNoSave = 'Your changes have not been saved yet. Are you sure to want to continue?'
 
+    const smallSize = windowSize === 'xs' || windowSize === 'sm'
+    const tabsContainerStyle = {
+      width:'100%',
+      paddingTop: smallSize ? 4 : 1
+    }
+    
     return (
       <React.Fragment>
         <HeaderLayout
           operations={[
-            {id:'close', icon:Close, onClick:closeRelations}
+            {id:'close', icon:Close, onClick:this.handleCloseView}
           ]}
           overflow="hidden"
           hidden={openRelations.length < 2}
           secondaryToolbar
           secondaryToolbarHeight={smallSize ? 64 : 32}
           contentToolbar={
-            <div style={{width:'100%', paddingTop: smallSize ? 4 : 1}}>
+            <div style={tabsContainerStyle}>
               <Tabs
                 value={activeIndex}
                 onChange={this.handleChangeTab}
@@ -131,33 +203,49 @@ class CategoryItemDetailTabs extends Component {
                   root: classes.tabs,
                   buttonAuto: classes.tabsButton
                 }}
-                
                 textColor="primary"
-                indicatorColor="accent"
-                fullWidth            
+                indicatorColor="accent"           
                 scrollable
                 scrollButtons="auto"
               >
-                {tabTitles.map((title, index) =>
-                  <Tab
-                    key={index}
-                    label={title}
-                    disableRipple
-                    classes={{
-                      rootPrimary: classes.tab,
-                      rootPrimarySelected: classes.tabSelected,
-                      wrapper: classes.tabWrapper,
-                      label: classes.tabLabel,
-                      labelContainer: classes.tabLabelContainer
-                    }}
-                  />
-                )}
+                {tabTitles.map((title, index) => {
+                  const isVisibleIconClose = this.state.hoverTab === index || activeIndex === index
+                  return (
+                    <Tab
+                      key={index}
+                      onMouseMove={() => this.setState({hoverTab: index})}
+                      onMouseOut={() => this.setState({hoverTab: -1})}
+                      label={
+                        <React.Fragment>
+                          <span>{title}</span>
+                          <div className={classes.tabIconContainer}>
+                            <Close
+                              style={{
+                                visibility: isVisibleIconClose ? 'visible' : 'hidden'
+                              }}
+                              className={classes.tabIcon}
+                              onClick={event => this.removeTab(event,index)}
+                            />
+                          </div>
+                        </React.Fragment>
+                      }
+                      disableRipple
+                      classes={{
+                        rootPrimary: classes.tab,
+                        rootPrimarySelected: classes.tabSelected,
+                        wrapper: classes.tabWrapper,
+                        label: classes.tabLabel,
+                        labelContainer: classes.tabLabelContainer
+                      }}
+                    /> 
+                  )
+                })}
               </Tabs>
             </div>
           }
         >
         </HeaderLayout>
-
+        
         <div className={classes.spaceBetween}></div>
 
         <HeaderLayout
@@ -165,11 +253,19 @@ class CategoryItemDetailTabs extends Component {
           title={title}
           loading={isFetchingSettings || isFetchingFields || isFetchingItem || isUpdating }
           operations={[
-            {id:'close', icon:Close, hidden:openRelations.length > 1, onClick:closeRelations},
+            {id:'close', icon:Close, hidden:openRelations.length > 1, onClick:this.handleCloseView},
             {id:'edit', icon:Edit, right:true, hidden:editMode, onClick:() => changeEditMode(true)},
-            {id:'view', icon:ChromeReaderMode, right:true, hidden:!editMode, onClick:() => changeEditMode(false)},
+            {id:'view', icon:ChromeReaderMode, right:true, hidden:!editMode, onClick:() =>
+              this.setState({
+                showConfirmDialogs: {
+                  changeMode: true
+                }
+              })
+            },
             {id:'check', icon:Check, right:true, hidden:!editMode, onClick:() => {
-              this.formElement.dispatchEvent(new Event('submit'),{bubbles:false})
+              this.formElement.dispatchEvent(
+                new Event('submit'), {bubbles:false}
+              )
             }}
           ]}
         >
@@ -183,15 +279,55 @@ class CategoryItemDetailTabs extends Component {
             formRef={el => this.formElement = el}
           />
         </HeaderLayout>
+
+        <ConfirmationDialog
+          open={closeView}
+          message={messageNoSave}
+          onClose={() => 
+            this.setState({
+              showConfirmDialogs: {
+                closeView: false
+              }
+            })
+          }
+          onAccept={() => {
+            this.setState({tabTitles: []})
+            closeRelations()
+          }}
+        />
+
+        <ConfirmationDialog
+          open={changeMode}
+          message={messageNoSave}
+          onClose={() => 
+            this.setState({
+              showConfirmDialogs: {
+                changeMode: false
+              }
+            })
+          }
+          onAccept={() => changeEditMode(false)}
+        />
+
+        <ConfirmationDialog
+          open={changeTabNum >= 0}
+          message={messageNoSave}
+          onClose={() => 
+            this.setState({
+              showConfirmDialogs: {
+                changeTabNum: -1
+              }
+            })
+          }
+          onAccept={() => {
+            changeTab(changeTabNum)
+            changeEditMode(false)
+          }}
+        />
+
       </React.Fragment>
     )
   }
 }
 
-const mapStateToProps = ({ interactions }) => ({ 
-  windowSize: interactions.windowSize
-})
-
-export default connect(mapStateToProps)(
-  withStyles(styles)(CategoryItemDetailTabs)
-)
+export default withStyles(styles)(CategoryItemDetailTabs)
