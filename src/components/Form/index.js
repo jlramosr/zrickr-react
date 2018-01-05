@@ -22,7 +22,7 @@ class Item {
         _values[fieldId] = value
         continue
       }
-      if (value || value === false) {
+      if (value !== undefined || value !== null) {
         _values[fieldId] = value
       } else if (!Object.keys(values).length && field.default) {
         _values[fieldId] = field.default
@@ -194,15 +194,23 @@ class Form extends Component {
   }
 
   componentWillReceiveProps = nextProps => {
-    const { isChangingToInfoMode, values } = this.props
+    const { isChangingToInfoMode, isChangingToInfoMode2, values, openDialog2, noOpenDialog2, openDialog, noOpenDialog } = this.props
     if (nextProps.isChangingToInfoMode !== isChangingToInfoMode && nextProps.isChangingToInfoMode) { 
-      if (!isEqual(this.state.item.valuesToStore(),values)) {
-        this.props.openDialog()
-      } else {
-        this.props.noOpenDialog()
+      console.log("HOLA")
+      if (openDialog && !isEqual(this.state.item.valuesToStore(),values)) {
+        openDialog()
+      } else if (noOpenDialog) {
+        noOpenDialog()
       }
     }
-
+    if (nextProps.isChangingToInfoMode2 !== isChangingToInfoMode2 && nextProps.isChangingToInfoMode2) { 
+      console.log("HOLA")
+      if (openDialog2) {
+        openDialog2()
+      } else if (noOpenDialog2) {
+        noOpenDialog2()
+      }
+    }
   }
 
   render = () => {

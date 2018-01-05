@@ -68,42 +68,53 @@ class CategoryItemDetailTabs extends Component {
   initialState = {
     tabs: [],
     hoverTab: -1,
+
+    isChangingToInfoMode2: false,
+    showConfirmDialog2: false,
+
+    isChangingToInfoMode: false,
     showConfirmDialog: false,
-    isChangingToInfoMode: false
+    isChangingTab: -1
   }
 
   state = this.initialState
+
+  openDialog2 = () => {
+    this.setState({showConfirmDialog2: true})
+  }
+
+  noOpenDialog2 = () => {
+    this.setState({tabs: [], isChangingToInfoMode2: false, showConfirmDialog2:false})
+    this.props.closeRelations()
+  }
 
   openDialog = () => {
     this.setState({showConfirmDialog: true})
   }
 
   noOpenDialog = () => {
+    const { tabs, isChangingTab } = this.state
+    tabs[isChangingTab].editMode = false
     this.props.changeEditMode(false)
-    this.setState({isChangingToInfoMode: false, showConfirmDialog:false})
+    this.setState({tabs, isChangingToInfoMode: false, showConfirmDialog:false})
   }
 
   handleChangeTab = (event, activeTab) => {
-    const { editMode, changeTab } = this.props
-    if (editMode) {
-      /*this.setState({
-        showConfirmDialogs: {
-          changeTabNum: activeTab
-        }
-      })*/
-    } else { 
-      changeTab(activeTab)
+    const { editMode, changeEditMode } = this.props
+    const tabs = this.state.tabs
+    if (tabs[activeTab].editMode && !editMode) {
+      changeEditMode(true)
+    } else if (!tabs[activeTab].editMode && editMode) {
+      changeEditMode(false)
     }
+    this.props.changeTab(activeTab)
   }
 
-  handleCloseView = () => {
-    const { editMode, closeRelations } = this.props
-    if (editMode) {
-      /*this.setState({
-        showConfirmDialogs: {
-          closeView: true
-        }
-      })*/
+  closeView = () => {
+    const { closeRelations } = this.props
+    const hasEditionTabs = this.state.tabs.reduce((has,tab) => has || tab.editMode, false)
+    if (hasEditionTabs) {
+      this.setState({isChangingToInfoMode2:true})
     } else {
       this.setState({tabs: []})
       closeRelations()
@@ -112,14 +123,14 @@ class CategoryItemDetailTabs extends Component {
 
   removeTab = (event,index) => {
     event.preventDefault()
-    event.stopPropagation()
+    //event.stopPropagation()
     this.props.removeOpenRelation(index)
-    /*this.setState(prevState => ({
+    this.setState(prevState => ({
       tabs: [
         ...prevState.tabs.slice(0,index),
         ...prevState.tabs.slice(index+1)
       ]
-    }))*/
+    }))
   }
 
   componentDidMount = () => {
@@ -194,8 +205,7 @@ class CategoryItemDetailTabs extends Component {
       windowSize,
       classes
     } = this.props
-    const { tabs, showConfirmDialog, isChangingToInfoMode } = this.state
-    const messageNoSave = 'Your changes have not been saved yet. Are you sure to want to continue?'
+    const { tabs, isChangingTab, showConfirmDialog, showConfirmDialog2, isChangingToInfoMode, isChangingToInfoMode2 } = this.state
 
     const smallSize = windowSize === 'xs' || windowSize === 'sm'
     const tabsContainerStyle = {
@@ -203,11 +213,15 @@ class CategoryItemDetailTabs extends Component {
       paddingTop: smallSize ? 4 : 1
     }
     
+    console.log(tabs)
+
     return (
       <React.Fragment>
         <HeaderLayout
           operations={[
-            {id:'close', icon:Close, onClick:this.handleCloseView}
+            {id:'close', icon:Close, onClick:
+              this.closeView
+            }
           ]}
           overflow="hidden"
           hidden={openRelations.length < 2}
@@ -228,13 +242,16 @@ class CategoryItemDetailTabs extends Component {
                 scrollButtons="auto"
               >
                 {tabs.map((tab, index) => {
-                  const isVisibleIconClose = this.state.hoverTab === index || activeIndex === index
-                  const isVisibleIconCircle = true
+                  const isVisibleIconCircle =
+                    tab.editMode
+                  const isVisibleIconClose = 
+                    !isVisibleIconCircle && 
+                    (this.state.hoverTab === index || activeIndex === index)
                   return (
                     <Tab
                       key={index}
                       onMouseMove={() => this.setState({hoverTab: index})}
-                      onMouseOut={() => this.setState({hoverTab: -1})}
+                      onMouseLeave={() => this.setState({hoverTab: -1})}
                       label={
                         <React.Fragment>
                           <span>{tab.title}</span>
@@ -275,10 +292,17 @@ class CategoryItemDetailTabs extends Component {
           title={title}
           loading={isFetchingSettings || isFetchingFields || isFetchingItem || isUpdating }
           operations={[
-            {id:'close', icon:Close, hidden:openRelations.length > 1, onClick:this.handleCloseView},
-            {id:'edit', icon:Edit, right:true, hidden:editMode, onClick:() => changeEditMode(true)},
-            {id:'view', icon:ChromeReaderMode, right:true, hidden:!editMode, onClick:() =>
-              this.setState({isChangingToInfoMode: true})
+            {id:'close', icon:Close, hidden:openRelations.length > 1, onClick:
+              this.closeView
+            },
+            {id:'edit', icon:Edit, right:true, hidden:editMode, onClick:() => {
+              const tempTabs = this.state.tabs
+              tempTabs[activeIndex].editMode = true
+              this.setState({tabs: tempTabs})
+              changeEditMode(true)
+            }},
+            {id:'view', icon:ChromeReaderMode, right:true, hidden:!editMode, onClick:() => 
+              this.setState({isChangingToInfoMode: true, isChangingTab: activeIndex})
             },
             {id:'check', icon:Check, right:true, hidden:!editMode, onClick:() => {
               this.formElement.dispatchEvent(
@@ -295,6 +319,9 @@ class CategoryItemDetailTabs extends Component {
             values={item}
             handleSubmit={updateItem}
             formRef={el => this.formElement = el}
+            isChangingToInfoMode2={isChangingToInfoMode2}
+            openDialog2={this.openDialog2}
+            noOpenDialog2={this.noOpenDialog2}
             isChangingToInfoMode={isChangingToInfoMode}
             openDialog={this.openDialog}
             noOpenDialog={this.noOpenDialog}
@@ -302,14 +329,28 @@ class CategoryItemDetailTabs extends Component {
         </HeaderLayout>
 
         <ConfirmationDialog
+          open={showConfirmDialog2}
+          message='There are items that are not saving yet. Are you sure to want to continue?'
+          onClose={() => 
+            this.setState({isChangingToInfoMode2: false, showConfirmDialog2:false})
+          }
+          onAccept={() => {
+            this.setState({tabs: []})
+            closeRelations()
+          }}
+        />
+
+        <ConfirmationDialog
           open={showConfirmDialog}
-          message={messageNoSave}
+          message='Changes of current item have not been saved yet. Are you sure to want to continue?'
           onClose={() => 
             this.setState({isChangingToInfoMode: false, showConfirmDialog:false})
           }
           onAccept={() => {
-            this.setState({tabTitles: []})
-            closeRelations()
+            const tempTabs = tabs
+            tempTabs[isChangingTab].editMode = false
+            this.setState({tabs: tempTabs})
+            changeEditMode(false)
           }}
         />
 
