@@ -126,12 +126,12 @@ class CategoryItemDetailHeader extends Component {
           <ConfirmationDialog
             open={showConfirmDialog}
             message='Your changes have not been saved yet. Are you sure to want to continue?'
-            onClose={() => {
-              this.setState({isChangingToInfoMode: false, showConfirmDialog: false})
-            }}
             onAccept={() => {
               changeEditMode(false)
               document.dispatchEvent(new Event('restart-form'))
+            }}
+            onClose={() => {
+              this.setState({isChangingToInfoMode: false, showConfirmDialog: false})
             }}
           />
 

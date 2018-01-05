@@ -4,13 +4,13 @@ import {
   DataTypeProvider,
   SelectionState,
   PagingState,
-  LocalPaging,
+  IntegratedPaging,
   SortingState,
-  LocalSorting,
+  IntegratedSorting,
   GroupingState,
-  LocalGrouping,
+  IntegratedGrouping,
   FilteringState,
-  LocalFiltering,
+  IntegratedFiltering,
   TableColumnResizing
 } from '@devexpress/dx-react-grid'
 import {
@@ -21,8 +21,9 @@ import {
   TableGroupRow,
   TableSelection,
   PagingPanel,
-  DragDropContext,
-  GroupingPanel
+  DragDropProvider,
+  GroupingPanel,
+  Toolbar
 } from '@devexpress/dx-react-grid-material-ui'
 import { TableRow } from 'material-ui/Table'
 import Button from 'material-ui/Button'
@@ -189,11 +190,11 @@ let CategoryTableView = class extends Component {
               defaultGroups={[]}
             />
           }
-          <LocalSorting />
-          {allActionsAvailable && <LocalFiltering />}
-          {allActionsAvailable && <LocalGrouping />}
-          <LocalPaging />
-          {allActionsAvailable && <DragDropContext />}
+          <IntegratedSorting />
+          {allActionsAvailable && <IntegratedFiltering />}
+          {allActionsAvailable && <IntegratedGrouping />}
+          <IntegratedPaging />
+          {allActionsAvailable && <DragDropProvider />}
           {selectionActionAvailable &&
             <SelectionState
               defaultSelection={[]}
@@ -231,6 +232,7 @@ let CategoryTableView = class extends Component {
           <PagingPanel
             allowedPageSizes={allowedPageSizes}
           />
+          {allActionsAvailable && <Toolbar />}
           {allActionsAvailable &&
             <GroupingPanel
               allowSorting

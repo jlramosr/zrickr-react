@@ -16,7 +16,9 @@ class ConfirmationDialog extends Component {
     } else if (answer === 'cancel' && onCancel) {
       onCancel()
     }
-    onClose()
+    if (onClose) {
+      onClose()
+    }
   }
 
   render = () => {

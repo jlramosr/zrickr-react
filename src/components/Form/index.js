@@ -163,13 +163,16 @@ class Form extends Component {
           [fieldId]: value
         }
       }))
-      return
+    } else {
+      this.setState(prevState => {
+        let item = prevState.item
+        item.changeValue(fieldId,value)
+        return {...prevState, item}
+      })
     }
-    this.setState(prevState => {
-      let item = prevState.item
-      item.changeValue(fieldId,value)
-      return {...prevState, item}
-    })
+    if (this.props.openDialog3) {
+      this.props.openDialog3(this.state.item.valuesToStore())
+    }
   }
 
   restartForm = () => {
@@ -194,21 +197,20 @@ class Form extends Component {
   }
 
   componentWillReceiveProps = nextProps => {
-    const { isChangingToInfoMode, isChangingToInfoMode2, values, openDialog2, noOpenDialog2, openDialog, noOpenDialog } = this.props
+    const { isChangingToInfoMode, isChangingToInfoMode2, isChangingToInfoMode3, noOpenDialog3, values, openDialog3, openDialog2, noOpenDialog2, openDialog, noOpenDialog } = this.props
     if (nextProps.isChangingToInfoMode !== isChangingToInfoMode && nextProps.isChangingToInfoMode) { 
       console.log("HOLA")
-      if (openDialog && !isEqual(this.state.item.valuesToStore(),values)) {
-        openDialog()
+      if (!isEqual(this.state.item.valuesToStore(),values)) {
+        if (openDialog) {
+          openDialog()
+        }
       } else if (noOpenDialog) {
         noOpenDialog()
       }
     }
     if (nextProps.isChangingToInfoMode2 !== isChangingToInfoMode2 && nextProps.isChangingToInfoMode2) { 
-      console.log("HOLA")
       if (openDialog2) {
         openDialog2()
-      } else if (noOpenDialog2) {
-        noOpenDialog2()
       }
     }
   }

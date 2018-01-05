@@ -79,6 +79,12 @@ class CategoryItemDetailTabs extends Component {
 
   state = this.initialState
 
+  openDialog3 = values => {
+    const { tabs } = this.state
+    tabs[this.props.activeIndex].values = values
+    this.setState({tabs})
+  }
+
   openDialog2 = () => {
     this.setState({showConfirmDialog2: true})
   }
@@ -88,13 +94,14 @@ class CategoryItemDetailTabs extends Component {
     this.props.closeRelations()
   }
 
-  openDialog = () => {
+  openDialog = values => {
     this.setState({showConfirmDialog: true})
   }
 
   noOpenDialog = () => {
     const { tabs, isChangingTab } = this.state
     tabs[isChangingTab].editMode = false
+    tabs[isChangingTab].values = null
     this.props.changeEditMode(false)
     this.setState({tabs, isChangingToInfoMode: false, showConfirmDialog:false})
   }
@@ -112,12 +119,11 @@ class CategoryItemDetailTabs extends Component {
 
   closeView = () => {
     const { closeRelations } = this.props
-    const hasEditionTabs = this.state.tabs.reduce((has,tab) => has || tab.editMode, false)
+    const hasEditionTabs = this.state.tabs.reduce((has,tab) => has || tab.values, false)
     if (hasEditionTabs) {
       this.setState({isChangingToInfoMode2:true})
     } else {
-      this.setState({tabs: []})
-      closeRelations()
+      this.noOpenDialog2()
     }
   }
 
@@ -205,7 +211,15 @@ class CategoryItemDetailTabs extends Component {
       windowSize,
       classes
     } = this.props
-    const { tabs, isChangingTab, showConfirmDialog, showConfirmDialog2, isChangingToInfoMode, isChangingToInfoMode2 } = this.state
+    const { tabs, isChangingTab, showConfirmDialog, 
+      showConfirmDialog2, isChangingToInfoMode, 
+      isChangingToInfoMode2 } = this.state
+
+    let values = item
+    if (this.state.tabs[activeIndex] && this.state.tabs[activeIndex].values) {
+      values = this.state.tabs[activeIndex].values
+    }
+    console.log("HOLA", values)
 
     const smallSize = windowSize === 'xs' || windowSize === 'sm'
     const tabsContainerStyle = {
@@ -243,7 +257,7 @@ class CategoryItemDetailTabs extends Component {
               >
                 {tabs.map((tab, index) => {
                   const isVisibleIconCircle =
-                    tab.editMode
+                    tab.values
                   const isVisibleIconClose = 
                     !isVisibleIconCircle && 
                     (this.state.hoverTab === index || activeIndex === index)
@@ -298,11 +312,11 @@ class CategoryItemDetailTabs extends Component {
             {id:'edit', icon:Edit, right:true, hidden:editMode, onClick:() => {
               const tempTabs = this.state.tabs
               tempTabs[activeIndex].editMode = true
-              this.setState({tabs: tempTabs})
+              this.setState({tabs: tempTabs, isChangingTab: activeIndex})
               changeEditMode(true)
             }},
             {id:'view', icon:ChromeReaderMode, right:true, hidden:!editMode, onClick:() => 
-              this.setState({isChangingToInfoMode: true, isChangingTab: activeIndex})
+              this.setState({isChangingToInfoMode: true})
             },
             {id:'check', icon:Check, right:true, hidden:!editMode, onClick:() => {
               this.formElement.dispatchEvent(
@@ -316,12 +330,12 @@ class CategoryItemDetailTabs extends Component {
             view="detail"
             infoMode={!editMode}
             fields={fields}
-            values={item}
+            values={values}
             handleSubmit={updateItem}
             formRef={el => this.formElement = el}
+            openDialog3={this.openDialog3}
             isChangingToInfoMode2={isChangingToInfoMode2}
             openDialog2={this.openDialog2}
-            noOpenDialog2={this.noOpenDialog2}
             isChangingToInfoMode={isChangingToInfoMode}
             openDialog={this.openDialog}
             noOpenDialog={this.noOpenDialog}
@@ -331,27 +345,24 @@ class CategoryItemDetailTabs extends Component {
         <ConfirmationDialog
           open={showConfirmDialog2}
           message='There are items that are not saving yet. Are you sure to want to continue?'
-          onClose={() => 
+          onAccept={() => {
+            this.noOpenDialog2()
+          }}
+          onCancel={() => 
             this.setState({isChangingToInfoMode2: false, showConfirmDialog2:false})
           }
-          onAccept={() => {
-            this.setState({tabs: []})
-            closeRelations()
-          }}
         />
 
         <ConfirmationDialog
           open={showConfirmDialog}
           message='Changes of current item have not been saved yet. Are you sure to want to continue?'
-          onClose={() => 
+          onAccept={() => {
+            this.noOpenDialog()
+            document.dispatchEvent(new Event('restart-form'))
+          }}
+          onCancel={() => 
             this.setState({isChangingToInfoMode: false, showConfirmDialog:false})
           }
-          onAccept={() => {
-            const tempTabs = tabs
-            tempTabs[isChangingTab].editMode = false
-            this.setState({tabs: tempTabs})
-            changeEditMode(false)
-          }}
         />
 
       </React.Fragment>
