@@ -99,7 +99,8 @@ class Form extends Component {
   state = {
     item: null,
     itemListFields: {},
-    isSubmitting: false
+    isSubmitting: false,
+    hasChanged: false
   }
 
   /**
@@ -156,63 +157,74 @@ class Form extends Component {
    * @returns {void}
 	 */
   handleFieldChange = (fieldId, value, isList=false) => {
+    let { item, itemListFields, hasChanged } = this.state
+    const { values, origValues, onDifferentValues, onEqualValues } = this.props
     if (isList) {
-      this.setState(prevState => ({
-        itemListFields: {
-          ...prevState.itemListFields,
-          [fieldId]: value
-        }
-      }))
+      itemListFields = {...itemListFields, [fieldId]: value}
     } else {
-      this.setState(prevState => {
-        let item = prevState.item
-        item.changeValue(fieldId,value)
-        return {...prevState, item}
-      })
+      item.changeValue(fieldId,value)
     }
-    if (this.props.openDialog3) {
-      this.props.openDialog3(this.state.item.valuesToStore())
+    this.setState({item, itemListFields})
+
+    const isDifferentFromOrigin = !isEqual(item.valuesToStore(), origValues || values)
+    if (!hasChanged && isDifferentFromOrigin) {
+      if (onDifferentValues) {
+        onDifferentValues()
+      }
+      this.setState({hasChanged: true})
+    }
+    if (hasChanged && !isDifferentFromOrigin) {
+      if (onEqualValues) {
+        onEqualValues()
+      }
+      this.setState({hasChanged: false})
     }
   }
 
   restartForm = () => {
-    const { fields, values } = this.props
-    this.setState({item: new Item({fields, values})})
+    const { fields, values, origValues } = this.props
+    this.setState({item: new Item({fields, values: origValues || values})})
+  }
+
+  checkCondition = (condition, oldProps, newProps) => {
+    switch (condition) {
+      case 'hasChanged':
+        return this.state.hasChanged
+      case 'hasNotChanged':
+        return !this.state.hasChanged
+      case 'toInfoMode':
+        return oldProps.infoMode !== newProps.infoMode && newProps.infoMode
+      default:
+        return null
+    }
   }
 
   componentDidMount() {
-    // When the component is mounted, add your DOM listener to the "nv" elem.
-    // (The "nv" elem is assigned in the render function.)
     document.addEventListener('restart-form', this.restartForm)
   }
 
   componentWillMount = () => {
-    //console.log('MOUNT FORM', this.props)
-    this.restartForm()
+    const {  fields, values, origValues } = this.props
+    const item = new Item({fields, values})
+    this.setState({item, hasChanged: !isEqual(item.valuesToStore(), origValues || values)})
   }
 
   componentWillUnmount = () => {
-    //console.log('UNMOUNT FORM')
     document.removeEventListener('restart-form', this.restartForm)
   }
 
   componentWillReceiveProps = nextProps => {
-    const { isChangingToInfoMode, isChangingToInfoMode2, isChangingToInfoMode3, noOpenDialog3, values, openDialog3, openDialog2, noOpenDialog2, openDialog, noOpenDialog } = this.props
-    if (nextProps.isChangingToInfoMode !== isChangingToInfoMode && nextProps.isChangingToInfoMode) { 
-      console.log("HOLA")
-      if (!isEqual(this.state.item.valuesToStore(),values)) {
-        if (openDialog) {
-          openDialog()
-        }
-      } else if (noOpenDialog) {
-        noOpenDialog()
+    const currentValues = this.state.item.valuesToStore()
+    this.props.checks.forEach((check, index) => {
+      const oldCheckHandler = check.handler
+      let newCheckHandler = nextProps.checks[index].handler
+      newCheckHandler = newCheckHandler === undefined ? true : newCheckHandler
+      const checkCallback = check.callback
+      const checkCondition = this.checkCondition(check.when, this.props, nextProps)
+      if ((oldCheckHandler !== newCheckHandler) && newCheckHandler && checkCallback && (checkCondition !== false)) {
+        checkCallback(currentValues)
       }
-    }
-    if (nextProps.isChangingToInfoMode2 !== isChangingToInfoMode2 && nextProps.isChangingToInfoMode2) { 
-      if (openDialog2) {
-        openDialog2()
-      }
-    }
+    })
   }
 
   render = () => {
@@ -305,13 +317,17 @@ Form.propTypes = {
   values: PropTypes.object.isRequired,
   handleSubmit: PropTypes.func.isRequired,
   formRef: PropTypes.func.isRequired,
+  checks: PropTypes.array,
+  onDifferentValues: PropTypes.func,
+  onEqualValues: PropTypes.func,
   classes: PropTypes.object.isRequired,
   theme: PropTypes.object.isRequired
 }
 
 Form.defaultProps = {
   cols: 10,
-  infoMode: false
+  infoMode: false,
+  checks: []
 }
 
 const mapStateToProps = ({ interactions }) => ({ 

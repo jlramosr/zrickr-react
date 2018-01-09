@@ -16,7 +16,8 @@ const initialInteractionsState = {
   },
   relations: {
     openRelations: [],
-    isShowing: false
+    isShowing: false,
+    repeatedIndex: -1
   }
 }
 
@@ -56,7 +57,20 @@ const interactions = (state = initialInteractionsState, action) => {
           isShowing: false
         }
       }
-    case ADD_OPEN_RELATION:
+    case ADD_OPEN_RELATION: {
+      const filter = state.relations.openRelations.filter(relation =>
+        (relation.categoryId === action.categoryId) && (relation.itemId === action.itemId)
+      )
+      const index = state.relations.openRelations.indexOf(filter[0])
+      if (index > -1) {
+        return {
+          ...state,
+          relations: {
+            ...state.relations,
+            repeatedIndex: index
+          }
+        }
+      }
       return {
         ...state,
         relations: {
@@ -64,12 +78,13 @@ const interactions = (state = initialInteractionsState, action) => {
           openRelations: [
             ...state.relations.openRelations, {
               categoryId: action.categoryId,
-              itemId: action.itemId,
-              editMode: false
+              itemId: action.itemId
             }
-          ]
+          ],
+          repeatedIndex: -1
         }
       }
+    }
     case REMOVE_OPEN_RELATION:
       return {
         ...state,

@@ -96,6 +96,21 @@ let CategoryTableView = class extends Component {
     }
   }
 
+  getColumnsOfType = (fields, type) => {
+    const columns = fields.reduce((tempColumns, field) => {
+      let fieldType = field.type
+      if (!fieldType) {
+        fieldType = 'string'
+      }
+      if (fieldType === type) {
+        return [...tempColumns, field.id]
+      }
+      return tempColumns
+    }, [])
+    return columns
+  }
+
+
   render = () => {
     const {
       classes,
@@ -145,28 +160,28 @@ let CategoryTableView = class extends Component {
           }}
         >
           <DataTypeProvider
-            type="string"
-            formatterTemplate={({ value }) => 
+            for={this.getColumnsOfType(showingFields, 'string')}
+            formatterComponent={({ value }) => 
               <span style={{ color: 'darkblue' }}>{value}</span>
             }
           />
           <DataTypeProvider
-            type="progress"
-            formatterTemplate={({ value }) => 
+            for={this.getColumnsOfType(showingFields, 'progress')}
+            formatterComponent={({ value }) => 
               <LinearProgress color="accent" mode="determinate" value={value} />
             }
           />
           <DataTypeProvider
-            type="currency"
-            formatterTemplate={({ value }) => 
+            for={this.getColumnsOfType(showingFields, 'currency')}
+            formatterComponent={({ value }) => 
               value ? 
                 <span style={{ color: 'darkblue' }}>${value}</span> :
                 null
             }
           />
           <DataTypeProvider
-            type="date"
-            formatterTemplate={({ value }) =>
+            for={this.getColumnsOfType(showingFields, 'date')}
+            formatterComponent={({ value }) =>
               value.replace(/(\d{4})-(\d{2})-(\d{2})/, '$3.$2.$1')}
           />
           <SortingState

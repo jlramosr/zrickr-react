@@ -120,6 +120,7 @@ const mapStateToProps = ({ categories, settings, fields, items, interactions }, 
   const categoryId = props.dialogMode ? props.activeCategoryId : props.categoryId
   const itemId = props.dialogMode ? props.activeItemId : props.match.params.itemId
   const category = categories.byId[categoryId]
+  const { relations } = interactions
   return { 
     settings: category.settings ? settings.byId[category.settings] : {},
     isFetchingSettings: settings.flow[categoryId].isFetching,
@@ -131,8 +132,9 @@ const mapStateToProps = ({ categories, settings, fields, items, interactions }, 
     isFetchingItem: items.flow[categoryId].isFetchingItem,
     //itemReceived: items.flow[categoryId].isReceivedItem || items.flow[categoryId].errorFetchingItem
     isUpdating: items.flow[categoryId].isUpdating,
-    openRelations: interactions.relations.openRelations,
-    shouldShowRelations: interactions.relations.isShowing,
+    openRelations: relations.openRelations,
+    shouldShowRelations: relations.isShowing,
+    repeatedIndex: relations.repeatedIndex,
     windowSize: interactions.windowSize
   }
 }
