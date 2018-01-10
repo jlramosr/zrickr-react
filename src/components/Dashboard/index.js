@@ -9,6 +9,7 @@ import Card, { CardActions, CardContent, CardMedia } from 'material-ui/Card'
 import Button from 'material-ui/Button'
 import Typography from 'material-ui/Typography'
 import MenuIcon from 'material-ui-icons/Menu'
+import AccountCircle from 'material-ui-icons/AccountCircle'
 import { withStyles } from 'material-ui/styles'
 
 const styles = theme => ({
@@ -19,7 +20,6 @@ const styles = theme => ({
     display: 'flex',
     flexWrap: 'wrap',
     justifyContent: 'space-around',
-    marginTop: theme.spacing.unit*2,
     [`${theme.breakpoints.up('xs')} and (orientation: landscape)`]: {
       margin: theme.spacing.unit*3
     },
@@ -44,14 +44,15 @@ const styles = theme => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    height: '95%'
+    height: '99%',
+    background: theme.palette.primary[50]
   },
   cardMedia: {
     height: 160
   },
   cardContent: {
     flex: 1,
-    overflow: 'hidden'
+    paddingBottom: 2
   },
   cardActions: {
   },
@@ -76,7 +77,7 @@ class Dashboard extends Component  {
       case 'sm': return {c:2,r:1}
       case 'md': return {c:3,r:1}
       case 'lg': return {c:4,r:1}
-      case 'xl': return {c:5,r:2}
+      case 'xl': return {c:5,r:1}
       default: return {c:2,r:1}
     }
   }
@@ -89,6 +90,7 @@ class Dashboard extends Component  {
       isReceivedCategories,
       drawerOpen,
       toggleDrawer,
+      windowSize,
       classes
     } = this.props
 
@@ -113,11 +115,17 @@ class Dashboard extends Component  {
         title={appName}
         loading={isFetchingCategories}
         operations={[
-          {id:'menu', icon: MenuIcon, onClick: () => toggleDrawer(!drawerOpen)}
+          {id:'menu', icon:MenuIcon, onClick:() => toggleDrawer(!drawerOpen)},
+          {id:'account', icon:AccountCircle, right:true}
         ]}
       >
         <div className={classes.gridContainer}>
-          <GridList cols={this.computeColsRows().c} spacing={16} className={classes.gridList} cellHeight={340}>
+          <GridList
+            cols={this.computeColsRows().c}
+            spacing={windowSize !== 'xs' ? 16 : 0}
+            className={classes.gridList}
+            cellHeight={windowSize !== 'xs' ? 340 : 200}
+          >
             {categories.map(category => (
               <GridListTile key={category.id} className={classes.gridTile} rows={this.computeColsRows().r}>
                 <Link key={category.id} to={`/${category.id}`}>
@@ -131,18 +139,22 @@ class Dashboard extends Component  {
                       <Typography type="headline" component="h2" className={classes.cardTitle}>
                         {category.label || ''}
                       </Typography>
-                      <Typography component="p" className={classes.cardDescription}>
-                        {category.description}
-                      </Typography>
+                      {windowSize !== 'xs' &&
+                        <Typography component="p" className={classes.cardDescription}>
+                          {category.description}
+                        </Typography>
+                      }
                     </CardContent>
-                    <CardActions className={classes.cardActions}>
-                      <Button dense color="primary">
-                        Share
-                      </Button>
-                      <Button dense color="primary">
-                        Learn More
-                      </Button>
-                    </CardActions>
+                    {windowSize !== 'xs' &&
+                      <CardActions className={classes.cardActions}>
+                        <Button dense color="primary">
+                          Share
+                        </Button>
+                        <Button dense color="primary">
+                          Learn More
+                        </Button>
+                      </CardActions>
+                    }
                   </Card>
                 </Link>
               </GridListTile>

@@ -22,8 +22,7 @@ class CategoryItemDetail extends Component {
   changeEditMode = editMode => this.setState({editMode})
 
   updateItem = values => {
-    const { item, settings, updateItem, notify } = this.props
-    const itemLabel = settings.itemLabel
+    const { item, itemLabel, updateItem, notify } = this.props
     if (!isEqual(item, values)) {
       return updateItem(values).then(
         () => {
@@ -40,8 +39,7 @@ class CategoryItemDetail extends Component {
   }
 
   removeItem = () => {
-    const { categoryId, settings, removeItem, notify, history } = this.props
-    const itemLabel = settings.itemLabel
+    const { categoryId, itemLabel, removeItem, notify, history } = this.props
     return removeItem().then(
       () => {
         notify(`${capitalize(itemLabel)} removed succesfully`, 'success')
@@ -126,6 +124,7 @@ const mapStateToProps = ({ categories, settings, fields, items, interactions }, 
     itemLabel: categorySettings.itemLabel,
     settings: categorySettings,
     isFetchingSettings: settings.flow[categoryId].isFetching,
+    states: categorySettings.states,
     fields: Object.values(fields.byId).filter(
       field => category.fields && category.fields.includes(field.id)
     ),

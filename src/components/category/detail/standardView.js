@@ -6,6 +6,7 @@ import LargeDialog from '../../dialog/large'
 import ConfirmationDialog from '../../dialog/confirmation'
 import ArrowBack from 'material-ui-icons/ArrowBack'
 import Check from 'material-ui-icons/Check'
+import CallSplit from 'material-ui-icons/CallSplit'
 import Edit from 'material-ui-icons/Edit'
 import ChromeReaderMode from 'material-ui-icons/ChromeReaderMode'
 import Delete from 'material-ui-icons/Delete'
@@ -18,10 +19,16 @@ class CategoryItemDetailHeader extends Component {
       activeItemId: ''
     },
     showWhenInfoModeDialog: false,
-    checkWhenInfoMode: false
+    checkWhenInfoMode: false,
+    hasChanged: false,
+    showWhenRemoveDialog: false
   }
 
   state = this.initialState
+
+  onChangeStateClick = () => {
+
+  }
 
   onEditClick = () => {
     this.props.changeEditMode(true)
@@ -29,6 +36,10 @@ class CategoryItemDetailHeader extends Component {
 
   onViewClick = () => {
     this.setState({checkWhenInfoMode: true})
+  }
+
+  onRemoveClick = () => {
+    this.setState({showWhenRemoveDialog: true})
   }
 
   onCheckClick = () => {
@@ -44,6 +55,14 @@ class CategoryItemDetailHeader extends Component {
   whenInfoModeWithoutChanges = () => {
     this.props.changeEditMode(false)
     this.setState({checkWhenInfoMode: false, showWhenInfoModeDialog:false})
+  }
+
+  whenDifferentValues = () => {
+    this.setState({hasChanged: true})
+  }
+
+  whenSameValues = () => {
+    this.setState({hasChanged: false})
   }
 
   changeTab = (activeTab, openRelations) => {
@@ -76,6 +95,7 @@ class CategoryItemDetailHeader extends Component {
   render = () => {
     const {
       categoryId,
+      itemLabel,
       title,
       isFetchingSettings,
       fields,
@@ -91,7 +111,7 @@ class CategoryItemDetailHeader extends Component {
       closeRelations,
       removeAllOpenRelations
     } = this.props
-    const { relations, checkWhenInfoMode, showWhenInfoModeDialog } = this.state
+    const { relations, checkWhenInfoMode, showWhenInfoModeDialog, hasChanged, showWhenRemoveDialog } = this.state
 
     return (
       <HeaderLayout
@@ -100,9 +120,10 @@ class CategoryItemDetailHeader extends Component {
         operations={[
           {id:'arrowBack', icon:ArrowBack, to:`/${categoryId}`},
           {id:'edit', icon:Edit, right:true, hidden:editMode, onClick:this.onEditClick},
+          {id:'changeState', icon:CallSplit, right:true, hidden:editMode, onClick:this.onChangeStateClick},
           {id:'view', icon:ChromeReaderMode, right:true, hidden:!editMode, onClick:this.onViewClick},
-          {id:'delete', icon:Delete, right:true, hidden:editMode, onClick:removeItem},
-          {id:'check', icon:Check, right:true, hidden:!editMode, onClick:this.onCheckClick}
+          {id:'delete', icon:Delete, right:true, hidden:editMode, onClick:this.onRemoveClick},
+          {id:'check', icon:Check, right:true, hidden:!editMode || !hasChanged, onClick:this.onCheckClick}
         ]}
       >
         <React.Fragment>
@@ -118,6 +139,8 @@ class CategoryItemDetailHeader extends Component {
               {when:'hasChanged', handler:checkWhenInfoMode, callback:this.whenInfoModeWithChanges},
               {when:'hasNotChanged', handler:checkWhenInfoMode, callback:this.whenInfoModeWithoutChanges}
             ]}
+            onDifferentValues={this.whenDifferentValues}
+            onEqualValues={this.whenSameValues}
           />
 
           <LargeDialog
@@ -141,6 +164,17 @@ class CategoryItemDetailHeader extends Component {
             }}
             onClose={() => {
               this.setState({checkWhenInfoMode: false, showWhenInfoModeDialog: false})
+            }}
+          />
+
+          <ConfirmationDialog
+            open={showWhenRemoveDialog}
+            message={`Are you sure to want to remove this ${itemLabel}?`}
+            onAccept={() => {
+              removeItem()
+            }}
+            onClose={() => {
+              this.setState({showWhenRemoveDialog: false})
             }}
           />
 

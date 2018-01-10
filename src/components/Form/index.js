@@ -97,8 +97,8 @@ const styles = theme => ({
  */
 class Form extends Component {
   state = {
-    item: null,
-    itemListFields: {},
+    item: null, //all complete item with simple fields and relations fields.
+    itemListFields: {}, //only temporary relational fields to removing or adding them.
     isSubmitting: false,
     hasChanged: false
   }
@@ -158,15 +158,17 @@ class Form extends Component {
 	 */
   handleFieldChange = (fieldId, value, isList=false) => {
     let { item, itemListFields, hasChanged } = this.state
-    const { values, origValues, onDifferentValues, onEqualValues } = this.props
+    const { fields, values, origValues, onDifferentValues, onEqualValues } = this.props
     if (isList) {
       itemListFields = {...itemListFields, [fieldId]: value}
+      //item.changeValue(fieldId, itemListFields[fieldId])
     } else {
-      item.changeValue(fieldId,value)
+      item.changeValue(fieldId, value)
     }
     this.setState({item, itemListFields})
 
-    const isDifferentFromOrigin = !isEqual(item.valuesToStore(), origValues || values)
+    const tempItem = new Item({fields, values: {...item, ...itemListFields}})
+    const isDifferentFromOrigin = !isEqual(tempItem.valuesToStore(), origValues || values)
     if (!hasChanged && isDifferentFromOrigin) {
       if (onDifferentValues) {
         onDifferentValues()
@@ -186,14 +188,12 @@ class Form extends Component {
     this.setState({item: new Item({fields, values: origValues || values})})
   }
 
-  checkCondition = (condition, oldProps, newProps) => {
+  checkCondition = condition => {
     switch (condition) {
       case 'hasChanged':
         return this.state.hasChanged
       case 'hasNotChanged':
         return !this.state.hasChanged
-      case 'toInfoMode':
-        return oldProps.infoMode !== newProps.infoMode && newProps.infoMode
       default:
         return null
     }
@@ -220,7 +220,7 @@ class Form extends Component {
       let newCheckHandler = nextProps.checks[index].handler
       newCheckHandler = newCheckHandler === undefined ? true : newCheckHandler
       const checkCallback = check.callback
-      const checkCondition = this.checkCondition(check.when, this.props, nextProps)
+      const checkCondition = this.checkCondition(check.when)
       if ((oldCheckHandler !== newCheckHandler) && newCheckHandler && checkCallback && (checkCondition !== false)) {
         checkCallback(currentValues)
       }

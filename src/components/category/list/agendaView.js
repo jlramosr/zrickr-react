@@ -10,7 +10,7 @@ import MoreVert from 'material-ui-icons/MoreVert'
 import Icon from 'material-ui/Icon'
 import IconButton from 'material-ui/IconButton'
 import Menu, { MenuItem } from 'material-ui/Menu'
-import { getItemString } from './../utils/helpers'
+import { getItemString, getBackgroundAvatarLetter } from './../utils/helpers'
 import { withStyles } from 'material-ui/styles'
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 
@@ -182,6 +182,9 @@ let CategoryAgendaView = class extends Component {
               let itemClassName = classes[
                 isMarkedForRemove ? 'markRemovedItem' : (isMarkedForAdd ? 'markAddedItem' : 'unmarkedItem')
               ]
+              const primaryInfo = getItemString(settings.primaryFields, item)
+              const firstLetter = primaryInfo[0]
+              const secondaryInfo = getItemString(settings.secondaryFields, item)
               return (
                 <div key={item.id} className={itemClassName}>
                   <Link
@@ -190,9 +193,12 @@ let CategoryAgendaView = class extends Component {
                     onClick={event => this.itemClick(event, item.id)}
                   >
                     <ListItem button={!isMarkedForRemove} disableRipple>
-                      {showAvatar &&
-                        <Avatar>
-                          <Icon>{settings.icon}</Icon>
+                      {showAvatar && item.image &&
+                        <Avatar><Icon>{item.image}</Icon></Avatar>
+                      }
+                      {showAvatar && !item.image && firstLetter &&
+                        <Avatar style={{background: getBackgroundAvatarLetter(firstLetter)}}>
+                          {firstLetter}
                         </Avatar>
                       }
                       <ListItemText
@@ -200,8 +206,8 @@ let CategoryAgendaView = class extends Component {
                           root: classes.itemText,
                           text: classes.itemTextContent
                         }}
-                        primary={getItemString(settings.primaryFields, item)}
-                        secondary={getItemString(settings.secondaryFields, item)}
+                        primary={primaryInfo}
+                        secondary={secondaryInfo}
                       />
                       {editMode &&
                         <ListItemSecondaryAction>

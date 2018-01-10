@@ -8,6 +8,7 @@ import ChromeReaderMode from 'material-ui-icons/ChromeReaderMode'
 import Tabs, { Tab } from 'material-ui/Tabs'
 import Close from 'material-ui-icons/Close'
 import FiberManualRecord from 'material-ui-icons/FiberManualRecord'
+import { capitalize, isEqual } from '../../../utils/helpers'
 import { withStyles } from 'material-ui/styles'
 
 const styles = theme => ({
@@ -94,16 +95,22 @@ class CategoryItemDetailTabs extends Component {
 
   state = this.initialState
 
+  updateItem = values => {
+    const { updateItem } = this.props
+    return updateItem(values).then(() => {
+      this.whenInfoModeWithoutChanges()
+    })
+  }
+
   onViewClick = () => {
     this.setState({checkWhenInfoMode: true})
   }
 
   onEditClick = () => {
     const tempTabs = this.state.tabs
-    const { activeIndex, changeEditMode } = this.props
+    const { activeIndex } = this.props
     tempTabs[activeIndex].editMode = true
     this.setState({tabs: tempTabs})
-    changeEditMode(true)
   }
 
   onCheckClick = () => {
@@ -156,10 +163,10 @@ class CategoryItemDetailTabs extends Component {
   whenInfoModeWithoutChanges = () => {
     const { tabs } = this.state
     const { activeIndex } = this.props
+    //if (tabs[activeIndex]) {
     tabs[activeIndex].editMode = false
     tabs[activeIndex].hasChanged = false
-    tabs[activeIndex].values = null
-    this.props.changeEditMode(false)
+    //}
     this.setState({tabs, checkWhenInfoMode: false, showWhenInfoModeDialog: false})
   }
 
@@ -174,16 +181,11 @@ class CategoryItemDetailTabs extends Component {
 
   whenChangeTab = values => {
     const { tabs, nextTab, checkWhenRemoveTab } = this.state
-    const { editMode, changeEditMode, changeTab, activeIndex } = this.props
+    const { changeTab, activeIndex } = this.props
     if (!checkWhenRemoveTab) {
       if (values) {
         tabs[activeIndex].values = values
         this.setState({tabs})
-      }
-      if (tabs[nextTab].editMode && !editMode) {
-        changeEditMode(true)
-      } else if (!tabs[nextTab].editMode && editMode) {
-        changeEditMode(false)
       }
       this.setState({checkWhenChangeTab: false})
       changeTab(nextTab)
@@ -264,10 +266,8 @@ class CategoryItemDetailTabs extends Component {
       item,
       isFetchingItem,
       isUpdating,
-      editMode,
       activeIndex,
       openRelations,
-      updateItem,
       windowSize,
       classes
     } = this.props
@@ -292,8 +292,9 @@ class CategoryItemDetailTabs extends Component {
       paddingTop: smallSize ? 4 : 1
     }
 
-    console.log(tabs, tabs[activeIndex], editMode)
+    const editMode = tabs[activeIndex] ? tabs[activeIndex].editMode : false
     const showCheckIcon = editMode && (tabs[activeIndex] ? tabs[activeIndex].hasChanged : false)
+    console.log(tabs, tabs[activeIndex], editMode)
 
     return (
       <React.Fragment>
@@ -386,7 +387,7 @@ class CategoryItemDetailTabs extends Component {
             fields={fields}
             values={values}
             origValues={item}
-            handleSubmit={updateItem}
+            handleSubmit={this.updateItem}
             formRef={el => this.formElement = el}
             checks={[
               {handler:checkWhenClose, callback:this.whenClose},
@@ -394,7 +395,6 @@ class CategoryItemDetailTabs extends Component {
               {handler:checkWhenRemoveTab, callback:this.whenRemoveTab},
               {when:'hasChanged', handler:checkWhenInfoMode, callback:this.whenInfoModeWithChanges},
               {when:'hasNotChanged', handler:checkWhenInfoMode, callback:this.whenInfoModeWithoutChanges},
-              {when:'toInfoMode', callback:this.whenInfoModeWithoutChanges}
             ]}
             onDifferentValues={this.whenDifferentValues}
             onEqualValues={this.whenSameValues}
