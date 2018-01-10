@@ -17,19 +17,33 @@ class CategoryItemDetailHeader extends Component {
       activeCategoryId: '',
       activeItemId: ''
     },
-    showConfirmDialog: false,
-    isChangingToInfoMode: false
+    showWhenInfoModeDialog: false,
+    checkWhenInfoMode: false
   }
 
   state = this.initialState
 
-  openDialog = () => {
-    this.setState({showConfirmDialog: true})
+  onEditClick = () => {
+    this.props.changeEditMode(true)
   }
 
-  noOpenDialog = () => {
+  onViewClick = () => {
+    this.setState({checkWhenInfoMode: true})
+  }
+
+  onCheckClick = () => {
+    this.formElement.dispatchEvent(
+      new Event('submit'),{bubbles:false}
+    )
+  }
+
+  whenInfoModeWithChanges = () => {
+    this.setState({showWhenInfoModeDialog: true})
+  }
+
+  whenInfoModeWithoutChanges = () => {
     this.props.changeEditMode(false)
-    this.setState({isChangingToInfoMode: false, showConfirmDialog:false})
+    this.setState({checkWhenInfoMode: false, showWhenInfoModeDialog:false})
   }
 
   changeTab = (activeTab, openRelations) => {
@@ -77,7 +91,7 @@ class CategoryItemDetailHeader extends Component {
       closeRelations,
       removeAllOpenRelations
     } = this.props
-    const { relations, isChangingToInfoMode, showConfirmDialog } = this.state
+    const { relations, checkWhenInfoMode, showWhenInfoModeDialog } = this.state
 
     return (
       <HeaderLayout
@@ -85,16 +99,10 @@ class CategoryItemDetailHeader extends Component {
         loading={isFetchingSettings || isFetchingFields || isFetchingItem || isUpdating }
         operations={[
           {id:'arrowBack', icon:ArrowBack, to:`/${categoryId}`},
-          {id:'edit', icon:Edit, right:true, hidden:editMode, onClick:() => changeEditMode(true)},
-          {id:'view', icon:ChromeReaderMode, right:true, hidden:!editMode, onClick:() => 
-            this.setState({isChangingToInfoMode: true})
-          },
+          {id:'edit', icon:Edit, right:true, hidden:editMode, onClick:this.onEditClick},
+          {id:'view', icon:ChromeReaderMode, right:true, hidden:!editMode, onClick:this.onViewClick},
           {id:'delete', icon:Delete, right:true, hidden:editMode, onClick:removeItem},
-          {id:'check', icon:Check, right:true, hidden:!editMode, onClick:() => {
-            this.formElement.dispatchEvent(
-              new Event('submit'),{bubbles:false}
-            )
-          }}
+          {id:'check', icon:Check, right:true, hidden:!editMode, onClick:this.onCheckClick}
         ]}
       >
         <React.Fragment>
@@ -106,9 +114,10 @@ class CategoryItemDetailHeader extends Component {
             handleSubmit={updateItem}
             formRef={el => this.formElement = el}
             infoMode={!editMode}
-            isChangingToInfoMode={isChangingToInfoMode}
-            openDialog={this.openDialog}
-            noOpenDialog={this.noOpenDialog}
+            checks={[
+              {when:'hasChanged', handler:checkWhenInfoMode, callback:this.whenInfoModeWithChanges},
+              {when:'hasNotChanged', handler:checkWhenInfoMode, callback:this.whenInfoModeWithoutChanges}
+            ]}
           />
 
           <LargeDialog
@@ -124,14 +133,14 @@ class CategoryItemDetailHeader extends Component {
           </LargeDialog>
 
           <ConfirmationDialog
-            open={showConfirmDialog}
+            open={showWhenInfoModeDialog}
             message='Your changes have not been saved yet. Are you sure to want to continue?'
             onAccept={() => {
               changeEditMode(false)
               document.dispatchEvent(new Event('restart-form'))
             }}
             onClose={() => {
-              this.setState({isChangingToInfoMode: false, showConfirmDialog: false})
+              this.setState({checkWhenInfoMode: false, showWhenInfoModeDialog: false})
             }}
           />
 

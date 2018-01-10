@@ -2,15 +2,33 @@
   "categories" : {
     "clients" : {
       "label" : "clientes",
-      "image" : "https://cdn0.tnwcdn.com/wp-content/blogs.dir/1/files/2017/07/landingclients-796x369.jpg"
+      "image" : "https://media.licdn.com/mpr/mpr/shrinknp_800_800/p/1/005/071/211/3bef776.jpg",
+      "description" : "Todas las empresas que reciben nuestros servicios."
     },
     "invoices" : {
       "label" : "facturas",
-      "image" : "http://d3gtswiihfkcji.cloudfront.net/uploads/2016/02/10130911/countycourtjudgement.jpg"
+      "image" : "http://borderlessnewsandviews.com/wp-content/uploads/2013/04/money.jpg",
+      "description" : "Todas las cuentas en la que se detallan los servicios recibidos, junto con su cantidad y su importe, y que se entrega a quien debe pagarla."
     },
     "movements" : {
       "label" : "movimientos",
-      "image" : "https://www.sessions.edu/wp-content/uploads/100_dollar_bills_000019855570.jpg"
+      "image" : "http://360es.com/es/wp-content/uploads/2015/09/empresa_crecer-930x611.jpg",
+      "description" : "Conjunto de anotaciones o apuntes contables que se hacen en el Libro diario de contabilidad, que se realizan con la finalidad de registrar un hecho económico de la empresa."
+    },
+    "oportunities" : {
+      "label" : "oportunidades",
+      "image" : "https://siempre889-h0bl6azmmwwjmsfhfecu.netdna-ssl.com/wp-content/uploads/2016/06/crecimiento-empresarial-1287451276.jpg",
+      "description" : "Posibles ideas de negocio para el futuro."
+    },
+    "localizations" : {
+      "label" : "localizaciones",
+      "image" : "https://www.actualidadecommerce.com/wp-content/uploads/2016/12/estrategia-marketing-online.jpg",
+      "description" : "Categorías en las que se separan las facturas para el envío de facturas en PDF, incluyendo continente, divisa e idioma."
+    },
+    "countries" : {
+      "label" : "países",
+      "image" : "http://dispatchist.com/wp-content/uploads/2016/05/IMD-competitiveness-Yearbook-2016-1.jpg",
+      "description" : "Todos los países incluídos en nuestra cartera de clientes."
     }
   },
   "categories_fields" : {

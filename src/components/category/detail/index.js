@@ -120,9 +120,11 @@ const mapStateToProps = ({ categories, settings, fields, items, interactions }, 
   const categoryId = props.dialogMode ? props.activeCategoryId : props.categoryId
   const itemId = props.dialogMode ? props.activeItemId : props.match.params.itemId
   const category = categories.byId[categoryId]
+  const categorySettings = category.settings ? settings.byId[category.settings] : {}
   const { relations } = interactions
-  return { 
-    settings: category.settings ? settings.byId[category.settings] : {},
+  return {
+    itemLabel: categorySettings.itemLabel,
+    settings: categorySettings,
     isFetchingSettings: settings.flow[categoryId].isFetching,
     fields: Object.values(fields.byId).filter(
       field => category.fields && category.fields.includes(field.id)

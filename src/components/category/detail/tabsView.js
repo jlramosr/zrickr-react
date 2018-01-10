@@ -27,9 +27,26 @@ const styles = theme => ({
   tab: {
     color: theme.palette.grey[500],
     height: '100%',
-    overflow: 'hidden',
     marginLeft: 2,
     marginRight: 2
+  },
+  tabTextContainer: {
+    flex: 1,
+    flexDirection: 'column',
+    textAlign: 'center',
+    marginRight: theme.spacing.unit*2,
+    overflow: 'hidden',
+    whiteSpace: 'nowrap'
+  },
+  tabTitle: {
+    overflow:'hidden',
+    textOverflow: 'ellipsis',
+    fontSize: 12
+  },
+  tabItemLabel: {
+    overflow:'hidden',
+    textOverflow: 'ellipsis',
+    fontSize: 11
   },
   tabSelected: {
     color: theme.palette.secondary[500]
@@ -40,12 +57,9 @@ const styles = theme => ({
     paddingRight: theme.spacing.unit
   },
   tabLabelContainer: {
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
     paddingLeft: 1
   },
   tabLabel: {
-    whiteSpace: 'nowrap',
     textAlign: 'left',
     marginRight: theme.spacing.unit
   },
@@ -200,6 +214,7 @@ class CategoryItemDetailTabs extends Component {
     this.setState({
       tabs:[{
         title: this.props.title,
+        itemLabel: this.props.itemLabel,
         editMode: false,
         hasChanged: false,
         values: null
@@ -211,26 +226,33 @@ class CategoryItemDetailTabs extends Component {
     const oldNumOpenRelations = this.props.openRelations.length
     const newNumOpenRelations = nextProps.openRelations.length
     const diffNumRelations = newNumOpenRelations - oldNumOpenRelations
-
-    if (nextProps.repeatedIndex > -1) {
-      this.setState({checkWhenChangeTab: true, nextTab: nextProps.repeatedIndex})
-    }
+    const oldRepeatedIndex = this.props.repeatedIndex
+    const newRepeatedIndex = nextProps.repeatedIndex
+    const oldTitle = this.props.title
+    const newTitle = nextProps.title
+    const oldActiveIndex = this.props.activeIndex
+    const newActiveIndex = nextProps.activeIndex
+    const hasChangedTitle = (oldTitle !== newTitle) && (oldActiveIndex === newActiveIndex) 
 
     if (diffNumRelations > 0) {
-      let tabs = this.state.tabs
-      if (diffNumRelations > 0) {
-        tabs = [
-          ...tabs, {
+      this.setState(prevState => ({
+        tabs: [
+          ...prevState.tabs, {
             title: nextProps.title,
+            itemLabel: nextProps.itemLabel,
             editMode: false,
             hasChanged: false,
             values: null
           }
         ]
-      }
+      }))
+    } else if ((oldRepeatedIndex !== newRepeatedIndex) && newRepeatedIndex > -1) {
+      this.setState({checkWhenChangeTab: true, nextTab: newRepeatedIndex})
+    } else if (hasChangedTitle) {
+      let tabs = this.state.tabs
+      tabs[newActiveIndex].title = newTitle
       this.setState({tabs})
     }
-    
   }
 
   render = () => {
@@ -270,7 +292,8 @@ class CategoryItemDetailTabs extends Component {
       paddingTop: smallSize ? 4 : 1
     }
 
-    console.log(tabs)
+    console.log(tabs, tabs[activeIndex], editMode)
+    const showCheckIcon = editMode && (tabs[activeIndex] ? tabs[activeIndex].hasChanged : false)
 
     return (
       <React.Fragment>
@@ -281,7 +304,7 @@ class CategoryItemDetailTabs extends Component {
           overflow="hidden"
           hidden={openRelations.length < 2}
           secondaryToolbar
-          secondaryToolbarHeight={smallSize ? 64 : 32}
+          secondaryToolbarHeight={smallSize ? 64 : 48}
           contentToolbar={
             <div style={tabsContainerStyle}>
               <Tabs
@@ -309,7 +332,10 @@ class CategoryItemDetailTabs extends Component {
                       onMouseLeave={this.onMouseLeaveTab}
                       label={
                         <React.Fragment>
-                          <span>{tab.title}</span>
+                          <div className={classes.tabTextContainer}>
+                            <div className={classes.tabTitle}>{tab.title}</div>
+                            <div className={classes.tabItemLabel}>({tab.itemLabel})</div>
+                          </div>
                           <div className={classes.tabIconContainer}>
                             {isVisibleIconClose &&
                               <Close
@@ -350,7 +376,7 @@ class CategoryItemDetailTabs extends Component {
             {id:'close', icon:Close, hidden:openRelations.length > 1, onClick:this.onCloseClick},
             {id:'edit', icon:Edit, right:true, hidden:editMode, onClick:this.onEditClick},
             {id:'view', icon:ChromeReaderMode, right:true, hidden:!editMode, onClick:this.onViewClick},
-            {id:'check', icon:Check, right:true, hidden:!editMode, onClick:this.onCheckClick}
+            {id:'check', icon:Check, right:true, hidden:!showCheckIcon, onClick:this.onCheckClick}
           ]}
         >
           <Form

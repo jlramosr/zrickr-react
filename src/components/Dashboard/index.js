@@ -4,9 +4,10 @@ import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { toggleDrawer } from '../../actions/interactions'
 import HeaderLayout from '../headerLayout'
-import { GridList, GridListTile, GridListTileBar } from 'material-ui/GridList'
-import IconButton from 'material-ui/IconButton'
-import InfoIcon from 'material-ui-icons/Info'
+import { GridList, GridListTile } from 'material-ui/GridList'
+import Card, { CardActions, CardContent, CardMedia } from 'material-ui/Card'
+import Button from 'material-ui/Button'
+import Typography from 'material-ui/Typography'
 import MenuIcon from 'material-ui-icons/Menu'
 import { withStyles } from 'material-ui/styles'
 
@@ -18,23 +19,52 @@ const styles = theme => ({
     display: 'flex',
     flexWrap: 'wrap',
     justifyContent: 'space-around',
-    marginTop: theme.spacing.unit*2
+    marginTop: theme.spacing.unit*2,
+    [`${theme.breakpoints.up('xs')} and (orientation: landscape)`]: {
+      margin: theme.spacing.unit*3
+    },
+    [theme.breakpoints.up('sm')]: {
+      margin: theme.spacing.unit*4
+    }
   },
   gridList: {
-    justifyContent: 'center',
     width: '100%',
     maxWidth: 2520,
-    textTransform: 'capitalize'
+    justifyContent: 'center',
+    [theme.breakpoints.up('sm')]: {
+      justifyContent: 'flex-start'
+    }
   },
   gridTile: {
     '& :hover': {
-      opacity: 0.95
+      opacity: 0.85
     }
   },
-  gridImage: {
-    maxWidth: 560,
-    height: 'auto',
-    objectFit: 'cover'
+  card: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    height: '95%'
+  },
+  cardMedia: {
+    height: 160
+  },
+  cardContent: {
+    flex: 1,
+    overflow: 'hidden'
+  },
+  cardActions: {
+  },
+  cardTitle: {
+    textTransform: 'capitalize'
+  },
+  cardDescription: {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    fontSize: 12,
+    display: '-webkit-box',
+    '-webkit-line-clamp': 3,
+    '-webkit-box-orient': 'vertical'
   }
 })
 
@@ -87,24 +117,33 @@ class Dashboard extends Component  {
         ]}
       >
         <div className={classes.gridContainer}>
-          <GridList cols={this.computeColsRows().c} spacing={16} className={classes.gridList}>
+          <GridList cols={this.computeColsRows().c} spacing={16} className={classes.gridList} cellHeight={340}>
             {categories.map(category => (
               <GridListTile key={category.id} className={classes.gridTile} rows={this.computeColsRows().r}>
                 <Link key={category.id} to={`/${category.id}`}>
-                  <img
-                    className={classes.gridImage}
-                    src={category.image || 'https://blogs.ntu.edu.sg/files/2014/07/change_default_category.jpg'}
-                    alt={category.label}
-                  />
-                  <GridListTileBar
-                    title={category.label || ''}
-                    subtitle={<span>{category.description}</span>}
-                    actionIcon={
-                      <IconButton>
-                        <InfoIcon color="contrast" />
-                      </IconButton>
-                    }
-                  />
+                  <Card className={classes.card}>
+                    <CardMedia
+                      className={classes.cardMedia}
+                      image={category.image || 'https://blogs.ntu.edu.sg/files/2014/07/change_default_category.jpg'}
+                      title={category.label || ''}
+                    />
+                    <CardContent className={classes.cardContent}>
+                      <Typography type="headline" component="h2" className={classes.cardTitle}>
+                        {category.label || ''}
+                      </Typography>
+                      <Typography component="p" className={classes.cardDescription}>
+                        {category.description}
+                      </Typography>
+                    </CardContent>
+                    <CardActions className={classes.cardActions}>
+                      <Button dense color="primary">
+                        Share
+                      </Button>
+                      <Button dense color="primary">
+                        Learn More
+                      </Button>
+                    </CardActions>
+                  </Card>
                 </Link>
               </GridListTile>
             ))}
