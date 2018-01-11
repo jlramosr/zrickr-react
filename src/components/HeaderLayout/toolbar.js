@@ -142,7 +142,7 @@ class CustomToolbar extends Component {
     searchQuery: ''
   }
 
-  _updateSearchQuery = searchQuery => {
+  updateSearchQuery = searchQuery => {
     this.setState({searchQuery})
     this.props.updateSearchQuery(searchQuery)
   }
@@ -246,14 +246,14 @@ class CustomToolbar extends Component {
                         placeholder="Buscar"
                         disableUnderline={secondary ? false : true}
                         value={searchQuery}
-                        onChange={event => this._updateSearchQuery(event.target.value)}
+                        onChange={event => this.updateSearchQuery(event.target.value)}
                       />
                       {searchQuery && 
                         <Close
                           size={20}
                           className={classes.searchBarCloseIcon}
                           style={contentComputedStyle}
-                          onClick={ () => this._updateSearchQuery('')}
+                          onClick={ () => this.updateSearchQuery('')}
                         />
                       }
                     </div>

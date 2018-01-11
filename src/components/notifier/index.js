@@ -29,21 +29,6 @@ class Notifier extends Component {
     moreThanOneNotification: false
   }
 
-  _handleNotificationClose = (event, reason) => {
-    if (reason === 'clickaway') return
-    this.setState({showNotification: false})
-  }
-
-  _getSnackbarClassName = notificationType => {
-    const classes = this.props.classes
-    if (notificationType === 'error') {
-      return classes.snackbarContentError
-    } else if (notificationType === 'success') {
-      return classes.snackbarContentSuccess
-    }
-    return classes.snackbarContentInfo
-  }
-
   componentWillReceiveProps = nextProps => {
     if (nextProps.notification !== this.props.notification) {
       if (this.state.showNotification) {
@@ -57,13 +42,28 @@ class Notifier extends Component {
     }
   }
 
+  handleNotificationClose = (event, reason) => {
+    if (reason === 'clickaway') return
+    this.setState({showNotification: false})
+  }
+
+  getSnackbarClassName = notificationType => {
+    const classes = this.props.classes
+    if (notificationType === 'error') {
+      return classes.snackbarContentError
+    } else if (notificationType === 'success') {
+      return classes.snackbarContentSuccess
+    }
+    return classes.snackbarContentInfo
+  }
+
   render = () => {
     const { notification, classes } = this.props
     return (
       <Snackbar
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         open={this.state.showNotification}
-        onClose={this._handleNotificationClose}
+        onClose={this.handleNotificationClose}
         className={classes.snackbar}
         autoHideDuration={3000}
         transitionDuration={{
@@ -71,7 +71,7 @@ class Notifier extends Component {
           exit: this.state.moreThanOneNotification ? 0 : 200
         }}
         SnackbarContentProps={{
-          className: this._getSnackbarClassName(notification.type)
+          className: this.getSnackbarClassName(notification.type)
         }}
         message={<span>{notification.message}</span>}
         action={[
@@ -79,7 +79,7 @@ class Notifier extends Component {
             key="close"
             aria-label="Close"
             color="inherit"
-            onClick={this._handleNotificationClose}
+            onClick={this.handleNotificationClose}
           >
             <CloseIcon />
           </IconButton>

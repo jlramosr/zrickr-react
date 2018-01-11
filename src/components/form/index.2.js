@@ -14,38 +14,67 @@ import { withStyles } from 'material-ui/styles'
 class Item {
   constructor(props) {
     const { fields, values } = props
-    Object.assign(this, {fields, values: {...values}})
+    const simpleValues = {}
+    const relationalValues = {}
+    for (const fieldId of Object.keys(values)) {
+      let value = values[fieldId]
+      const isRelational = this.isRelational(value)
+      const field = fields.filter(_field => _field.id === fieldId)
+      if (!field) {
+        if (isRelational) {
+          relationalValues[fieldId] = value
+        } else {
+          simpleValues[fieldId] = value
+        }
+        continue
+      }
+      if (!isRelational) {
+        if (value !== undefined || value !== null) {
+          simpleValues[fieldId] = value
+        } else if (!Object.keys(values).length && field.default) {
+          simpleValues[fieldId] = field.default
+          value = field.default
+        } else {
+          continue
+        }
+      } else {
+        relationalValues[fieldId] = Object.keys(value).reduce((ids, id) => (
+          value[id] ? [...ids, id] : [...ids]
+        ), [])
+      }
+    }
+    Object.assign(this, {simpleValues, relationalValues, fields})
   }
 
   isRelational = value => {
     return value && typeof value === 'object' && !Array.isArray(value)
   }
 
-  /**
-   * It transforms temporary removed and added items of relational fields.
-   */
-  cleanRelations = () => {
-    this.values = Object.keys(this.values).reduce((values, fieldId) => {
-      const value = this.values[fieldId]
-      let newValue = value
-      if (this.isRelational(value)) {
-        newValue = Object.keys(value).reduce((values, id) => {
-          if (value[id] === true || value[id] === 'added') {
-            return {...values, [id]: true}
-          }
-          return {...values}
-        }, {})
-      }
-      return {...values, [fieldId]: newValue}
-    }, {})
+  addValue = value => {
+    if (this.isRelational(value)) {
+      this.relationalValues = {...this.relationalValues, ...value}
+    } else {
+      this.simpleValues = {...this.simpleValues, ...value}
+    }
   }
 
   changeValue = (fieldId, value) => {
-    this.values[fieldId] = value
+    if (this.isRelational(value)) {
+      this.relationalValues[fieldId] = value
+    } else {
+      this.simpleValues[fieldId] = value
+    }
   }
 
-  getValues = () => {
-    return this.values
+  valuesToStore = relationalFields => {
+    const values = {...this.simpleValues, ...(relationalFields || this.relationalValues)}
+    for (const fieldId of Object.keys(values)) {
+      const value = values[fieldId]
+      if (Array.isArray(value)) {
+        values[fieldId] = value.reduce((obj,id) => ({...obj, [id]: true}), {})
+      } 
+    }
+    return values
   }
 
   /*jslint evil: true */
@@ -93,42 +122,6 @@ class Form extends Component {
     hasChanged: false
   }
 
-  componentWillMount = () => {
-    const { fields, origValues, values } = this.props
-    const item = new Item({fields, values})
-    this.setState({item, hasChanged: !isEqual(item.getValues(), origValues || values)})
-  }
-
-  componentWillReceiveProps = nextProps => {
-    const { item } = this.state
-    const { checks, values, origValues } = this.props
-    const currentValues = item.getValues()
-    checks.forEach((check, index) => {
-      const oldCheckHandler = check.handler
-      let newCheckHandler = nextProps.checks[index].handler
-      newCheckHandler = newCheckHandler === undefined ? true : newCheckHandler
-      const checkCallback = check.callback
-      const checkCondition = this.checkCondition(check.when)
-      if ((oldCheckHandler !== newCheckHandler) && newCheckHandler && checkCallback && (checkCondition !== false)) {
-        checkCallback(currentValues)
-      }
-    })
-    if (!isEqual(values, nextProps.values)) {
-      this.setState({hasChanged: !isEqual(currentValues, nextProps.values)})
-    }
-    if (!isEqual(origValues, nextProps.origValues)) {
-      this.setState({hasChanged: !isEqual(currentValues, nextProps.origValues)})
-    }
-  }
-
-  componentDidMount() {
-    document.addEventListener('restart-form', this.restartForm)
-  }
-
-  componentWillUnmount = () => {
-    document.removeEventListener('restart-form', this.restartForm)
-  }
-
   /**
    * It obtains the final label of the field depending on 
    * the view information of itself. If it has 'nolabel' attribute, 
@@ -163,33 +156,40 @@ class Form extends Component {
     event.stopPropagation()
     if (!this.state.isSubmitting) {
       this.setState({isSubmitting: true})
-      const { item } = this.state
-      const { fields, handleSubmit, origValues, values } = this.props
-      const itemSubmit = new Item({fields, values: item.getValues()})
-      itemSubmit.cleanRelations()
-      handleSubmit(itemSubmit.getValues()).then(() => {
-        item.cleanRelations()
-        this.setState({item, isSubmitting: false})
-        this.props.onEqualValues()
-        console.log("item", item.getValues(), "origvalues", origValues, "values", values)
+      const { item, itemListFields } = this.state
+      item.addValue(itemListFields)
+      this.props.handleSubmit(item.valuesToStore()).then(() => {
+        this.setState({isSubmitting: false})
       })
     }
   }
   
   /**
-   * Update the item state based on user input.
+   * Update the item state based on user input. Only changes produced
+   * on relation fields of list type will be uncontrolled. In return,
+   * this temporary changes are stored in other variable state, without
+   * removing any entity of lists yet on item state (since submit process). 
 	 * @public
    * @param {string} fieldId The field whose value has changed.
    * @param {string} value The new value.
+   * @param {bool} isList If the field is a relational list, meaning that value are uncontrolled.
    * @returns {void}
 	 */
-  handleFieldChange = (fieldId, value) => {
-    let { item, hasChanged } = this.state
-    const { origValues, values, onDifferentValues, onEqualValues } = this.props
-    item.changeValue(fieldId, value)
-    this.setState({item})
-    //console.log("item", item.getValues(), "origvalues", origValues, "values", values)
-    const isDifferentFromOrigin = !isEqual(this.state.item.getValues(), origValues || values)
+  handleFieldChange = (fieldId, value, isList=false) => {
+    let { item, itemListFields, hasChanged } = this.state
+    const { values, origValues, onDifferentValues, onEqualValues } = this.props
+    if (isList) {
+      itemListFields = {...itemListFields, [fieldId]: value}
+      this.setState({itemListFields})
+    } else {
+      item.changeValue(fieldId, value)
+      this.setState({item})
+    }
+   
+    const isDifferentFromOrigin = !isEqual(
+      item.valuesToStore(itemListFields), origValues || values
+    )
+    console.log(isDifferentFromOrigin, item.valuesToStore(itemListFields), values)
     if (!hasChanged && isDifferentFromOrigin) {
       if (onDifferentValues) {
         onDifferentValues()
@@ -218,6 +218,40 @@ class Form extends Component {
       default:
         return null
     }
+  }
+
+  componentDidMount() {
+    document.addEventListener('restart-form', this.restartForm)
+  }
+
+  componentWillMount = () => {
+    const {  fields, values, origValues } = this.props
+    const item = new Item({fields, values})
+    console.log("HOLA", item);
+    this.setState({
+      item,
+      hasChanged: !isEqual(
+        item.valuesToStore(), origValues || values
+      )
+    })
+  }
+
+  componentWillUnmount = () => {
+    document.removeEventListener('restart-form', this.restartForm)
+  }
+
+  componentWillReceiveProps = nextProps => {
+    const currentValues = this.state.item.valuesToStore()
+    this.props.checks.forEach((check, index) => {
+      const oldCheckHandler = check.handler
+      let newCheckHandler = nextProps.checks[index].handler
+      newCheckHandler = newCheckHandler === undefined ? true : newCheckHandler
+      const checkCallback = check.callback
+      const checkCondition = this.checkCondition(check.when)
+      if ((oldCheckHandler !== newCheckHandler) && newCheckHandler && checkCallback && (checkCondition !== false)) {
+        checkCallback(currentValues)
+      }
+    })
   }
 
   render = () => {
@@ -271,11 +305,15 @@ class Form extends Component {
         {
           item.fields.map(field => {
             let fieldView = field.views ? field.views[view] : null
+            let value = ''
+            if (item.simpleValues && item.simpleValues[field.id]) {
+              value = item.simpleValues[field.id]
+            } else if (item.relationalValues && item.relationalValues[field.id]){
+              value = item.relationalValues[field.id]
+            }
             if (fieldView && size in fieldView) {
               fieldView = fieldView[size]
             }
-            const values = item.getValues()
-            const value = values[field.id] ? values[field.id] : ''
 
             return (
               fieldView &&

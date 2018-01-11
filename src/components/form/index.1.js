@@ -14,38 +14,48 @@ import { withStyles } from 'material-ui/styles'
 class Item {
   constructor(props) {
     const { fields, values } = props
-    Object.assign(this, {fields, values: {...values}})
-  }
-
-  isRelational = value => {
-    return value && typeof value === 'object' && !Array.isArray(value)
-  }
-
-  /**
-   * It transforms temporary removed and added items of relational fields.
-   */
-  cleanRelations = () => {
-    this.values = Object.keys(this.values).reduce((values, fieldId) => {
-      const value = this.values[fieldId]
-      let newValue = value
-      if (this.isRelational(value)) {
-        newValue = Object.keys(value).reduce((values, id) => {
-          if (value[id] === true || value[id] === 'added') {
-            return {...values, [id]: true}
-          }
-          return {...values}
-        }, {})
+    const _values = {}
+    for (const fieldId of Object.keys(values)) {
+      let value = values[fieldId]
+      const field = fields.filter(_field => _field.id === fieldId)
+      if (!field) {
+        _values[fieldId] = value
+        continue
       }
-      return {...values, [fieldId]: newValue}
-    }, {})
+      if (value !== undefined || value !== null) {
+        _values[fieldId] = value
+      } else if (!Object.keys(values).length && field.default) {
+        _values[fieldId] = field.default
+        value = field.default
+      } else {
+        continue
+      }
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
+        _values[fieldId] = Object.keys(value).reduce((ids, id) => (
+          value[id] ? [...ids, id] : [...ids]
+        ), [])
+      }
+    }
+    Object.assign(this, {values: _values, fields})
   }
 
-  changeValue = (fieldId, value) => {
+  addValue(value) {
+    this.values = {...this.values, ...value}
+  }
+
+  changeValue(fieldId, value) {
     this.values[fieldId] = value
   }
 
-  getValues = () => {
-    return this.values
+  valuesToStore() {
+    const _values = {...this.values}
+    for (const fieldId of Object.keys(_values)) {
+      const value = _values[fieldId]
+      if (Array.isArray(value)) {
+        _values[fieldId] = value.reduce((obj,id) => ({...obj, [id]: true}), {})
+      } 
+    }
+    return _values
   }
 
   /*jslint evil: true */
@@ -93,42 +103,6 @@ class Form extends Component {
     hasChanged: false
   }
 
-  componentWillMount = () => {
-    const { fields, origValues, values } = this.props
-    const item = new Item({fields, values})
-    this.setState({item, hasChanged: !isEqual(item.getValues(), origValues || values)})
-  }
-
-  componentWillReceiveProps = nextProps => {
-    const { item } = this.state
-    const { checks, values, origValues } = this.props
-    const currentValues = item.getValues()
-    checks.forEach((check, index) => {
-      const oldCheckHandler = check.handler
-      let newCheckHandler = nextProps.checks[index].handler
-      newCheckHandler = newCheckHandler === undefined ? true : newCheckHandler
-      const checkCallback = check.callback
-      const checkCondition = this.checkCondition(check.when)
-      if ((oldCheckHandler !== newCheckHandler) && newCheckHandler && checkCallback && (checkCondition !== false)) {
-        checkCallback(currentValues)
-      }
-    })
-    if (!isEqual(values, nextProps.values)) {
-      this.setState({hasChanged: !isEqual(currentValues, nextProps.values)})
-    }
-    if (!isEqual(origValues, nextProps.origValues)) {
-      this.setState({hasChanged: !isEqual(currentValues, nextProps.origValues)})
-    }
-  }
-
-  componentDidMount() {
-    document.addEventListener('restart-form', this.restartForm)
-  }
-
-  componentWillUnmount = () => {
-    document.removeEventListener('restart-form', this.restartForm)
-  }
-
   /**
    * It obtains the final label of the field depending on 
    * the view information of itself. If it has 'nolabel' attribute, 
@@ -163,33 +137,38 @@ class Form extends Component {
     event.stopPropagation()
     if (!this.state.isSubmitting) {
       this.setState({isSubmitting: true})
-      const { item } = this.state
-      const { fields, handleSubmit, origValues, values } = this.props
-      const itemSubmit = new Item({fields, values: item.getValues()})
-      itemSubmit.cleanRelations()
-      handleSubmit(itemSubmit.getValues()).then(() => {
-        item.cleanRelations()
-        this.setState({item, isSubmitting: false})
-        this.props.onEqualValues()
-        console.log("item", item.getValues(), "origvalues", origValues, "values", values)
+      const { item, itemListFields } = this.state
+      item.addValue(itemListFields)
+      this.props.handleSubmit(item.valuesToStore()).then(() => {
+        this.setState({isSubmitting: false})
       })
     }
   }
   
   /**
-   * Update the item state based on user input.
+   * Update the item state based on user input. Only changes produced
+   * on relation fields of list type will be uncontrolled. In return,
+   * this temporary changes are stored in other variable state, without
+   * removing any entity of lists yet on item state (since submit process). 
 	 * @public
    * @param {string} fieldId The field whose value has changed.
    * @param {string} value The new value.
+   * @param {bool} isList If the field is a relational list, meaning that value are uncontrolled.
    * @returns {void}
 	 */
-  handleFieldChange = (fieldId, value) => {
-    let { item, hasChanged } = this.state
-    const { origValues, values, onDifferentValues, onEqualValues } = this.props
-    item.changeValue(fieldId, value)
-    this.setState({item})
-    //console.log("item", item.getValues(), "origvalues", origValues, "values", values)
-    const isDifferentFromOrigin = !isEqual(this.state.item.getValues(), origValues || values)
+  handleFieldChange = (fieldId, value, isList=false) => {
+    let { item, itemListFields, hasChanged } = this.state
+    const { fields, values, origValues, onDifferentValues, onEqualValues } = this.props
+    if (isList) {
+      itemListFields = {...itemListFields, [fieldId]: value}
+      //item.changeValue(fieldId, itemListFields[fieldId])
+    } else {
+      item.changeValue(fieldId, value)
+    }
+    this.setState({item, itemListFields})
+
+    const tempItem = new Item({fields, values: {...item, ...itemListFields}})
+    const isDifferentFromOrigin = !isEqual(tempItem.valuesToStore(), origValues || values)
     if (!hasChanged && isDifferentFromOrigin) {
       if (onDifferentValues) {
         onDifferentValues()
@@ -218,6 +197,34 @@ class Form extends Component {
       default:
         return null
     }
+  }
+
+  componentDidMount() {
+    document.addEventListener('restart-form', this.restartForm)
+  }
+
+  componentWillMount = () => {
+    const {  fields, values, origValues } = this.props
+    const item = new Item({fields, values})
+    this.setState({item, hasChanged: !isEqual(item.valuesToStore(), origValues || values)})
+  }
+
+  componentWillUnmount = () => {
+    document.removeEventListener('restart-form', this.restartForm)
+  }
+
+  componentWillReceiveProps = nextProps => {
+    const currentValues = this.state.item.valuesToStore()
+    this.props.checks.forEach((check, index) => {
+      const oldCheckHandler = check.handler
+      let newCheckHandler = nextProps.checks[index].handler
+      newCheckHandler = newCheckHandler === undefined ? true : newCheckHandler
+      const checkCallback = check.callback
+      const checkCondition = this.checkCondition(check.when)
+      if ((oldCheckHandler !== newCheckHandler) && newCheckHandler && checkCallback && (checkCondition !== false)) {
+        checkCallback(currentValues)
+      }
+    })
   }
 
   render = () => {
@@ -274,8 +281,6 @@ class Form extends Component {
             if (fieldView && size in fieldView) {
               fieldView = fieldView[size]
             }
-            const values = item.getValues()
-            const value = values[field.id] ? values[field.id] : ''
 
             return (
               fieldView &&
@@ -289,7 +294,7 @@ class Form extends Component {
                     required={item.evalCondition(field.required,field.id)}
                     readonly={item.evalCondition(field.readonly,field.id)}
                     infoMode={infoMode}
-                    value={value}
+                    value={item.values ? item.values[field.id] : ''}
                     label={this.getFieldLabel(field.label, fieldView)}
                     description={this.getFieldDescription(field.description, fieldView)}
                     order={fieldView.x || 0}

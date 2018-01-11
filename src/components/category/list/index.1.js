@@ -25,6 +25,8 @@ class CategoryList extends Component {
   state = {
     searchQuery: '',
     foundItems: [],
+    tempAddItemIds: [],
+    tempRemoveItemIds: [],
     showNewDialog: false,
     showListDialog: false,
     tableMode: false
@@ -106,8 +108,12 @@ class CategoryList extends Component {
   markAddRelations = markedItemIds => {
     const { relationMode, itemIds, sendFormFieldChange } = this.props
     if (relationMode) {
-      const tempToAddIds = markedItemIds.map(id => ( {id, state:'added'} ))
-      sendFormFieldChange([...itemIds, ...tempToAddIds])
+      const tempAddItemIds = [...this.state.tempAddItemIds, ...markedItemIds]
+      const tempItemIds = [...itemIds, ...tempAddItemIds].filter(itemId =>
+        !this.state.tempRemoveItemIds.includes(itemId)
+      )
+      this.setState({tempAddItemIds})
+      sendFormFieldChange(tempItemIds)
       this.closeDialog()
     }
   }
@@ -115,18 +121,11 @@ class CategoryList extends Component {
   markRemoveRelations = markedItemIds => {
     const { relationMode, itemIds, sendFormFieldChange } = this.props
     if (relationMode) {
-      const addedStateIds = itemIds.filter(idState => idState.state === 'added')
-      const addedIds = addedStateIds.map(idState => idState.id)
-      const tempItemIds = itemIds.reduce((idStates, idState) => {
-        const isMarked = markedItemIds.includes(idState.id)
-        if (addedIds.includes(idState.id) && isMarked) {
-          return [...idStates]
-        }
-        if (isMarked) {
-          return [...idStates, {id: idState.id, state:'removed'}]
-        }
-        return [...idStates, idState]
-      }, [])
+      const tempRemoveItemIds = [...this.state.tempRemoveItemIds, ...markedItemIds]
+      const tempItemIds = [...itemIds, ...this.state.tempAddItemIds].filter(itemId =>
+        !tempRemoveItemIds.includes(itemId)
+      )
+      this.setState({tempRemoveItemIds})
       sendFormFieldChange(tempItemIds)
     }
   }
@@ -134,17 +133,19 @@ class CategoryList extends Component {
   unmarkRemoveRelations = unmarkedItemIds => {
     const { relationMode, itemIds, sendFormFieldChange } = this.props
     if (relationMode) {
-      const tempItemIds = itemIds.reduce((idStates, idState) => {
-        if (unmarkedItemIds.includes(idState.id)) {
-          return [...idStates, {id: idState.id, state:true}]
-        }
-        return [...idStates, idState]
-      }, [])
+      const tempRemoveItemIds = [...this.state.tempRemoveItemIds.filter(itemId => 
+        !unmarkedItemIds.includes(itemId)
+      )]
+      const tempItemIds = [...itemIds, ...this.state.tempAddItemIds].filter(itemId =>
+        !tempRemoveItemIds.includes(itemId)
+      )
       sendFormFieldChange(tempItemIds)
+      this.setState({tempRemoveItemIds})
     }
   }
 
   componentWillMount = () => {
+    //if (!this.props.relationMode) console.log('LIST MOUNTED')
     const { items, relationMode, fetchItemsIfNeeded } = this.props
     if (fetchItemsIfNeeded) {
       relationMode ? fetchItemsIfNeeded() : fetchItemsIfNeeded() //this.props.fetchItems()
@@ -153,6 +154,7 @@ class CategoryList extends Component {
   }
 
   componentWillUnmount = () => {
+    //if (!this.props.relationMode) console.log('LIST UNMOUNTED')
   }
 
   componentWillReceiveProps = nextProps => {
@@ -184,39 +186,24 @@ class CategoryList extends Component {
       searchQuery,
       showNewDialog,
       showListDialog,
+      tempAddItemIds,
+      tempRemoveItemIds,
       tableMode
     } = this.state
 
-    let allFilterIds = null
-    if (itemIds) {
-      allFilterIds = (itemIds).reduce((ids, idState) => {
-        if (idState.id) { //idState = {id:2134, state:true}
-          return [...ids, idState.id] 
-        } //idState = 2134
-        return [...ids, idState] 
-      }, [])
-    }
-
-    const toAddIds = (itemIds || []).filter(
-      idState => idState.state ? idState.state === 'added' : false
-    ).map(idState => idState.id)
-    const toRemoveIds = (itemIds || []).filter(
-      idState => idState.state ? idState.state === 'removed' : false
-    ).map(idState => idState.id)
-
-    const showingItems = Object.values(foundItems).filter(item => (
-      allFilterIds ? allFilterIds.includes(item.id) : true
-    ))
+    const showingItems = Object.values(foundItems).filter(item => 
+      tempAddItemIds.includes(item.id) || (itemIds ? itemIds.includes(item.id) : true)
+    )
 
     const commonProps = {
       ...this.props,
       items: showingItems,
       searchQuery,
       openDetailDialog: this.openDetailDialog,
-      toAddIds,
-      toRemoveIds,
+      tempAddItemIds,
       markRemoveItems: this.markRemoveRelations,
-      unmarkRemoveItems: this.unmarkRemoveRelations
+      unmarkRemoveItems: this.unmarkRemoveRelations,
+      tempRemoveItemIds
     }
 
     return (

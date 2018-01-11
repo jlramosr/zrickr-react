@@ -111,7 +111,16 @@ class CategoryItemDetailHeader extends Component {
       closeRelations,
       removeAllOpenRelations
     } = this.props
-    const { relations, checkWhenInfoMode, showWhenInfoModeDialog, hasChanged, showWhenRemoveDialog } = this.state
+    const {
+      relations,
+      checkWhenInfoMode,
+      showWhenInfoModeDialog,
+      hasChanged,
+      showWhenRemoveDialog
+    } = this.state
+
+    console.log("ITEM DETAIL", item);
+    const showCheckIcon = editMode && hasChanged && !isUpdating
 
     return (
       <HeaderLayout
@@ -123,7 +132,7 @@ class CategoryItemDetailHeader extends Component {
           {id:'changeState', icon:CallSplit, right:true, hidden:editMode, onClick:this.onChangeStateClick},
           {id:'view', icon:ChromeReaderMode, right:true, hidden:!editMode, onClick:this.onViewClick},
           {id:'delete', icon:Delete, right:true, hidden:editMode, onClick:this.onRemoveClick},
-          {id:'check', icon:Check, right:true, hidden:!editMode || !hasChanged, onClick:this.onCheckClick}
+          {id:'check', icon:Check, right:true, hidden:!showCheckIcon, onClick:this.onCheckClick}
         ]}
       >
         <React.Fragment>

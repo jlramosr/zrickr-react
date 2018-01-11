@@ -14,12 +14,21 @@ class CategoryItemDetail extends Component {
     editMode: false
   }
 
+  componentWillUnmount = () => {
+  }
+
+  componentWillMount = () => {
+    this.props.fetchItemIfNeeded() //this.props.fetchItem()
+  }
+
   getTitle = () => {
     const { settings, item } = this.props
     return item ? getItemString(settings.primaryFields, item) : ''
   }
 
-  changeEditMode = editMode => this.setState({editMode})
+  changeEditMode = editMode => {
+    this.setState({editMode})
+  }
 
   updateItem = values => {
     const { item, itemLabel, updateItem, notify } = this.props
@@ -48,15 +57,6 @@ class CategoryItemDetail extends Component {
         notify(`There has been an error removing the ${itemLabel.toLowerCase()}: ${error}`, 'error')
       }
     )
-  }
-
-  componentWillUnmount = () => {
-    //console.log('DETAIL UNMOUNTED')
-  }
-
-  componentWillMount = () => {
-    //console.log('DETAIL MOUNTED')
-    this.props.fetchItemIfNeeded() //this.props.fetchItem()
   }
 
   render = () => {

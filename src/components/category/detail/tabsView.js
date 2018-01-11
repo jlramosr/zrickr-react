@@ -293,8 +293,11 @@ class CategoryItemDetailTabs extends Component {
     }
 
     const editMode = tabs[activeIndex] ? tabs[activeIndex].editMode : false
-    const showCheckIcon = editMode && (tabs[activeIndex] ? tabs[activeIndex].hasChanged : false)
-    console.log(tabs, tabs[activeIndex], editMode)
+    const showCheckIcon =
+      editMode &&
+      !isUpdating &&
+      (tabs[activeIndex] ? tabs[activeIndex].hasChanged : false) 
+    //console.log(tabs, tabs[activeIndex], editMode)
 
     return (
       <React.Fragment>

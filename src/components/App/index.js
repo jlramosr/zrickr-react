@@ -12,6 +12,33 @@ import { withStyles } from 'material-ui/styles'
  * Main app component, with common drawer and first level routes.
  */
 class App extends Component {
+
+  componentDidMount = () => {
+    window.addEventListener('resize', () =>
+      this.resize(this.props.theme)
+    )
+    this.resize(this.props.theme)
+  }
+
+  componentWillMount = () => {
+    this.props.fetchCategories() 
+  }
+
+  componentDidUpdate = prevProps => {
+    /* If multi-user */
+    const prevPath = prevProps.location.pathname
+    const currentPath = this.props.location.pathname
+    if (prevPath !== currentPath && currentPath === '/') {
+      this.props.fetchCategoriesIfNeeded()
+    }
+  }
+
+  componentWillUnmount = () => {
+    window.removeEventListener('resize', () =>
+      this.resize(this.props.theme)
+    )
+  }
+
   /**
    * Update size variable of the state to control the fields position.
 	 * @public
@@ -33,32 +60,6 @@ class App extends Component {
     }
     if (size !== windowSize) {
       updateWindowSize(size)
-    }
-  }
-
-  componentDidMount = () => {
-    window.addEventListener('resize', () =>
-      this.resize(this.props.theme)
-    )
-    this.resize(this.props.theme)
-  }
-
-  componentWillUnmount = () => {
-    window.removeEventListener('resize', () =>
-      this.resize(this.props.theme)
-    )
-  }
-
-  componentWillMount = () => {
-    this.props.fetchCategories() 
-  }
-
-  componentDidUpdate = prevProps => {
-    /* If multi-user */
-    const prevPath = prevProps.location.pathname
-    const currentPath = this.props.location.pathname
-    if (prevPath !== currentPath && currentPath === '/') {
-      this.props.fetchCategoriesIfNeeded()
     }
   }
 

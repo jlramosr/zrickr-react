@@ -144,10 +144,10 @@ let CategoryAgendaView = class extends Component {
       dialogMode,
       relationMode,
       editMode,
-      toAddIds,
-      toRemoveIds,
+      tempAddItemIds,
       markRemoveItems,
       unmarkRemoveItems,
+      tempRemoveItemIds,
       classes
     } = this.props
 
@@ -177,8 +177,8 @@ let CategoryAgendaView = class extends Component {
             transitionAppearTimeout={200}
           >
             {items.map(item => {
-              const isMarkedForAdd = toAddIds ? toAddIds.includes(item.id) : false
-              const isMarkedForRemove = toRemoveIds ? toRemoveIds.includes(item.id) : false
+              const isMarkedForAdd = tempAddItemIds ? tempAddItemIds.includes(item.id) : false
+              const isMarkedForRemove = tempRemoveItemIds ? tempRemoveItemIds.includes(item.id) : false
               let itemClassName = classes[
                 isMarkedForRemove ? 'markRemovedItem' : (isMarkedForAdd ? 'markAddedItem' : 'unmarkedItem')
               ]
