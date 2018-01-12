@@ -30,21 +30,20 @@ class ListField extends Component {
       classes
     } = this.props
 
-    const itemIds = statesObjectToArray(value)
     
     return (
       <Paper elevation={4} className={classes.list}>
         <CategoryList
           categoryId={relation}
           categoryLabel={label || relationLabel}
-          itemIds={itemIds}
+          filterItemIds={statesObjectToArray(value)}
           relationMode
           relationFieldId={id}
           editMode={!infoMode && !readonly}
           tableMode={false}
           showAvatar={false}
-          sendFormFieldChange={newItemIds => {
-            sendFormFieldChange(id, statesArrayToObject(newItemIds))
+          sendFormFieldChange={newFilterItemIds => {
+            sendFormFieldChange(id, statesArrayToObject(newFilterItemIds))
           }}
         />
       </Paper>

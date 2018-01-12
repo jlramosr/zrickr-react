@@ -30,6 +30,23 @@ class CategoryList extends Component {
     tableMode: false
   }
 
+  componentWillMount = () => {
+    const { items, relationMode, fetchItemsIfNeeded } = this.props
+    if (fetchItemsIfNeeded) {
+      relationMode ? fetchItemsIfNeeded() : fetchItemsIfNeeded() //this.props.fetchItems()
+    }
+    this.setState({ foundItems: items })
+  }
+
+  componentWillReceiveProps = nextProps => {
+    if (this.props.editMode !== nextProps.editMode) {
+      this.setState({
+        tempAddItemIds: [],
+        tempRemoveItemIds: []
+      })
+    }
+  }
+
   updateSearchQuery = searchQuery => {
     const { settings, items } = this.props
     let foundItems = items
@@ -104,20 +121,20 @@ class CategoryList extends Component {
   }
 
   markAddRelations = markedItemIds => {
-    const { relationMode, itemIds, sendFormFieldChange } = this.props
+    const { relationMode, filterItemIds, sendFormFieldChange } = this.props
     if (relationMode) {
       const tempToAddIds = markedItemIds.map(id => ( {id, state:'added'} ))
-      sendFormFieldChange([...itemIds, ...tempToAddIds])
+      sendFormFieldChange([...filterItemIds, ...tempToAddIds])
       this.closeDialog()
     }
   }
 
   markRemoveRelations = markedItemIds => {
-    const { relationMode, itemIds, sendFormFieldChange } = this.props
+    const { relationMode, filterItemIds, sendFormFieldChange } = this.props
     if (relationMode) {
-      const addedStateIds = itemIds.filter(idState => idState.state === 'added')
+      const addedStateIds = filterItemIds.filter(idState => idState.state === 'added')
       const addedIds = addedStateIds.map(idState => idState.id)
-      const tempItemIds = itemIds.reduce((idStates, idState) => {
+      const tempItemIds = filterItemIds.reduce((idStates, idState) => {
         const isMarked = markedItemIds.includes(idState.id)
         if (addedIds.includes(idState.id) && isMarked) {
           return [...idStates]
@@ -132,35 +149,15 @@ class CategoryList extends Component {
   }
 
   unmarkRemoveRelations = unmarkedItemIds => {
-    const { relationMode, itemIds, sendFormFieldChange } = this.props
+    const { relationMode, filterItemIds, sendFormFieldChange } = this.props
     if (relationMode) {
-      const tempItemIds = itemIds.reduce((idStates, idState) => {
+      const tempItemIds = filterItemIds.reduce((idStates, idState) => {
         if (unmarkedItemIds.includes(idState.id)) {
           return [...idStates, {id: idState.id, state:true}]
         }
         return [...idStates, idState]
       }, [])
       sendFormFieldChange(tempItemIds)
-    }
-  }
-
-  componentWillMount = () => {
-    const { items, relationMode, fetchItemsIfNeeded } = this.props
-    if (fetchItemsIfNeeded) {
-      relationMode ? fetchItemsIfNeeded() : fetchItemsIfNeeded() //this.props.fetchItems()
-    }
-    this.setState({ foundItems: items })
-  }
-
-  componentWillUnmount = () => {
-  }
-
-  componentWillReceiveProps = nextProps => {
-    if (this.props.editMode !== nextProps.editMode) {
-      this.setState({
-        tempAddItemIds: [],
-        tempRemoveItemIds: []
-      })
     }
   }
   
@@ -171,7 +168,7 @@ class CategoryList extends Component {
       settings,
       isFetchingSettings,
       isFetchingFields,
-      itemIds,
+      filterItemIds,
       isFetchingItems,
       operations,
       relationMode,
@@ -188,8 +185,8 @@ class CategoryList extends Component {
     } = this.state
 
     let allFilterIds = null
-    if (itemIds) {
-      allFilterIds = (itemIds).reduce((ids, idState) => {
+    if (filterItemIds) {
+      allFilterIds = (filterItemIds).reduce((ids, idState) => {
         if (idState.id) { //idState = {id:2134, state:true}
           return [...ids, idState.id] 
         } //idState = 2134
@@ -197,10 +194,10 @@ class CategoryList extends Component {
       }, [])
     }
 
-    const toAddIds = (itemIds || []).filter(
+    const toAddIds = (filterItemIds || []).filter(
       idState => idState.state ? idState.state === 'added' : false
     ).map(idState => idState.id)
-    const toRemoveIds = (itemIds || []).filter(
+    const toRemoveIds = (filterItemIds || []).filter(
       idState => idState.state ? idState.state === 'removed' : false
     ).map(idState => idState.id)
 
@@ -301,7 +298,7 @@ class CategoryList extends Component {
           >
             <CategoryList
               {...this.props}
-              itemIds={this.props.items.map(item => item.id).filter(itemId =>
+              filterItemIds={this.props.items.map(item => item.id).filter(itemId =>
                 !showingItems.map(item => item.id).includes(itemId)
               )}
               //TODO allItemIds get from redux
@@ -407,7 +404,7 @@ CategoryList.propTypes = {
   /**
    * Ids of items to filter. If it's null, then it will be showed all category items.
    */
-  itemIds: PropTypes.array,
+  filterItemIds: PropTypes.array,
   /**
    * All category items.
    */
@@ -461,7 +458,7 @@ CategoryList.defaultProps = {
   isFetchingSettings: false,
   fields: [],
   isFetchingFields: false,
-  itemIds: null,
+  filterItemIds: null,
   items: [],
   isFetchingItems: false,
   relationMode: false,

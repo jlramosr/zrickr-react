@@ -25,6 +25,7 @@ const styles = theme => ({
       paddingRight: theme.spacing.unit*2
     },
     [`${theme.breakpoints.up('md')}`]: {
+      paddingBottom: theme.spacing.unit*3,
       paddingLeft: theme.spacing.unit*3,
       paddingRight: theme.spacing.unit*3
     },
@@ -108,6 +109,12 @@ let CategoryAgendaView = class extends Component {
     isSearching: false
   }
 
+  componentWillReceiveProps = nextProps => {
+    this.setState({isSearching: 
+      this.props.searchQuery !== nextProps.searchQuery
+    })
+  }
+
   itemClick(event, itemId) {
     const { relationMode, dialogMode, openDetailDialog, markAddItems } = this.props
     if (relationMode) {
@@ -127,12 +134,6 @@ let CategoryAgendaView = class extends Component {
 
   handleMenuItemClose = () => {
     this.setState({ showMenuItem: false, itemMenuClicked: null })
-  }
-
-  componentWillReceiveProps = nextProps => {
-    this.setState({isSearching: 
-      this.props.searchQuery !== nextProps.searchQuery
-    })
   }
 
   render = () => {

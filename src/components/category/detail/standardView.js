@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import HeaderLayout from '../../headerLayout'
 import Form from '../../form'
 import CategoryItemDetail from './'
-import LargeDialog from '../../dialog/large'
+import Dialog from '../../dialog/large'
 import ConfirmationDialog from '../../dialog/confirmation'
 import ArrowBack from 'material-ui-icons/ArrowBack'
 import Check from 'material-ui-icons/Check'
@@ -20,14 +20,29 @@ class CategoryItemDetailHeader extends Component {
     },
     showWhenInfoModeDialog: false,
     checkWhenInfoMode: false,
+    checkWhenBack: false,
     hasChanged: false,
     showWhenRemoveDialog: false
   }
 
   state = this.initialState
 
+  
+  componentWillReceiveProps = nextProps => {
+    const newOpenRelations = nextProps.openRelations
+    const oldNumOpenRelations = this.props.openRelations.length
+    const newNumOpenRelations = newOpenRelations.length
+    if (newNumOpenRelations !== oldNumOpenRelations) {
+      this.changeTab(newNumOpenRelations - 1, newOpenRelations)
+    }
+  }
+
   onChangeStateClick = () => {
 
+  }
+
+  onBackClick = () => {
+    this.setState({checkWhenBack: true})
   }
 
   onEditClick = () => {
@@ -49,12 +64,19 @@ class CategoryItemDetailHeader extends Component {
   }
 
   whenInfoModeWithChanges = () => {
+    console.log("HOLAaaaaaaaaaaaa11111111111");
     this.setState({showWhenInfoModeDialog: true})
   }
 
   whenInfoModeWithoutChanges = () => {
-    this.props.changeEditMode(false)
-    this.setState({checkWhenInfoMode: false, showWhenInfoModeDialog:false})
+    console.log("HOLAaaaaaaaaaaaa222222222222");
+    const { history, changeEditMode, categoryId } = this.props
+    if (this.state.checkWhenBack) {
+      history.push(`/${categoryId}`)
+    } else {
+      changeEditMode(false)
+    }
+    this.setState({checkWhenBack: false, checkWhenInfoMode: false, showWhenInfoModeDialog:false})
   }
 
   whenDifferentValues = () => {
@@ -83,15 +105,6 @@ class CategoryItemDetailHeader extends Component {
     }
   }
 
-  componentWillReceiveProps = nextProps => {
-    const newOpenRelations = nextProps.openRelations
-    const oldNumOpenRelations = this.props.openRelations.length
-    const newNumOpenRelations = newOpenRelations.length
-    if (newNumOpenRelations !== oldNumOpenRelations) {
-      this.changeTab(newNumOpenRelations - 1, newOpenRelations)
-    }
-  }
-
   render = () => {
     const {
       categoryId,
@@ -105,6 +118,7 @@ class CategoryItemDetailHeader extends Component {
       isUpdating,
       editMode,
       changeEditMode,
+      history,
       updateItem,
       removeItem,
       shouldShowRelations,
@@ -114,12 +128,12 @@ class CategoryItemDetailHeader extends Component {
     const {
       relations,
       checkWhenInfoMode,
+      checkWhenBack,
       showWhenInfoModeDialog,
       hasChanged,
       showWhenRemoveDialog
     } = this.state
 
-    console.log("ITEM DETAIL", item);
     const showCheckIcon = editMode && hasChanged && !isUpdating
 
     return (
@@ -127,7 +141,7 @@ class CategoryItemDetailHeader extends Component {
         title={title}
         loading={isFetchingSettings || isFetchingFields || isFetchingItem || isUpdating }
         operations={[
-          {id:'arrowBack', icon:ArrowBack, to:`/${categoryId}`},
+          {id:'arrowBack', icon:ArrowBack, onClick:this.onBackClick},
           {id:'edit', icon:Edit, right:true, hidden:editMode, onClick:this.onEditClick},
           {id:'changeState', icon:CallSplit, right:true, hidden:editMode, onClick:this.onChangeStateClick},
           {id:'view', icon:ChromeReaderMode, right:true, hidden:!editMode, onClick:this.onViewClick},
@@ -145,14 +159,16 @@ class CategoryItemDetailHeader extends Component {
             formRef={el => this.formElement = el}
             infoMode={!editMode}
             checks={[
-              {when:'hasChanged', handler:checkWhenInfoMode, callback:this.whenInfoModeWithChanges},
-              {when:'hasNotChanged', handler:checkWhenInfoMode, callback:this.whenInfoModeWithoutChanges}
+              {handler:checkWhenInfoMode, when:'hasChanged', callback:this.whenInfoModeWithChanges},
+              {handler:checkWhenBack, when:'hasChanged', callback:this.whenInfoModeWithChanges},
+              {handler:checkWhenInfoMode, when:'hasNotChanged', callback:this.whenInfoModeWithoutChanges},
+              {handler:checkWhenBack, when:'hasNotChanged', callback:this.whenInfoModeWithoutChanges}
             ]}
             onDifferentValues={this.whenDifferentValues}
             onEqualValues={this.whenSameValues}
           />
 
-          <LargeDialog
+          <Dialog
             open={shouldShowRelations}
             onClose={closeRelations}
             onExited={removeAllOpenRelations}
@@ -162,17 +178,22 @@ class CategoryItemDetailHeader extends Component {
               changeTab={this.changeTab}
               {...relations}
             />
-          </LargeDialog>
+          </Dialog>
 
           <ConfirmationDialog
             open={showWhenInfoModeDialog}
             message='Your changes have not been saved yet. Are you sure to want to continue?'
             onAccept={() => {
+              if (this.state.checkWhenBack) {
+                history.push(`/${categoryId}`)
+              } else {
+                document.dispatchEvent(new Event('restart-form'))
+              }
               changeEditMode(false)
-              document.dispatchEvent(new Event('restart-form'))
+              
             }}
             onClose={() => {
-              this.setState({checkWhenInfoMode: false, showWhenInfoModeDialog: false})
+              this.setState({checkWhenBack: false, checkWhenInfoMode: false, showWhenInfoModeDialog: false})
             }}
           />
 

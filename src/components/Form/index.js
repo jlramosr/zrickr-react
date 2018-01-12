@@ -14,12 +14,31 @@ import { withStyles } from 'material-ui/styles'
 class Item {
   constructor(props) {
     const { fields, values } = props
-    Object.assign(this, {fields, values: {...values}})
+    this.setValues(values)
+    this.setFields(fields)
+    /*Object.assign(this, {
+      fields,
+      values: {...values}
+    })*/
   }
 
-  isRelational = value => {
-    return value && typeof value === 'object' && !Array.isArray(value)
+  isRelational = value =>
+    value && typeof value === 'object' && !Array.isArray(value)
+
+  setValues = values => this.values = {...values}
+
+  setValue = (fieldId, value) => {
+    this.values[fieldId] = 
+      this.isRelational(value) && !Object.keys(value).length ? undefined : value
   }
+
+  setFields = fields => this.fields = [...fields]
+
+  getValues = () => this.values
+
+  getValue = fieldId => this.values[fieldId]
+
+  getFields = () => this.fields
 
   /**
    * It transforms temporary removed and added items of relational fields.
@@ -38,14 +57,6 @@ class Item {
       }
       return {...values, [fieldId]: newValue}
     }, {})
-  }
-
-  changeValue = (fieldId, value) => {
-    this.values[fieldId] = value
-  }
-
-  getValues = () => {
-    return this.values
   }
 
   /*jslint evil: true */
@@ -101,7 +112,7 @@ class Form extends Component {
 
   componentWillReceiveProps = nextProps => {
     const { item } = this.state
-    const { checks, values, origValues } = this.props
+    const { checks } = this.props
     const currentValues = item.getValues()
     checks.forEach((check, index) => {
       const oldCheckHandler = check.handler
@@ -113,12 +124,6 @@ class Form extends Component {
         checkCallback(currentValues)
       }
     })
-    if (!isEqual(values, nextProps.values)) {
-      this.setState({hasChanged: !isEqual(currentValues, nextProps.values)})
-    }
-    if (!isEqual(origValues, nextProps.origValues)) {
-      this.setState({hasChanged: !isEqual(currentValues, nextProps.origValues)})
-    }
   }
 
   componentDidMount() {
@@ -154,29 +159,6 @@ class Form extends Component {
     fieldView.nodescription ? '' : description || ''
 
   /**
-   * Call submit function which comes from parent. It uses temporary and
-   * controlled values stored in the component state.
-	 * @public
-   * @returns {void}
-	 */  
-  handleSubmit = event => {
-    event.stopPropagation()
-    if (!this.state.isSubmitting) {
-      this.setState({isSubmitting: true})
-      const { item } = this.state
-      const { fields, handleSubmit, origValues, values } = this.props
-      const itemSubmit = new Item({fields, values: item.getValues()})
-      itemSubmit.cleanRelations()
-      handleSubmit(itemSubmit.getValues()).then(() => {
-        item.cleanRelations()
-        this.setState({item, isSubmitting: false})
-        this.props.onEqualValues()
-        console.log("item", item.getValues(), "origvalues", origValues, "values", values)
-      })
-    }
-  }
-  
-  /**
    * Update the item state based on user input.
 	 * @public
    * @param {string} fieldId The field whose value has changed.
@@ -186,10 +168,9 @@ class Form extends Component {
   handleFieldChange = (fieldId, value) => {
     let { item, hasChanged } = this.state
     const { origValues, values, onDifferentValues, onEqualValues } = this.props
-    item.changeValue(fieldId, value)
+    item.setValue(fieldId, value)
     this.setState({item})
-    //console.log("item", item.getValues(), "origvalues", origValues, "values", values)
-    const isDifferentFromOrigin = !isEqual(this.state.item.getValues(), origValues || values)
+    const isDifferentFromOrigin = !isEqual(item.getValues(), origValues || values)
     if (!hasChanged && isDifferentFromOrigin) {
       if (onDifferentValues) {
         onDifferentValues()
@@ -203,13 +184,41 @@ class Form extends Component {
       this.setState({hasChanged: false})
     }
   }
+  
+  /**
+   * Call submit function which comes from parent. It uses temporary and
+   * controlled values stored in the component state.
+	 * @public
+   * @returns {void}
+	 */  
+  handleSubmit = event => {
+    event.stopPropagation()
+    if (!this.state.isSubmitting) {
+      this.setState({isSubmitting: true})
+      const { item } = this.state
+      const { fields, handleSubmit, onEqualValues } = this.props
+      const itemSubmit = new Item({fields, values: item.getValues()})
+      itemSubmit.cleanRelations()
+      handleSubmit(itemSubmit.getValues()).then(() => {
+        const item = new Item({fields, values: this.props.values})
+        this.setState({item, hasChanged: false, isSubmitting: false})
+        if (onEqualValues) {
+          onEqualValues()
+        }
+      })
+    }
+  }
 
   restartForm = () => {
-    const { fields, values, origValues } = this.props
-    this.setState({item: new Item({fields, values: origValues || values})})
+    const { fields, values, origValues, onEqualValues } = this.props
+    this.setState({hasChanged: false, item: new Item({fields, values: origValues || values})})
+    if (onEqualValues) {
+      onEqualValues()
+    }
   }
 
   checkCondition = condition => {
+    console.log("CHECK", this.state.hasChanged)
     switch (condition) {
       case 'hasChanged':
         return this.state.hasChanged
@@ -220,8 +229,18 @@ class Form extends Component {
     }
   }
 
+  getWindowSize = () => {
+    const { windowSize } = this.props
+    if (windowSize === 'sm' || windowSize === 'md') {
+      return 'medium'
+    } else if (windowSize === 'lg' || windowSize === 'xl') {
+      return 'large'
+    }
+    return 'small'
+  }
+
   render = () => {
-    const { view, cols, infoMode, formRef, windowSize, classes } = this.props
+    const { view, cols, infoMode, formRef, classes } = this.props
     const { item } = this.state
 
     const formStyle = (cols, infoMode) => ({
@@ -254,12 +273,8 @@ class Form extends Component {
       }
     }
 
-    let size = 'small'
-    if (windowSize === 'sm' || windowSize === 'md') {
-      size = 'medium'
-    } else if (windowSize === 'lg' || windowSize === 'xl') {
-      size = 'large'
-    }
+    const size = this.getWindowSize()
+    const fields = item.getFields()
 
     return (
       <form
@@ -269,7 +284,7 @@ class Form extends Component {
         style={formStyle(cols, infoMode)}
       >
         {
-          item.fields.map(field => {
+          fields.map(field => {
             let fieldView = field.views ? field.views[view] : null
             if (fieldView && size in fieldView) {
               fieldView = fieldView[size]

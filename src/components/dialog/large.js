@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import Dialog from 'material-ui/Dialog'
 import Slide from 'material-ui/transitions/Slide'
@@ -8,6 +9,7 @@ const Transition = props => (<Slide direction="up" {...props} />)
 class LargeDialog extends Component {
   render = () => {
     const {
+      windowSize,
       children,
       classes,
       ...rest
@@ -16,6 +18,7 @@ class LargeDialog extends Component {
     return (
       <Dialog
         maxWidth="md"
+        fullScreen={windowSize === 'xs' || windowSize === 'sm'}
         fullWidth
         transition={Transition}
         {...rest}
@@ -30,4 +33,8 @@ LargeDialog.propTypes = {
   children: PropTypes.node.isRequired
 }
 
-export default LargeDialog
+const mapStateToProps = ({ interactions }) => ({
+  windowSize: interactions.windowSize
+})
+
+export default connect(mapStateToProps)(LargeDialog)

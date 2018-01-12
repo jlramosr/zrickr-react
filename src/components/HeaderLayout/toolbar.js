@@ -84,13 +84,15 @@ const styles = theme => ({
     transform: 'translate(0, -50%)',
     zIndex: 5,
     paddingLeft: theme.spacing.unit,
-    paddingRight: theme.spacing.unit
+    paddingRight: theme.spacing.unit,
+    width: 20,
+    height: 20
   },
   searchBarInput: {
     flex: 1,
     outline: 'none',
     border: 'none',
-    fontSize: 16,
+    fontSize: 14,
     paddingLeft: theme.spacing.unit*5,
     paddingRight: theme.spacing.unit*4
   },
@@ -233,7 +235,6 @@ class CustomToolbar extends Component {
                   <div className={classes.search}>
                     <div className={classes.searchBar} style={searchBarComputedStyle}>
                       <Search
-                        size={20}
                         className={classes.searchBarSearchIcon}
                         style={contentComputedStyle}
                       />

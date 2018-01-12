@@ -14,9 +14,6 @@ class CategoryItemDetail extends Component {
     editMode: false
   }
 
-  componentWillUnmount = () => {
-  }
-
   componentWillMount = () => {
     this.props.fetchItemIfNeeded() //this.props.fetchItem()
   }

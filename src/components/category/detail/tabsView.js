@@ -95,6 +95,51 @@ class CategoryItemDetailTabs extends Component {
 
   state = this.initialState
 
+  componentWillReceiveProps = nextProps => {
+    const oldNumOpenRelations = this.props.openRelations.length
+    const newNumOpenRelations = nextProps.openRelations.length
+    const diffNumRelations = newNumOpenRelations - oldNumOpenRelations
+    const oldRepeatedIndex = this.props.repeatedIndex
+    const newRepeatedIndex = nextProps.repeatedIndex
+    const oldTitle = this.props.title
+    const newTitle = nextProps.title
+    const oldActiveIndex = this.props.activeIndex
+    const newActiveIndex = nextProps.activeIndex
+    const hasChangedTitle = (oldTitle !== newTitle) && (oldActiveIndex === newActiveIndex) 
+
+    if (diffNumRelations > 0) {
+      this.setState(prevState => ({
+        tabs: [
+          ...prevState.tabs, {
+            title: nextProps.title,
+            itemLabel: nextProps.itemLabel,
+            editMode: false,
+            hasChanged: false,
+            values: null
+          }
+        ]
+      }))
+    } else if ((oldRepeatedIndex !== newRepeatedIndex) && newRepeatedIndex > -1) {
+      this.setState({checkWhenChangeTab: true, nextTab: newRepeatedIndex})
+    } else if (hasChangedTitle) {
+      let tabs = this.state.tabs
+      tabs[newActiveIndex].title = newTitle
+      this.setState({tabs})
+    }
+  }
+
+  componentDidMount = () => {
+    this.setState({
+      tabs:[{
+        title: this.props.title,
+        itemLabel: this.props.itemLabel,
+        editMode: false,
+        hasChanged: false,
+        values: null
+      }]
+    })
+  }
+
   updateItem = values => {
     const { updateItem } = this.props
     return updateItem(values).then(() => {
@@ -210,51 +255,6 @@ class CategoryItemDetailTabs extends Component {
       ...tempTabs.slice(removeTab+1)
     ]
     this.setState({tabs: tempTabs})
-  }
-
-  componentDidMount = () => {
-    this.setState({
-      tabs:[{
-        title: this.props.title,
-        itemLabel: this.props.itemLabel,
-        editMode: false,
-        hasChanged: false,
-        values: null
-      }]
-    })
-  }
-
-  componentWillReceiveProps = nextProps => {
-    const oldNumOpenRelations = this.props.openRelations.length
-    const newNumOpenRelations = nextProps.openRelations.length
-    const diffNumRelations = newNumOpenRelations - oldNumOpenRelations
-    const oldRepeatedIndex = this.props.repeatedIndex
-    const newRepeatedIndex = nextProps.repeatedIndex
-    const oldTitle = this.props.title
-    const newTitle = nextProps.title
-    const oldActiveIndex = this.props.activeIndex
-    const newActiveIndex = nextProps.activeIndex
-    const hasChangedTitle = (oldTitle !== newTitle) && (oldActiveIndex === newActiveIndex) 
-
-    if (diffNumRelations > 0) {
-      this.setState(prevState => ({
-        tabs: [
-          ...prevState.tabs, {
-            title: nextProps.title,
-            itemLabel: nextProps.itemLabel,
-            editMode: false,
-            hasChanged: false,
-            values: null
-          }
-        ]
-      }))
-    } else if ((oldRepeatedIndex !== newRepeatedIndex) && newRepeatedIndex > -1) {
-      this.setState({checkWhenChangeTab: true, nextTab: newRepeatedIndex})
-    } else if (hasChangedTitle) {
-      let tabs = this.state.tabs
-      tabs[newActiveIndex].title = newTitle
-      this.setState({tabs})
-    }
   }
 
   render = () => {
@@ -396,8 +396,8 @@ class CategoryItemDetailTabs extends Component {
               {handler:checkWhenClose, callback:this.whenClose},
               {handler:checkWhenChangeTab, callback:this.whenChangeTab},
               {handler:checkWhenRemoveTab, callback:this.whenRemoveTab},
-              {when:'hasChanged', handler:checkWhenInfoMode, callback:this.whenInfoModeWithChanges},
-              {when:'hasNotChanged', handler:checkWhenInfoMode, callback:this.whenInfoModeWithoutChanges},
+              {handler:checkWhenInfoMode, when:'hasChanged', callback:this.whenInfoModeWithChanges},
+              {handler:checkWhenInfoMode, when:'hasNotChanged', callback:this.whenInfoModeWithoutChanges},
             ]}
             onDifferentValues={this.whenDifferentValues}
             onEqualValues={this.whenSameValues}
