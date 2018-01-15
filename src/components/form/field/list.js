@@ -1,10 +1,8 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
-import { statesObjectToArray, statesArrayToObject } from './utils/helpers'
 import { fetchSettingsIfNeeded } from '../../../actions/settings'
 import { fetchFieldsIfNeeded } from '../../../actions/fields'
-
 import Paper from 'material-ui/Paper'
 import CategoryList from '../../category/list/'
 
@@ -16,6 +14,16 @@ class ListField extends Component {
       this.props.fetchFieldsIfNeeded()
     }
   }
+
+  //{2134: true, 2135: added} => [{id:2134, state:true}, {id:2135, state:added}]
+  statesObjectToArray = object =>
+    (Object.keys(object) || []).map(id => ({id, state:object[id]}))
+
+  //[{id:2134, state:true}, {id:2135, state:added}] => {2134: true, 2135: added}
+  statesArrayToObject = array =>
+    array.reduce((stateIds, idState) => (
+      {...stateIds, [idState.id]: idState.state}
+    ), {})
 
   render = () => {
     const {
@@ -29,21 +37,20 @@ class ListField extends Component {
       sendFormFieldChange,
       classes
     } = this.props
-
     
     return (
       <Paper elevation={4} className={classes.list}>
         <CategoryList
           categoryId={relation}
           categoryLabel={label || relationLabel}
-          filterItemIds={statesObjectToArray(value)}
+          filterItemIds={this.statesObjectToArray(value)}
           relationMode
           relationFieldId={id}
           editMode={!infoMode && !readonly}
           tableMode={false}
           showAvatar={false}
           sendFormFieldChange={newFilterItemIds => {
-            sendFormFieldChange(id, statesArrayToObject(newFilterItemIds))
+            sendFormFieldChange(id, this.statesArrayToObject(newFilterItemIds))
           }}
         />
       </Paper>

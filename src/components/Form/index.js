@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import Field from './field/'
-import { isEqual } from '../../utils/helpers'
+import { isEqual, isObject } from '../../utils/helpers'
 import { withStyles } from 'material-ui/styles'
 
 /**
@@ -22,14 +22,13 @@ class Item {
     })*/
   }
 
-  isRelational = value =>
-    value && typeof value === 'object' && !Array.isArray(value)
-
   setValues = values => this.values = {...values}
 
   setValue = (fieldId, value) => {
     this.values[fieldId] = 
-      this.isRelational(value) && !Object.keys(value).length ? undefined : value
+      isObject(value) && !Object.keys(value).length ?
+        delete this.values[fieldId] :
+        this.values[fieldId] = value
   }
 
   setFields = fields => this.fields = [...fields]
@@ -47,7 +46,7 @@ class Item {
     this.values = Object.keys(this.values).reduce((values, fieldId) => {
       const value = this.values[fieldId]
       let newValue = value
-      if (this.isRelational(value)) {
+      if (isObject(value)) {
         newValue = Object.keys(value).reduce((values, id) => {
           if (value[id] === true || value[id] === 'added') {
             return {...values, [id]: true}
@@ -170,6 +169,7 @@ class Form extends Component {
     const { origValues, values, onDifferentValues, onEqualValues } = this.props
     item.setValue(fieldId, value)
     this.setState({item})
+    console.log(fieldId, value, item.getValues());
     const isDifferentFromOrigin = !isEqual(item.getValues(), origValues || values)
     if (!hasChanged && isDifferentFromOrigin) {
       if (onDifferentValues) {
@@ -218,7 +218,6 @@ class Form extends Component {
   }
 
   checkCondition = condition => {
-    console.log("CHECK", this.state.hasChanged)
     switch (condition) {
       case 'hasChanged':
         return this.state.hasChanged

@@ -20,7 +20,7 @@ class CategoryItemDetail extends Component {
 
   getTitle = () => {
     const { settings, item } = this.props
-    return item ? getItemString(settings.primaryFields, item) : ''
+    return item ? getItemString(item, settings.primaryFields) : ''
   }
 
   changeEditMode = editMode => {

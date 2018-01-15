@@ -54,7 +54,7 @@ class CategoryList extends Component {
       const cleanQuery = removeDiacritics(searchQuery.trim())
       const match = new RegExp(escapeRegExp(cleanQuery), 'i')
       foundItems = items.filter(item => (
-        match.test(removeDiacritics(getItemString(settings.primaryFields, item)))
+        match.test(removeDiacritics(getItemString(item, settings.primaryFields)))
       ))
     }
     this.setState({ foundItems, searchQuery })

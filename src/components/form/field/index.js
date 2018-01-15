@@ -101,10 +101,20 @@ const styles = theme => ({
       tableLayout: 'fixed',
       paddingLeft: 0
     },
+    '&.is-focused:not(.is-open)>.Select-control': { 
+      border: `2px solid ${theme.palette.primary[500]}`,
+      background: theme.palette.secondary[50],
+      boxShadow: 'none'
+    },
+    '&.is-open>.Select-control': { 
+      border: `2px solid ${theme.palette.primary[500]}`,
+      background: theme.palette.secondary[50],
+      boxShadow: 'none'
+    },
     '& .Select-value': {
       ...inputStyle(theme),
-      paddingLeft: `${paddingLeft}px !important`,
-      border: 0
+      border: `1px solid ${theme.palette.secondary[200]}`,
+      paddingLeft: `${paddingLeft}px !important`
     },
     '& .Select-menu-outer': {
       padding: 0
@@ -119,11 +129,21 @@ const styles = theme => ({
       tableLayout: 'fixed',
       paddingLeft: 0
     },
+    '&.is-focused:not(.is-open)>.Select-control': { 
+      border: `2px solid ${theme.palette.primary[500]}`,
+      background: theme.palette.secondary[200],
+      boxShadow: 'none'
+    },
+    '&.is-open>.Select-control': { 
+      border: `2px solid ${theme.palette.primary[500]}`,
+      background: theme.palette.secondary[200],
+      boxShadow: 'none'
+    },
     '& .Select-value': {
       ...inputStyle(theme),
+      border: `1px solid ${theme.palette.secondary[400]}`,
       background: theme.palette.secondary[200],
-      paddingLeft: `${paddingLeft}px !important`,
-      border: 0
+      paddingLeft: `${paddingLeft}px !important`
     },
     '& .Select-menu-outer': {
       padding: 0
@@ -191,6 +211,7 @@ class Field extends Component {
 
   render = () => {
     switch(this.props.type) {
+      case 'string': return <TextField {...this.props} />
       case 'select': return <SelectField {...this.props} />
       case 'boolean': return <SwitchField {...this.props} />
       case 'list': return <ListField {...this.props} />
@@ -230,12 +251,13 @@ Field.propTypes = {
     }
   },
   valueSelectRelation: (props, propName, componentName) => {
-    if (props.relation && props.type === 'select' && props.value) {
-      if (!props.multi && typeof props.value !== 'string') {
+    const { relation, type, value, multi } = props
+    if (relation && type === 'select' && value) {
+      if (!multi && typeof value !== 'string') {
         return new Error(
           `${propName} ${componentName}: Value of single relation field must be an id key`
         )
-      } else if (props.multi && !Array.isArray(props.value)) {
+      } else if (props.multi && !Array.isArray(value) && typeof value !== 'object') {
         return new Error(
           `${propName} ${componentName}: Value of multiple relation field must be an array of id keys`
         )
@@ -243,7 +265,8 @@ Field.propTypes = {
     }
   },
   valueListRelation: (props, propName, componentName) => {
-    if (props.relation && props.type === 'list' && props.value && typeof props.value !== 'object') {
+    const { relation, type, value } = props
+    if (relation && type === 'list' && value && typeof value !== 'object') {
       return new Error(
         `${propName} ${componentName}: Value of relation field must be an id key`
       )

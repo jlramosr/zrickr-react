@@ -140,6 +140,7 @@ let CategoryAgendaView = class extends Component {
     const {
       categoryId,
       settings,
+      fields,
       items,
       showAvatar,
       dialogMode,
@@ -183,9 +184,9 @@ let CategoryAgendaView = class extends Component {
               let itemClassName = classes[
                 isMarkedForRemove ? 'markRemovedItem' : (isMarkedForAdd ? 'markAddedItem' : 'unmarkedItem')
               ]
-              const primaryInfo = getItemString(settings.primaryFields, item)
+              const primaryInfo = getItemString(item, settings.primaryFields, settings.primaryFieldsSeparator)
               const firstLetter = primaryInfo[0]
-              const secondaryInfo = getItemString(settings.secondaryFields, item)
+              const secondaryInfo = getItemString(item, settings.secondaryFields, settings.secondaryFieldsSeparator)
               return (
                 <div key={item.id} className={itemClassName}>
                   <Link

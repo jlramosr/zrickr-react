@@ -368,6 +368,7 @@
       },
       "22346" : {
         "label" : "Ciudad",
+        "multi" : true,
         "options" : [ {
           "id" : "kuala_lumpur",
           "label" : "Kuala Lumpur"
@@ -392,6 +393,7 @@
       },
       "23520" : {
         "label" : "Cliente Asociado",
+        "multi" : true,
         "relation" : "clients",
         "type" : "select",
         "views" : {
@@ -584,13 +586,13 @@
     "movements" : {
       "00001" : {
         "22345" : "C/FREESNp",
-        "22346" : "Kuala Lumpur",
+        "22346" : "kuala_lumpur",
         "id" : "00001",
         "updatedAt" : 1512162827435
       },
       "00002" : {
         "22345" : "C/Ferraz",
-        "22346" : "Marruecos"
+        "22346" : "marruecos"
       }
     }
   },
@@ -611,7 +613,8 @@
         "icon" : "work",
         "itemLabel" : "movimiento",
         "primaryFields" : [ "22345" ],
-        "secondaryFields" : [ "22346" ],
+        "secondaryFields" : [ "22346", "23520" ],
+        "secondaryFieldsSeparator": "-",
         "shared" : false
       }
     }

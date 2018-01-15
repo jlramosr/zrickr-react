@@ -8,6 +8,9 @@ export const isEqual = (item1, item2) => {
   return JSON.stringify(item1) === JSON.stringify(item2) 
 }
 
+export const isObject = value =>
+  value && typeof value === 'object' && !Array.isArray(value)
+
 export const getDifferences = (item1, item2) => {
   let _item1 = {...item1}
   let diffs = Object.keys(item2).reduce((differences, key) => {

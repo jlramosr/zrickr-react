@@ -6,14 +6,15 @@ import { fetchFieldsIfNeeded } from '../../../actions/fields'
 import { fetchItemsIfNeeded } from '../../../actions/items'
 import { ListItem, ListItemText } from 'material-ui/List'
 import Divider from 'material-ui/Divider'
+import { FormControl, FormLabel } from 'material-ui/Form'
 import VirtualizedSelect from 'react-virtualized-select'
 import 'react-select/dist/react-select.css'
 import 'react-virtualized/styles.css'
 import 'react-virtualized-select/styles.css'
-import { FormControl, FormLabel } from 'material-ui/Form'
 import { getItemString } from '../../category/utils/helpers'
+import { isObject } from '../../../utils/helpers'
 
-const _getInputClassName = (classes, infoMode, readonly, required) => {
+const getInputClassName = (classes, infoMode, readonly, required) => {
   let className = 'inputSelect'
   if (infoMode) {
     className += 'Info'
@@ -51,7 +52,6 @@ const OptionRenderer = ({ option, selectValue, style }) => (
 )
 
 class SelectField extends Component {
-
   componentWillMount = () => {
     if (this.props.relation) {
       this.props.fetchSettingsIfNeeded()
@@ -60,22 +60,26 @@ class SelectField extends Component {
     }
   }
 
-  _getOptions() {
-    return this.props.relation ?
-      this.props.items.map(item => ({
+  getOptions() {
+    const { relation, items, options, settings } = this.props
+    return relation ?
+      items.map(item => ({
         id: item.id,
-        label: getItemString(this.props.settings.primaryFields, item),
-        secondaryLabel: getItemString(this.props.settings.secondaryFields, item)
+        label: getItemString(item, settings.primaryFields),
+        secondaryLabel: getItemString(item, settings.secondaryFields)
       })) :
-      this.props.options
+      options
   }
 
-  _arrowMultiRenderer = () => <span>+</span>
+  arrowMultiRenderer = () => <span>+</span>
+
+  valueToString = (options, value) => {
+    options.filter(option => value.includes)
+  }
 
   render = () => {
     const {
       id,
-      value,
       label,
       required,
       readonly,
@@ -88,7 +92,17 @@ class SelectField extends Component {
       isUpdating,
       classes
     } = this.props
-    const options = this._getOptions()
+    const options = this.getOptions()
+    let value = null
+    if (isObject(this.props.value)) {
+      value = Object.keys(this.props.value)
+    } else if (this.props.value) {
+      value = this.props.value
+    }
+    const valuesSelected =
+      Array.isArray(value) ?
+        options.filter(option => value.includes(option.id)) :
+        options.find(option => option.id === value)
 
     return (
       <FormControl fullWidth>
@@ -98,22 +112,15 @@ class SelectField extends Component {
           </FormLabel>
         )}
         <VirtualizedSelect
-          className={_getInputClassName(classes, infoMode, readonly, required)}
+          className={getInputClassName(classes, infoMode, readonly, required)}
           disabled={readonly || infoMode}
-          arrowRenderer={infoMode ? null : multi ? this._arrowMultiRenderer : undefined}
           placeholder=""
-          optionRenderer={OptionRenderer}
-          options={options}
-          value={value ?
-            (
-              Array.isArray(value) ?
-                options.filter(option => value.includes(option.id)) :
-                options.find(option => option.id === value)
-            ) :
-            null
-          }
-          multi={multi}
+          arrowRenderer={infoMode ? null : multi ? this.arrowMultiRenderer : undefined}
           isLoading={isFetchingSettings || isFetchingFields || isFetchingItems || isUpdating}
+          options={options}
+          optionRenderer={OptionRenderer}
+          value={valuesSelected}
+          multi={multi}
           labelKey="label"
           valueKey="id"
           onChange={selectedOptions => {
@@ -121,9 +128,9 @@ class SelectField extends Component {
             if (selectedOptions) {
               if (multi) {
                 //selectedOptions is an array [{id,label}]
-                value = selectedOptions.reduce((value, option) => [
-                  ...value, option.id
-                ], [])
+                value = selectedOptions.reduce((values, option) => ({
+                  ...values, [option.id]: true
+                }), {})
               } else {
                 //selectedOptions is an object {id,label}
                 value = selectedOptions.id

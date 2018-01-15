@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import TextField from 'material-ui/TextField'
 
-const _getInputClassName = (classes, type, infoMode, readonly, required) => {
+const getInputClassName = (classes, type, infoMode, readonly, required) => {
   let className = type === 'text' ? 'textarea' : 'inputText'
   if (infoMode) {
     className += 'Info'
@@ -30,7 +30,7 @@ let CustomTextField = props => {
   } = props
   const InputProps = {
     inputProps: {
-      className: _getInputClassName(classes, type, infoMode, readonly, required)
+      className: getInputClassName(classes, type, infoMode, readonly, required)
     },
     tabIndex: order,
     disableUnderline: true
