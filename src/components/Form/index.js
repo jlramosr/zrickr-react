@@ -25,10 +25,9 @@ class Item {
   setValues = values => this.values = {...values}
 
   setValue = (fieldId, value) => {
-    this.values[fieldId] = 
-      isObject(value) && !Object.keys(value).length ?
-        delete this.values[fieldId] :
-        this.values[fieldId] = value
+    isObject(value) && !Object.keys(value).length ?
+      delete this.values[fieldId] :
+      this.values[fieldId] = value
   }
 
   setFields = fields => this.fields = [...fields]
@@ -169,7 +168,6 @@ class Form extends Component {
     const { origValues, values, onDifferentValues, onEqualValues } = this.props
     item.setValue(fieldId, value)
     this.setState({item})
-    console.log(fieldId, value, item.getValues());
     const isDifferentFromOrigin = !isEqual(item.getValues(), origValues || values)
     if (!hasChanged && isDifferentFromOrigin) {
       if (onDifferentValues) {

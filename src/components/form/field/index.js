@@ -30,6 +30,42 @@ const textareaStyle = {
   paddingRight: 0
 }
 
+const selectControlStyle = {
+  borderBottomLeftRadius: 0,
+  borderBottomRightRadius: 0,
+  tableLayout: 'fixed',
+  paddingLeft: 0
+}
+
+const selectControlActiveStyle = theme => ({
+  border: `2px solid ${theme.palette.primary[500]}`,
+  background: theme.palette.secondary[50],
+  boxShadow: 'none'
+})
+
+const selectValueStyle = theme => ({
+  border: `1px solid ${theme.palette.secondary[200]}`,
+  paddingLeft: `${paddingLeft}px !important`,
+  color: 'currentColor'
+})
+
+const selectIconsHoverStyle = theme => ({
+  color: theme.palette.secondary[600]
+})
+
+const selectValueIconStyle = {
+  width: 16,
+  fontSize: 18,
+  padding: 0
+}
+const selectValueIconHoverStyle = {
+  background: 'none'
+}
+
+const selectMenuOuterStyle = {
+  padding: 0
+}
+
 const requiredStyle = theme => ({
   background: theme.palette.secondary[200]
 })
@@ -93,60 +129,74 @@ const styles = theme => ({
     ...infoStyle(theme),
     ...textareaStyle
   },
+
   inputSelect: {
     '& .Select-control': {
       ...inputStyle(theme),
-      borderBottomLeftRadius: 0,
-      borderBottomRightRadius: 0,
-      tableLayout: 'fixed',
-      paddingLeft: 0
+      ...selectControlStyle
     },
     '&.is-focused:not(.is-open)>.Select-control': { 
-      border: `2px solid ${theme.palette.primary[500]}`,
-      background: theme.palette.secondary[50],
-      boxShadow: 'none'
+      ...selectControlActiveStyle(theme)
     },
     '&.is-open>.Select-control': { 
-      border: `2px solid ${theme.palette.primary[500]}`,
-      background: theme.palette.secondary[50],
-      boxShadow: 'none'
+      ...selectControlActiveStyle(theme)
     },
     '& .Select-value': {
       ...inputStyle(theme),
-      border: `1px solid ${theme.palette.secondary[200]}`,
-      paddingLeft: `${paddingLeft}px !important`
+      ...selectValueStyle(theme)
+    },
+    '& .Select-value-icon': {
+      ...selectValueIconStyle
+    },
+    '& .Select-value-icon:hover': {
+      ...selectIconsHoverStyle(theme),
+      ...selectValueIconHoverStyle
     },
     '& .Select-menu-outer': {
-      padding: 0
+      ...selectMenuOuterStyle
+    },
+    '& .Select-clear-zone:hover': {
+      ...selectIconsHoverStyle(theme)
+    },
+    '& .Select-arrow-zone:hover': {
+      ...selectIconsHoverStyle(theme)
     }
   },
   inputSelectRequired: {
     '& .Select-control': {
       ...inputStyle(theme),
-      background: theme.palette.secondary[200],
-      borderBottomLeftRadius: 0,
-      borderBottomRightRadius: 0,
-      tableLayout: 'fixed',
-      paddingLeft: 0
+      ...selectControlStyle,
+      background: theme.palette.secondary[200]
     },
     '&.is-focused:not(.is-open)>.Select-control': { 
-      border: `2px solid ${theme.palette.primary[500]}`,
-      background: theme.palette.secondary[200],
-      boxShadow: 'none'
+      ...selectControlActiveStyle(theme),
+      background: theme.palette.secondary[200]
     },
     '&.is-open>.Select-control': { 
-      border: `2px solid ${theme.palette.primary[500]}`,
-      background: theme.palette.secondary[200],
-      boxShadow: 'none'
+      ...selectControlActiveStyle(theme),
+      background: theme.palette.secondary[200]
     },
     '& .Select-value': {
       ...inputStyle(theme),
+      ...selectValueStyle(theme),
       border: `1px solid ${theme.palette.secondary[400]}`,
-      background: theme.palette.secondary[200],
-      paddingLeft: `${paddingLeft}px !important`
+      background: theme.palette.secondary[200]
+    },
+    '& .Select-value-icon': {
+      ...selectValueIconStyle
+    },
+    '& .Select-value-icon:hover': {
+      ...selectIconsHoverStyle(theme),
+      ...selectValueIconHoverStyle
     },
     '& .Select-menu-outer': {
-      padding: 0
+      ...selectMenuOuterStyle
+    },
+    '& .Select-clear-zone:hover': {
+      ...selectIconsHoverStyle(theme)
+    },
+    '& .Select-arrow-zone:hover': {
+      ...selectIconsHoverStyle(theme)
     }
   },
   inputSelectReadonly: {

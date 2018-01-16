@@ -140,7 +140,6 @@ let CategoryAgendaView = class extends Component {
     const {
       categoryId,
       settings,
-      fields,
       items,
       showAvatar,
       dialogMode,
