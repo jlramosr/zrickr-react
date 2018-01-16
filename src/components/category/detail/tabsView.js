@@ -8,7 +8,6 @@ import ChromeReaderMode from 'material-ui-icons/ChromeReaderMode'
 import Tabs, { Tab } from 'material-ui/Tabs'
 import Close from 'material-ui-icons/Close'
 import FiberManualRecord from 'material-ui-icons/FiberManualRecord'
-import { capitalize, isEqual } from '../../../utils/helpers'
 import { withStyles } from 'material-ui/styles'
 
 const styles = theme => ({

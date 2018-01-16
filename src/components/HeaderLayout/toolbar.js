@@ -11,6 +11,8 @@ import Close from 'material-ui-icons/Close'
 import CircularProgress from 'material-ui/Progress/CircularProgress'
 import { transformColor } from './utils/helpers'
 
+const sizeDifferenceLimit = 'sm'
+
 const styles = theme => ({
   /* Bar */
   appBar: {
@@ -39,12 +41,11 @@ const styles = theme => ({
     marginRight: theme.spacing.unit*4
   },
   search: {
-    display: 'none',
     height: '100%',
-    [theme.breakpoints.up('sm')]: {
+    [theme.breakpoints.up(sizeDifferenceLimit)]: {
       flex: 1,
       display: 'flex',
-      justifyContent: 'center',
+      justifyContent: 'flex-end',
       marginLeft: theme.spacing.unit*2,
       marginRight: theme.spacing.unit*2
     }
@@ -70,12 +71,13 @@ const styles = theme => ({
   /* Search */
   searchBar: {
     display: 'flex',
-    position: 'relative',
     justifyContent: 'center',
     alignItems: 'center',
-    maxWidth: 620,
+    position: 'absolute',
+    top: 0,
+    left: 0,
     width: '100%',
-    backgroundColor: transformColor(theme.palette.primary[500],16)
+    zIndex: theme.zIndex.appBar+1
   },
   searchBarSearchIcon: {
     position: 'absolute',
@@ -96,13 +98,6 @@ const styles = theme => ({
     paddingLeft: theme.spacing.unit*5,
     paddingRight: theme.spacing.unit*4
   },
-  searchBarInputFocused: {
-    transition: theme.transitions.create(['background-color'], {
-      duration: theme.transitions.duration.complex,
-      easing: theme.transitions.easing.sharp
-    }),
-    backgroundColor: transformColor(theme.palette.primary[500],24)
-  },
   searchBarCloseIcon: {
     position: 'absolute',
     right: 0,
@@ -114,7 +109,7 @@ const styles = theme => ({
     cursor: 'pointer'
   },
   searchOperation: {
-    [theme.breakpoints.up('sm')]: {
+    [theme.breakpoints.up(sizeDifferenceLimit)]: {
       display: 'none'
     }
   }
@@ -141,7 +136,32 @@ Operations = withStyles(styles)(Operations)
 
 class CustomToolbar extends Component {
   state = {
-    searchQuery: ''
+    searchQuery: '',
+    showSearchInput: false,
+    searchInputFocused: false,
+    modeSmall: false
+  }
+
+  componentDidMount = () => {
+    window.addEventListener('resize', () =>
+      this.updateModeSmall(this.props.theme)
+    )
+    this.updateModeSmall(this.props.theme)
+  }
+
+  componentWillUnmount = () => {
+    window.removeEventListener('resize', () =>
+      this.updateModeSmall(this.props.theme)
+    )
+  }
+
+  updateModeSmall = theme => {
+    const width = window.innerWidth
+    if (width >= theme.breakpoints.width(sizeDifferenceLimit)) {
+      this.setState({modeSmall: false, showSearchInput: true})
+    } else {
+      this.setState({modeSmall: true, showSearchInput: false})
+    }
   }
 
   updateSearchQuery = searchQuery => {
@@ -161,15 +181,29 @@ class CustomToolbar extends Component {
       classes,
       theme 
     } = this.props
-    const { searchQuery } = this.state
+    const { showSearchInput, searchQuery, searchInputFocused, modeSmall } = this.state
 
     const leftOperations = operations.filter(operation => !operation.right)
     let rightOperations = operations.filter(operation => operation.right)
-    if (updateSearchQuery) {
+    if (updateSearchQuery && modeSmall) {
+
       rightOperations = [
-        {id:'search-small', icon:Search, right:true, onClick: () => {}},//TODO}},
-        ...rightOperations
+        {
+          id:'search-small',
+          icon:Search,
+          color: showSearchInput ? theme.palette.secondary[400] : 'inherit',
+          right:true,
+          onClick: () => {
+            this.setState(prevState => ({
+              showSearchInput: !prevState.showSearchInput,
+              searchQuery: ''
+            }))
+            updateSearchQuery('')
+          }
+        },
+        ...(showSearchInput ? [] : rightOperations)
       ]
+
     }
 
     let appBarComputedStyle = {}
@@ -177,7 +211,29 @@ class CustomToolbar extends Component {
     let contentComputedStyle = {
       color: 'white'
     }
-    let searchBarComputedStyle = {}
+    let searchBarComputedStyle = {    
+      backgroundColor: transformColor(theme.palette.primary[500], searchInputFocused ? 24 : 16),
+    }
+    if (modeSmall) {
+      searchBarComputedStyle = {
+        ...searchBarComputedStyle,
+        top: 12,
+        left: 12,
+        maxWidth: `calc(${window.innerWidth}px - ${theme.spacing.unit*10}px)`
+      }
+    } else {
+      searchBarComputedStyle = {
+        ...searchBarComputedStyle,
+        position: 'relative',
+        width: searchInputFocused ? '100%' : '90%',
+        maxWidth: searchInputFocused ? 300 : 240,
+        transition: theme.transitions.create(['background-color', 'max-width', 'width'], {
+          duration: theme.transitions.duration.standard,
+          easing: theme.transitions.easing.sharp
+        })
+      }
+    }
+
     if (secondary && secondaryProps) {
       appBarComputedStyle = {
         ...appBarComputedStyle,
@@ -197,7 +253,7 @@ class CustomToolbar extends Component {
       }
       searchBarComputedStyle = {
         ...searchBarComputedStyle,
-        backgroundColor: theme.palette[secondaryProps.color][secondaryProps.tone]
+        backgroundColor: theme.palette[secondaryProps.color][secondaryProps.tone]  
       }
     }
     
@@ -231,7 +287,7 @@ class CustomToolbar extends Component {
                   </div>
                 }
 
-                {updateSearchQuery &&
+                {updateSearchQuery && showSearchInput &&
                   <div className={classes.search}>
                     <div className={classes.searchBar} style={searchBarComputedStyle}>
                       <Search
@@ -240,10 +296,11 @@ class CustomToolbar extends Component {
                       />
                       <Input
                         classes={{
-                          root: classes.searchBarInput,
-                          ...(secondary ? {} : {focused: classes.searchBarInputFocused})
+                          root: classes.searchBarInput
                         }}
                         style={contentComputedStyle}
+                        onFocus={() => this.setState({searchInputFocused: true})}
+                        onBlur={() => this.setState({searchInputFocused: false})}
                         placeholder="Buscar"
                         disableUnderline={secondary ? false : true}
                         value={searchQuery}

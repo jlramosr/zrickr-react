@@ -64,12 +64,10 @@ class CategoryItemDetailHeader extends Component {
   }
 
   whenInfoModeWithChanges = () => {
-    console.log("HOLAaaaaaaaaaaaa11111111111");
     this.setState({showWhenInfoModeDialog: true})
   }
 
   whenInfoModeWithoutChanges = () => {
-    console.log("HOLAaaaaaaaaaaaa222222222222");
     const { history, changeEditMode, categoryId } = this.props
     if (this.state.checkWhenBack) {
       history.push(`/${categoryId}`)

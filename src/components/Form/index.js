@@ -25,9 +25,16 @@ class Item {
   setValues = values => this.values = {...values}
 
   setValue = (fieldId, value) => {
-    isObject(value) && !Object.keys(value).length ?
-      delete this.values[fieldId] :
+    console.log(fieldId, value, typeof value);
+    if (
+      (isObject(value) && !Object.keys(value).length) ||
+      (typeof value === 'string' && value === '')
+    ) {
+      delete this.values[fieldId]
+    } else {
       this.values[fieldId] = value
+    }
+      
   }
 
   setFields = fields => this.fields = [...fields]

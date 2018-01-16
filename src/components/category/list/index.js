@@ -170,6 +170,7 @@ class CategoryList extends Component {
       isFetchingFields,
       filterItemIds,
       isFetchingItems,
+      isUpdating,
       operations,
       relationMode,
       editMode,
@@ -224,7 +225,7 @@ class CategoryList extends Component {
         overflow={tableMode ? 'hidden' : 'auto'}
         title={categoryLabel}
         updateSearchQuery={!tableMode ? this.updateSearchQuery : null}
-        loading={isFetchingSettings || isFetchingFields || isFetchingItems}
+        loading={isFetchingSettings || isFetchingFields || isFetchingItems || isUpdating}
         operations={operations || [
           { 
             id: 'arrowBack',
@@ -478,6 +479,7 @@ const mapStateToProps = ({ categories, settings, fields, items, interactions }, 
     isFetchingFields: fields.flow[categoryId].isFetchingAll,
     items: Object.values(items.byId).filter(item => category.items.includes(item.id)),
     isFetchingItems: items.flow[categoryId].isFetchingAll,
+    isUpdating: items.flow[categoryId].isUpdating,
     isShowingRelations: interactions.relations.isShowing
   }
 }

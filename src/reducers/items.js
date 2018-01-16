@@ -220,7 +220,6 @@ const byId = (state = initialByIdState, action) => {
       return {
         ...state,
         [action.itemId]: {
-          ...state[action.itemId],
           ...action.item
         }
       }

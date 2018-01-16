@@ -5,82 +5,92 @@ const keyPrefixStorage = 'reduxPersist'
 export const getItemString = (item, fieldIds=[], fieldsSeparator='') => {
   const info = fieldIds.reduce((info, fieldId) => {
     let value = item[fieldId]
+    if (localStorage) {
+      const allFields = JSON.parse(
+        localStorage.getItem(`${keyPrefixStorage}:fields`)
+      ).byId
 
-    const allFields = JSON.parse(
-      localStorage.getItem(`${keyPrefixStorage}:fields`)
-    ).byId
+      const fields = Object.keys(allFields).reduce((fields, fieldId) => {
+        if (fieldIds.includes(fieldId)) {
+          return [...fields, allFields[fieldId]]
+        }
+        return [...fields]
+      }, [])
 
-    const fields = Object.keys(allFields).reduce((fields, fieldId) => {
-      if (fieldIds.includes(fieldId)) {
-        return [...fields, allFields[fieldId]]
+      const field = fields.find(field => field.id === fieldId)
+
+      if (!field || !value) {
+        return info
       }
-      return [...fields]
-    }, [])
 
-    const field = fields.find(field => field.id === fieldId)
+      if (field.relation) {
 
-    if (!field || !value) {
+        const settingsRelationId = JSON.parse(
+          localStorage.getItem(`${keyPrefixStorage}:categories`)
+        ).byId[`${field.relation}`].settings
+
+        const settings = JSON.parse(
+          localStorage.getItem(`${keyPrefixStorage}:settings`)
+        ).byId[`${settingsRelationId}`]
+
+        if (!isObject(value)) {
+          value = {[value]: true}
+        }
+
+        const ids = Object.keys(value)
+        const infoRelationTemp = ids.reduce((infoTemp, id) => ([
+          ...infoTemp,
+          `${getItemString(
+            JSON.parse(
+              localStorage.getItem(`${keyPrefixStorage}:items`)
+            ).byId[`${id}`],
+    
+            settings.primaryFields,
+
+            settings.primaryFieldsSeparator
+          )}`
+        ]), [])
+
+        if (!info) {
+          return `${infoRelationTemp.join(', ')}`
+        }
+        
+        return `${info} ${fieldsSeparator} ${infoRelationTemp.join(', ')}`
+      
+      } else if (field.options && localStorage) {
+
+        if (!isObject(value)) {
+          value = {[value]: true}
+        }
+
+        const ids = Object.keys(value)
+        const infoRelationTemp = ids.reduce((infoTemp, id) => {
+          const option = field.options.find(option => option.id === id)
+          if (option) {
+            return [...infoTemp, option.label]
+          }
+          return [...infoTemp]
+        }, [])
+        
+        if (!info) {
+          return `${infoRelationTemp.join(', ')}`
+        }
+
+        return `${info} ${fieldsSeparator} ${infoRelationTemp.join(', ')}`
+
+      }
+    }
+
+    if (!info && !value) {
+      return ''
+    }
+    if (!info && value) {
+      return value
+    }
+    if (!value) {
       return info
     }
-
-    if (field.relation && localStorage) {
-
-      const settingsRelationId = JSON.parse(
-        localStorage.getItem(`${keyPrefixStorage}:categories`)
-      ).byId[`${field.relation}`].settings
-
-      const settings = JSON.parse(
-        localStorage.getItem(`${keyPrefixStorage}:settings`)
-      ).byId[`${settingsRelationId}`]
-
-      if (!isObject(value)) {
-        value = {[value]: true}
-      }
-
-      const ids = Object.keys(value)
-      const infoRelationTemp = ids.reduce((infoTemp, id) => ([
-        ...infoTemp,
-        `${getItemString(
-          JSON.parse(
-            localStorage.getItem(`${keyPrefixStorage}:items`)
-          ).byId[`${id}`],
-  
-          settings.primaryFields,
-
-          settings.primaryFieldsSeparator
-        )}`
-      ]), [])
-
-      if (!info) {
-        return `${infoRelationTemp.join(', ')}`
-      }
-      
-      return `${info} ${fieldsSeparator} ${infoRelationTemp.join(', ')}`
-    
-    } else if (field.options && localStorage) {
-
-      if (!isObject(value)) {
-        value = {[value]: true}
-      }
-
-      const ids = Object.keys(value)
-      const infoRelationTemp = ids.reduce((infoTemp, id) => {
-        const option = field.options.find(option => option.id === id)
-        if (option) {
-          return [...infoTemp, option.label]
-        }
-        return [...infoTemp]
-      }, [])
-      
-      if (!info) {
-        return `${infoRelationTemp.join(', ')}`
-      }
-
-      return `${info} ${fieldsSeparator} ${infoRelationTemp.join(', ')}`
-
-    }
-
-    return info ? `${info} ${fieldsSeparator} ${value}`: `${value}`
+    return `${info} ${fieldsSeparator} ${value}`
 
   }, '') 
   return info.trim()

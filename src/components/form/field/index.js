@@ -302,12 +302,15 @@ Field.propTypes = {
   },
   valueSelectRelation: (props, propName, componentName) => {
     const { relation, type, value, multi } = props
+    if (multi) {
+      //console.log(props.label, value);
+    }
     if (relation && type === 'select' && value) {
       if (!multi && typeof value !== 'string') {
         return new Error(
           `${propName} ${componentName}: Value of single relation field must be an id key`
         )
-      } else if (props.multi && !Array.isArray(value) && typeof value !== 'object') {
+      } else if (multi && !Array.isArray(value) && typeof value !== 'object') {
         return new Error(
           `${propName} ${componentName}: Value of multiple relation field must be an array of id keys`
         )
