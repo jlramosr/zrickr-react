@@ -49,13 +49,13 @@ class App extends Component {
     const width = window.innerWidth
     const { windowSize, updateWindowSize } = this.props
     let size = 'xs'
-    if (width >= theme.breakpoints.values['xl']) {
+    if (width >= theme.breakpoints.width('xl')) {
       size = 'xl'
-    } else if (width >= theme.breakpoints.values['lg']) {
+    } else if (width >= theme.breakpoints.width('lg')) {
       size = 'lg'
-    }else if (width >= theme.breakpoints.values['md']) {
+    } else if (width >= theme.breakpoints.width('md')) {
       size = 'md'
-    } else if (width >= theme.breakpoints.values['sm']) {
+    } else if (width >= theme.breakpoints.width('sm')) {
       size = 'sm'
     }
     if (size !== windowSize) {

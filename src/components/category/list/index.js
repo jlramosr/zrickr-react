@@ -8,7 +8,7 @@ import CategoryTableView from './tableView'
 import ArrowBack from 'material-ui-icons/ArrowBack'
 import Close from 'material-ui-icons/Close'
 import Add from 'material-ui-icons/Add'
-import AddCircleOutline from 'material-ui-icons/AddCircleOutline'
+import AddCircle from 'material-ui-icons/AddCircle'
 import ViewList from 'material-ui-icons/ViewList'
 import ViewAgenda from 'material-ui-icons/ViewAgenda'
 import ItemNew from './../new'
@@ -265,7 +265,7 @@ class CategoryList extends Component {
           },
           {
             id:'addExistentItem',
-            icon: AddCircleOutline,
+            icon: AddCircle,
             hidden: !relationMode || !editMode,
             description: `New ${settings.itemLabel || 'Item'}`,
             right: true,

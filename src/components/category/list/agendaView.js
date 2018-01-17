@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom'
 import List, { ListItem, ListItemSecondaryAction, ListItemText } from 'material-ui/List'
 import Divider from 'material-ui/Divider'
 import Avatar from 'material-ui/Avatar'
-import RemoveCircleOutline from 'material-ui-icons/RemoveCircleOutline'
-import Undo from 'material-ui-icons/Undo'
+import RemoveCircle from 'material-ui-icons/RemoveCircle'
+import Reply from 'material-ui-icons/Reply'
 import MoreVert from 'material-ui-icons/MoreVert'
 import Icon from 'material-ui/Icon'
 import IconButton from 'material-ui/IconButton'
@@ -219,7 +219,7 @@ let CategoryAgendaView = class extends Component {
                               />
                             }
                             {relationMode && isMarkedForRemove &&
-                              <Undo
+                              <Reply
                                 onClick={event => {
                                   event.preventDefault()
                                   event.stopPropagation()  
@@ -228,7 +228,7 @@ let CategoryAgendaView = class extends Component {
                               />
                             }
                             {relationMode && !isMarkedForRemove &&
-                              <RemoveCircleOutline
+                              <RemoveCircle
                                 onClick={event => {
                                   event.preventDefault()
                                   event.stopPropagation()

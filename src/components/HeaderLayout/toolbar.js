@@ -7,7 +7,9 @@ import Input from 'material-ui/Input'
 import Toolbar from 'material-ui/Toolbar'
 import Typography from 'material-ui/Typography'
 import Search from 'material-ui-icons/Search'
+import FindInPage from 'material-ui-icons/FindInPage'
 import Close from 'material-ui-icons/Close'
+import Reply from 'material-ui-icons/Reply'
 import CircularProgress from 'material-ui/Progress/CircularProgress'
 import { transformColor } from './utils/helpers'
 
@@ -74,10 +76,16 @@ const styles = theme => ({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    zIndex: theme.zIndex.appBar+1
+    width: 0,
+    top: theme.spacing.unit*1.5,
+    left: theme.spacing.unit*2,
+    opacity: 0,
+    zIndex: theme.zIndex.appBar+1,
+    maxWidth: `calc(100% - ${theme.spacing.unit*10}px)`,
+    transition: theme.transitions.create(['background-color', 'opacity', 'max-width', 'width'], {
+      duration: theme.transitions.duration.standard,
+      easing: theme.transitions.easing.sharp
+    })
   },
   searchBarSearchIcon: {
     position: 'absolute',
@@ -139,28 +147,28 @@ class CustomToolbar extends Component {
     searchQuery: '',
     showSearchInput: false,
     searchInputFocused: false,
-    modeSmall: false
+    smallMode: false
   }
 
   componentDidMount = () => {
-    window.addEventListener('resize', () =>
-      this.updateModeSmall(this.props.theme)
-    )
-    this.updateModeSmall(this.props.theme)
+    window.addEventListener('resize', this.onResize)
+    this.updateSmallMode(this.props.theme)
   }
 
   componentWillUnmount = () => {
-    window.removeEventListener('resize', () =>
-      this.updateModeSmall(this.props.theme)
-    )
+    window.removeEventListener('resize', this.onResize)
   }
 
-  updateModeSmall = theme => {
+  onResize = () => {
+    this.updateSmallMode(this.props.theme)
+  }
+
+  updateSmallMode = theme => {
     const width = window.innerWidth
     if (width >= theme.breakpoints.width(sizeDifferenceLimit)) {
-      this.setState({modeSmall: false, showSearchInput: true})
+      this.setState({smallMode: false, showSearchInput: true})
     } else {
-      this.setState({modeSmall: true, showSearchInput: false})
+      this.setState({smallMode: true, showSearchInput: false})
     }
   }
 
@@ -181,30 +189,7 @@ class CustomToolbar extends Component {
       classes,
       theme 
     } = this.props
-    const { showSearchInput, searchQuery, searchInputFocused, modeSmall } = this.state
-
-    const leftOperations = operations.filter(operation => !operation.right)
-    let rightOperations = operations.filter(operation => operation.right)
-    if (updateSearchQuery && modeSmall) {
-
-      rightOperations = [
-        {
-          id:'search-small',
-          icon:Search,
-          color: showSearchInput ? theme.palette.secondary[400] : 'inherit',
-          right:true,
-          onClick: () => {
-            this.setState(prevState => ({
-              showSearchInput: !prevState.showSearchInput,
-              searchQuery: ''
-            }))
-            updateSearchQuery('')
-          }
-        },
-        ...(showSearchInput ? [] : rightOperations)
-      ]
-
-    }
+    const { showSearchInput, searchQuery, searchInputFocused, smallMode } = this.state
 
     let appBarComputedStyle = {}
     let toolbarComputedStyle = {}
@@ -212,28 +197,36 @@ class CustomToolbar extends Component {
       color: 'white'
     }
     let searchBarComputedStyle = {    
-      backgroundColor: transformColor(theme.palette.primary[500], searchInputFocused ? 24 : 16),
+      backgroundColor: transformColor(theme.palette.primary[500], searchInputFocused ? 24 : 16)
     }
-    if (modeSmall) {
-      searchBarComputedStyle = {
-        ...searchBarComputedStyle,
-        top: 12,
-        left: 12,
-        maxWidth: `calc(${window.innerWidth}px - ${theme.spacing.unit*10}px)`
-      }
-    } else {
-      searchBarComputedStyle = {
-        ...searchBarComputedStyle,
-        position: 'relative',
-        width: searchInputFocused ? '100%' : '90%',
-        maxWidth: searchInputFocused ? 300 : 240,
-        transition: theme.transitions.create(['background-color', 'max-width', 'width'], {
-          duration: theme.transitions.duration.standard,
-          easing: theme.transitions.easing.sharp
-        })
+
+    /* WHEN SEARCH APPEARS */
+    if (showSearchInput) {
+      if (smallMode) {
+        searchBarComputedStyle = {
+          ...searchBarComputedStyle,
+          width: '100%',
+          opacity: 1
+        }
+      } else {
+        searchBarComputedStyle = {
+          ...searchBarComputedStyle,
+          position: 'relative',
+          top: 0,
+          left: 0,
+          opacity: 1,
+          width: searchInputFocused ? '100%' : '90%',
+          maxWidth: searchInputFocused ? 300 : 240
+        }
       }
     }
 
+
+    /* OPERATIONS */
+    const leftOperations = operations.filter(operation => !operation.right)
+    let rightOperations = operations.filter(operation => operation.right)
+
+    /* IS SECONDARY TOOLBAR */
     if (secondary && secondaryProps) {
       appBarComputedStyle = {
         ...appBarComputedStyle,
@@ -253,7 +246,38 @@ class CustomToolbar extends Component {
       }
       searchBarComputedStyle = {
         ...searchBarComputedStyle,
+        top: smallMode ? theme.spacing.unit/2 : 0,
+        left: smallMode ? theme.spacing.unit*2 : 0,
         backgroundColor: theme.palette[secondaryProps.color][secondaryProps.tone]  
+      }
+    }
+
+    /* SEARCH ICON IN SMALL MODE */
+    if (updateSearchQuery && smallMode) {
+      if (showSearchInput) {
+        rightOperations = [
+          {
+            id:'undo',
+            icon:Reply,
+            color:contentComputedStyle.color,
+            right:true,
+            onClick:() => {
+              this.setState({showSearchInput: false, searchQuery: ''})
+              updateSearchQuery('')
+            }
+          }
+        ]
+      } else {
+        rightOperations = [
+          {
+            id:'search-small',
+            icon:secondary ? FindInPage : Search,
+            color:contentComputedStyle.color,
+            right:true,
+            onClick:() => this.setState({showSearchInput: true})
+          },
+          ...rightOperations
+        ]
       }
     }
     
@@ -287,7 +311,7 @@ class CustomToolbar extends Component {
                   </div>
                 }
 
-                {updateSearchQuery && showSearchInput &&
+                {updateSearchQuery && 
                   <div className={classes.search}>
                     <div className={classes.searchBar} style={searchBarComputedStyle}>
                       <Search
