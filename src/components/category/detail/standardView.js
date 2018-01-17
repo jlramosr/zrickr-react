@@ -21,12 +21,10 @@ class CategoryItemDetailHeader extends Component {
     showWhenInfoModeDialog: false,
     checkWhenInfoMode: false,
     checkWhenBack: false,
-    hasChanged: false,
-    showWhenRemoveDialog: false
+    hasChanged: false
   }
 
   state = this.initialState
-
   
   componentWillReceiveProps = nextProps => {
     const newOpenRelations = nextProps.openRelations
@@ -54,7 +52,8 @@ class CategoryItemDetailHeader extends Component {
   }
 
   onRemoveClick = () => {
-    this.setState({showWhenRemoveDialog: true})
+    const { itemId, onRemoveItem } = this.props
+    onRemoveItem(itemId)
   }
 
   onCheckClick = () => {
@@ -106,7 +105,6 @@ class CategoryItemDetailHeader extends Component {
   render = () => {
     const {
       categoryId,
-      itemLabel,
       title,
       isFetchingSettings,
       fields,
@@ -118,7 +116,6 @@ class CategoryItemDetailHeader extends Component {
       changeEditMode,
       history,
       updateItem,
-      removeItem,
       shouldShowRelations,
       closeRelations,
       removeAllOpenRelations
@@ -128,8 +125,7 @@ class CategoryItemDetailHeader extends Component {
       checkWhenInfoMode,
       checkWhenBack,
       showWhenInfoModeDialog,
-      hasChanged,
-      showWhenRemoveDialog
+      hasChanged
     } = this.state
 
     const showCheckIcon = editMode && hasChanged && !isUpdating
@@ -192,17 +188,6 @@ class CategoryItemDetailHeader extends Component {
             }}
             onClose={() => {
               this.setState({checkWhenBack: false, checkWhenInfoMode: false, showWhenInfoModeDialog: false})
-            }}
-          />
-
-          <ConfirmationDialog
-            open={showWhenRemoveDialog}
-            message={`Are you sure to want to remove this ${itemLabel}?`}
-            onAccept={() => {
-              removeItem()
-            }}
-            onClose={() => {
-              this.setState({showWhenRemoveDialog: false})
             }}
           />
 

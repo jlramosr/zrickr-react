@@ -14,11 +14,13 @@ import 'react-virtualized-select/styles.css'
 import { getItemString } from '../../category/utils/helpers'
 import { isObject } from '../../../utils/helpers'
 
-const getInputClassName = (classes, infoMode, readonly, required) => {
+const getInputClassName = (classes, multi, infoMode, readonly, required) => {
   let className = 'inputSelect'
-  if (infoMode) {
+  if (multi) {
+    className += infoMode ? 'MultiInfo' : required ? 'MultiEditRequired' : 'MultiEdit'
+  } else if (infoMode) {
     className += 'Info'
-  } else if (readonly) {
+  }  else if (readonly) {
     className += 'Readonly'
   } else if (required) {
     className += 'Required'
@@ -73,10 +75,6 @@ class SelectField extends Component {
 
   arrowMultiRenderer = () => <span>+</span>
 
-  valueToString = (options, value) => {
-    options.filter(option => value.includes)
-  }
-
   render = () => {
     const {
       id,
@@ -112,7 +110,7 @@ class SelectField extends Component {
           </FormLabel>
         )}
         <VirtualizedSelect
-          className={getInputClassName(classes, infoMode, readonly, required)}
+          className={getInputClassName(classes, multi, infoMode, readonly, required)}
           disabled={readonly || infoMode}
           placeholder=""
           arrowRenderer={infoMode ? null : multi ? this.arrowMultiRenderer : undefined}

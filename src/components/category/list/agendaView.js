@@ -9,8 +9,11 @@ import Reply from 'material-ui-icons/Reply'
 import MoreVert from 'material-ui-icons/MoreVert'
 import Icon from 'material-ui/Icon'
 import IconButton from 'material-ui/IconButton'
-import Menu, { MenuItem } from 'material-ui/Menu'
+import Edit from 'material-ui-icons/Edit'
+import ChromeReaderMode from 'material-ui-icons/ChromeReaderMode'
+import Delete from 'material-ui-icons/Delete'
 import { getItemString, getBackgroundAvatarLetter } from './../utils/helpers'
+import Menu from './../../menu'
 import { withStyles } from 'material-ui/styles'
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 
@@ -26,12 +29,12 @@ const styles = theme => ({
     },
     [`${theme.breakpoints.up('md')}`]: {
       paddingBottom: theme.spacing.unit*3,
-      paddingLeft: theme.spacing.unit*3,
-      paddingRight: theme.spacing.unit*3
-    },
-    [`${theme.breakpoints.up('lg')}`]: {
       paddingLeft: theme.spacing.unit*4,
       paddingRight: theme.spacing.unit*4
+    },
+    [`${theme.breakpoints.up('lg')}`]: {
+      paddingLeft: theme.spacing.unit*8,
+      paddingRight: theme.spacing.unit*8
     }
   },
   dense: {
@@ -78,15 +81,25 @@ const styles = theme => ({
       duration: theme.transitions.duration.standard
     })
   },
-  animationLeave: {
+  animationLeaveRelation: {
     background: theme.palette.error[50],
     opacity: 1
   },
-  animationLeaveActive: {
+  animationLeaveRelationActive: {
     opacity: 0.01,
     transition: theme.transitions.create('opacity', {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.standard
+    })
+  },
+  animationLeave: {
+    transform: 'translate(0, 0)'
+  },
+  animationLeaveActive: {
+    transform: 'translate(-20em, 0)',
+    transition: theme.transitions.create('transform', {
+      easing: theme.transitions.easing.ease,
+      duration: theme.transitions.duration.complex
     })
   },
   animationAppear: {
@@ -98,7 +111,31 @@ const styles = theme => ({
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.shorter
     })
+  },
+
+  menu: {
+    border: `1px solid ${theme.palette.primary[200]}`
+  },
+  item: {
+    padding: 2,
+    paddingLeft: 12,
+    paddingRight: 16
+  },
+  icon: {
+    width: 16,
+    height: 16,
+    marginRight: 8,
+    color: theme.palette.primary[600]
+  },
+  textContainer: {
+    padding: 0
+  },
+  text: {
+    fontSize: 12,
+    color: theme.palette.primary[800]
   }
+
+
 })
 
 let CategoryAgendaView = class extends Component {
@@ -145,12 +182,15 @@ let CategoryAgendaView = class extends Component {
       dialogMode,
       relationMode,
       editMode,
+      onRemoveItem,
+      history,
       toAddIds,
       toRemoveIds,
       markRemoveItems,
       unmarkRemoveItems,
       classes
     } = this.props
+    const {showMenuItem, anchorEl, itemMenuClicked } = this.state
 
     return (
       <React.Fragment>
@@ -165,14 +205,14 @@ let CategoryAgendaView = class extends Component {
             transitionName={{
               enter: classes.animationEnter,
               enterActive: classes.animationEnterActive,
-              leave: classes.animationLeave,
-              leaveActive: classes.animationLeaveActive,
+              leave: relationMode ? classes.animationLeaveRelation : classes.animationLeave,
+              leaveActive: relationMode ? classes.animationLeaveRelationActive : classes.animationLeaveActive,
               appear: classes.animationAppear,
               appearActive: classes.animationAppearActive
             }}
             transitionEnter={relationMode && !this.state.isSearching}
             transitionEnterTimeout={300}
-            transitionLeave={relationMode && !this.state.isSearching}
+            transitionLeave={!this.state.isSearching}
             transitionLeaveTimeout={300}
             transitionAppear={relationMode}
             transitionAppearTimeout={200}
@@ -247,24 +287,27 @@ let CategoryAgendaView = class extends Component {
             })}
           </ReactCSSTransitionGroup>
         </List>
+
         <Menu
-          elevation={4}
-          transformOrigin={{ vertical: 'top', horizontal: 'left'}}
-          anchorEl={this.state.anchorEl}
-          open={this.state.showMenuItem}
+          anchorEl={anchorEl}
+          open={showMenuItem}
           onClose={this.handleMenuItemClose}
-          className={classes.menu}
-        >
-          <MenuItem onClick={this.handleMenuItemClose}>
-            View
-          </MenuItem>
-          <MenuItem onClick={this.handleMenuItemClose}>
-            Edit
-          </MenuItem>
-          <MenuItem onClick={this.handleMenuItemClose}>
-            Delete
-          </MenuItem>
-        </Menu>
+          operations={[
+            {id:'view', icon:ChromeReaderMode, label: 'View', onClick:() => {
+              history.push(`/${categoryId}/${itemMenuClicked}`)
+              this.setState({showMenuItem: false, anchorEl: null})
+            }},
+            {id:'edit', icon:Edit, label: 'Edit', onClick:() => {
+              history.replace(`/${categoryId}/${itemMenuClicked}`, {editMode: true})
+              this.setState({showMenuItem: false, anchorEl: null})
+            }},
+            {id:'delete', icon:Delete, label: 'Delete', onClick:() => {
+              onRemoveItem(itemMenuClicked)
+              this.setState({showMenuItem: false, anchorEl: null})
+            }}
+          ]}
+        />
+
       </React.Fragment>
     )
   }

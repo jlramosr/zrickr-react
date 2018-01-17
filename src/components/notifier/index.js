@@ -5,20 +5,35 @@ import { withStyles } from 'material-ui/styles'
 import Snackbar from 'material-ui/Snackbar'
 import IconButton from 'material-ui/IconButton'
 import CloseIcon from 'material-ui-icons/Close'
+import CheckCircle from 'material-ui-icons/CheckCircle'
+import Info from 'material-ui-icons/Info'
+import Error from 'material-ui-icons/Error'
 
 const styles = theme => ({
   snackbar: {
-    top: theme.spacing.unit,
-    right: theme.spacing.unit,
-    left: 'auto'
+    bottom: theme.spacing.unit,
+    right: theme.spacing.unit
   },
-  snackbarContentSuccess: {
+  messageContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  messageIcon: {
+    width: 20,
+    height: 20,
+    marginRight: theme.spacing.unit*2
+  },
+  messageText: {
+    flex: 1
+  },
+  contentSuccess: {
     background: theme.palette.success[900]
   },
-  snackbarContentError: {
+  contentError: {
     background: theme.palette.error[900]
   },
-  snackbarContentInfo: {
+  contentInfo: {
     background: theme.palette.grey[900]
   }
 })
@@ -50,22 +65,32 @@ class Notifier extends Component {
   getSnackbarClassName = notificationType => {
     const classes = this.props.classes
     if (notificationType === 'error') {
-      return classes.snackbarContentError
+      return classes.contentError
     } else if (notificationType === 'success') {
-      return classes.snackbarContentSuccess
+      return classes.contentSuccess
     }
-    return classes.snackbarContentInfo
+    return classes.contentInfo
+  }
+
+  getIcon = notificationType => {
+    const { classes } = this.props
+    if (notificationType === 'error') {
+      return <Error className={classes.messageIcon}/>
+    } else if (notificationType === 'success') {
+      return <CheckCircle className={classes.messageIcon}/>
+    }
+    return <Info className={classes.messageIcon}/>
   }
 
   render = () => {
     const { notification, classes } = this.props
     return (
       <Snackbar
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         open={this.state.showNotification}
         onClose={this.handleNotificationClose}
         className={classes.snackbar}
-        autoHideDuration={3000}
+        autoHideDuration={5000}
         transitionDuration={{
           enter: 200,
           exit: this.state.moreThanOneNotification ? 0 : 200
@@ -73,7 +98,12 @@ class Notifier extends Component {
         SnackbarContentProps={{
           className: this.getSnackbarClassName(notification.type)
         }}
-        message={<span>{notification.message}</span>}
+        message={
+          <div className={classes.messageContainer}>
+            {this.getIcon(notification.type)}
+            <span className={classes.messageText}>{notification.message}</span>
+          </div>
+        }
         action={[
           <IconButton
             key="close"

@@ -43,11 +43,11 @@ const selectControlActiveStyle = theme => ({
   boxShadow: 'none'
 })
 
-const selectValueStyle = theme => ({
-  border: `1px solid ${theme.palette.secondary[200]}`,
+const selectValueStyle = {
+  border: 0,
   paddingLeft: `${paddingLeft}px !important`,
   color: 'currentColor'
-})
+}
 
 const selectIconsHoverStyle = theme => ({
   color: theme.palette.secondary[600]
@@ -76,7 +76,7 @@ const readonlyStyle = theme => ({
 
 const infoStyle = theme => ({
   padding: `1px ${paddingLeft-2}px`,
-  borderRadius: 4,
+  borderRadius: 0,
   border: 0,
   background: 'transparent',
   fontSize: 14,
@@ -95,7 +95,7 @@ const labelStyle = theme => ({
   color: theme.palette.primary[500]
 })
 
-const styles = theme => ({
+const stylesTemp = theme => ({
   inputText: {
     ...inputStyle(theme)
   },
@@ -135,15 +135,15 @@ const styles = theme => ({
       ...inputStyle(theme),
       ...selectControlStyle
     },
-    '&.is-focused:not(.is-open)>.Select-control': { 
+    '&.is-focused:not(.is-open) > .Select-control': { 
       ...selectControlActiveStyle(theme)
     },
-    '&.is-open>.Select-control': { 
+    '&.is-open > .Select-control': { 
       ...selectControlActiveStyle(theme)
     },
     '& .Select-value': {
       ...inputStyle(theme),
-      ...selectValueStyle(theme)
+      ...selectValueStyle
     },
     '& .Select-value-icon': {
       ...selectValueIconStyle
@@ -168,17 +168,17 @@ const styles = theme => ({
       ...selectControlStyle,
       background: theme.palette.secondary[200]
     },
-    '&.is-focused:not(.is-open)>.Select-control': { 
+    '&.is-focused:not(.is-open) > .Select-control': { 
       ...selectControlActiveStyle(theme),
       background: theme.palette.secondary[200]
     },
-    '&.is-open>.Select-control': { 
+    '&.is-open > .Select-control': { 
       ...selectControlActiveStyle(theme),
       background: theme.palette.secondary[200]
     },
     '& .Select-value': {
       ...inputStyle(theme),
-      ...selectValueStyle(theme),
+      ...selectValueStyle,
       border: `1px solid ${theme.palette.secondary[400]}`,
       background: theme.palette.secondary[200]
     },
@@ -210,13 +210,27 @@ const styles = theme => ({
     }
   },
   inputSelectInfo: {
-    '& .Select-control': {
-      border: 0
+    '&.is-disabled > .Select-control': { 
+      ...infoStyle(theme),
+      border: 0,
+      marginTop: -16
     },
-    '& .Select-value': {
+    '&.is-disabled > .Select-control .Select-value': { 
+      paddingTop: 10,
       background: 'transparent',
       fontSize: 14,
       paddingLeft: `${paddingLeft-2}px !important`
+    }
+  },
+  inputSelectMultiInfo: {
+    '&.is-disabled > .Select-control': { 
+      ...infoStyle(theme),
+      border: 0,
+      marginTop: 0
+    },
+    '&.is-disabled > .Select-control .Select-value': { 
+      paddingTop: 0,
+      fontSize: 14
     }
   },
   inputSwitchFalse: {
@@ -247,6 +261,24 @@ const styles = theme => ({
   helperText: {
     marginTop: 2,
     paddingLeft: 4
+  }
+})
+
+const styles = theme => ({
+  ...stylesTemp(theme),
+  inputSelectMultiEdit: {
+    ...stylesTemp(theme).inputSelect,
+    '& .Select-value': {
+      ...stylesTemp(theme).inputSelect['& .Select-value'],
+      border: '1px solid #aaa'
+    }
+  },
+  inputSelectMultiEditRequired: {
+    ...stylesTemp(theme).inputSelectRequired,
+    '& .Select-value': {
+      ...stylesTemp(theme).inputSelectRequired['& .Select-value'],
+      border: '1px solid #aaa'
+    }
   }
 })
 

@@ -4,11 +4,12 @@ const keyPrefixStorage = 'reduxPersist'
 
 export const getItemString = (item, fieldIds=[], fieldsSeparator='') => {
   const info = fieldIds.reduce((info, fieldId) => {
-    let value = item[fieldId]
-    if (localStorage) {
-      const allFields = JSON.parse(
+    let value = item ? item[fieldId] : null
+    if (localStorage && value) {
+      const fieldsStorage = JSON.parse(
         localStorage.getItem(`${keyPrefixStorage}:fields`)
-      ).byId
+      )
+      const allFields = fieldsStorage ? fieldsStorage.byId : {}
 
       const fields = Object.keys(allFields).reduce((fields, fieldId) => {
         if (fieldIds.includes(fieldId)) {

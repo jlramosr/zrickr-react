@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
-import { fetchItemIfNeeded, updateItem, removeItem } from '../../../actions/items'
+import { fetchItemIfNeeded, updateItem } from '../../../actions/items'
 import { notify, removeOpenRelation, removeAllOpenRelations,closeRelations } from '../../../actions/interactions'
 import { getItemString } from '../utils/helpers'
 import { capitalize, isEqual } from '../../../utils/helpers'
@@ -15,7 +15,12 @@ class CategoryItemDetail extends Component {
   }
 
   componentWillMount = () => {
-    this.props.fetchItemIfNeeded() //this.props.fetchItem()
+    const { fetchItemIfNeeded, history } = this.props
+    const historyState = history ? history.location.state : {}
+    fetchItemIfNeeded() //this.props.fetchItem()
+    if (historyState && historyState.editMode) {
+      this.changeEditMode(true)
+    }
   }
 
   getTitle = () => {
@@ -44,7 +49,7 @@ class CategoryItemDetail extends Component {
     return new Promise(resolve => resolve())
   }
 
-  removeItem = () => {
+  /*removeItem = () => {
     const { categoryId, itemLabel, removeItem, notify, history } = this.props
     return removeItem().then(
       () => {
@@ -54,7 +59,7 @@ class CategoryItemDetail extends Component {
         notify(`There has been an error removing the ${itemLabel.toLowerCase()}: ${error}`, 'error')
       }
     )
-  }
+  }*/
 
   render = () => {
     const { editMode } = this.state
@@ -63,7 +68,6 @@ class CategoryItemDetail extends Component {
       editMode,
       title: this.getTitle(),
       updateItem: this.updateItem,
-      removeItem: this.removeItem,
       changeEditMode: this.changeEditMode
     }
 
@@ -118,6 +122,7 @@ const mapStateToProps = ({ categories, settings, fields, items, interactions }, 
   const categorySettings = category.settings ? settings.byId[category.settings] : {}
   const { relations } = interactions
   return {
+    itemId,
     itemLabel: categorySettings.itemLabel,
     settings: categorySettings,
     isFetchingSettings: settings.flow[categoryId].isFetching,
@@ -143,7 +148,6 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     fetchItemIfNeeded: () => dispatch(fetchItemIfNeeded(categoryId,itemId)),
     updateItem: item => dispatch(updateItem(props.categoryId, itemId, item)),
-    removeItem: () => dispatch(removeItem(categoryId,itemId)),
     notify: (message, type) => dispatch(notify(message, type)),
     removeOpenRelation: index => dispatch(removeOpenRelation(index)),
     removeAllOpenRelations: () => dispatch(removeAllOpenRelations()),

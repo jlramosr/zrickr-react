@@ -45,6 +45,9 @@ class CategoryList extends Component {
         tempRemoveItemIds: []
       })
     }
+    if (this.props.items.length !== nextProps.items.length) {
+      this.setState({foundItems: nextProps.items})
+    }
   }
 
   updateSearchQuery = searchQuery => {
@@ -165,7 +168,7 @@ class CategoryList extends Component {
     const {
       categoryId,
       categoryLabel,
-      settings,
+      itemLabel,
       isFetchingSettings,
       isFetchingFields,
       filterItemIds,
@@ -259,7 +262,7 @@ class CategoryList extends Component {
             id:'addNewItem',
             icon: Add,
             hidden: relationMode,
-            description: `New ${settings.itemLabel || 'Item'}`,
+            description: `New ${itemLabel || 'Item'}`,
             right: true,
             onClick: this.openNewDialog
           },
@@ -267,7 +270,7 @@ class CategoryList extends Component {
             id:'addExistentItem',
             icon: AddCircle,
             hidden: !relationMode || !editMode,
-            description: `New ${settings.itemLabel || 'Item'}`,
+            description: `New ${itemLabel || 'Item'}`,
             right: true,
             onClick: this.openListDialog
           }
@@ -288,7 +291,7 @@ class CategoryList extends Component {
             closeDialog={this.closeDialog}
             history={history}
             categoryId={categoryId}
-            itemLabel={settings.itemLabel}
+            itemLabel={itemLabel}
           />
         </Dialog>
 
@@ -472,7 +475,9 @@ CategoryList.defaultProps = {
 const mapStateToProps = ({ categories, settings, fields, items, interactions }, props) => {
   const categoryId = props.categoryId
   const category = categories.byId[categoryId]
+  const categorySettings = category.settings ? settings.byId[category.settings] : {}
   return {
+    itemLabel: categorySettings.itemLabel,
     settings: category.settings ? settings.byId[category.settings] : {},
     isFetchingSettings: settings.flow[categoryId].isFetching,
     fields: Object.values(fields.byId).filter(field => category.fields.includes(field.id)),
