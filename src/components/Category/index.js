@@ -14,7 +14,8 @@ import NotFound from '../notFound'
 class Category extends Component {
   state = {
     showRemoveDialog: false,
-    itemIdToRemove: null
+    itemIdToRemove: null,
+    itemTitleToRemove: ''
   }
 
   componentWillMount = () => {
@@ -35,16 +36,18 @@ class Category extends Component {
     }
   }
 
-  onRemoveItem = itemId => {
-    this.setState({showRemoveDialog: true, itemIdToRemove: itemId})
+  onRemoveItem = (itemId, itemTitle='') => {
+    this.setState({showRemoveDialog: true, itemIdToRemove: itemId, itemTitleToRemove: itemTitle})
   }
 
   removeItem = () => {
     const { itemLabel, removeItem, notify, match, history } = this.props
+    const { itemIdToRemove, itemTitleToRemove } = this.state
     const categoryId = match.params.categoryId
-    return removeItem(this.state.itemIdToRemove).then(
+    return removeItem(itemIdToRemove).then(
       () => {
-        notify(`${capitalize(itemLabel)} removed succesfully`, 'success')
+        const infoItem = [capitalize(itemLabel),itemTitleToRemove].join(' ')
+        notify(`${infoItem} removed succesfully`, 'success')
         if (history.location.pathname !== `/${categoryId}`) {
           history.push(`/${categoryId}`)
         }
@@ -83,7 +86,7 @@ class Category extends Component {
             this.removeItem()
           }}
           onClose={() => {
-            this.setState({showRemoveDialog: false, itemIdToRemove: null})
+            this.setState({showRemoveDialog: false, itemIdToRemove: null, itemTitleToRemove: ''})
           }}
         />
 

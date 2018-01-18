@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
+import Reboot from 'material-ui/Reboot'
 import { updateWindowSize } from '../../actions/interactions'
 import { fetchCategories, fetchCategoriesIfNeeded } from '../../actions/categories'
 import { renderRoutes } from 'react-router-config'
@@ -64,11 +65,11 @@ class App extends Component {
   }
 
   render = () => (
-    <React.Fragment>
+    <Reboot>
       {renderRoutes(this.props.route.routes)}
       <Drawer />
       <Notifier />
-    </React.Fragment>
+    </Reboot>
   )
 }
 

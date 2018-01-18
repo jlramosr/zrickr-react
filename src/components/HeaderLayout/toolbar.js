@@ -95,8 +95,8 @@ const styles = theme => ({
     zIndex: 5,
     paddingLeft: theme.spacing.unit,
     paddingRight: theme.spacing.unit,
-    width: 20,
-    height: 20
+    width: theme.spacing.unit*4.5,
+    height: theme.spacing.unit*4.5
   },
   searchBarInput: {
     flex: 1,
@@ -112,8 +112,8 @@ const styles = theme => ({
     top: '50%',
     transform: 'translate(0, -50%)',
     paddingRight: theme.spacing.unit,
-    width: 20,
-    height: 20,
+    width: theme.spacing.unit*3.5,
+    height: theme.spacing.unit*3.5,
     cursor: 'pointer'
   },
   searchOperation: {
@@ -311,7 +311,7 @@ class CustomToolbar extends Component {
                   </div>
                 }
 
-                {updateSearchQuery && 
+                {updateSearchQuery &&
                   <div className={classes.search}>
                     <div className={classes.searchBar} style={searchBarComputedStyle}>
                       <Search
@@ -325,7 +325,7 @@ class CustomToolbar extends Component {
                         style={contentComputedStyle}
                         onFocus={() => this.setState({searchInputFocused: true})}
                         onBlur={() => this.setState({searchInputFocused: false})}
-                        placeholder="Buscar"
+                        placeholder="Search"
                         disableUnderline={secondary ? false : true}
                         value={searchQuery}
                         onChange={event => this.updateSearchQuery(event.target.value)}

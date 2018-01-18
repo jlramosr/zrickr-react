@@ -10,10 +10,6 @@ import Info from 'material-ui-icons/Info'
 import Error from 'material-ui-icons/Error'
 
 const styles = theme => ({
-  snackbar: {
-    bottom: theme.spacing.unit,
-    right: theme.spacing.unit
-  },
   messageContainer: {
     display: 'flex',
     justifyContent: 'center',
@@ -86,10 +82,9 @@ class Notifier extends Component {
     const { notification, classes } = this.props
     return (
       <Snackbar
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
         open={this.state.showNotification}
         onClose={this.handleNotificationClose}
-        className={classes.snackbar}
         autoHideDuration={5000}
         transitionDuration={{
           enter: 200,

@@ -52,8 +52,8 @@ class CategoryItemDetailHeader extends Component {
   }
 
   onRemoveClick = () => {
-    const { itemId, onRemoveItem } = this.props
-    onRemoveItem(itemId)
+    const { onRemoveItem, itemId, title } = this.props
+    onRemoveItem(itemId, title)
   }
 
   onCheckClick = () => {

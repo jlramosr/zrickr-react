@@ -96,7 +96,7 @@ let theme = createMuiTheme({
     },
     tableRowHeight: 26,
     listCellDense: {
-      height: 20,
+      height: 36,
       lineHeight: '14px'
     },
     drawerWidth: 240,

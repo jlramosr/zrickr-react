@@ -38,7 +38,7 @@ const styles = theme => ({
     }
   },
   dense: {
-    padding: 0
+    padding: theme.spacing.unit/2
   },
   itemText: {
     overflow: 'hidden',
@@ -111,37 +111,13 @@ const styles = theme => ({
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.shorter
     })
-  },
-
-  menu: {
-    border: `1px solid ${theme.palette.primary[200]}`
-  },
-  item: {
-    padding: 2,
-    paddingLeft: 12,
-    paddingRight: 16
-  },
-  icon: {
-    width: 16,
-    height: 16,
-    marginRight: 8,
-    color: theme.palette.primary[600]
-  },
-  textContainer: {
-    padding: 0
-  },
-  text: {
-    fontSize: 12,
-    color: theme.palette.primary[800]
   }
-
-
 })
 
 let CategoryAgendaView = class extends Component {
   state = {
     showMenuItem: false,
-    itemMenuClicked: null,
+    itemMenuClickedId: null,
     anchorEl: null,
     isSearching: false
   }
@@ -166,11 +142,11 @@ let CategoryAgendaView = class extends Component {
   handleMenuItemClick = (event, itemId) => {
     event.preventDefault()
     event.stopPropagation()
-    this.setState({ showMenuItem: true, anchorEl: event.currentTarget, itemMenuClicked: itemId })
+    this.setState({ showMenuItem: true, anchorEl: event.currentTarget, itemMenuClickedId: itemId })
   }
 
   handleMenuItemClose = () => {
-    this.setState({ showMenuItem: false, itemMenuClicked: null })
+    this.setState({ showMenuItem: false, itemMenuClickedId: null })
   }
 
   render = () => {
@@ -190,7 +166,7 @@ let CategoryAgendaView = class extends Component {
       unmarkRemoveItems,
       classes
     } = this.props
-    const {showMenuItem, anchorEl, itemMenuClicked } = this.state
+    const {showMenuItem, anchorEl, itemMenuClickedId } = this.state
 
     return (
       <React.Fragment>
@@ -220,7 +196,7 @@ let CategoryAgendaView = class extends Component {
             {items.map(item => {
               const isMarkedForAdd = toAddIds ? toAddIds.includes(item.id) : false
               const isMarkedForRemove = toRemoveIds ? toRemoveIds.includes(item.id) : false
-              let itemClassName = classes[
+              const itemClassName = classes[
                 isMarkedForRemove ? 'markRemovedItem' : (isMarkedForAdd ? 'markAddedItem' : 'unmarkedItem')
               ]
               const primaryInfo = getItemString(item, settings.primaryFields, settings.primaryFieldsSeparator)
@@ -294,15 +270,17 @@ let CategoryAgendaView = class extends Component {
           onClose={this.handleMenuItemClose}
           operations={[
             {id:'view', icon:ChromeReaderMode, label: 'View', onClick:() => {
-              history.push(`/${categoryId}/${itemMenuClicked}`)
+              history.push(`/${categoryId}/${itemMenuClickedId}`)
               this.setState({showMenuItem: false, anchorEl: null})
             }},
             {id:'edit', icon:Edit, label: 'Edit', onClick:() => {
-              history.replace(`/${categoryId}/${itemMenuClicked}`, {editMode: true})
+              history.replace(`/${categoryId}/${itemMenuClickedId}`, {editMode: true})
               this.setState({showMenuItem: false, anchorEl: null})
             }},
             {id:'delete', icon:Delete, label: 'Delete', onClick:() => {
-              onRemoveItem(itemMenuClicked)
+              const item = items.find(item => item.id === itemMenuClickedId)
+              const title = getItemString(item, settings.primaryFields, settings.primaryFieldsSeparator)
+              onRemoveItem(itemMenuClickedId, title)
               this.setState({showMenuItem: false, anchorEl: null})
             }}
           ]}

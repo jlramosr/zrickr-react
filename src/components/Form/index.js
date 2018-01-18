@@ -104,7 +104,6 @@ const styles = theme => ({
 class Form extends Component {
   state = {
     item: null, //all complete item with simple fields and relations fields.
-    itemListFields: {}, //only temporary relational fields to removing or adding them.
     isSubmitting: false,
     hasChanged: false
   }
@@ -175,7 +174,6 @@ class Form extends Component {
     const { origValues, values, onDifferentValues, onEqualValues } = this.props
     item.setValue(fieldId, value)
     this.setState({item})
-    console.log(item.getValues(), origValues || values)
     const isDifferentFromOrigin = !isEqual(item.getValues(), origValues || values)
     if (!hasChanged && isDifferentFromOrigin) {
       if (onDifferentValues) {
