@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 import { ListItemText, ListItemIcon } from 'material-ui/List'
 import Menu, { MenuItem } from 'material-ui/Menu'
@@ -26,64 +26,42 @@ const styles = {
   }
 }
 
-let CustomMenu = class extends Component {
-  state = {
-    open: false
-  }
+let CustomMenu = props => {
+  const { operations, classes, ...restProps } = props
 
-  componentWillReceiveProps = nextProps => {
-    if (nextProps.open) {
-      this.setState({ open: true })
-    }
-  }
-
-  handleMenuItemClose = () => {
-    this.setState({ open: false })
-  }
-
-  render = () => {
-    const {
-      operations,
-      anchorEl,
-      classes
-    } = this.props
-
-    return (
-      <Menu
-        elevation={4}
-        transformOrigin={{ vertical: 'top', horizontal: 'right'}}
-        anchorEl={anchorEl}
-        open={this.state.open}
-        onClose={this.handleMenuItemClose}
-        classes={{paper: classes.menu}}
-      >
-        {operations.map(operation => {
-          const { id, icon, label, onClick } = operation
-          const Icon = icon
-          return (
-            <MenuItem
-              key={id}
-              className={classes.item}
-              onClick={() => {
-                onClick()
-                this.handleMenuItemClose()
-              }}
-            >
-              <ListItemIcon className={classes.icon}>
-                <Icon />
-              </ListItemIcon>
-              <ListItemText classes={{ root: classes.labelContainer, text: classes.labelText }} inset primary={label} />
-            </MenuItem>
-          )
-        })}
-      </Menu>
-
-    )
-  }
+  return (
+    <Menu
+      elevation={4}
+      transformOrigin={{ vertical: 'top', horizontal: 'right'}}
+      classes={{paper: classes.menu}}
+      {...restProps}
+    >
+      {operations.map(operation => {
+        const { id, icon, label, onClick } = operation
+        const Icon = icon
+        return (
+          <MenuItem
+            key={id}
+            className={classes.item}
+            onClick={() => {
+              onClick()
+              props.onClose()
+            }}
+          >
+            <ListItemIcon className={classes.icon}>
+              <Icon />
+            </ListItemIcon>
+            <ListItemText classes={{ root: classes.labelContainer, text: classes.labelText }} inset primary={label} />
+          </MenuItem>
+        )
+      })}
+    </Menu>
+  )
 }
 
 CustomMenu.propTypes = {
   classes: PropTypes.object.isRequired,
+  onClose: PropTypes.func,
   anchorEl: PropTypes.object,
   operations: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string.isRequired,

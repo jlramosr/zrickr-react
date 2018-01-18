@@ -36,7 +36,7 @@ class Category extends Component {
     }
   }
 
-  onRemoveItem = (itemId, itemTitle='') => {
+  onRemoveItem = (itemId, itemTitle=null) => {
     this.setState({showRemoveDialog: true, itemIdToRemove: itemId, itemTitleToRemove: itemTitle})
   }
 
@@ -46,8 +46,8 @@ class Category extends Component {
     const categoryId = match.params.categoryId
     return removeItem(itemIdToRemove).then(
       () => {
-        const infoItem = [capitalize(itemLabel),itemTitleToRemove].join(' ')
-        notify(`${infoItem} removed succesfully`, 'success')
+        const infoItem = itemTitleToRemove ? itemTitleToRemove : capitalize(itemLabel)
+        notify(`${infoItem} has been removed succesfully`, 'success')
         if (history.location.pathname !== `/${categoryId}`) {
           history.push(`/${categoryId}`)
         }
@@ -86,7 +86,7 @@ class Category extends Component {
             this.removeItem()
           }}
           onClose={() => {
-            this.setState({showRemoveDialog: false, itemIdToRemove: null, itemTitleToRemove: ''})
+            this.setState({showRemoveDialog: false, itemIdToRemove: null, itemTitleToRemove: null})
           }}
         />
 

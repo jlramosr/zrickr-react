@@ -146,7 +146,7 @@ let CategoryAgendaView = class extends Component {
   }
 
   handleMenuItemClose = () => {
-    this.setState({ showMenuItem: false, itemMenuClickedId: null })
+    this.setState({ showMenuItem: false, anchorEl: null, itemMenuClickedId: null })
   }
 
   render = () => {

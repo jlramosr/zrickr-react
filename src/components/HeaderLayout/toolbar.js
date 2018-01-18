@@ -274,7 +274,10 @@ class CustomToolbar extends Component {
             icon:secondary ? FindInPage : Search,
             color:contentComputedStyle.color,
             right:true,
-            onClick:() => this.setState({showSearchInput: true})
+            onClick:() => {
+              this.setState({showSearchInput: true})
+              document.getElementById('searchInput').focus()
+            }
           },
           ...rightOperations
         ]
@@ -319,6 +322,7 @@ class CustomToolbar extends Component {
                         style={contentComputedStyle}
                       />
                       <Input
+                        id="searchInput"
                         classes={{
                           root: classes.searchBarInput
                         }}

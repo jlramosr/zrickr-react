@@ -13,7 +13,8 @@ const styles = theme => ({
   messageContainer: {
     display: 'flex',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    overflow: 'hidden'
   },
   messageIcon: {
     width: 20,
@@ -21,7 +22,8 @@ const styles = theme => ({
     marginRight: theme.spacing.unit*2
   },
   messageText: {
-    flex: 1
+    flex: 1,
+    wordBreak: 'break-word'
   },
   contentSuccess: {
     background: theme.palette.success[900]
