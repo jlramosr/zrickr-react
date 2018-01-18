@@ -83,12 +83,18 @@ class Item {
 
 const styles = theme => ({
   form: {
-    padding: theme.spacing.unit*2,
     display: 'grid',
     gridAutoFlow: 'row',
     gridGap: '0px 0px',
     justifyContent: 'stretch',
-    alignItems: 'center'
+    alignItems: 'center',
+    padding: theme.spacing.unit/2,
+    [`${theme.breakpoints.up('xs')} and (orientation: landscape)`]: {
+      padding: theme.spacing.unit
+    },
+    [theme.breakpoints.up('sm')]: {
+      padding: theme.spacing.unit*2
+    }
   },
   field: {
     padding: `${theme.spacing.unit/2}px ${theme.spacing.unit}px`

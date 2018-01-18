@@ -6,9 +6,9 @@ import { withStyles } from 'material-ui/styles'
 const secondaryToolbarProperties = {
   height: 42,
   color: 'primary',
-  tone: 200,
+  tone: 'light',
   fontColor: 'primary',
-  fontTone: 800
+  fontTone: 'dark'
 }
 
 const styles = theme => ({

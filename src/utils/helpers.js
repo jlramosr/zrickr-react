@@ -1,4 +1,9 @@
-export const capitalize = (string='') => string.charAt(0).toUpperCase() + string.slice(1).toLowerCase()
+export const capitalize = (string='') => {
+  if (!string.length) {
+    return ''
+  }
+  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase()
+}
 
 //https://ilikekillnerds.com/2017/05/convert-firebase-database-snapshotcollection-array-javascript/
 export const snapshotToArray = snapshot =>

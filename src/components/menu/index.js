@@ -51,7 +51,7 @@ let CustomMenu = props => {
             <ListItemIcon className={classes.icon}>
               <Icon />
             </ListItemIcon>
-            <ListItemText classes={{ root: classes.labelContainer, text: classes.labelText }} inset primary={label} />
+            <ListItemText classes={{ root: classes.labelContainer, primary: classes.labelText }} inset primary={label} />
           </MenuItem>
         )
       })}

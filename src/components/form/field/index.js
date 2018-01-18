@@ -13,15 +13,15 @@ const inputStyle = theme => ({
   paddingLeft: paddingLeft,
   paddingRight: paddingLeft,
   borderRadius: 4,
-  border: `1px solid ${theme.palette.primary[500]}`,
-  background: theme.palette.secondary[50],
+  border: `1px solid ${theme.palette.primary.main}`,
+  background: theme.palette.secondary.extraLight,
   fontSize: 14,
   transition: theme.transitions.create(['box-shadow', 'background'], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.complex
   }),
   '&:focus': {
-    boxShadow: `0 0 0 0.1rem ${theme.palette.primary[500]}`
+    boxShadow: `0 0 0 0.1rem ${theme.palette.primary.main}`
   }
 })
 
@@ -38,8 +38,8 @@ const selectControlStyle = {
 }
 
 const selectControlActiveStyle = theme => ({
-  border: `2px solid ${theme.palette.primary[500]}`,
-  background: theme.palette.secondary[50],
+  border: `2px solid ${theme.palette.primary.main}`,
+  background: theme.palette.secondary.extraLight,
   boxShadow: 'none'
 })
 
@@ -50,7 +50,7 @@ const selectValueStyle = {
 }
 
 const selectIconsHoverStyle = theme => ({
-  color: theme.palette.secondary[600]
+  color: theme.palette.secondary.dark
 })
 
 const selectValueIconStyle = {
@@ -67,7 +67,7 @@ const selectMenuOuterStyle = {
 }
 
 const requiredStyle = theme => ({
-  background: theme.palette.secondary[200]
+  background: theme.palette.secondary.light
 })
 
 const readonlyStyle = theme => ({
@@ -81,7 +81,7 @@ const infoStyle = theme => ({
   background: 'transparent',
   fontSize: 14,
   color: theme.palette.grey[700],
-  borderBottom: `1px solid ${theme.palette.primary[200]}`,
+  borderBottom: `1px solid ${theme.palette.primary.main}`,
   cursor: 'default',
   transition: theme.transitions.create('background', {
     easing: theme.transitions.easing.sharp,
@@ -92,7 +92,7 @@ const infoStyle = theme => ({
 const labelStyle = theme => ({
   fontWeight: 500,
   paddingLeft: paddingLeft-2,
-  color: theme.palette.primary[500]
+  color: theme.palette.primary.dark
 })
 
 const stylesTemp = theme => ({
@@ -166,21 +166,21 @@ const stylesTemp = theme => ({
     '& .Select-control': {
       ...inputStyle(theme),
       ...selectControlStyle,
-      background: theme.palette.secondary[200]
+      background: theme.palette.secondary.light
     },
     '&.is-focused:not(.is-open) > .Select-control': { 
       ...selectControlActiveStyle(theme),
-      background: theme.palette.secondary[200]
+      background: theme.palette.secondary.light
     },
     '&.is-open > .Select-control': { 
       ...selectControlActiveStyle(theme),
-      background: theme.palette.secondary[200]
+      background: theme.palette.secondary.light
     },
     '& .Select-value': {
       ...inputStyle(theme),
       ...selectValueStyle,
-      border: `1px solid ${theme.palette.secondary[400]}`,
-      background: theme.palette.secondary[200]
+      border: `1px solid ${theme.palette.secondary.light}`,
+      background: theme.palette.secondary.light
     },
     '& .Select-value-icon': {
       ...selectValueIconStyle
@@ -200,13 +200,9 @@ const stylesTemp = theme => ({
     }
   },
   inputSelectReadonly: {
-    '& .Select-control': {
+    '&.is-disabled > .Select-control': { 
       ...inputStyle(theme),
-      background: theme.palette.grey[200]
-    },
-    '& .Select-value': {
-      ...inputStyle(theme),
-      background: theme.palette.grey[200]
+      ...readonlyStyle(theme)
     }
   },
   inputSelectInfo: {
@@ -234,13 +230,13 @@ const stylesTemp = theme => ({
     }
   },
   inputSwitchFalse: {
-    color: theme.palette.primary[300]
+    color: theme.palette.primary.main
   },
   inputSwitchTrue: {
-    color: theme.palette.primary[400]
+    color: theme.palette.primary.main
   },
   inputSwitchDisabled: {
-    color: theme.palette.grey[400]
+    color: theme.palette.grey[500]
   },
   inputList: {
   },

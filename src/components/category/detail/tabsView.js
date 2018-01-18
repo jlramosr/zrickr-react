@@ -13,7 +13,7 @@ import { withStyles } from 'material-ui/styles'
 const styles = theme => ({
   spaceBetween: {
     height: 6,
-    background: `linear-gradient(${theme.palette.primary[500]}, ${theme.palette.primary[500]})`
+    background: `linear-gradient(${theme.palette.primary.main}, ${theme.palette.primary.main})`
   },
   tabs: {
     paddingBottom: 0,
@@ -21,7 +21,7 @@ const styles = theme => ({
     marginBottom: -17
   },
   tabsButton: {
-    color: theme.palette.primary[700],
+    color: theme.palette.primary.dark,
     marginBottom: 16
   },
   tab: {
@@ -49,7 +49,7 @@ const styles = theme => ({
     fontSize: 11
   },
   tabSelected: {
-    color: theme.palette.secondary[500]
+    color: theme.palette.secondary.main
   },
   tabWrapper: {
     display: 'inline',

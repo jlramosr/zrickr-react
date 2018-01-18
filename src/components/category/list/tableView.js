@@ -129,11 +129,9 @@ let CategoryTableView = class extends Component {
 
     const showingFields = fields.filter(field => field.views.table)
 
-    const defaultColumnWidths = showingFields.reduce(
-      (accumulator, currentField) => (
-        {...accumulator, [currentField.id]: 100 * (currentField.views.table.ys || 1)}),
-      {}
-    )
+    const defaultColumnWidths = showingFields.reduce((accumulator, currentField) => (
+      [...accumulator, {columnName: currentField.id, width: 100 * (currentField.views.table.ys || 1)}]
+    ), [])
 
     const allActionsAvailable =  !relationMode && editMode
     const selectionActionAvailable = editMode

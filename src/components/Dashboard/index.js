@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { toggleDrawer } from '../../actions/interactions'
 import HeaderLayout from '../headerLayout'
-import { GridList, GridListTile } from 'material-ui/GridList'
+import GridList, { GridListTile } from 'material-ui/GridList'
 import Card, { CardActions, CardContent, CardMedia } from 'material-ui/Card'
 import Button from 'material-ui/Button'
 import Typography from 'material-ui/Typography'
@@ -45,7 +45,7 @@ const styles = theme => ({
     flexDirection: 'column',
     justifyContent: 'space-between',
     height: '99%',
-    background: theme.palette.primary[50]
+    background: theme.palette.primary.extraLight
   },
   cardMedia: {
     height: 160

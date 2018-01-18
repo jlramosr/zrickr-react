@@ -194,10 +194,10 @@ class CustomToolbar extends Component {
     let appBarComputedStyle = {}
     let toolbarComputedStyle = {}
     let contentComputedStyle = {
-      color: 'white'
+      color: '#fff'
     }
     let searchBarComputedStyle = {    
-      backgroundColor: transformColor(theme.palette.primary[500], searchInputFocused ? 24 : 16)
+      backgroundColor: transformColor(theme.palette.primary.main, searchInputFocused ? 24 : 16)
     }
 
     /* WHEN SEARCH APPEARS */

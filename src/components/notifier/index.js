@@ -26,10 +26,10 @@ const styles = theme => ({
     wordBreak: 'break-word'
   },
   contentSuccess: {
-    background: theme.palette.success[900]
+    background: theme.palette.success.dark
   },
   contentError: {
-    background: theme.palette.error[900]
+    background: theme.palette.dark
   },
   contentInfo: {
     background: theme.palette.grey[900]

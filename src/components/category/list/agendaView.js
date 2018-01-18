@@ -56,11 +56,11 @@ const styles = theme => ({
     })
   },
   markAddedItem: {
-    background: theme.palette.success[50],
+    background: theme.palette.success.light,
     opacity: 0.95
   },
   markRemovedItem: {
-    background: theme.palette.error[50],
+    background: theme.palette.error.light,
     opacity: 0.9,
     transition: theme.transitions.create(['opacity','background'], {
       easing: theme.transitions.easing.easeOut,
@@ -74,7 +74,7 @@ const styles = theme => ({
   },
   animationEnterActive: {
     opacity: 1,
-    background: theme.palette.success[50],
+    background: theme.palette.success.light,
     transform: 'translate(0,0)', 
     transition: theme.transitions.create(['background','transform','opacity'], {
       easing: theme.transitions.easing.easeOut,
@@ -82,7 +82,7 @@ const styles = theme => ({
     })
   },
   animationLeaveRelation: {
-    background: theme.palette.error[50],
+    background: theme.palette.error.light,
     opacity: 1
   },
   animationLeaveRelationActive: {
@@ -221,7 +221,7 @@ let CategoryAgendaView = class extends Component {
                       <ListItemText
                         classes={{
                           root: classes.itemText,
-                          text: classes.itemTextContent
+                          primary: classes.itemTextContent
                         }}
                         primary={primaryInfo}
                         secondary={secondaryInfo}
