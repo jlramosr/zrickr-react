@@ -41,24 +41,24 @@ class Category extends Component {
   }
 
   removeItem = () => {
-    const { itemLabel, removeItem, notify, match, history } = this.props
+    const { categoryItemLabel, removeItem, notify, match, history } = this.props
     const { itemIdToRemove, itemTitleToRemove } = this.state
     const categoryId = match.params.categoryId
     return removeItem(itemIdToRemove).then(
       () => {
-        const infoItem = itemTitleToRemove ? itemTitleToRemove : capitalize(itemLabel)
+        const infoItem = itemTitleToRemove ? itemTitleToRemove : capitalize(categoryItemLabel)
         notify(`${infoItem} has been removed succesfully`, 'success')
         if (history.location.pathname !== `/${categoryId}`) {
           history.push(`/${categoryId}`)
         }
       }, error => {
-        notify(`There has been an error removing the ${itemLabel.toLowerCase()}: ${error}`, 'error')
+        notify(`There has been an error removing the ${categoryItemLabel.toLowerCase()}: ${error}`, 'error')
       }
     )
   }
 
   render = () => {
-    const { categories, categoriesReceived, itemLabel, match, route } = this.props
+    const { categories, categoriesReceived, match, route } = this.props
     const { showRemoveDialog } = this.state
     const categoryId = match.params.categoryId
     const category = categories.find(category => category.id === categoryId)
@@ -81,7 +81,7 @@ class Category extends Component {
 
         <ConfirmationDialog
           open={showRemoveDialog}
-          message={`Are you sure to want to remove this ${itemLabel}?`}
+          message={`Are you sure to want to remove ${this.state.itemTitleToRemove}?`}
           onAccept={() => {
             this.removeItem()
           }}
@@ -110,15 +110,15 @@ Category.propTypes = {
   route: PropTypes.object.isRequired
 }
 
-const mapStateToProps = ({ categories, items, settings }, props) => {
+const mapStateToProps = ({ categories, settings }, props) => {
   const categoryId = props.match.params.categoryId
   const category = categories.byId[categoryId]
   const categorySettings = category && category.settings ? settings.byId[category.settings] : {}
-  const itemLabel = categorySettings.itemLabel || ''
+  const categoryItemLabel = categorySettings.categoryItemLabel || ''
   return {
     categories: Object.values(categories.byId),
     categoriesReceived: categories.flow.isReceivedAll,
-    itemLabel
+    categoryItemLabel
   }
 }
 

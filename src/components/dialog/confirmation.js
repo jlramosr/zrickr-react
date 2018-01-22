@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import Button from 'material-ui/Button'
 import Dialog, { DialogActions, DialogContent, DialogContentText } from 'material-ui/Dialog'
@@ -22,10 +21,7 @@ class ConfirmationDialog extends Component {
   }
 
   render = () => {
-    const {
-      open,
-      message
-    } = this.props
+    const { open, message } = this.props
 
     return (
       <Dialog
@@ -55,14 +51,4 @@ ConfirmationDialog.propTypes = {
   message: PropTypes.string.isRequired
 }
 
-const mapStateToProps = ({ interactions }, props) => {
-  /*const { open, message } = interactions.confirmationDialog
-  return { open, message }*/
-  return {}
-}
-
-const mapDispatchToProps = (dispatch, props) => {
-  return {}
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(ConfirmationDialog)
+export default ConfirmationDialog

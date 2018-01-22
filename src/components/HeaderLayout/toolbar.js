@@ -36,11 +36,12 @@ const styles = theme => ({
   },
 
   /* Content */
-  title: {
+  mainInfo: {
     display: 'flex',
     alignItems: 'center',
     overflow: 'hidden',
-    marginRight: theme.spacing.unit*4
+    justifyContent: 'flex-start',
+    marginRight: theme.spacing.unit
   },
   search: {
     height: '100%',
@@ -57,17 +58,27 @@ const styles = theme => ({
   },
 
   /* Title */
-  titleText: {
-    flex: 1,
-    marginBottom: 2,
-    fontWeight: 400,
-    textTransform: 'capitalize',
+  mainInfoText: {
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
+    flex: 1
+  },
+  mainInfoTitle: {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap'
+    whiteSpace: 'nowrap',
+    textTransform: 'capitalize'
+  },
+  mainInfoDescription: {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    fontSize: 12,
+    lineHeight: '1.2em'
   },
   progress: {
-    margin: `0 ${theme.spacing.unit}px`
+    margin: `0 ${theme.spacing.unit*2}px`
   },
 
   /* Search */
@@ -180,6 +191,8 @@ class CustomToolbar extends Component {
   render = () => {
     const {
       title,
+      backgroundColor,
+      description,
       operations,
       updateSearchQuery,
       customContent,
@@ -191,13 +204,26 @@ class CustomToolbar extends Component {
     } = this.props
     const { showSearchInput, searchQuery, searchInputFocused, smallMode } = this.state
 
+    const background = backgroundColor ? backgroundColor : theme.palette.primary.main
+    const color = '#FFFFFF' //TODO GETTING FROM background
+    
     let appBarComputedStyle = {}
     let toolbarComputedStyle = {}
-    let contentComputedStyle = {
-      color: '#fff'
-    }
+    let contentComputedStyle = {color}
     let searchBarComputedStyle = {    
-      backgroundColor: transformColor(theme.palette.primary.main, searchInputFocused ? 24 : 16)
+      background: transformColor(background, searchInputFocused ? 24 : 16)
+    }
+    const descriptionComputedStyle = {
+      ...contentComputedStyle,
+      color: transformColor(color, -24)
+    }
+
+    /* COLORS */
+    if (backgroundColor) {
+      toolbarComputedStyle = {
+        ...toolbarComputedStyle,
+        background
+      }
     }
 
     /* WHEN SEARCH APPEARS */
@@ -248,7 +274,7 @@ class CustomToolbar extends Component {
         ...searchBarComputedStyle,
         top: smallMode ? theme.spacing.unit/2 : 0,
         left: smallMode ? theme.spacing.unit*2 : 0,
-        backgroundColor: theme.palette[secondaryProps.color][secondaryProps.tone]  
+        background: theme.palette[secondaryProps.color][secondaryProps.tone]  
       }
     }
 
@@ -297,15 +323,22 @@ class CustomToolbar extends Component {
             {customContent === undefined &&
               <React.Fragment>
                 {title &&
-                  <div className={classes.title}>
-                    <Typography
-                      color="inherit"
-                      className={classes.titleText}
-                      style={contentComputedStyle}
-                      type={secondary ? 'subheading' : 'title'}
-                    >
-                      {title}
-                    </Typography>
+                  <div className={classes.mainInfo}>
+                    <div className={classes.mainInfoText}>
+                      <Typography
+                        className={classes.mainInfoTitle}
+                        style={contentComputedStyle}
+                        type={secondary ? 'subheading' : 'title'}
+                      >
+                        {title}
+                      </Typography>
+                      <Typography
+                        className={classes.mainInfoDescription}
+                        style={descriptionComputedStyle}
+                      >
+                        {description}
+                      </Typography>
+                    </div>
                     {loading &&
                       <div className={classes.progress}>
                         <CircularProgress size={20} thickness={7} color="accent" />

@@ -168,7 +168,7 @@ class CategoryList extends Component {
     const {
       categoryId,
       categoryLabel,
-      itemLabel,
+      categoryItemLabel,
       isFetchingSettings,
       isFetchingFields,
       filterItemIds,
@@ -262,7 +262,7 @@ class CategoryList extends Component {
             id:'addNewItem',
             icon: Add,
             hidden: relationMode,
-            description: `New ${itemLabel || 'Item'}`,
+            description: `New ${categoryItemLabel || 'Item'}`,
             right: true,
             onClick: this.openNewDialog
           },
@@ -270,7 +270,7 @@ class CategoryList extends Component {
             id:'addExistentItem',
             icon: AddCircle,
             hidden: !relationMode || !editMode,
-            description: `New ${itemLabel || 'Item'}`,
+            description: `New ${categoryItemLabel || 'Item'}`,
             right: true,
             onClick: this.openListDialog
           }
@@ -291,7 +291,7 @@ class CategoryList extends Component {
             closeDialog={this.closeDialog}
             history={history}
             categoryId={categoryId}
-            itemLabel={itemLabel}
+            categoryItemLabel={categoryItemLabel}
           />
         </Dialog>
 
@@ -477,7 +477,7 @@ const mapStateToProps = ({ categories, settings, fields, items, interactions }, 
   const category = categories.byId[categoryId]
   const categorySettings = category.settings ? settings.byId[category.settings] : {}
   return {
-    itemLabel: categorySettings.itemLabel,
+    categoryItemLabel: categorySettings.itemLabel,
     settings: category.settings ? settings.byId[category.settings] : {},
     isFetchingSettings: settings.flow[categoryId].isFetching,
     fields: Object.values(fields.byId).filter(field => category.fields.includes(field.id)),

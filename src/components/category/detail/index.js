@@ -24,8 +24,25 @@ class CategoryItemDetail extends Component {
   }
 
   getTitle = () => {
-    const { settings, item } = this.props
-    return item ? getItemString(item, settings.primaryFields) : ''
+    const { categoryPrimaryFields, item } = this.props
+    return item ? getItemString(item, categoryPrimaryFields) : ''
+  }
+
+  getState = () => {
+    const { categoryStates, item } = this.props
+    if (categoryStates && item && item.state) {
+      return categoryStates[item.state]
+    }
+    return {}
+  }
+
+  getNextStates = () => {
+    const { categoryStates, item } = this.props
+    if (categoryStates && item && item.state) {
+      const nextIds = categoryStates[item.state].nexts
+      return nextIds.map(id => categoryStates[id])
+    }
+    return []
   }
 
   changeEditMode = editMode => {
@@ -33,33 +50,21 @@ class CategoryItemDetail extends Component {
   }
 
   updateItem = values => {
-    const { item, itemLabel, updateItem, notify } = this.props
+    const { item, categoryItemLabel, updateItem, notify } = this.props
     if (!isEqual(item, values)) {
       return updateItem(values).then(
         () => {
-          notify(`${capitalize(itemLabel)} updated succesfully`, 'success')
+          notify(`${capitalize(categoryItemLabel)} updated succesfully`, 'success')
           this.changeEditMode(false)
         }, error => {
-          notify(`There has been an error updating the ${itemLabel.toLowerCase()}: ${error}`, 'error')
+          notify(`There has been an error updating the ${categoryItemLabel.toLowerCase()}: ${error}`, 'error')
         }
       )
     }
-    notify(`There has been no change updating this ${itemLabel}`, 'info')
+    notify(`There has been no change updating this ${categoryItemLabel}`, 'info')
     this.changeEditMode(false)
     return new Promise(resolve => resolve())
   }
-
-  /*removeItem = () => {
-    const { categoryId, itemLabel, removeItem, notify, history } = this.props
-    return removeItem().then(
-      () => {
-        notify(`${capitalize(itemLabel)} removed succesfully`, 'success')
-        history.push(`/${categoryId}`)
-      }, error => {
-        notify(`There has been an error removing the ${itemLabel.toLowerCase()}: ${error}`, 'error')
-      }
-    )
-  }*/
 
   render = () => {
     const { editMode } = this.state
@@ -67,6 +72,8 @@ class CategoryItemDetail extends Component {
       ...this.props,
       editMode,
       title: this.getTitle(),
+      itemState: this.getState(),
+      getNextStates: () => this.getNextStates(),
       updateItem: this.updateItem,
       changeEditMode: this.changeEditMode
     }
@@ -101,10 +108,6 @@ CategoryItemDetail.propTypes = {
    */
   activeItemId: PropTypes.string,
   /**
-   * Settings of the category obtained from Redux Store.
-   */
-  settings: PropTypes.object.isRequired,
-  /**
    * Fields of the category obtained from Redux Store.
    */
   fields: PropTypes.array.isRequired,
@@ -123,10 +126,10 @@ const mapStateToProps = ({ categories, settings, fields, items, interactions }, 
   const { relations } = interactions
   return {
     itemId,
-    itemLabel: categorySettings.itemLabel,
-    settings: categorySettings,
+    categoryPrimaryFields: categorySettings.primaryFields,
+    categoryItemLabel: categorySettings.itemLabel,
+    categoryStates: categorySettings.states,
     isFetchingSettings: settings.flow[categoryId].isFetching,
-    states: categorySettings.states,
     fields: Object.values(fields.byId).filter(
       field => category.fields && category.fields.includes(field.id)
     ),

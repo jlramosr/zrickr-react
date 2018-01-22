@@ -408,48 +408,6 @@
     }
   },
   "categories_items" : {
-    "11231" : {
-      "12333" : "musulmana",
-      "12341" : true,
-      "12343" : {
-        "00001" : true,
-        "00002" : true
-      },
-      "12344" : "Acciona222",
-      "12345" : "C/Federico",
-      "12346" : {
-        "b" : true
-      },
-      "12347" : "11231",
-      "12348" : "das\nsda\nd\na\nda\nsd\nas\nd\nas\nda\nsd\nas\nda\nsd\na\nsd\n",
-      "82343" : {
-        "11231" : true,
-        "21322" : true,
-        "21323" : true,
-        "21324" : true,
-        "21325" : true,
-        "21326" : true,
-        "21327" : true,
-        "21328" : true,
-        "21329" : true,
-        "21329sss" : true
-      },
-      "92346" : {
-        "00001" : true
-      },
-      "id" : "11231",
-      "updatedAt" : 1512158011675
-    },
-    "21323" : {
-      "12344" : "Aerogeneradores del Sur",
-      "12345" : "C/Ferraz22",
-      "82343" : {
-        "11231" : true,
-        "21322" : true,
-        "21323" : true
-      },
-      "id" : "21323"
-    },
     "clients" : {
       "11231" : {
         "12333" : "musulmana",
@@ -479,6 +437,7 @@
           "00001" : true
         },
         "id" : "11231",
+        "state": "estado1",
         "updatedAt" : 1512158011675
       },
       "21319" : {
@@ -604,7 +563,52 @@
         "itemLabel" : "cliente",
         "primaryFields" : [ "12344", "12342" ],
         "secondaryFields" : [ "12345" ],
-        "shared" : false
+        "shared" : false,
+        "states": {
+          "estado0": {
+            "label": "Estado 0",
+            "actionLabel": "Dar de baja",
+            "icon": "work",
+            "initial": true,
+            "nexts" : ["estado2"],
+            "color": "#e400d1",
+            "onEnter": "[12344]='Enter0",
+            "onExit": "[12344]='Exit0"
+          },
+          "estado1": {
+            "label": "Estado 1",
+            "actionLabel": "Dar de baja",
+            "initial": true,
+            "confirmation": true,
+            "nexts" : ["estado2", "estado3"],
+            "color": "#e45af3",
+            "onEnter": "[12344]='Enter1",
+            "onExit": "[12344]='Exit1"
+          },
+          "estado2": {
+            "label": "Estado 2",
+            "actionLabel": "Dar de baja",
+            "nexts" : ["estado1"],
+            "color": "#eaaa56",
+            "onEnter": "[12344]='Enter2",
+            "onExit": "[12344]='Exit2"
+          },
+          "estado3": {
+            "label": "Estado 3",
+            "actionLabel": "Dar de baja",
+            "nexts" : ["estado4"],
+            "color": "#7789aa",
+            "onEnter": "[12344]='Enter3",
+            "onExit": "[12344]='Exit3"
+          },
+          "estado4": {
+            "label": "Estado 4",
+            "actionLabel": "Dar de baja",
+            "color": "#353ff1",
+            "onEnter": "[12344]='Enter4",
+            "onExit": "[12344]='Exit4"
+          }
+        }
       }
     },
     "movements" : {
@@ -615,7 +619,10 @@
         "primaryFields" : [ "22345" ],
         "secondaryFields" : [ "22346", "23520" ],
         "secondaryFieldsSeparator": "-",
-        "shared" : false
+        "shared" : false,
+        "states": {
+
+        }
       }
     }
   }

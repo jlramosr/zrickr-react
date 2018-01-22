@@ -48,10 +48,12 @@ let CustomMenu = props => {
               props.onClose()
             }}
           >
-            <ListItemIcon className={classes.icon}>
-              <Icon />
-            </ListItemIcon>
-            <ListItemText classes={{ root: classes.labelContainer, primary: classes.labelText }} inset primary={label} />
+            {Icon &&
+              <ListItemIcon className={classes.icon}>
+                <Icon />
+              </ListItemIcon>
+            }
+            <ListItemText classes={{ root: classes.labelContainer, primary: classes.labelText }} primary={label} />
           </MenuItem>
         )
       })}
@@ -66,7 +68,7 @@ CustomMenu.propTypes = {
   operations: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
-    icon: PropTypes.func.isRequired,
+    icon: PropTypes.func,
     onClick: PropTypes.func.isRequired
   }))
 }

@@ -4,6 +4,7 @@ import Form from '../../form'
 import CategoryItemDetail from './'
 import Dialog from '../../dialog/large'
 import ConfirmationDialog from '../../dialog/confirmation'
+import Menu from './../../menu'
 import ArrowBack from 'material-ui-icons/ArrowBack'
 import Check from 'material-ui-icons/Check'
 import CallSplit from 'material-ui-icons/CallSplit'
@@ -21,7 +22,9 @@ class CategoryItemDetailHeader extends Component {
     showWhenInfoModeDialog: false,
     checkWhenInfoMode: false,
     checkWhenBack: false,
-    hasChanged: false
+    hasChanged: false,
+    showStatesMenu: false,
+    anchorEl: null
   }
 
   state = this.initialState
@@ -33,10 +36,6 @@ class CategoryItemDetailHeader extends Component {
     if (newNumOpenRelations !== oldNumOpenRelations) {
       this.changeTab(newNumOpenRelations - 1, newOpenRelations)
     }
-  }
-
-  onChangeStateClick = () => {
-
   }
 
   onBackClick = () => {
@@ -60,6 +59,26 @@ class CategoryItemDetailHeader extends Component {
     this.formElement.dispatchEvent(
       new Event('submit'),{bubbles:false}
     )
+  }
+
+  onChangeStateClick = event => {
+    this.setState({showStatesMenu: true, anchorEl: event.currentTarget})
+  }
+
+  handleStatesMenuClose = () => {
+    this.setState({showStatesMenu: false, anchorEl: null})
+  }
+
+  getMenuStates = () => {
+    const { getNextStates, item, categoryStates } = this.props
+    const nextStates = getNextStates()
+    return nextStates.map(state => {
+      const { label, actionLabel, icon } = state
+      return {id:label, icon, label:actionLabel, onClick:() =>
+        console.log("HOLA", item, state, categoryStates)
+        //updateItem()
+      }
+    })
   }
 
   whenInfoModeWithChanges = () => {
@@ -106,10 +125,12 @@ class CategoryItemDetailHeader extends Component {
     const {
       categoryId,
       title,
+      categoryItemLabel,
       isFetchingSettings,
       fields,
       isFetchingFields,
       item,
+      itemState,
       isFetchingItem,
       isUpdating,
       editMode,
@@ -125,7 +146,9 @@ class CategoryItemDetailHeader extends Component {
       checkWhenInfoMode,
       checkWhenBack,
       showWhenInfoModeDialog,
-      hasChanged
+      hasChanged,
+      showStatesMenu,
+      anchorEl
     } = this.state
 
     const showCheckIcon = editMode && hasChanged && !isUpdating
@@ -133,6 +156,8 @@ class CategoryItemDetailHeader extends Component {
     return (
       <HeaderLayout
         title={title}
+        description={itemState ? `${categoryItemLabel} in state ${itemState.label}` : ''}
+        backgroundColor={itemState ? itemState.color : null}
         loading={isFetchingSettings || isFetchingFields || isFetchingItem || isUpdating }
         operations={[
           {id:'arrowBack', icon:ArrowBack, onClick:this.onBackClick},
@@ -160,6 +185,13 @@ class CategoryItemDetailHeader extends Component {
             ]}
             onDifferentValues={this.whenDifferentValues}
             onEqualValues={this.whenSameValues}
+          />
+
+          <Menu
+            anchorEl={anchorEl}
+            open={showStatesMenu}
+            onClose={this.handleStatesMenuClose}
+            operations={this.getMenuStates()}
           />
 
           <Dialog

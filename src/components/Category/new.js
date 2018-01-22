@@ -16,7 +16,7 @@ class CategoryItemNew extends Component {
     return createItem(item).then(
       itemId => {
         notify(
-          `${capitalize(this.props.itemLabel)} created succesfully`,
+          `${capitalize(this.props.categoryItemLabel)} created succesfully`,
           'success'
         )
         if (history) {
@@ -25,7 +25,7 @@ class CategoryItemNew extends Component {
         closeDialog()
       }, error => {
         notify(
-          `There has been an error creating the ${this.props.itemLabel.toLowerCase()}: ${error}`,
+          `There has been an error creating the ${this.props.categoryItemLabel.toLowerCase()}: ${error}`,
           'error'
         )
       }
@@ -33,10 +33,10 @@ class CategoryItemNew extends Component {
   }
 
   render = () => {
-    const { closeDialog, fields, isFetchingFields, isCreatingItem, itemLabel } = this.props
+    const { closeDialog, fields, isFetchingFields, isCreatingItem, categoryItemLabel } = this.props
     return (
       <HeaderLayout
-        title={`New ${itemLabel}`}
+        title={`New ${categoryItemLabel}`}
         loading={isFetchingFields || isCreatingItem}
         operations={[
           {id:'close', icon:Close, onClick:closeDialog},
@@ -63,7 +63,7 @@ CategoryItemNew.propTypes = {
   categoryId: PropTypes.string,
   isFetchingFields: PropTypes.bool,
   fields: PropTypes.array,
-  itemLabel: PropTypes.string,
+  categoryItemLabel: PropTypes.string,
   history: PropTypes.object
 }
 

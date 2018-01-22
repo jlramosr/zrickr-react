@@ -34,7 +34,7 @@ const styles = theme => ({
     flex: 1,
     flexDirection: 'column',
     textAlign: 'center',
-    marginRight: theme.spacing.unit*2,
+    marginRight: theme.spacing.unit*3,
     overflow: 'hidden',
     whiteSpace: 'nowrap'
   },
@@ -111,7 +111,7 @@ class CategoryItemDetailTabs extends Component {
         tabs: [
           ...prevState.tabs, {
             title: nextProps.title,
-            itemLabel: nextProps.itemLabel,
+            categoryItemLabel: nextProps.categoryItemLabel,
             editMode: false,
             hasChanged: false,
             values: null
@@ -131,7 +131,7 @@ class CategoryItemDetailTabs extends Component {
     this.setState({
       tabs:[{
         title: this.props.title,
-        itemLabel: this.props.itemLabel,
+        categoryItemLabel: this.props.categoryItemLabel,
         editMode: false,
         hasChanged: false,
         values: null
@@ -337,7 +337,7 @@ class CategoryItemDetailTabs extends Component {
                         <React.Fragment>
                           <div className={classes.tabTextContainer}>
                             <div className={classes.tabTitle}>{tab.title}</div>
-                            <div className={classes.tabItemLabel}>({tab.itemLabel})</div>
+                            <div className={classes.tabItemLabel}>({tab.categoryItemLabel})</div>
                           </div>
                           <div className={classes.tabIconContainer}>
                             {isVisibleIconClose &&
