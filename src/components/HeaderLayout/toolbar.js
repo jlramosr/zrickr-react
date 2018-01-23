@@ -54,7 +54,8 @@ const styles = theme => ({
     }
   },
   operations: {
-    display: 'flex'
+    display: 'flex',
+    alignItems: 'center'
   },
 
   /* Title */
@@ -135,12 +136,12 @@ const styles = theme => ({
 })
 
 let Operations = props => {
-  const { operations, color, classes } = props
+  const { operations, color, smallMode, classes } = props
 
   return (
     <div className={classes.operations}>
       {operations.map(operation => 
-        <Operation key={operation.id} color={color} {...operation} />
+        <Operation key={operation.id} smallMode={smallMode} color={color} {...operation} />
       )}
     </div>
   )
@@ -191,6 +192,7 @@ class CustomToolbar extends Component {
   render = () => {
     const {
       title,
+      relative,
       backgroundColor,
       description,
       operations,
@@ -207,7 +209,9 @@ class CustomToolbar extends Component {
     const background = backgroundColor ? backgroundColor : theme.palette.primary.main
     const color = '#FFFFFF' //TODO GETTING FROM background
     
-    let appBarComputedStyle = {}
+    let appBarComputedStyle = {
+      
+    }
     let toolbarComputedStyle = {}
     let contentComputedStyle = {color}
     let searchBarComputedStyle = {    
@@ -315,7 +319,11 @@ class CustomToolbar extends Component {
         <Toolbar className={classes.appBar} style={toolbarComputedStyle}>
 
           <div className={classes.leftOperations}>
-            <Operations operations={leftOperations} color={contentComputedStyle.color} />
+            <Operations
+              operations={leftOperations}
+              smallMode
+              color={contentComputedStyle.color}
+            />
           </div>
 
           <div className={classes.content}>
@@ -383,7 +391,11 @@ class CustomToolbar extends Component {
           </div>
 
           <div className={classes.rightOperations}>
-            <Operations operations={rightOperations} color={contentComputedStyle.color} />
+            <Operations
+              operations={rightOperations}
+              smallMode={smallMode || relative}
+              color={contentComputedStyle.color} 
+            />
           </div>
 
         </Toolbar>

@@ -40,7 +40,7 @@ class CategoryItemNew extends Component {
         loading={isFetchingFields || isCreatingItem}
         operations={[
           {id:'close', icon:Close, onClick:closeDialog},
-          {id:'check', icon:Check, hidden: isFetchingFields || isCreatingItem, right: true, onClick: () => {
+          {id:'create', icon:Check, hidden: isFetchingFields || isCreatingItem, right: true, onClick: () => {
             this.formElement.dispatchEvent(new Event('submit'))
           }}
         ]}

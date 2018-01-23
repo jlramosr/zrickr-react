@@ -14,6 +14,7 @@ import ViewAgenda from 'material-ui-icons/ViewAgenda'
 import ItemNew from './../new'
 import Dialog from '../../dialog/large'
 import { showRelations, addOpenRelation } from '../../../actions/interactions'
+import { capitalize } from './../../../utils/helpers'
 import { getItemString } from './../utils/helpers'
 import escapeRegExp from 'escape-string-regexp'
 import removeDiacritics from 'remove-diacritics'
@@ -243,23 +244,25 @@ class CategoryList extends Component {
             onClick: this.props.closeDialog
           },
           {
-            id: 'viewAgenda',
+            id: 'agenda',
             icon: ViewAgenda,
             description: 'Agenda View',
             hidden: !tableMode,
             right: true,
+            small: true,
             onClick: () => this.changeView('agenda')
           },
           {
-            id:'viewTable',
+            id:'table',
             icon:ViewList,
             description: 'Table View',
             hidden: tableMode,
             right: true,
+            small: true,
             onClick: () => this.changeView('table')
           },
           {
-            id:'addNewItem',
+            id:`new${capitalize(categoryItemLabel || 'Item')}`,
             icon: Add,
             hidden: relationMode,
             description: `New ${categoryItemLabel || 'Item'}`,

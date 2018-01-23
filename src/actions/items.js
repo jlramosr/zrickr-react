@@ -246,12 +246,12 @@ const _createItem = (categoryId, item) => dispatch => {
 
 const _updateItem = (categoryId, itemId, item) => dispatch => {
   dispatch(_updatingItemAction(categoryId))
-  const updatedItem = {updatedAt: Date.now(), ...convertArraysToObject(item)}
+  const updatedItem = {...convertArraysToObject(item), updatedAt: Date.now()}
   const params = {
     collection: 'categories_items',
     collectionId: categoryId,
     documentId: itemId,
-    document: item
+    document: updatedItem
   }
   
   return new Promise((resolve, reject) => {

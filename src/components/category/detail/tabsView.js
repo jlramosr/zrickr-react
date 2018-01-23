@@ -292,11 +292,9 @@ class CategoryItemDetailTabs extends Component {
     }
 
     const editMode = tabs[activeIndex] ? tabs[activeIndex].editMode : false
-    const showCheckIcon =
-      editMode &&
-      !isUpdating &&
-      (tabs[activeIndex] ? tabs[activeIndex].hasChanged : false) 
-    //console.log(tabs, tabs[activeIndex], editMode)
+    const disabledCheckIcon =
+      isUpdating ||
+      !(tabs[activeIndex] ? tabs[activeIndex].hasChanged : false) 
 
     return (
       <React.Fragment>
@@ -379,7 +377,8 @@ class CategoryItemDetailTabs extends Component {
             {id:'close', icon:Close, hidden:openRelations.length > 1, onClick:this.onCloseClick},
             {id:'edit', icon:Edit, right:true, hidden:editMode, onClick:this.onEditClick},
             {id:'view', icon:ChromeReaderMode, right:true, hidden:!editMode, onClick:this.onViewClick},
-            {id:'check', icon:Check, right:true, hidden:!showCheckIcon, onClick:this.onCheckClick}
+            {id:'save', icon:Check, right:true, disabled:disabledCheckIcon,
+              hidden:!editMode, onClick:this.onCheckClick}
           ]}
         >
           <Form

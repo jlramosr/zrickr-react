@@ -34,7 +34,6 @@ class Item {
     } else {
       this.values[fieldId] = value
     }
-      
   }
 
   setFields = fields => this.fields = [...fields]
@@ -64,7 +63,7 @@ class Item {
     }, {})
   }
 
-  /*jslint evil: true */
+  /*jslint evil: true*/
   evalCondition = (condition, fieldId) => {
     let fulfilledCondition = false
     try {
@@ -122,8 +121,13 @@ class Form extends Component {
 
   componentWillReceiveProps = nextProps => {
     const { item } = this.state
-    const { checks } = this.props
-    const currentValues = item.getValues()
+    const { checks, values, fields } = this.props
+    if (!isEqual(values, nextProps.values)) {
+      this.setState({
+        item: new Item({fields, values: nextProps.values})
+      })
+      return
+    }
     checks.forEach((check, index) => {
       const oldCheckHandler = check.handler
       let newCheckHandler = nextProps.checks[index].handler
@@ -131,7 +135,7 @@ class Form extends Component {
       const checkCallback = check.callback
       const checkCondition = this.checkCondition(check.when)
       if ((oldCheckHandler !== newCheckHandler) && newCheckHandler && checkCallback && (checkCondition !== false)) {
-        checkCallback(currentValues)
+        checkCallback(item.getValues())
       }
     })
   }
@@ -300,7 +304,6 @@ class Form extends Component {
             }
             const values = item.getValues()
             const value = values[field.id] ? values[field.id] : ''
-
             return (
               fieldView &&
                 <div

@@ -33,13 +33,16 @@ class CategoryItemDetail extends Component {
     if (categoryStates && item && item.state) {
       return categoryStates[item.state]
     }
-    return {}
+    return null
   }
 
   getNextStates = () => {
     const { categoryStates, item } = this.props
     if (categoryStates && item && item.state) {
       const nextIds = categoryStates[item.state].nexts
+      if (!nextIds) {
+        return []
+      }
       return nextIds.map(id => categoryStates[id])
     }
     return []
@@ -49,12 +52,12 @@ class CategoryItemDetail extends Component {
     this.setState({editMode})
   }
 
-  updateItem = values => {
+  updateItem = (values, successMessage=null) => {
     const { item, categoryItemLabel, updateItem, notify } = this.props
     if (!isEqual(item, values)) {
       return updateItem(values).then(
         () => {
-          notify(`${capitalize(categoryItemLabel)} updated succesfully`, 'success')
+          notify(successMessage ? successMessage : `${capitalize(categoryItemLabel)} updated succesfully`, 'success')
           this.changeEditMode(false)
         }, error => {
           notify(`There has been an error updating the ${categoryItemLabel.toLowerCase()}: ${error}`, 'error')
@@ -73,7 +76,7 @@ class CategoryItemDetail extends Component {
       editMode,
       title: this.getTitle(),
       itemState: this.getState(),
-      getNextStates: () => this.getNextStates(),
+      nextStates: this.getNextStates(),
       updateItem: this.updateItem,
       changeEditMode: this.changeEditMode
     }

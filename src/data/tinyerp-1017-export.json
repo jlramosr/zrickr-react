@@ -223,7 +223,7 @@
           "id" : "b",
           "label" : "Bacelona"
         } ],
-        "readonly" : "[12344]==='Acciona'",
+        "readonly" : "[state]==='estado3'",
         "type" : "select",
         "views" : {
           "detail" : {
@@ -437,8 +437,7 @@
           "00001" : true
         },
         "id" : "11231",
-        "state": "estado1",
-        "updatedAt" : 1512158011675
+        "state": "estado1"
       },
       "21319" : {
         "12342" : "Sánchez Flor",
@@ -450,8 +449,7 @@
         "12342" : "POR DEFECTO",
         "12344" : "Iberdrola",
         "12345" : "C/Ferraz",
-        "id" : "21320",
-        "updatedAt" : 1512165460917
+        "id" : "21320"
       },
       "21321" : {
         "12344" : "Amazon",
@@ -546,8 +544,7 @@
       "00001" : {
         "22345" : "C/FREESNp",
         "22346" : "kuala_lumpur",
-        "id" : "00001",
-        "updatedAt" : 1512162827435
+        "id" : "00001"
       },
       "00002" : {
         "22345" : "C/Ferraz",
@@ -566,47 +563,52 @@
         "shared" : false,
         "states": {
           "estado0": {
-            "label": "Estado 0",
-            "actionLabel": "Dar de baja",
-            "icon": "work",
+            "label": "Empaquetado",
+            "actionLabel": "Empaquetar",
+            "icon": "group work",
             "initial": true,
-            "nexts" : ["estado2"],
+            "nexts" : ["estado1","estado2"],
             "color": "#e400d1",
-            "onEnter": "[12344]='Enter0",
-            "onExit": "[12344]='Exit0"
+            "onEnter": "[12344]='EmpaquetadoEnter0'",
+            "onExit": "[12345]='EmpaquetadoExit0'"
           },
           "estado1": {
-            "label": "Estado 1",
-            "actionLabel": "Dar de baja",
+            "label": "Activo",
+            "actionLabel": "Activar",
+            "icon": "alarm",
             "initial": true,
             "confirmation": true,
             "nexts" : ["estado2", "estado3"],
             "color": "#e45af3",
-            "onEnter": "[12344]='Enter1",
-            "onExit": "[12344]='Exit1"
+            "onEnter": "[12344]='ActivoEnter1'",
+            "onExit": "[12345]='ActivoExit1'"
           },
           "estado2": {
-            "label": "Estado 2",
-            "actionLabel": "Dar de baja",
+            "label": "Validado",
+            "actionLabel": "Validar",
+            "icon": "done",
             "nexts" : ["estado1"],
             "color": "#eaaa56",
-            "onEnter": "[12344]='Enter2",
-            "onExit": "[12344]='Exit2"
+            "onEnter": "[12344]='ValidadoEnter2'",
+            "onExit": "[12345]='ValidadoExit2'"
           },
           "estado3": {
-            "label": "Estado 3",
-            "actionLabel": "Dar de baja",
+            "label": "Emitido",
+            "actionLabel": "Emitir",
+            "icon": "explore",
             "nexts" : ["estado4"],
             "color": "#7789aa",
-            "onEnter": "[12344]='Enter3",
-            "onExit": "[12344]='Exit3"
+            "onEnter": "[12344]='EmitidoEnter3';[12348]='Descripcion al emitir'",
+            "onExit": "[12345]='EmitidoExit3'"
           },
           "estado4": {
-            "label": "Estado 4",
+            "label": "Dado de baja",
             "actionLabel": "Dar de baja",
+            "icon": "rowing",
+            "nexts" : ["estado0"],
             "color": "#353ff1",
-            "onEnter": "[12344]='Enter4",
-            "onExit": "[12344]='Exit4"
+            "onEnter": "[12344]='DadoDeBajaEnter4'",
+            "onExit": "[12345]='DadoDeBajaExit4'"
           }
         }
       }

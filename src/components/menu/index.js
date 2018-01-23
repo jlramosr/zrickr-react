@@ -26,6 +26,41 @@ const styles = {
   }
 }
 
+//https://kamranicus.com/posts/2017-09-02-dynamic-import-material-icons-react
+const StringIconToMaterialIcon = icon => {
+  const capitalize = str => str.length
+    ? str[0].toUpperCase() +
+      str.slice(1).toLowerCase()
+    : ''
+
+  const titleCase = str => str
+    .split(/\s+/)
+    .map(capitalize)
+    .join('')
+
+  const iconName = titleCase(icon)
+  let resolved = null
+  try {
+    resolved = require(`material-ui-icons/${iconName}`).default
+  } catch (e) {
+    //throw Error(`Could not find material-ui-icons/${capitalizeIcon}`)
+    console.error(e)
+    return null
+  }
+  return React.createElement(resolved)
+}
+
+const renderIcon = icon => {
+  if (!icon) {
+    return null
+  }
+  if (typeof icon !== 'string') {
+    const Icon = icon
+    return <Icon />
+  }
+  return StringIconToMaterialIcon(icon)
+}
+
 let CustomMenu = props => {
   const { operations, classes, ...restProps } = props
 
@@ -38,7 +73,7 @@ let CustomMenu = props => {
     >
       {operations.map(operation => {
         const { id, icon, label, onClick } = operation
-        const Icon = icon
+        const iconRendered = renderIcon(icon)
         return (
           <MenuItem
             key={id}
@@ -48,9 +83,9 @@ let CustomMenu = props => {
               props.onClose()
             }}
           >
-            {Icon &&
+            {iconRendered &&
               <ListItemIcon className={classes.icon}>
-                <Icon />
+                {iconRendered}
               </ListItemIcon>
             }
             <ListItemText classes={{ root: classes.labelContainer, primary: classes.labelText }} primary={label} />
@@ -68,7 +103,7 @@ CustomMenu.propTypes = {
   operations: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
-    icon: PropTypes.func,
+    icon: PropTypes.oneOfType([PropTypes.func,PropTypes.string]),
     onClick: PropTypes.func.isRequired
   }))
 }

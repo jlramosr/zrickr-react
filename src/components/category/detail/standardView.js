@@ -1,3 +1,4 @@
+/*eslint-disable no-eval*/
 import React, { Component } from 'react'
 import HeaderLayout from '../../headerLayout'
 import Form from '../../form'
@@ -5,11 +6,12 @@ import CategoryItemDetail from './'
 import Dialog from '../../dialog/large'
 import ConfirmationDialog from '../../dialog/confirmation'
 import Menu from './../../menu'
+import { capitalize } from '../../../utils/helpers'
 import ArrowBack from 'material-ui-icons/ArrowBack'
 import Check from 'material-ui-icons/Check'
-import CallSplit from 'material-ui-icons/CallSplit'
+import Directions from 'material-ui-icons/Directions'
 import Edit from 'material-ui-icons/Edit'
-import ChromeReaderMode from 'material-ui-icons/ChromeReaderMode'
+import Subtitles from 'material-ui-icons/Subtitles'
 import Delete from 'material-ui-icons/Delete'
 
 class CategoryItemDetailHeader extends Component {
@@ -69,14 +71,35 @@ class CategoryItemDetailHeader extends Component {
     this.setState({showStatesMenu: false, anchorEl: null})
   }
 
+  /*jslint evil: true */
+  changeState = newState => {
+    const { title, item, categoryStates, updateItem } = this.props
+    const oldState = categoryStates[item.state]
+    const newStateId = Object.keys(categoryStates).find(id => categoryStates[id] === newState)
+    const successMessage = `${capitalize(title)} ${newState.label.toLowerCase()} succesfully`
+    if (newStateId) {
+      if (!oldState.onExit && !newState.onEnter) {
+        updateItem({state:newStateId}, successMessage)
+      } else {
+        const newItem = {...item}
+        if (oldState.onExit) {
+          const actions = oldState.onExit.split(';')
+          actions.forEach(action => eval(action.replace('[','newItem[')))
+        }
+        if (newState.onEnter) {
+          const actions = newState.onEnter.split(';')
+          actions.forEach(action => eval(action.replace('[','newItem[')))
+        }
+        updateItem({...newItem, state:newStateId}, successMessage)
+      }
+    }
+  }
+
   getMenuStates = () => {
-    const { getNextStates, item, categoryStates } = this.props
-    const nextStates = getNextStates()
-    return nextStates.map(state => {
+    return this.props.nextStates.map(state => {
       const { label, actionLabel, icon } = state
       return {id:label, icon, label:actionLabel, onClick:() =>
-        console.log("HOLA", item, state, categoryStates)
-        //updateItem()
+        this.changeState(state)
       }
     })
   }
@@ -131,6 +154,7 @@ class CategoryItemDetailHeader extends Component {
       isFetchingFields,
       item,
       itemState,
+      nextStates,
       isFetchingItem,
       isUpdating,
       editMode,
@@ -151,8 +175,6 @@ class CategoryItemDetailHeader extends Component {
       anchorEl
     } = this.state
 
-    const showCheckIcon = editMode && hasChanged && !isUpdating
-
     return (
       <HeaderLayout
         title={title}
@@ -162,10 +184,12 @@ class CategoryItemDetailHeader extends Component {
         operations={[
           {id:'arrowBack', icon:ArrowBack, onClick:this.onBackClick},
           {id:'edit', icon:Edit, right:true, hidden:editMode, onClick:this.onEditClick},
-          {id:'changeState', icon:CallSplit, right:true, hidden:editMode, onClick:this.onChangeStateClick},
-          {id:'view', icon:ChromeReaderMode, right:true, hidden:!editMode, onClick:this.onViewClick},
+          {id:'changeState', icon:Directions, right:true,
+            hidden:editMode || !nextStates.length, onClick:this.onChangeStateClick},
+          {id:'view', icon:Subtitles, right:true, hidden:!editMode, onClick:this.onViewClick},
           {id:'delete', icon:Delete, right:true, hidden:editMode, onClick:this.onRemoveClick},
-          {id:'check', icon:Check, right:true, hidden:!showCheckIcon, onClick:this.onCheckClick}
+          {id:'save', icon:Check, right:true, hidden:!editMode,
+            disabled:!hasChanged || isUpdating, onClick:this.onCheckClick}
         ]}
       >
         <React.Fragment>

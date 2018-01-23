@@ -221,7 +221,8 @@ let CategoryAgendaView = class extends Component {
                       <ListItemText
                         classes={{
                           root: classes.itemText,
-                          primary: classes.itemTextContent
+                          primary: classes.itemTextContent,
+                          secondary: classes.itemTextContent
                         }}
                         primary={primaryInfo}
                         secondary={secondaryInfo}

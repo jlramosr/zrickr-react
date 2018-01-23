@@ -172,7 +172,17 @@ theme = {
       }
     },
 
-
+    MuiList: {
+      root: {
+        padding: 0
+      },
+      padding: {
+        paddingTop: 2,
+        paddingBottom: 2,
+        paddingLeft: 2,
+        paddingRight: 2
+      }
+    },
     MuiListItem: {
       root: {
         outline: 'none'

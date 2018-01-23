@@ -2,15 +2,48 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import IconButton from 'material-ui/IconButton'
+import Button from 'material-ui/Button'
 import Tooltip from 'material-ui/Tooltip'
 
+const transformIdToTitle = id => id.replace(/([A-Z])/g, ' $1')
+
 const Action = props => {
-  const { id, to, icon, color, onClick } = props
+  const { id, to, icon, color, smallMode, small, disabled, onClick } = props
   const Icon = icon
+
+  const iconButtonStyle = {
+    color,
+    cursor: onClick || to ? 'pointer' : 'default',
+    opacity: disabled ? 0.5 : 1
+  }
+
+  const buttonStyle = {
+    color,
+    marginRight:2,
+    marginLeft:2,
+    padding:8,
+    opacity: disabled ? 0.5 : 1
+  }
+
+  const iconStyle = {
+    width:20,
+    height:20,
+    marginRight:4
+  }
+
+  if (small || smallMode) {
+    return (
+      <IconButton disabled={disabled} style={iconButtonStyle}>
+        <Icon aria-label={id} onClick={onClick} />
+      </IconButton>
+    )
+  }
+
   return (
-    <IconButton style={{cursor: onClick || to ? 'pointer' : 'default', color}}>
-      <Icon aria-label={id} onClick={onClick} />
-    </IconButton>
+    <Button disabled={disabled} style={buttonStyle} onClick={onClick}>
+      <Icon style={iconStyle} aria-label={id}/>
+      {transformIdToTitle(id)}
+    </Button>
   )
 }
 
@@ -55,6 +88,7 @@ Operation.propTypes = {
 
 Operation.defaultProps = {
   hidden: false,
+  disabled: false,
   color: 'contrast'
 }
 
