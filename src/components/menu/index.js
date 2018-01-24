@@ -2,6 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { ListItemText, ListItemIcon } from 'material-ui/List'
 import Menu, { MenuItem } from 'material-ui/Menu'
+import Divider from 'material-ui/Divider'
 import { withStyles } from 'material-ui/styles'
 
 const styles = {
@@ -23,6 +24,9 @@ const styles = {
   },
   labelText: {
     fontSize: 14
+  },
+  divider: {
+    margin: 2
   }
 }
 
@@ -71,9 +75,15 @@ let CustomMenu = props => {
       classes={{paper: classes.menu}}
       {...restProps}
     >
-      {operations.map(operation => {
+      {operations.map((operation, index) => {
         const { id, icon, label, onClick } = operation
         const iconRendered = renderIcon(icon)
+        if (id.startsWith('divider')) {
+          if (index !== operations.length-1) {
+            return <Divider key={id} className={classes.divider}/>
+          }
+          return <React.Fragment key={id} />
+        }
         return (
           <MenuItem
             key={id}
@@ -102,9 +112,9 @@ CustomMenu.propTypes = {
   anchorEl: PropTypes.object,
   operations: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string.isRequired,
-    label: PropTypes.string.isRequired,
+    label: PropTypes.string,
     icon: PropTypes.oneOfType([PropTypes.func,PropTypes.string]),
-    onClick: PropTypes.func.isRequired
+    onClick: PropTypes.func
   }))
 }
 

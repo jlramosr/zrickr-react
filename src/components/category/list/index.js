@@ -5,6 +5,7 @@ import { fetchItems, fetchItemsIfNeeded } from '../../../actions/items'
 import HeaderLayout from '../../headerLayout'
 import CategoryAgendaView from './agendaView'
 import CategoryTableView from './tableView'
+import { isEqual } from '../../../utils/helpers'
 import ArrowBack from 'material-ui-icons/ArrowBack'
 import Close from 'material-ui-icons/Close'
 import Add from 'material-ui-icons/Add'
@@ -40,28 +41,13 @@ class CategoryList extends Component {
   }
 
   componentWillReceiveProps = nextProps => {
-    if (this.props.editMode !== nextProps.editMode) {
-      this.setState({
-        tempAddItemIds: [],
-        tempRemoveItemIds: []
-      })
+    const { editMode, items } = nextProps
+    if (this.props.editMode !== editMode) {
+      this.setState({tempAddItemIds:[], tempRemoveItemIds:[]})
     }
-    if (this.props.items.length !== nextProps.items.length) {
-      this.setState({foundItems: nextProps.items})
+    if (!isEqual(this.props.items, items)) {
+      this.updateFoundItems({items})
     }
-  }
-
-  updateSearchQuery = searchQuery => {
-    const { settings, items } = this.props
-    let foundItems = items
-    if (searchQuery) {
-      const cleanQuery = removeDiacritics(searchQuery.trim())
-      const match = new RegExp(escapeRegExp(cleanQuery), 'i')
-      foundItems = items.filter(item => (
-        match.test(removeDiacritics(getItemString(item, settings.primaryFields)))
-      ))
-    }
-    this.setState({ foundItems, searchQuery })
   }
 
   /**
@@ -70,7 +56,22 @@ class CategoryList extends Component {
    * @param {string} searchQuery The string.
    * @returns {void}
 	 */
-  //updateSearchQuery = searchQuery => this.setState({searchQuery})
+  updateSearchQuery = searchQuery => {
+    this.setState({ searchQuery })
+    this.updateFoundItems({searchQuery})
+  }
+
+  updateFoundItems = ({searchQuery=this.state.searchQuery, items=this.props.items}) => {
+    let foundItems = items
+    if (searchQuery) {
+      const cleanQuery = removeDiacritics(searchQuery.trim())
+      const match = new RegExp(escapeRegExp(cleanQuery), 'i')
+      foundItems = items.filter(item => (
+        match.test(removeDiacritics(getItemString(item, this.props.settings.primaryFields)))
+      ))
+    }
+    this.setState({ foundItems })
+  }
 
   /**
 	 * Change the view of the list.
@@ -78,7 +79,8 @@ class CategoryList extends Component {
    * @param {string} view The desired view. One of 'table','agenda'.
    * @returns {void}
 	 */
-  changeView = view => this.setState({tableMode: view === 'table'})
+  changeView = view =>
+    this.setState({tableMode: view === 'table'})
 
   /**
 	 * Open the a new item dialog, updating the state.

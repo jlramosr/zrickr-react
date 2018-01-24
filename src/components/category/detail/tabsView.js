@@ -140,8 +140,8 @@ class CategoryItemDetailTabs extends Component {
   }
 
   updateItem = values => {
-    const { updateItem } = this.props
-    return updateItem(values).then(() => {
+    const { onUpdateItem, activeCategoryId, activeItemId, title } = this.props
+    return onUpdateItem(activeCategoryId, activeItemId, values, title).then(() => {
       this.whenInfoModeWithoutChanges()
     })
   }

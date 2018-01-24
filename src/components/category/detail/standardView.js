@@ -1,4 +1,3 @@
-/*eslint-disable no-eval*/
 import React, { Component } from 'react'
 import HeaderLayout from '../../headerLayout'
 import Form from '../../form'
@@ -6,7 +5,6 @@ import CategoryItemDetail from './'
 import Dialog from '../../dialog/large'
 import ConfirmationDialog from '../../dialog/confirmation'
 import Menu from './../../menu'
-import { capitalize } from '../../../utils/helpers'
 import ArrowBack from 'material-ui-icons/ArrowBack'
 import Check from 'material-ui-icons/Check'
 import Directions from 'material-ui-icons/Directions'
@@ -40,6 +38,14 @@ class CategoryItemDetailHeader extends Component {
     }
   }
 
+  updateItem = values => {
+    const { onUpdateItem, categoryId, itemId, title, changeEditMode } = this.props
+    console.log(this.props);
+    return onUpdateItem(categoryId, itemId, values, title).then(() => {
+      changeEditMode(false)
+    })
+  }
+
   onBackClick = () => {
     this.setState({checkWhenBack: true})
   }
@@ -69,39 +75,6 @@ class CategoryItemDetailHeader extends Component {
 
   handleStatesMenuClose = () => {
     this.setState({showStatesMenu: false, anchorEl: null})
-  }
-
-  /*jslint evil: true */
-  changeState = newState => {
-    const { title, item, categoryStates, updateItem } = this.props
-    const oldState = categoryStates[item.state]
-    const newStateId = Object.keys(categoryStates).find(id => categoryStates[id] === newState)
-    const successMessage = `${capitalize(title)} ${newState.label.toLowerCase()} succesfully`
-    if (newStateId) {
-      if (!oldState.onExit && !newState.onEnter) {
-        updateItem({state:newStateId}, successMessage)
-      } else {
-        const newItem = {...item}
-        if (oldState.onExit) {
-          const actions = oldState.onExit.split(';')
-          actions.forEach(action => eval(action.replace('[','newItem[')))
-        }
-        if (newState.onEnter) {
-          const actions = newState.onEnter.split(';')
-          actions.forEach(action => eval(action.replace('[','newItem[')))
-        }
-        updateItem({...newItem, state:newStateId}, successMessage)
-      }
-    }
-  }
-
-  getMenuStates = () => {
-    return this.props.nextStates.map(state => {
-      const { label, actionLabel, icon } = state
-      return {id:label, icon, label:actionLabel, onClick:() =>
-        this.changeState(state)
-      }
-    })
   }
 
   whenInfoModeWithChanges = () => {
@@ -147,20 +120,22 @@ class CategoryItemDetailHeader extends Component {
   render = () => {
     const {
       categoryId,
+      itemId,
       title,
+      onUpdateItem,
       categoryItemLabel,
+      categoryStates,
       isFetchingSettings,
       fields,
       isFetchingFields,
       item,
       itemState,
-      nextStates,
+      getNextStatesAsOperations,
       isFetchingItem,
       isUpdating,
       editMode,
       changeEditMode,
       history,
-      updateItem,
       shouldShowRelations,
       closeRelations,
       removeAllOpenRelations
@@ -174,6 +149,9 @@ class CategoryItemDetailHeader extends Component {
       showStatesMenu,
       anchorEl
     } = this.state
+    const nextStatesIds = itemState ? itemState.nexts : []
+    const hiddenChangeStateOp = editMode || !itemState || (itemState && !itemState.nexts)
+    const disabledChangeStateOp = !nextStatesIds.length
 
     return (
       <HeaderLayout
@@ -184,8 +162,8 @@ class CategoryItemDetailHeader extends Component {
         operations={[
           {id:'arrowBack', icon:ArrowBack, onClick:this.onBackClick},
           {id:'edit', icon:Edit, right:true, hidden:editMode, onClick:this.onEditClick},
-          {id:'changeState', icon:Directions, right:true,
-            hidden:editMode || !nextStates.length, onClick:this.onChangeStateClick},
+          {id:'changeState', icon:Directions, right:true, hidden:hiddenChangeStateOp,
+            disabled: disabledChangeStateOp, onClick:this.onChangeStateClick},
           {id:'view', icon:Subtitles, right:true, hidden:!editMode, onClick:this.onViewClick},
           {id:'delete', icon:Delete, right:true, hidden:editMode, onClick:this.onRemoveClick},
           {id:'save', icon:Check, right:true, hidden:!editMode,
@@ -198,7 +176,7 @@ class CategoryItemDetailHeader extends Component {
             view="detail"
             fields={fields}
             values={item}
-            handleSubmit={updateItem}
+            handleSubmit={this.updateItem}
             formRef={el => this.formElement = el}
             infoMode={!editMode}
             checks={[
@@ -215,7 +193,15 @@ class CategoryItemDetailHeader extends Component {
             anchorEl={anchorEl}
             open={showStatesMenu}
             onClose={this.handleStatesMenuClose}
-            operations={this.getMenuStates()}
+            operations={
+              getNextStatesAsOperations({
+                categoryId,
+                itemId,
+                itemValues: item,
+                categoryStates,
+                itemTitle: title
+              })
+            }
           />
 
           <Dialog
@@ -225,6 +211,7 @@ class CategoryItemDetailHeader extends Component {
           >
             <CategoryItemDetail
               dialogMode
+              onUpdateItem={onUpdateItem}
               changeTab={this.changeTab}
               {...relations}
             />
@@ -240,7 +227,6 @@ class CategoryItemDetailHeader extends Component {
                 document.dispatchEvent(new Event('restart-form'))
               }
               changeEditMode(false)
-              
             }}
             onClose={() => {
               this.setState({checkWhenBack: false, checkWhenInfoMode: false, showWhenInfoModeDialog: false})

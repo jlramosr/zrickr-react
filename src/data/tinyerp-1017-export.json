@@ -442,22 +442,26 @@
       "21319" : {
         "12342" : "Sánchez Flor",
         "12344" : "Julián",
-        "12345" : "C/Ferraz"
+        "12345" : "C/Ferraz",
+        "state": "estado1"
       },
       "21320" : {
         "12341" : true,
         "12342" : "POR DEFECTO",
         "12344" : "Iberdrola",
         "12345" : "C/Ferraz",
-        "id" : "21320"
+        "id" : "21320",
+        "state": "estado1"
       },
       "21321" : {
         "12344" : "Amazon",
-        "12345" : "C/Ferraz"
+        "12345" : "C/Ferraz",
+        "state": "estado2"
       },
       "21322" : {
         "12344" : "112 Asturias",
-        "12345" : "C/Ferraz"
+        "12345" : "C/Ferraz",
+        "state": "estado3"
       },
       "21323" : {
         "12344" : "Aerogeneradores del Sur",
@@ -466,7 +470,8 @@
           "11231" : true,
           "21322" : true,
           "21323" : true
-        }
+        },
+        "state": "estado4"
       },
       "21324" : {
         "12344" : "Act Wind",
@@ -475,15 +480,18 @@
           "11231" : true,
           "21322" : true,
           "21323" : true
-        }
+        },
+        "state": "estado4"
       },
       "21325" : {
         "12344" : "Wind Energy",
-        "12345" : "C/Ferraz"
+        "12345" : "C/Ferraz",
+        "state": "estado3"
       },
       "21326" : {
         "12344" : "Statoil",
-        "12345" : "C/Ferraz"
+        "12345" : "C/Ferraz",
+        "state": "estado0"
       },
       "21327" : {
         "12344" : "Socaire",
@@ -491,53 +499,65 @@
       },
       "21328" : {
         "12344" : "Potelu Solar SRL",
-        "12345" : "C/Ferraz"
+        "12345" : "C/Ferraz",
+        "state": "estado3"
       },
       "21330" : {
         "12344" : "Repsol",
-        "12345" : "C/Ferraz"
+        "12345" : "C/Ferraz",
+        "state": "estado2"
       },
       "21331" : {
         "12344" : "MVV Energie AG",
-        "12345" : "C/Ferraz"
+        "12345" : "C/Ferraz",
+        "state": "estado1"
       },
       "21332" : {
         "12344" : "Infinis",
-        "12345" : "C/Ferraz"
+        "12345" : "C/Ferraz",
+        "state": "estado1"
       },
       "21333" : {
         "12344" : "Petronor",
-        "12345" : "C/Ferraz"
+        "12345" : "C/Ferraz",
+        "state": "estado0"
       },
       "21334" : {
         "12344" : "Parque Eólico do Pisco S.A.",
-        "12345" : "C/Ferraz"
+        "12345" : "C/Ferraz",
+        "state": "estado1"
       },
       "21335" : {
         "12344" : "Highland North LLC",
-        "12345" : "C/Ferraz"
+        "12345" : "C/Ferraz",
+        "state": "estado2"
       },
       "21336" : {
         "12344" : "Frontal Project",
-        "12345" : "C/Ferraz"
+        "12345" : "C/Ferraz",
+        "state": "estado4"
       },
       "21337" : {
         "12344" : "Golden Hill Gate Co. Ltd",
-        "12345" : "C/Ferraz"
+        "12345" : "C/Ferraz",
+        "state": "estado0"
       },
       "21338" : {
         "12344" : "Eólica de Lillo S.L.",
-        "12345" : "C/Ferraz"
+        "12345" : "C/Ferraz",
+        "state": "estado0"
       },
       "21339" : {
         "12344" : "ESB",
-        "12345" : "C/Ferraz"
+        "12345" : "C/Ferraz",
+        "state": "estado0"
       },
       "-L0tuzWETL0NxZbJaKhP" : {
         "12344" : "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "12345" : "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
         "createdAt" : 1513873988475,
-        "id" : "-L0tuzWETL0NxZbJaKhP"
+        "id" : "-L0tuzWETL0NxZbJaKhP",
+        "state": "estado2"
       }
     },
     "movements" : {

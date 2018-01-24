@@ -128,12 +128,12 @@ let CategoryAgendaView = class extends Component {
   }
 
   componentWillReceiveProps = nextProps => {
-    this.setState({isSearching: 
-      this.props.searchQuery !== nextProps.searchQuery
+    this.setState({
+      isSearching: this.props.searchQuery !== nextProps.searchQuery
     })
   }
 
-  itemClick(event, itemId) {
+  onItemClick(event, itemId) {
     const { relationMode, dialogMode, openDetailDialog, markAddItems } = this.props
     if (relationMode) {
       event.preventDefault()
@@ -144,6 +144,9 @@ let CategoryAgendaView = class extends Component {
     }
   }
 
+  getItemValues = id =>
+    this.props.items.find(item => item.id === id)
+
   handleMenuItemClick = (event, itemId) => {
     event.preventDefault()
     event.stopPropagation()
@@ -151,7 +154,7 @@ let CategoryAgendaView = class extends Component {
   }
 
   handleMenuItemClose = () => {
-    this.setState({ showMenuItem: false, anchorEl: null, itemMenuClickedId: null })
+    this.setState({ showMenuItem: false, anchorEl: null })
   }
 
   render = () => {
@@ -166,6 +169,7 @@ let CategoryAgendaView = class extends Component {
       onRemoveItem,
       history,
       categoryStates,
+      getNextStatesAsOperations,
       toAddIds,
       toRemoveIds,
       markRemoveItems,
@@ -173,7 +177,7 @@ let CategoryAgendaView = class extends Component {
       theme,
       classes
     } = this.props
-    const {showMenuItem, anchorEl, itemMenuClickedId } = this.state
+    const {showMenuItem, anchorEl, itemMenuClickedId, isSearching } = this.state
 
     return (
       <React.Fragment>
@@ -193,9 +197,9 @@ let CategoryAgendaView = class extends Component {
               appear: classes.animationAppear,
               appearActive: classes.animationAppearActive
             }}
-            transitionEnter={relationMode && !this.state.isSearching}
+            transitionEnter={relationMode && !isSearching}
             transitionEnterTimeout={300}
-            transitionLeave={!this.state.isSearching}
+            transitionLeave={!isSearching}
             transitionLeaveTimeout={300}
             transitionAppear={relationMode}
             transitionAppearTimeout={200}
@@ -229,7 +233,7 @@ let CategoryAgendaView = class extends Component {
                   <Link
                     tabIndex={-1}
                     to={`/${categoryId}/${item.id}`}
-                    onClick={event => this.itemClick(event, item.id)}
+                    onClick={event => this.onItemClick(event, item.id)}
                   >
                     <ListItem button={!isMarkedForRemove} disableRipple>
                       {showAvatarWithImage &&
@@ -287,27 +291,41 @@ let CategoryAgendaView = class extends Component {
           </ReactCSSTransitionGroup>
         </List>
 
-        <Menu
-          anchorEl={anchorEl}
-          open={showMenuItem}
-          onClose={this.handleMenuItemClose}
-          operations={[
-            {id:'view', icon:ChromeReaderMode, label: 'View', onClick:() => {
-              history.push(`/${categoryId}/${itemMenuClickedId}`)
-              this.setState({showMenuItem: false, anchorEl: null})
-            }},
-            {id:'edit', icon:Edit, label: 'Edit', onClick:() => {
-              history.replace(`/${categoryId}/${itemMenuClickedId}`, {editMode: true})
-              this.setState({showMenuItem: false, anchorEl: null})
-            }},
-            {id:'delete', icon:Delete, label: 'Delete', onClick:() => {
-              const item = items.find(item => item.id === itemMenuClickedId)
-              const title = getItemString(item, settings.primaryFields, settings.primaryFieldsSeparator)
-              onRemoveItem(itemMenuClickedId, title)
-              this.setState({showMenuItem: false, anchorEl: null})
-            }}
-          ]}
-        />
+        {editMode && !relationMode &&
+          <Menu
+            anchorEl={anchorEl}
+            open={showMenuItem}
+            onClose={this.handleMenuItemClose}
+            operations={[
+              {id:'view', icon:ChromeReaderMode, label: 'View', onClick:() => {
+                history.push(`/${categoryId}/${itemMenuClickedId}`)
+                this.setState({showMenuItem: false, anchorEl: null})
+              }},
+              {id:'edit', icon:Edit, label: 'Edit', onClick:() => {
+                history.replace(`/${categoryId}/${itemMenuClickedId}`, {editMode: true})
+                this.setState({showMenuItem: false, anchorEl: null})
+              }},
+              {id:'delete', icon:Delete, label: 'Delete', onClick:() => {
+                const item = items.find(item => item.id === itemMenuClickedId)
+                const title = getItemString(item, settings.primaryFields, settings.primaryFieldsSeparator)
+                onRemoveItem(itemMenuClickedId, title)
+                this.setState({showMenuItem: false, anchorEl: null})
+              }},
+              {id:'divider'},
+              ...getNextStatesAsOperations({
+                categoryId,
+                itemId: itemMenuClickedId,
+                itemValues: this.getItemValues(itemMenuClickedId),
+                categoryStates,
+                itemTitle: getItemString(
+                  this.getItemValues(itemMenuClickedId),
+                  settings.primaryFields,
+                  settings.primaryFieldsSeparator
+                )
+              })
+            ]}
+          />
+        }
 
       </React.Fragment>
     )

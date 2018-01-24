@@ -1,10 +1,9 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
-import { fetchItemIfNeeded, updateItem } from '../../../actions/items'
+import { fetchItemIfNeeded } from '../../../actions/items'
 import { notify, removeOpenRelation, removeAllOpenRelations,closeRelations } from '../../../actions/interactions'
 import { getItemString } from '../utils/helpers'
-import { capitalize, isEqual } from '../../../utils/helpers'
 import StandardView from './standardView'
 import TabsView from './tabsView'
 import NotFound from '../../notFound'
@@ -28,7 +27,7 @@ class CategoryItemDetail extends Component {
     return item ? getItemString(item, categoryPrimaryFields) : ''
   }
 
-  getState = () => {
+  getCurrentState = () => {
     const { categoryStates, item } = this.props
     if (categoryStates && item && item.state) {
       return categoryStates[item.state]
@@ -36,37 +35,8 @@ class CategoryItemDetail extends Component {
     return null
   }
 
-  getNextStates = () => {
-    const { categoryStates, item } = this.props
-    if (categoryStates && item && item.state) {
-      const nextIds = categoryStates[item.state].nexts
-      if (!nextIds) {
-        return []
-      }
-      return nextIds.map(id => categoryStates[id])
-    }
-    return []
-  }
-
   changeEditMode = editMode => {
     this.setState({editMode})
-  }
-
-  updateItem = (values, successMessage=null) => {
-    const { item, categoryItemLabel, updateItem, notify } = this.props
-    if (!isEqual(item, values)) {
-      return updateItem(values).then(
-        () => {
-          notify(successMessage ? successMessage : `${capitalize(categoryItemLabel)} updated succesfully`, 'success')
-          this.changeEditMode(false)
-        }, error => {
-          notify(`There has been an error updating the ${categoryItemLabel.toLowerCase()}: ${error}`, 'error')
-        }
-      )
-    }
-    notify(`There has been no change updating this ${categoryItemLabel}`, 'info')
-    this.changeEditMode(false)
-    return new Promise(resolve => resolve())
   }
 
   render = () => {
@@ -75,9 +45,7 @@ class CategoryItemDetail extends Component {
       ...this.props,
       editMode,
       title: this.getTitle(),
-      itemState: this.getState(),
-      nextStates: this.getNextStates(),
-      updateItem: this.updateItem,
+      itemState: this.getCurrentState(),
       changeEditMode: this.changeEditMode
     }
 
@@ -153,7 +121,6 @@ const mapDispatchToProps = (dispatch, props) => {
   const itemId = props.dialogMode ? props.activeItemId : props.match.params.itemId
   return {
     fetchItemIfNeeded: () => dispatch(fetchItemIfNeeded(categoryId,itemId)),
-    updateItem: item => dispatch(updateItem(props.categoryId, itemId, item)),
     notify: (message, type) => dispatch(notify(message, type)),
     removeOpenRelation: index => dispatch(removeOpenRelation(index)),
     removeAllOpenRelations: () => dispatch(removeAllOpenRelations()),

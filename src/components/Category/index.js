@@ -1,8 +1,9 @@
+/*eslint-disable no-eval*/
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { renderRoutes } from 'react-router-config'
-import { removeItem } from '../../actions/items'
+import { updateItem, removeItem } from '../../actions/items'
 import { fetchCategoriesIfNeeded } from '../../actions/categories'
 import { fetchSettings, fetchSettingsIfNeeded } from '../../actions/settings'
 import { fetchFields, fetchFieldsIfNeeded } from '../../actions/fields'
@@ -12,11 +13,18 @@ import ConfirmationDialog from '../dialog/confirmation'
 import NotFound from '../notFound'
 
 class Category extends Component {
-  state = {
-    showRemoveDialog: false,
-    itemIdToRemove: null,
-    itemTitleToRemove: ''
+  initialState = {
+    activeItem: {
+      id: null,
+      categoryId: null,
+      title: '',
+      values: null,
+      action: '',
+      showDialog: false
+    }
   }
+
+  state = this.initialState
 
   componentWillMount = () => {
     this.props.fetchCategoriesIfNeeded()
@@ -36,30 +44,109 @@ class Category extends Component {
     }
   }
 
-  onRemoveItem = (itemId, itemTitle=null) => {
-    this.setState({showRemoveDialog: true, itemIdToRemove: itemId, itemTitleToRemove: itemTitle})
-  }
+  /*onUpdateItem = (categoryId, itemId, values, itemTitle=null) => {
+    this.setState({
+      action: 'update',
+      activeCategoryId: categoryId,
+      activeItem: values,
+      activeItemId: itemId,
+      activeItemTitle: itemTitle
+    })
+  }*/
 
-  removeItem = () => {
-    const { categoryItemLabel, removeItem, notify, match, history } = this.props
-    const { itemIdToRemove, itemTitleToRemove } = this.state
-    const categoryId = match.params.categoryId
-    return removeItem(itemIdToRemove).then(
+  onUpdateItem = (categoryId, itemId, values, itemTitle=null, itemAction=null) => {
+    const { updateItem, categoryItemLabel, notify } = this.props
+    const infoItem = itemTitle ? itemTitle : capitalize(categoryItemLabel)
+    return updateItem(categoryId, itemId, values).then(
       () => {
-        const infoItem = itemTitleToRemove ? itemTitleToRemove : capitalize(categoryItemLabel)
-        notify(`${infoItem} has been removed succesfully`, 'success')
-        if (history.location.pathname !== `/${categoryId}`) {
-          history.push(`/${categoryId}`)
-        }
+        const action = itemAction ? itemAction : 'updated'
+        notify(`${infoItem} ${action} succesfully`, 'success')
       }, error => {
-        notify(`There has been an error removing the ${categoryItemLabel.toLowerCase()}: ${error}`, 'error')
+        notify(`Error updating ${infoItem}: ${error}`, 'error')
       }
     )
   }
 
+  onRemoveItem = (itemId, itemTitle=null) => {
+    const activeItem = {
+      id: itemId,
+      title: itemTitle,
+      action: 'remove',
+      showDialog: true
+    }
+    this.setState({activeItem})
+  }
+
+  removeItem = () => {
+    const { categoryItemLabel, removeItem, notify, match, history } = this.props
+    const { activeItem } = this.state
+    const { title, id } = activeItem
+    const categoryId = match.params.categoryId
+    const infoItem = title ? title : capitalize(categoryItemLabel)
+    return removeItem(id).then(
+      () => {
+        notify(`${infoItem} removed succesfully`, 'success')
+        if (history.location.pathname !== `/${categoryId}`) {
+          history.push(`/${categoryId}`)
+        }
+      }, error => {
+        notify(`Error removing ${infoItem}: ${error}`, 'error')
+      }
+    )
+  }
+
+  /* It Transforms an array of states on array to put into a menu */ 
+  getNextStatesAsOperations = ({ itemValues, categoryStates, ...rest }) => {
+    const currentStateId = itemValues ? itemValues.state : null
+    let currentState = null
+    let nextIds = []
+    if (currentStateId && categoryStates) {
+      currentState = categoryStates[currentStateId]
+      nextIds = currentState && currentState.nexts ? currentState.nexts : []
+    }
+    const nextStates = nextIds.map(id => ({id, ...categoryStates[id]}))
+
+    return nextStates.map(nextState => {
+      const { label, actionLabel, icon } = nextState
+      return {id:label, icon, label:actionLabel, onClick:() =>
+        this.changeState({
+          itemValues,
+          currentState,
+          newState: nextState,
+          ...rest
+        })
+      }
+    })
+  }
+
+  /*jslint evil: true */
+  changeState = ({ categoryId, itemId, itemValues, currentState, newState, itemTitle }) => {
+    if (newState) {
+      const newValues = {
+        ...itemValues,
+        state: newState.id
+      }
+      if (currentState.onExit) {
+        const actions = currentState.onExit.split(';')
+        actions.forEach(action => eval(action.replace('[','newValues[')))
+      }
+      if (newState.onEnter) {
+        const actions = newState.onEnter.split(';')
+        actions.forEach(action => eval(action.replace('[','newValues[')))
+      }
+      this.onUpdateItem(
+        categoryId,
+        itemId,
+        newValues,
+        itemTitle,
+        newState.label.toLowerCase()
+      )
+    }
+  }
+
   render = () => {
     const { categories, categoriesReceived, match, route } = this.props
-    const { showRemoveDialog } = this.state
+    const { activeItem } = this.state
     const categoryId = match.params.categoryId
     const category = categories.find(category => category.id === categoryId)
 
@@ -76,22 +163,21 @@ class Category extends Component {
         {renderRoutes(route.routes, {
           categoryId,
           categoryLabel: category.label,
-          onRemoveItem: this.onRemoveItem
+          onUpdateItem: this.onUpdateItem,
+          onRemoveItem: this.onRemoveItem,
+          getNextStatesAsOperations: this.getNextStatesAsOperations
         })}
 
         <ConfirmationDialog
-          open={showRemoveDialog}
-          message={`Are you sure to want to remove ${this.state.itemTitleToRemove}?`}
+          open={activeItem.showDialog}
+          message={`Are you sure to want to remove ${activeItem.title}?`}
           onAccept={() => {
             this.removeItem()
           }}
           onClose={() => {
-            this.setState({showRemoveDialog: false, itemIdToRemove: null, itemTitleToRemove: null})
+            this.setState(this.initialState)
           }}
         />
-
-
-
       </React.Fragment>
     )
   }
@@ -114,7 +200,7 @@ const mapStateToProps = ({ categories, settings }, props) => {
   const categoryId = props.match.params.categoryId
   const category = categories.byId[categoryId]
   const categorySettings = category && category.settings ? settings.byId[category.settings] : {}
-  const categoryItemLabel = categorySettings.categoryItemLabel || ''
+  const categoryItemLabel = categorySettings.itemLabel || ''
   return {
     categories: Object.values(categories.byId),
     categoriesReceived: categories.flow.isReceivedAll,
@@ -123,15 +209,16 @@ const mapStateToProps = ({ categories, settings }, props) => {
 }
 
 const mapDispatchToProps = (dispatch, props) => {
-  const categoryId = props.match.params.categoryId
+  const categoryIdFromRoute = props.match.params.categoryId
   return {
     notify: (message, type) => dispatch(notify(message, type)),
-    removeItem: itemId => dispatch(removeItem(categoryId,itemId)),
+    updateItem: (categoryId, itemId, values) => dispatch(updateItem(categoryId, itemId, values)),
+    removeItem: itemId => dispatch(removeItem(categoryIdFromRoute,itemId)),
     fetchCategoriesIfNeeded: () => dispatch(fetchCategoriesIfNeeded()),
-    fetchSettings: () => dispatch(fetchSettings(categoryId)),
-    fetchSettingsIfNeeded: () => dispatch(fetchSettingsIfNeeded(categoryId)),
-    fetchFields: () => dispatch(fetchFields(categoryId)),
-    fetchFieldsIfNeeded: () => dispatch(fetchFieldsIfNeeded(categoryId))
+    fetchSettings: () => dispatch(fetchSettings(categoryIdFromRoute)),
+    fetchSettingsIfNeeded: () => dispatch(fetchSettingsIfNeeded(categoryIdFromRoute)),
+    fetchFields: () => dispatch(fetchFields(categoryIdFromRoute)),
+    fetchFieldsIfNeeded: () => dispatch(fetchFieldsIfNeeded(categoryIdFromRoute))
   }
 }
 
