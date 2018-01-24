@@ -37,7 +37,12 @@ const styles = theme => ({
       paddingRight: theme.spacing.unit*8
     }
   },
-  dense: {
+  dialogDense: {
+    padding: theme.spacing.unit,
+    paddingTop: theme.spacing.unit*2,
+    paddingBottom: theme.spacing.unit*2
+  },
+  relationDense: {
     padding: theme.spacing.unit/2
   },
   itemText: {
@@ -160,10 +165,12 @@ let CategoryAgendaView = class extends Component {
       editMode,
       onRemoveItem,
       history,
+      categoryStates,
       toAddIds,
       toRemoveIds,
       markRemoveItems,
       unmarkRemoveItems,
+      theme,
       classes
     } = this.props
     const {showMenuItem, anchorEl, itemMenuClickedId } = this.state
@@ -173,7 +180,7 @@ let CategoryAgendaView = class extends Component {
         <List
           classes={{
             padding: classes.padding,
-            dense: classes.dense
+            dense: dialogMode ? classes.dialogDense : classes.relationDense
           }}
           dense={relationMode || dialogMode}
         >
@@ -202,6 +209,21 @@ let CategoryAgendaView = class extends Component {
               const primaryInfo = getItemString(item, settings.primaryFields, settings.primaryFieldsSeparator)
               const firstLetter = primaryInfo[0]
               const secondaryInfo = getItemString(item, settings.secondaryFields, settings.secondaryFieldsSeparator)
+              const showAvatarWithImage = showAvatar && item.image
+              const showAvatarWithLetter = showAvatar && !item.image && firstLetter
+              let colorAvatarWithLetter = theme.palette.primary.dark
+              if (showAvatarWithLetter) {
+                if (categoryStates) {
+                  if  (item.state && categoryStates[item.state].color) {
+                    colorAvatarWithLetter = categoryStates[item.state].color
+                  } else if (settings.color) {
+                    colorAvatarWithLetter = settings.color
+                  }
+                } else {
+                  colorAvatarWithLetter = getBackgroundAvatarLetter(firstLetter)
+                }    
+              }
+              
               return (
                 <div key={item.id} className={itemClassName}>
                   <Link
@@ -210,11 +232,11 @@ let CategoryAgendaView = class extends Component {
                     onClick={event => this.itemClick(event, item.id)}
                   >
                     <ListItem button={!isMarkedForRemove} disableRipple>
-                      {showAvatar && item.image &&
+                      {showAvatarWithImage &&
                         <Avatar><Icon>{item.image}</Icon></Avatar>
                       }
-                      {showAvatar && !item.image && firstLetter &&
-                        <Avatar style={{background: getBackgroundAvatarLetter(firstLetter)}}>
+                      {showAvatarWithLetter &&
+                        <Avatar style={{background: colorAvatarWithLetter}}>
                           {firstLetter}
                         </Avatar>
                       }
@@ -307,4 +329,4 @@ CategoryAgendaView.defaultProps = {
   relationMode: false
 }
 
-export default withStyles(styles)(CategoryAgendaView)
+export default withStyles(styles, {withTheme: true})(CategoryAgendaView)

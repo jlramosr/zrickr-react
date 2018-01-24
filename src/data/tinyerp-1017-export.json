@@ -555,7 +555,7 @@
   "categories_settings" : {
     "clients" : {
       "12312321" : {
-        "color" : "#eee",
+        "color" : "#333",
         "icon" : "work",
         "itemLabel" : "cliente",
         "primaryFields" : [ "12344", "12342" ],

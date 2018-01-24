@@ -481,7 +481,8 @@ const mapStateToProps = ({ categories, settings, fields, items, interactions }, 
   const categorySettings = category.settings ? settings.byId[category.settings] : {}
   return {
     categoryItemLabel: categorySettings.itemLabel,
-    settings: category.settings ? settings.byId[category.settings] : {},
+    categoryStates: categorySettings.states,
+    settings: categorySettings,
     isFetchingSettings: settings.flow[categoryId].isFetching,
     fields: Object.values(fields.byId).filter(field => category.fields.includes(field.id)),
     isFetchingFields: fields.flow[categoryId].isFetchingAll,

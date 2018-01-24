@@ -116,7 +116,7 @@ class Dashboard extends Component  {
         loading={isFetchingCategories}
         operations={[
           {id:'menu', icon:MenuIcon, onClick:() => toggleDrawer(!drawerOpen)},
-          {id:'account', icon:AccountCircle, right:true}
+          {id:'account', icon:AccountCircle, right:true, small:true}
         ]}
       >
         <div className={classes.gridContainer}>
