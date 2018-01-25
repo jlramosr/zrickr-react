@@ -31,6 +31,7 @@ class ListField extends Component {
       value,
       relation,
       relationLabel,
+      onCreateItem, 
       infoMode,
       readonly,
       label,
@@ -41,6 +42,7 @@ class ListField extends Component {
     return (
       <Paper elevation={4} className={classes.list}>
         <CategoryList
+          onCreateItem={onCreateItem}
           categoryId={relation}
           categoryLabel={label || relationLabel}
           filterItemIds={this.statesObjectToArray(value)}

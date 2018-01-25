@@ -29,8 +29,9 @@ class CategoryItemDetail extends Component {
 
   getCurrentState = () => {
     const { categoryStates, item } = this.props
-    if (categoryStates && item && item.state) {
-      return categoryStates[item.state]
+    const statesList = categoryStates ? categoryStates.list : null
+    if (statesList && item && item.state) {
+      return statesList[item.state]
     }
     return null
   }

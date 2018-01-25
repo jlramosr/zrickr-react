@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { renderRoutes } from 'react-router-config'
-import { updateItem, removeItem } from '../../actions/items'
+import { createItem, updateItem, removeItem } from '../../actions/items'
 import { fetchCategoriesIfNeeded } from '../../actions/categories'
 import { fetchSettings, fetchSettingsIfNeeded } from '../../actions/settings'
 import { fetchFields, fetchFieldsIfNeeded } from '../../actions/fields'
@@ -44,6 +44,22 @@ class Category extends Component {
     }
   }
 
+  onCreateItem = (categoryId, values, itemTitle=null) => {
+    const { createItem, notify, categoryItemLabel,history } = this.props
+    const infoItem = itemTitle ? itemTitle : capitalize(categoryItemLabel)
+    return createItem(categoryId, values).then(
+      itemId => {
+        if (history.location.pathname === `/${categoryId}`) {
+          history.push(`/${categoryId}/${itemId}`)
+        }
+        notify(`${infoItem} created succesfully`,'success')
+      },
+      error => {
+        notify(`Error creating ${infoItem}: ${error}`,'error')
+      }
+    )
+  }
+
   /*onUpdateItem = (categoryId, itemId, values, itemTitle=null) => {
     this.setState({
       action: 'update',
@@ -61,7 +77,8 @@ class Category extends Component {
       () => {
         const action = itemAction ? itemAction : 'updated'
         notify(`${infoItem} ${action} succesfully`, 'success')
-      }, error => {
+      },
+      error => {
         notify(`Error updating ${infoItem}: ${error}`, 'error')
       }
     )
@@ -85,37 +102,57 @@ class Category extends Component {
     const infoItem = title ? title : capitalize(categoryItemLabel)
     return removeItem(id).then(
       () => {
-        notify(`${infoItem} removed succesfully`, 'success')
         if (history.location.pathname !== `/${categoryId}`) {
           history.push(`/${categoryId}`)
         }
-      }, error => {
+        notify(`${infoItem} removed succesfully`, 'success')
+      },
+      error => {
         notify(`Error removing ${infoItem}: ${error}`, 'error')
       }
     )
   }
 
   /* It Transforms an array of states on array to put into a menu */ 
-  getNextStatesAsOperations = ({ itemValues, categoryStates, ...rest }) => {
+  getNextStatesAsOperations = ({ itemId, itemValues, categoryStates, onSelected, ...rest }) => {
     const currentStateId = itemValues ? itemValues.state : null
+    const statesList = categoryStates ? categoryStates.list : null
     let currentState = null
     let nextIds = []
-    if (currentStateId && categoryStates) {
-      currentState = categoryStates[currentStateId]
-      nextIds = currentState && currentState.nexts ? currentState.nexts : []
+    if (statesList) {
+      if (currentStateId && itemId) {
+        currentState = statesList[currentStateId]
+        nextIds = currentState && currentState.nexts ? currentState.nexts : []
+      } else {
+        nextIds = Object.keys(statesList).filter(id => statesList[id].initial && id !== currentStateId)
+      }
     }
-    const nextStates = nextIds.map(id => ({id, ...categoryStates[id]}))
+
+    let nextStates = nextIds.map(id => ({id, ...statesList[id]}))
+    if (categoryStates && categoryStates.required === false && (currentState || (!itemId && currentStateId !== ''))) {
+      nextStates = [...nextStates, {
+        label: 'Liberado',
+        actionLabel: 'Sin estado',
+        icon: 'undo'
+      }] 
+    }
 
     return nextStates.map(nextState => {
       const { label, actionLabel, icon } = nextState
-      return {id:label, icon, label:actionLabel, onClick:() =>
-        this.changeState({
-          itemValues,
-          currentState,
-          newState: nextState,
-          ...rest
-        })
-      }
+      return {id:label, icon, label:actionLabel, onClick:() => {
+        if (itemId) {
+          this.changeState({
+            itemValues,
+            currentState,
+            newState: nextState,
+            itemId,
+            ...rest
+          })
+        }
+        if (onSelected) {
+          onSelected(nextState.id ? nextState : null)
+        }
+      }}
     })
   }
 
@@ -126,7 +163,10 @@ class Category extends Component {
         ...itemValues,
         state: newState.id
       }
-      if (currentState.onExit) {
+      if (!newState.id) {
+        delete newValues.state
+      }
+      if (currentState && currentState.onExit) {
         const actions = currentState.onExit.split(';')
         actions.forEach(action => eval(action.replace('[','newValues[')))
       }
@@ -163,6 +203,7 @@ class Category extends Component {
         {renderRoutes(route.routes, {
           categoryId,
           categoryLabel: category.label,
+          onCreateItem: this.onCreateItem,
           onUpdateItem: this.onUpdateItem,
           onRemoveItem: this.onRemoveItem,
           getNextStatesAsOperations: this.getNextStatesAsOperations
@@ -212,6 +253,7 @@ const mapDispatchToProps = (dispatch, props) => {
   const categoryIdFromRoute = props.match.params.categoryId
   return {
     notify: (message, type) => dispatch(notify(message, type)),
+    createItem: (categoryId, values) => dispatch(createItem(categoryId, values)),
     updateItem: (categoryId, itemId, values) => dispatch(updateItem(categoryId, itemId, values)),
     removeItem: itemId => dispatch(removeItem(categoryIdFromRoute,itemId)),
     fetchCategoriesIfNeeded: () => dispatch(fetchCategoriesIfNeeded()),

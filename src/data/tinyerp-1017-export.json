@@ -223,7 +223,7 @@
           "id" : "b",
           "label" : "Bacelona"
         } ],
-        "readonly" : "[state]==='estado3'",
+        "readonly" : "['state']==='emitido'",
         "type" : "select",
         "views" : {
           "detail" : {
@@ -437,13 +437,13 @@
           "00001" : true
         },
         "id" : "11231",
-        "state": "estado1"
+        "state": "activado"
       },
       "21319" : {
         "12342" : "Sánchez Flor",
         "12344" : "Julián",
         "12345" : "C/Ferraz",
-        "state": "estado1"
+        "state": "activado"
       },
       "21320" : {
         "12341" : true,
@@ -451,17 +451,17 @@
         "12344" : "Iberdrola",
         "12345" : "C/Ferraz",
         "id" : "21320",
-        "state": "estado1"
+        "state": "activado"
       },
       "21321" : {
         "12344" : "Amazon",
         "12345" : "C/Ferraz",
-        "state": "estado2"
+        "state": "validado"
       },
       "21322" : {
         "12344" : "112 Asturias",
         "12345" : "C/Ferraz",
-        "state": "estado3"
+        "state": "emitido"
       },
       "21323" : {
         "12344" : "Aerogeneradores del Sur",
@@ -470,8 +470,7 @@
           "11231" : true,
           "21322" : true,
           "21323" : true
-        },
-        "state": "estado4"
+        }
       },
       "21324" : {
         "12344" : "Act Wind",
@@ -481,17 +480,17 @@
           "21322" : true,
           "21323" : true
         },
-        "state": "estado4"
+        "state": "dadodebaja"
       },
       "21325" : {
         "12344" : "Wind Energy",
         "12345" : "C/Ferraz",
-        "state": "estado3"
+        "state": "emitido"
       },
       "21326" : {
         "12344" : "Statoil",
         "12345" : "C/Ferraz",
-        "state": "estado0"
+        "state": "empaquetado"
       },
       "21327" : {
         "12344" : "Socaire",
@@ -500,64 +499,64 @@
       "21328" : {
         "12344" : "Potelu Solar SRL",
         "12345" : "C/Ferraz",
-        "state": "estado3"
+        "state": "emitido"
       },
       "21330" : {
         "12344" : "Repsol",
         "12345" : "C/Ferraz",
-        "state": "estado2"
+        "state": "validado"
       },
       "21331" : {
         "12344" : "MVV Energie AG",
         "12345" : "C/Ferraz",
-        "state": "estado1"
+        "state": "activado"
       },
       "21332" : {
         "12344" : "Infinis",
         "12345" : "C/Ferraz",
-        "state": "estado1"
+        "state": "activado"
       },
       "21333" : {
         "12344" : "Petronor",
         "12345" : "C/Ferraz",
-        "state": "estado0"
+        "state": "empaquetado"
       },
       "21334" : {
         "12344" : "Parque Eólico do Pisco S.A.",
         "12345" : "C/Ferraz",
-        "state": "estado1"
+        "state": "activado"
       },
       "21335" : {
         "12344" : "Highland North LLC",
         "12345" : "C/Ferraz",
-        "state": "estado2"
+        "state": "validado"
       },
       "21336" : {
         "12344" : "Frontal Project",
         "12345" : "C/Ferraz",
-        "state": "estado4"
+        "state": "dadodebaja"
       },
       "21337" : {
         "12344" : "Golden Hill Gate Co. Ltd",
         "12345" : "C/Ferraz",
-        "state": "estado0"
+        "state": "empaquetado"
       },
       "21338" : {
         "12344" : "Eólica de Lillo S.L.",
         "12345" : "C/Ferraz",
-        "state": "estado0"
+        "state": "empaquetado"
       },
       "21339" : {
         "12344" : "ESB",
         "12345" : "C/Ferraz",
-        "state": "estado0"
+        "state": "empaquetado"
       },
       "-L0tuzWETL0NxZbJaKhP" : {
         "12344" : "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "12345" : "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
         "createdAt" : 1513873988475,
         "id" : "-L0tuzWETL0NxZbJaKhP",
-        "state": "estado2"
+        "state": "validado"
       }
     },
     "movements" : {
@@ -582,53 +581,55 @@
         "secondaryFields" : [ "12345" ],
         "shared" : false,
         "states": {
-          "estado0": {
-            "label": "Empaquetado",
-            "actionLabel": "Empaquetar",
-            "icon": "group work",
-            "initial": true,
-            "nexts" : ["estado1","estado2"],
-            "color": "#e400d1",
-            "onEnter": "[12344]='EmpaquetadoEnter0'",
-            "onExit": "[12345]='EmpaquetadoExit0'"
-          },
-          "estado1": {
-            "label": "Activo",
-            "actionLabel": "Activar",
-            "icon": "alarm",
-            "initial": true,
-            "confirmation": true,
-            "nexts" : ["estado2", "estado3"],
-            "color": "#e45af3",
-            "onEnter": "[12344]='ActivoEnter1'",
-            "onExit": "[12345]='ActivoExit1'"
-          },
-          "estado2": {
-            "label": "Validado",
-            "actionLabel": "Validar",
-            "icon": "done",
-            "nexts" : ["estado1"],
-            "color": "#eaaa56",
-            "onEnter": "[12344]='ValidadoEnter2'",
-            "onExit": "[12345]='ValidadoExit2'"
-          },
-          "estado3": {
-            "label": "Emitido",
-            "actionLabel": "Emitir",
-            "icon": "explore",
-            "nexts" : ["estado4"],
-            "color": "#7789aa",
-            "onEnter": "[12344]='EmitidoEnter3';[12348]='Descripcion al emitir'",
-            "onExit": "[12345]='EmitidoExit3'"
-          },
-          "estado4": {
-            "label": "Dado de baja",
-            "actionLabel": "Dar de baja",
-            "icon": "rowing",
-            "nexts" : ["estado0"],
-            "color": "#353ff1",
-            "onEnter": "[12344]='DadoDeBajaEnter4'",
-            "onExit": "[12345]='DadoDeBajaExit4'"
+          "required": false,
+          "list": {
+            "empaquetado": {
+              "label": "Empaquetado",
+              "actionLabel": "Empaquetar",
+              "icon": "group work",
+              "initial": true,
+              "nexts" : ["activado","validado"],
+              "color": "#e400d1",
+              "onEnter": "[12348]='Descripción al empaquetar'",
+              "onExit": "[12340]='fueempaquetado@gmail.com'"
+            },
+            "activado": {
+              "label": "Activado",
+              "actionLabel": "Activar",
+              "icon": "alarm",
+              "initial": true,
+              "confirmation": true,
+              "nexts" : ["validado", "emitido"],
+              "color": "#e45af3",
+              "onEnter": "[12348]='Descripción al activar'",
+              "onExit": "[12340]='fueactivado@gmail.com'"
+            },
+            "validado": {
+              "label": "Validado",
+              "actionLabel": "Validar",
+              "icon": "done",
+              "nexts" : ["activado"],
+              "color": "#eaaa56",
+              "onEnter": "[12348]='Descripción al validar'",
+              "onExit": "[12340]='fuevalidado@gmail.com'"
+            },
+            "emitido": {
+              "label": "Emitido",
+              "actionLabel": "Emitir",
+              "icon": "explore",
+              "nexts" : ["dadodebaja"],
+              "color": "#7789aa",
+              "onEnter": "[12340]='emitido!!@gmail.com';[12348]='Descripcion al emitir'"
+            },
+            "dadodebaja": {
+              "label": "Dado de baja",
+              "actionLabel": "Dar de baja",
+              "icon": "rowing",
+              "nexts" : ["empaquetado"],
+              "color": "#353ff1",
+              "onEnter": "[12348]='Descripción al dar de baja'",
+              "onExit": "[12340]='fuedadodebaja@gmail.com'"
+            }
           }
         }
       }

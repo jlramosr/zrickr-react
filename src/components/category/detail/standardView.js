@@ -40,7 +40,6 @@ class CategoryItemDetailHeader extends Component {
 
   updateItem = values => {
     const { onUpdateItem, categoryId, itemId, title, changeEditMode } = this.props
-    console.log(this.props);
     return onUpdateItem(categoryId, itemId, values, title).then(() => {
       changeEditMode(false)
     })
@@ -122,6 +121,7 @@ class CategoryItemDetailHeader extends Component {
       categoryId,
       itemId,
       title,
+      onCreateItem,
       onUpdateItem,
       categoryItemLabel,
       categoryStates,
@@ -149,9 +149,16 @@ class CategoryItemDetailHeader extends Component {
       showStatesMenu,
       anchorEl
     } = this.state
-    const nextStatesIds = itemState ? itemState.nexts : []
-    const hiddenChangeStateOp = editMode || !itemState || (itemState && !itemState.nexts)
-    const disabledChangeStateOp = !nextStatesIds.length
+    const nextStatesOperations = getNextStatesAsOperations({
+      categoryId,
+      itemId,
+      itemValues: item,
+      categoryStates,
+      itemTitle: title
+    })
+    const hiddenChangeStateOp = 
+      editMode || !categoryStates || !Object.keys(categoryStates.list || {}).length
+    const disabledChangeStateOp = !nextStatesOperations.length
 
     return (
       <HeaderLayout
@@ -179,6 +186,7 @@ class CategoryItemDetailHeader extends Component {
             handleSubmit={this.updateItem}
             formRef={el => this.formElement = el}
             infoMode={!editMode}
+            onCreateItem={onCreateItem}
             checks={[
               {handler:checkWhenInfoMode, when:'hasChanged', callback:this.whenInfoModeWithChanges},
               {handler:checkWhenBack, when:'hasChanged', callback:this.whenInfoModeWithChanges},
@@ -193,15 +201,7 @@ class CategoryItemDetailHeader extends Component {
             anchorEl={anchorEl}
             open={showStatesMenu}
             onClose={this.handleStatesMenuClose}
-            operations={
-              getNextStatesAsOperations({
-                categoryId,
-                itemId,
-                itemValues: item,
-                categoryStates,
-                itemTitle: title
-              })
-            }
+            operations={nextStatesOperations}
           />
 
           <Dialog

@@ -121,7 +121,6 @@ const styles = theme => ({
 
 let CategoryAgendaView = class extends Component {
   state = {
-    showMenuItem: false,
     itemMenuClickedId: null,
     anchorEl: null,
     isSearching: false
@@ -150,11 +149,11 @@ let CategoryAgendaView = class extends Component {
   handleMenuItemClick = (event, itemId) => {
     event.preventDefault()
     event.stopPropagation()
-    this.setState({ showMenuItem: true, anchorEl: event.currentTarget, itemMenuClickedId: itemId })
+    this.setState({ anchorEl: event.currentTarget, itemMenuClickedId: itemId })
   }
 
   handleMenuItemClose = () => {
-    this.setState({ showMenuItem: false, anchorEl: null })
+    this.setState({ anchorEl: null })
   }
 
   render = () => {
@@ -177,7 +176,7 @@ let CategoryAgendaView = class extends Component {
       theme,
       classes
     } = this.props
-    const {showMenuItem, anchorEl, itemMenuClickedId, isSearching } = this.state
+    const {anchorEl, itemMenuClickedId, isSearching } = this.state
 
     return (
       <React.Fragment>
@@ -210,16 +209,17 @@ let CategoryAgendaView = class extends Component {
               const itemClassName = classes[
                 isMarkedForRemove ? 'markRemovedItem' : (isMarkedForAdd ? 'markAddedItem' : 'unmarkedItem')
               ]
-              const primaryInfo = getItemString(item, settings.primaryFields, settings.primaryFieldsSeparator)
+              const primaryInfo = getItemString(item, settings.primaryFields, settings.primaryFieldsSeparator) || ' '
               const firstLetter = primaryInfo[0]
               const secondaryInfo = getItemString(item, settings.secondaryFields, settings.secondaryFieldsSeparator)
               const showAvatarWithImage = showAvatar && item.image
               const showAvatarWithLetter = showAvatar && !item.image && firstLetter
+              const statesList = categoryStates ? categoryStates.list : null
               let colorAvatarWithLetter = theme.palette.primary.dark
               if (showAvatarWithLetter) {
-                if (categoryStates) {
-                  if  (item.state && categoryStates[item.state].color) {
-                    colorAvatarWithLetter = categoryStates[item.state].color
+                if (statesList) {
+                  if  (item.state && statesList[item.state].color) {
+                    colorAvatarWithLetter = statesList[item.state].color
                   } else if (settings.color) {
                     colorAvatarWithLetter = settings.color
                   }
@@ -294,22 +294,22 @@ let CategoryAgendaView = class extends Component {
         {editMode && !relationMode &&
           <Menu
             anchorEl={anchorEl}
-            open={showMenuItem}
+            open={Boolean(anchorEl)}
             onClose={this.handleMenuItemClose}
             operations={[
               {id:'view', icon:ChromeReaderMode, label: 'View', onClick:() => {
                 history.push(`/${categoryId}/${itemMenuClickedId}`)
-                this.setState({showMenuItem: false, anchorEl: null})
+                this.setState({anchorEl: null})
               }},
               {id:'edit', icon:Edit, label: 'Edit', onClick:() => {
                 history.replace(`/${categoryId}/${itemMenuClickedId}`, {editMode: true})
-                this.setState({showMenuItem: false, anchorEl: null})
+                this.setState({anchorEl: null})
               }},
               {id:'delete', icon:Delete, label: 'Delete', onClick:() => {
                 const item = items.find(item => item.id === itemMenuClickedId)
                 const title = getItemString(item, settings.primaryFields, settings.primaryFieldsSeparator)
                 onRemoveItem(itemMenuClickedId, title)
-                this.setState({showMenuItem: false, anchorEl: null})
+                this.setState({anchorEl: null})
               }},
               {id:'divider'},
               ...getNextStatesAsOperations({

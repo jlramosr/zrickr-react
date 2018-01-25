@@ -50,6 +50,14 @@ class CategoryList extends Component {
     }
   }
 
+  componentDidMount() {
+    this._isMounted = true
+  }
+
+  componentWillUnmount = () => {
+    this._isMounted = false
+  }
+
   /**
 	 * Update the state with the new search string indicated by the user.
 	 * @public
@@ -123,7 +131,9 @@ class CategoryList extends Component {
    * @returns {void}
 	 */
   closeDialog = () => {
-    this.setState({ showNewDialog: false, showListDialog: false })
+    if (this._isMounted) {
+      this.setState({ showNewDialog: false, showListDialog: false })
+    }
   }
 
   markAddRelations = markedItemIds => {
@@ -172,6 +182,8 @@ class CategoryList extends Component {
       categoryId,
       categoryLabel,
       categoryItemLabel,
+      onCreateItem,
+      getNextStatesAsOperations,
       isFetchingSettings,
       isFetchingFields,
       filterItemIds,
@@ -293,6 +305,8 @@ class CategoryList extends Component {
           onClose={this.closeDialog}
         >
           <ItemNew
+            onCreateItem={onCreateItem}
+            getNextStatesAsOperations={getNextStatesAsOperations}
             closeDialog={this.closeDialog}
             history={history}
             categoryId={categoryId}

@@ -17,7 +17,9 @@ import { isObject } from '../../../utils/helpers'
 const getInputClassName = (classes, multi, infoMode, readonly, required) => {
   let className = 'inputSelect'
   if (multi) {
-    className += infoMode ? 'MultiInfo' : required ? 'MultiEditRequired' : 'MultiEdit'
+    className += infoMode ? 'MultiInfo' : 
+      readonly ? 'Readonly' :
+        required ? 'MultiEditRequired' : 'MultiEdit'
   } else if (infoMode) {
     className += 'Info'
   }  else if (readonly) {

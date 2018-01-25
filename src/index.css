@@ -4,7 +4,7 @@ body {
   font-family: sans-serif;
   box-sizing: inherit;
   overflow: hidden;
-  background: #fefefe;
+  background: #fff !important;
 }
 
 a {

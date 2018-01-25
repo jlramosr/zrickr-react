@@ -94,7 +94,7 @@ export const getItemString = (item, fieldIds=[], fieldsSeparator='') => {
     return `${info} ${fieldsSeparator} ${value}`
 
   }, '') 
-  return info.trim()
+  return info === ' ' ? info : info.trim()
 }
 
 export const getBackgroundAvatarLetter =  letter => {

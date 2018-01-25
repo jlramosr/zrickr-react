@@ -71,6 +71,7 @@ const requiredStyle = theme => ({
 })
 
 const readonlyStyle = theme => ({
+  cursor: 'default',
   background: theme.palette.grey[200] 
 })
 

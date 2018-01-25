@@ -16,10 +16,6 @@ class Item {
     const { fields, values } = props
     this.setValues(values)
     this.setFields(fields)
-    /*Object.assign(this, {
-      fields,
-      values: {...values}
-    })*/
   }
 
   setValues = values => this.values = {...values}
@@ -141,10 +137,12 @@ class Form extends Component {
   }
 
   componentDidMount() {
+    this._isMounted = true
     document.addEventListener('restart-form', this.restartForm)
   }
 
   componentWillUnmount = () => {
+    this._isMounted = false
     document.removeEventListener('restart-form', this.restartForm)
   }
 
@@ -214,10 +212,12 @@ class Form extends Component {
       const itemSubmit = new Item({fields, values: item.getValues()})
       itemSubmit.cleanRelations()
       handleSubmit(itemSubmit.getValues()).then(() => {
-        const item = new Item({fields, values: this.props.values})
-        this.setState({item, hasChanged: false, isSubmitting: false})
-        if (onEqualValues) {
-          onEqualValues()
+        if (this._isMounted) {
+          const item = new Item({fields, values: this.props.values})
+          this.setState({item, hasChanged: false, isSubmitting: false})
+          if (onEqualValues) {
+            onEqualValues()
+          }
         }
       })
     }
@@ -253,7 +253,7 @@ class Form extends Component {
   }
 
   render = () => {
-    const { view, cols, infoMode, formRef, classes } = this.props
+    const { view, cols, infoMode, formRef, classes, onCreateItem } = this.props
     const { item } = this.state
 
     const formStyle = (cols, infoMode) => ({
@@ -304,6 +304,9 @@ class Form extends Component {
             }
             const values = item.getValues()
             const value = values[field.id] ? values[field.id] : ''
+            const isRequired = item.evalCondition(field.required,field.id)
+            const isReadonly = field.id === 'state' || item.evalCondition(field.readonly,field.id)
+
             return (
               fieldView &&
                 <div
@@ -313,8 +316,9 @@ class Form extends Component {
                 >
                   <Field
                     {...field}
-                    required={item.evalCondition(field.required,field.id)}
-                    readonly={item.evalCondition(field.readonly,field.id)}
+                    onCreateItem={onCreateItem}
+                    required={isRequired}
+                    readonly={isReadonly}
                     infoMode={infoMode}
                     value={value}
                     label={this.getFieldLabel(field.label, fieldView)}
