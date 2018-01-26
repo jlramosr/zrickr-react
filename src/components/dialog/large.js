@@ -11,6 +11,7 @@ class LargeDialog extends Component {
     const {
       windowSize,
       children,
+      fullScreen,
       classes,
       ...rest
     } = this.props
@@ -18,7 +19,7 @@ class LargeDialog extends Component {
     return (
       <Dialog
         maxWidth="md"
-        fullScreen={windowSize === 'xs' || windowSize === 'sm'}
+        fullScreen={fullScreen || windowSize === 'xs' || windowSize === 'sm'}
         fullWidth
         transition={Transition}
         {...rest}

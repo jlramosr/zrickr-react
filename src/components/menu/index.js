@@ -67,18 +67,19 @@ const renderIcon = icon => {
 
 let CustomMenu = props => {
   const { operations, vertical, horizontal, classes, ...restProps } = props
+  const filteredOperations = operations.filter(operation => !operation.hidden)
 
   return (
     <Menu
       elevation={4}
       transformOrigin={{ 
         vertical: vertical === 'bottom' ? 'top' : 'bottom', 
-        horizontal: vertical === 'left' ? 'right' : 'left'}
+        horizontal: horizontal === 'left' ? 'right' : 'left'}
       }
       classes={{paper: classes.menu}}
       {...restProps}
     >
-      {operations.map((operation, index) => {
+      {filteredOperations.map((operation, index) => {
         const { id, icon, label, onClick } = operation
         const iconRendered = renderIcon(icon)
         if (id.startsWith('divider')) {

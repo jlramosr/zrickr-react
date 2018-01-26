@@ -48,8 +48,10 @@ const Action = props => {
 }
 
 const Operation = props => {
-  const { hidden, to, description } = props
-  
+  const { hidden, to, disabled, description, descriptionWhenDisabled, small, smallMode } = props
+  const showDescription = 
+    description && ((disabled && descriptionWhenDisabled) || (small || smallMode))
+
   return (
     <div hidden={hidden}>
       {to ? (
@@ -57,7 +59,7 @@ const Operation = props => {
           <Action {...props} />
         </Link> 
       ) : (
-        description ? (
+        showDescription ? (
           <Tooltip
             title={description}
             placement="left"
@@ -66,7 +68,9 @@ const Operation = props => {
             enterDelay={1000}
             leaveDelay={0}
           >
-            <Action {...props} />
+            <div>
+              <Action {...props} />
+            </div>
           </Tooltip>
         ) : (
           <Action {...props} />
@@ -81,6 +85,8 @@ Operation.propTypes = {
   icon: PropTypes.func.isRequired,
   color: PropTypes.string,
   hidden: PropTypes.bool,
+  disabled: PropTypes.bool,
+  disabledDescription: PropTypes.string,
   to: PropTypes.string,
   description: PropTypes.string,
   onClick: PropTypes.func

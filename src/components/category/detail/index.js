@@ -41,12 +41,14 @@ class CategoryItemDetail extends Component {
   }
 
   render = () => {
+    const { categoryStates, item } = this.props 
     const { editMode } = this.state
     const commonProps = {
       ...this.props,
       editMode,
       title: this.getTitle(),
       itemState: this.getCurrentState(),
+      isReadonly: categoryStates && categoryStates.readonly.includes(item.state),
       changeEditMode: this.changeEditMode
     }
 

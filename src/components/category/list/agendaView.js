@@ -4,13 +4,14 @@ import { Link } from 'react-router-dom'
 import List, { ListItem, ListItemSecondaryAction, ListItemText } from 'material-ui/List'
 import Divider from 'material-ui/Divider'
 import Avatar from 'material-ui/Avatar'
+import Operation from '../../headerLayout/operation'
 import RemoveCircle from 'material-ui-icons/RemoveCircle'
 import Reply from 'material-ui-icons/Reply'
 import MoreVert from 'material-ui-icons/MoreVert'
 import Icon from 'material-ui/Icon'
 import IconButton from 'material-ui/IconButton'
 import Edit from 'material-ui-icons/Edit'
-import ChromeReaderMode from 'material-ui-icons/ChromeReaderMode'
+import Subtitles from 'material-ui-icons/Subtitles'
 import Delete from 'material-ui-icons/Delete'
 import { getItemString, getBackgroundAvatarLetter } from './../utils/helpers'
 import Menu from './../../menu'
@@ -156,6 +157,14 @@ let CategoryAgendaView = class extends Component {
     this.setState({ anchorEl: null })
   }
 
+  isReadonlyItem = id => {
+    const itemValues = this.getItemValues(id)
+    if (!itemValues) {
+      return false
+    }
+    return this.props.categoryStates.readonly.includes(itemValues.state)
+  }
+
   render = () => {
     const {
       categoryId,
@@ -271,7 +280,12 @@ let CategoryAgendaView = class extends Component {
                               />
                             }
                             {relationMode && !isMarkedForRemove &&
-                              <RemoveCircle
+                              <Operation
+                                id="removeRelation"
+                                icon={RemoveCircle}
+                                small
+                                description="Remove relation"
+                                label="Remove relation"
                                 onClick={event => {
                                   event.preventDefault()
                                   event.stopPropagation()
@@ -297,14 +311,16 @@ let CategoryAgendaView = class extends Component {
             open={Boolean(anchorEl)}
             onClose={this.handleMenuItemClose}
             operations={[
-              {id:'view', icon:ChromeReaderMode, label: 'View', onClick:() => {
+              {id:'view', icon:Subtitles, label: 'View', onClick:() => {
                 history.push(`/${categoryId}/${itemMenuClickedId}`)
                 this.setState({anchorEl: null})
               }},
-              {id:'edit', icon:Edit, label: 'Edit', onClick:() => {
-                history.replace(`/${categoryId}/${itemMenuClickedId}`, {editMode: true})
-                this.setState({anchorEl: null})
-              }},
+              {id:'edit', hidden:this.isReadonlyItem(itemMenuClickedId), icon:Edit, label: 'Edit',
+                onClick:() => {
+                  history.replace(`/${categoryId}/${itemMenuClickedId}`, {editMode: true})
+                  this.setState({anchorEl: null})
+                }
+              },
               {id:'delete', icon:Delete, label: 'Delete', onClick:() => {
                 const item = items.find(item => item.id === itemMenuClickedId)
                 const title = getItemString(item, settings.primaryFields, settings.primaryFieldsSeparator)

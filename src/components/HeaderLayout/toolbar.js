@@ -288,6 +288,7 @@ class CustomToolbar extends Component {
         rightOperations = [
           {
             id:'undo',
+            description: 'Leave search',
             icon:Reply,
             color:contentComputedStyle.color,
             right:true,
@@ -301,6 +302,7 @@ class CustomToolbar extends Component {
         rightOperations = [
           {
             id:'search-small',
+            description: 'Search',
             icon:secondary ? FindInPage : Search,
             color:contentComputedStyle.color,
             right:true,

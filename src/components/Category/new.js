@@ -142,7 +142,15 @@ class CategoryItemNew extends Component {
   }
 
   render = () => {
-    const { closeDialog, fields, isFetchingFields, isCreatingItem, categoryItemLabel } = this.props
+    const {
+      closeDialog,
+      fields,
+      isFetchingFields,
+      onCreateItem,
+      getNextStatesAsOperations,
+      isCreatingItem,
+      categoryItemLabel
+    } = this.props
 
     return (
       <HeaderLayout
@@ -162,6 +170,8 @@ class CategoryItemNew extends Component {
           fields={fields}
           values={{}}
           handleSubmit={this.createItem}
+          onCreateItem={onCreateItem}
+          getNextStatesAsOperations={getNextStatesAsOperations}
           formRef={el => this.formElement = el}
         />
       </HeaderLayout>

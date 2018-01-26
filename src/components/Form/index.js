@@ -253,7 +253,7 @@ class Form extends Component {
   }
 
   render = () => {
-    const { view, cols, infoMode, formRef, classes, onCreateItem } = this.props
+    const { view, cols, readonly, infoMode, formRef, classes, onCreateItem, getNextStatesAsOperations } = this.props
     const { item } = this.state
 
     const formStyle = (cols, infoMode) => ({
@@ -305,7 +305,7 @@ class Form extends Component {
             const values = item.getValues()
             const value = values[field.id] ? values[field.id] : ''
             const isRequired = item.evalCondition(field.required,field.id)
-            const isReadonly = field.id === 'state' || item.evalCondition(field.readonly,field.id)
+            const isReadonly = readonly || field.id === 'state' || item.evalCondition(field.readonly,field.id)
 
             return (
               fieldView &&
@@ -317,6 +317,7 @@ class Form extends Component {
                   <Field
                     {...field}
                     onCreateItem={onCreateItem}
+                    getNextStatesAsOperations={getNextStatesAsOperations}
                     required={isRequired}
                     readonly={isReadonly}
                     infoMode={infoMode}
@@ -338,6 +339,7 @@ class Form extends Component {
 Form.propTypes = {
   cols: PropTypes.number,
   infoMode: PropTypes.bool,
+  readonly: PropTypes.bool,
   view: PropTypes.string.isRequired,
   fields: PropTypes.array.isRequired,
   values: PropTypes.object.isRequired,
@@ -353,7 +355,8 @@ Form.propTypes = {
 Form.defaultProps = {
   cols: 10,
   infoMode: false,
-  checks: []
+  checks: [],
+  readonly: false
 }
 
 const mapStateToProps = ({ interactions }) => ({ 

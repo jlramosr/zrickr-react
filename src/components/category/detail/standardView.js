@@ -124,6 +124,7 @@ class CategoryItemDetailHeader extends Component {
       onCreateItem,
       onUpdateItem,
       categoryItemLabel,
+      isReadonly,
       categoryStates,
       isFetchingSettings,
       fields,
@@ -158,7 +159,12 @@ class CategoryItemDetailHeader extends Component {
     })
     const hiddenChangeStateOp = 
       editMode || !categoryStates || !Object.keys(categoryStates.list || {}).length
-    const disabledChangeStateOp = !nextStatesOperations.length
+    const disabledChangeStateOp =
+      !nextStatesOperations.length
+    const editDescription =
+      isReadonly ? 
+        `It can not be edited because this ${categoryItemLabel} is ${itemState.label.toLowerCase()}` : 
+        'Edit'
 
     return (
       <HeaderLayout
@@ -168,18 +174,23 @@ class CategoryItemDetailHeader extends Component {
         loading={isFetchingSettings || isFetchingFields || isFetchingItem || isUpdating }
         operations={[
           {id:'arrowBack', icon:ArrowBack, onClick:this.onBackClick},
-          {id:'edit', icon:Edit, right:true, hidden:editMode, onClick:this.onEditClick},
+          {id:'edit', icon:Edit, right:true, disabled:isReadonly,
+            description: editDescription, descriptionWhenDisabled: true, 
+            hidden:editMode, onClick:this.onEditClick},
           {id:'changeState', icon:Directions, right:true, hidden:hiddenChangeStateOp,
-            disabled: disabledChangeStateOp, onClick:this.onChangeStateClick},
-          {id:'view', icon:Subtitles, right:true, hidden:!editMode, onClick:this.onViewClick},
-          {id:'delete', icon:Delete, right:true, hidden:editMode, onClick:this.onRemoveClick},
-          {id:'save', icon:Check, right:true, hidden:!editMode,
+            description: 'Change state', disabled: disabledChangeStateOp, onClick:this.onChangeStateClick},
+          {id:'view', icon:Subtitles, right:true, description:'View',
+            hidden:!editMode, onClick:this.onViewClick},
+          {id:'delete', icon:Delete, right:true, hidden:editMode,
+            description: 'Delete', onClick:this.onRemoveClick},
+          {id:'save', icon:Check, right:true, hidden:!editMode, description: 'Save',
             disabled:!hasChanged || isUpdating, onClick:this.onCheckClick}
         ]}
       >
         <React.Fragment>
           <Form
             cols={12}
+            readonly={isReadonly}
             view="detail"
             fields={fields}
             values={item}
@@ -187,6 +198,7 @@ class CategoryItemDetailHeader extends Component {
             formRef={el => this.formElement = el}
             infoMode={!editMode}
             onCreateItem={onCreateItem}
+            getNextStatesAsOperations={getNextStatesAsOperations}
             checks={[
               {handler:checkWhenInfoMode, when:'hasChanged', callback:this.whenInfoModeWithChanges},
               {handler:checkWhenBack, when:'hasChanged', callback:this.whenInfoModeWithChanges},

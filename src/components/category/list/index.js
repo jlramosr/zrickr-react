@@ -287,7 +287,7 @@ class CategoryList extends Component {
             id:'addExistentItem',
             icon: AddCircle,
             hidden: !relationMode || !editMode,
-            description: `New ${categoryItemLabel || 'Item'}`,
+            description: `Add ${categoryItemLabel || 'Item'} as relation`,
             right: true,
             onClick: this.openListDialog
           }

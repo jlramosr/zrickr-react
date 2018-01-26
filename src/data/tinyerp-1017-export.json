@@ -582,6 +582,7 @@
         "shared" : false,
         "states": {
           "required": false,
+          "readonly": ["dadodebaja", "emitido"],
           "list": {
             "empaquetado": {
               "label": "Empaquetado",

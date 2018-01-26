@@ -1,6 +1,6 @@
 {
   "name": "tinyerp",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "author": "Jose Ramos <jlramosr@gmail.com> (http://joseramos.info)",
   "private": true,
   "dependencies": {

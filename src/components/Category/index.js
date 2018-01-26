@@ -137,15 +137,15 @@ class Category extends Component {
       currentState
     if (addWithoutState) {
       nextStates = [...nextStates, {
-        label: 'Liberado',
-        actionLabel: 'Sin estado',
+        label: 'Sin estado',
+        actionLabel: 'Reiniciar',
         icon: 'undo'
       }] 
     }
 
     return nextStates.map(nextState => {
       const { label, actionLabel, icon } = nextState
-      return {id:label, icon, label:actionLabel, onClick:() => {
+      return {id:label, icon, label:itemId ? actionLabel : label, onClick:() => {
         if (itemId) {
           this.changeState({
             itemValues,
