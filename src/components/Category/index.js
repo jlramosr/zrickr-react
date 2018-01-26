@@ -120,16 +120,22 @@ class Category extends Component {
     let currentState = null
     let nextIds = []
     if (statesList) {
-      if (currentStateId && itemId) {
-        currentState = statesList[currentStateId]
-        nextIds = currentState && currentState.nexts ? currentState.nexts : []
+      currentState = currentStateId ? statesList[currentStateId] : null
+      if (!itemId || !currentState) {
+        nextIds = Object.keys(statesList).filter(id => 
+          statesList[id].initial && id !== currentStateId
+        )
       } else {
-        nextIds = Object.keys(statesList).filter(id => statesList[id].initial && id !== currentStateId)
+        nextIds = currentState && currentState.nexts ? currentState.nexts : []
       }
     }
 
     let nextStates = nextIds.map(id => ({id, ...statesList[id]}))
-    if (categoryStates && categoryStates.required === false && (currentState || (!itemId && currentStateId !== ''))) {
+    const addWithoutState =
+      categoryStates &&
+      categoryStates.required === false &&
+      currentState
+    if (addWithoutState) {
       nextStates = [...nextStates, {
         label: 'Liberado',
         actionLabel: 'Sin estado',

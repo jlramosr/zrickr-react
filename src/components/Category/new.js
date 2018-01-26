@@ -14,6 +14,7 @@ class CategoryItemNew extends Component {
   state = {
     anchorEl: null,
     itemState: null,
+    itemValues: {}, //only for state
     isPosibleChangeState: true
   }
 
@@ -62,7 +63,7 @@ class CategoryItemNew extends Component {
   }
 
   onStateSelected = state => {
-    this.setState({ anchorEl: null, itemState: state })
+    this.setState({ anchorEl: null, itemSelected: state })
   }
 
   handleStatesMenuClick = event => {
@@ -75,7 +76,7 @@ class CategoryItemNew extends Component {
 
   renderDescription = () => {
     const { categoryId, categoryItemLabel, categoryStates, getNextStatesAsOperations } = this.props
-    const { itemState, isPosibleChangeState } = this.state
+    const { itemState, itemSelected, isPosibleChangeState } = this.state
     const statesList = categoryStates ? categoryStates.list : null
 
     if (statesList && Object.keys(statesList).length) {
@@ -112,11 +113,17 @@ class CategoryItemNew extends Component {
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl)}
                 onClose={this.handleStatesMenuClose}
+                horizontal="right"
+                onExited={() => {
+                  this.setState({
+                    itemState: itemSelected ? itemSelected : null
+                  })
+                }}
                 operations={
                   getNextStatesAsOperations({
                     categoryId,
                     categoryStates,
-                    itemValues: {state: itemState ? itemState.id : ''},
+                    itemValues: {state:itemState ? itemState.id : null},
                     onSelected: this.onStateSelected
                   })
                 }

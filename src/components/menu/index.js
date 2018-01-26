@@ -66,12 +66,15 @@ const renderIcon = icon => {
 }
 
 let CustomMenu = props => {
-  const { operations, classes, ...restProps } = props
+  const { operations, vertical, horizontal, classes, ...restProps } = props
 
   return (
     <Menu
       elevation={4}
-      transformOrigin={{ vertical: 'top', horizontal: 'right'}}
+      transformOrigin={{ 
+        vertical: vertical === 'bottom' ? 'top' : 'bottom', 
+        horizontal: vertical === 'left' ? 'right' : 'left'}
+      }
       classes={{paper: classes.menu}}
       {...restProps}
     >
@@ -110,6 +113,8 @@ CustomMenu.propTypes = {
   classes: PropTypes.object.isRequired,
   onClose: PropTypes.func,
   anchorEl: PropTypes.object,
+  vertical: PropTypes.string,
+  horizontal: PropTypes.string,
   operations: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string.isRequired,
     label: PropTypes.string,
@@ -119,7 +124,8 @@ CustomMenu.propTypes = {
 }
 
 CustomMenu.defaultProps = {
-  
+  vertical: 'bottom',
+  horizontal: 'left'
 }
 
 export default withStyles(styles)(CustomMenu)
