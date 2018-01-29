@@ -121,8 +121,6 @@ class CategoryItemNew extends Component {
                 }}
                 operations={
                   getNextStatesAsOperations({
-                    categoryId,
-                    categoryStates,
                     itemValues: {state:itemState ? itemState.id : null},
                     onSelected: this.onStateSelected
                   })
@@ -146,8 +144,6 @@ class CategoryItemNew extends Component {
       closeDialog,
       fields,
       isFetchingFields,
-      onCreateItem,
-      getNextStatesAsOperations,
       isCreatingItem,
       categoryItemLabel
     } = this.props
@@ -170,8 +166,6 @@ class CategoryItemNew extends Component {
           fields={fields}
           values={{}}
           handleSubmit={this.createItem}
-          onCreateItem={onCreateItem}
-          getNextStatesAsOperations={getNextStatesAsOperations}
           formRef={el => this.formElement = el}
         />
       </HeaderLayout>

@@ -2,7 +2,9 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
-import { renderRoutes } from 'react-router-config'
+import CategoryList from './list'
+import CategoryItemDetail from './detail'
+import CategoryItemNew from './new'
 import { createItem, updateItem, removeItem } from '../../actions/items'
 import { fetchCategoriesIfNeeded } from '../../actions/categories'
 import { fetchSettings, fetchSettingsIfNeeded } from '../../actions/settings'
@@ -36,21 +38,21 @@ class Category extends Component {
 
   componentDidUpdate = prevProps => {
     /* If multi-user */
-    const prevPath = prevProps.location.pathname
+    /*const prevPath = prevProps.location.pathname
     const currentPath = this.props.location.pathname
     if (prevPath !== currentPath) {
       this.props.fetchSettingsIfNeeded()
       this.props.fetchFieldsIfNeeded()
-    }
+    }*/
   }
 
-  onCreateItem = (categoryId, values, itemTitle=null) => {
-    const { createItem, notify, categoryItemLabel,history } = this.props
-    const infoItem = itemTitle ? itemTitle : capitalize(categoryItemLabel)
+  onCreateItem = (values, itemTitle=null) => {
+    const { categoriesPath, categoryId, createItem, notify, categoryItemLabel, history } = this.props
+    const infoItem = itemTitle ? itemTitle : categoryItemLabel
     return createItem(categoryId, values).then(
       itemId => {
         if (history.location.pathname === `/${categoryId}`) {
-          history.push(`/${categoryId}/${itemId}`)
+          history.push(`/${categoriesPath}/${categoryId}/${itemId}`)
         }
         notify(`${infoItem} created succesfully`,'success')
       },
@@ -70,10 +72,12 @@ class Category extends Component {
     })
   }*/
 
-  onUpdateItem = (categoryId, itemId, values, itemTitle=null, itemAction=null) => {
-    const { updateItem, categoryItemLabel, notify } = this.props
-    const infoItem = itemTitle ? itemTitle : capitalize(categoryItemLabel)
-    return updateItem(categoryId, itemId, values).then(
+  onUpdateItem = (itemId, values, itemTitle=null, itemAction=null) => {
+    const { categoryId, updateItem, categoryItemLabel, notify } = this.props
+    const infoItem = itemTitle ? itemTitle : categoryItemLabel
+    console.log(categoryId, itemId, values);
+    console.log(categoryId, itemId, values);
+    return updateItem(itemId, values).then(
       () => {
         const action = itemAction ? itemAction : 'updated'
         notify(`${infoItem} ${action} succesfully`, 'success')
@@ -99,7 +103,7 @@ class Category extends Component {
     const { activeItem } = this.state
     const { title, id } = activeItem
     const categoryId = match.params.categoryId
-    const infoItem = title ? title : capitalize(categoryItemLabel)
+    const infoItem = title ? title : categoryItemLabel
     return removeItem(id).then(
       () => {
         if (history.location.pathname !== `/${categoryId}`) {
@@ -114,7 +118,8 @@ class Category extends Component {
   }
 
   /* It Transforms an array of states on array to put into a menu */ 
-  getNextStatesAsOperations = ({ itemId, itemValues, categoryStates, onSelected, ...rest }) => {
+  getNextStatesAsOperations = ({ itemId, itemValues, onSelected, ...rest }) => {
+    const { categoryStates } = this.props
     const currentStateId = itemValues ? itemValues.state : null
     const statesList = categoryStates ? categoryStates.list : null
     let currentState = null
@@ -137,7 +142,7 @@ class Category extends Component {
       currentState
     if (addWithoutState) {
       nextStates = [...nextStates, {
-        label: 'Sin estado',
+        label: 'Liberado',
         actionLabel: 'Reiniciar',
         icon: 'undo'
       }] 
@@ -148,10 +153,10 @@ class Category extends Component {
       return {id:label, icon, label:itemId ? actionLabel : label, onClick:() => {
         if (itemId) {
           this.changeState({
+            itemId,
             itemValues,
             currentState,
             newState: nextState,
-            itemId,
             ...rest
           })
         }
@@ -163,7 +168,7 @@ class Category extends Component {
   }
 
   /*jslint evil: true */
-  changeState = ({ categoryId, itemId, itemValues, currentState, newState, itemTitle }) => {
+  changeState = ({ itemId, itemValues, currentState, newState, itemTitle }) => {
     if (newState) {
       const newValues = {
         ...itemValues,
@@ -181,7 +186,6 @@ class Category extends Component {
         actions.forEach(action => eval(action.replace('[','newValues[')))
       }
       this.onUpdateItem(
-        categoryId,
         itemId,
         newValues,
         itemTitle,
@@ -191,10 +195,20 @@ class Category extends Component {
   }
 
   render = () => {
-    const { categories, categoriesReceived, match, route } = this.props
+    const {
+      categoriesReceived,
+      categoryId,
+      category,
+      itemId,
+      itemIds,
+      title,
+      mode,
+      editable,
+      onChange
+    } = this.props
     const { activeItem } = this.state
-    const categoryId = match.params.categoryId
-    const category = categories.find(category => category.id === categoryId)
+
+    const scene = this.props.scene || (itemId ? 'detail' : 'list')
 
     if (!categoriesReceived) {
       return <NotFound text="Loading Categories ..." />
@@ -203,17 +217,48 @@ class Category extends Component {
     if (!category) {
       return <NotFound text="Category Not Found" />
     }
+
+    if (scene === 'list') {
+      const commonListProps = {
+        categoryId,
+        itemIds,
+        onUpdateItem: this.onUpdateItem,
+        onRemoveItem: this.onRemoveItem,
+        getNextStatesAsOperations: this.getNextStatesAsOperations
+      }
+      switch (mode) {
+        case 'relation': 
+          return <CategoryList {...commonListProps} relationMode title={title} editable={editable} onChange={onChange} />
+        case 'selection':
+          return <CategoryList {...commonListProps} dialogMode />
+        default:
+          return <CategoryList {...commonListProps} showAvatar editable />
+      }
+    }
+
+    if (scene === 'detail') {
+      return (
+        <CategoryItemDetail
+          categoryId={categoryId}
+          itemId={itemId}
+          getNextStatesAsOperations={this.getNextStatesAsOperations}
+        />
+      )
+    }
+
+    if (scene === 'new') {
+      return (
+        <CategoryItemNew
+          categoryId={categoryId}
+          onCreateItem={this.onCreateItem}
+          getNextStatesAsOperations={this.getNextStatesAsOperations}
+        />
+      )
+    }
     
     return (
       <React.Fragment key={categoryId}> 
-        {renderRoutes(route.routes, {
-          categoryId,
-          categoryLabel: category.label,
-          onCreateItem: this.onCreateItem,
-          onUpdateItem: this.onUpdateItem,
-          onRemoveItem: this.onRemoveItem,
-          getNextStatesAsOperations: this.getNextStatesAsOperations
-        })}
+        <div>hola {this.props.itemId}</div>
 
         <ConfirmationDialog
           open={activeItem.showDialog}
@@ -231,42 +276,60 @@ class Category extends Component {
 }
 
 Category.propTypes = {
+
+  categoryId: PropTypes.string.isRequired,
+  itemId: PropTypes.string,
+  scene: PropTypes.string,
+  mode: PropTypes.string,
+  editable: PropTypes.bool,
+  showAvatar: PropTypes.bool,
+
   categories: PropTypes.array.isRequired,
   categoriesReceived: PropTypes.bool.isRequired,
+  category: PropTypes.object,
+  categoryItemLabel: PropTypes.string,
   fetchSettings: PropTypes.func.isRequired,
-  fetchFields: PropTypes.func.isRequired,
-  match: PropTypes.shape({
-    params: PropTypes.shape({
-      categoryId: PropTypes.string.isRequired
-    })
-  }),
-  route: PropTypes.object.isRequired
+  fetchFields: PropTypes.func.isRequired
+
 }
 
-const mapStateToProps = ({ categories, settings }, props) => {
-  const categoryId = props.match.params.categoryId
+Category.defaultProps = {
+  mode: 'normal',
+  editable: false,
+  showAvatar: false
+}
+
+const mapStateToProps = ({ categories, settings, app }, props) => {
+  const categoryId = props.categoryId || props.match.params.categoryId
+  const itemId = props.itemId || props.match ? props.match.params.itemId : undefined
   const category = categories.byId[categoryId]
   const categorySettings = category && category.settings ? settings.byId[category.settings] : {}
-  const categoryItemLabel = categorySettings.itemLabel || ''
+  const itemLabel = categorySettings.itemLabel || ''
+  const categoryItemLabel = capitalize(itemLabel)
   return {
     categories: Object.values(categories.byId),
+    categoriesPath: app.categoriesPath,
     categoriesReceived: categories.flow.isReceivedAll,
-    categoryItemLabel
+    categoryId,
+    categoryStates: categorySettings.states,
+    category,
+    categoryItemLabel,
+    itemId
   }
 }
 
 const mapDispatchToProps = (dispatch, props) => {
-  const categoryIdFromRoute = props.match.params.categoryId
+  const categoryId = props.categoryId || props.match.params.categoryId
   return {
     notify: (message, type) => dispatch(notify(message, type)),
-    createItem: (categoryId, values) => dispatch(createItem(categoryId, values)),
-    updateItem: (categoryId, itemId, values) => dispatch(updateItem(categoryId, itemId, values)),
-    removeItem: itemId => dispatch(removeItem(categoryIdFromRoute,itemId)),
+    createItem: values => dispatch(createItem(categoryId, values)),
+    updateItem: (itemId, values) => dispatch(updateItem(categoryId, itemId, values)),
+    removeItem: itemId => dispatch(removeItem(categoryId, itemId)),
     fetchCategoriesIfNeeded: () => dispatch(fetchCategoriesIfNeeded()),
-    fetchSettings: () => dispatch(fetchSettings(categoryIdFromRoute)),
-    fetchSettingsIfNeeded: () => dispatch(fetchSettingsIfNeeded(categoryIdFromRoute)),
-    fetchFields: () => dispatch(fetchFields(categoryIdFromRoute)),
-    fetchFieldsIfNeeded: () => dispatch(fetchFieldsIfNeeded(categoryIdFromRoute))
+    fetchSettings: () => dispatch(fetchSettings(categoryId)),
+    fetchSettingsIfNeeded: () => dispatch(fetchSettingsIfNeeded(categoryId)),
+    fetchFields: () => dispatch(fetchFields(categoryId)),
+    fetchFieldsIfNeeded: () => dispatch(fetchFieldsIfNeeded(categoryId))
   }
 }
 

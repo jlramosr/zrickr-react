@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import { fetchSettingsIfNeeded } from '../../../actions/settings'
 import { fetchFieldsIfNeeded } from '../../../actions/fields'
 import Paper from 'material-ui/Paper'
-import CategoryList from '../../category/list/'
+import Category from '../../category'
 
 class ListField extends Component {
 
@@ -30,9 +30,6 @@ class ListField extends Component {
       id,
       value,
       relation,
-      relationLabel,
-      onCreateItem,
-      getNextStatesAsOperations,
       infoMode,
       readonly,
       label,
@@ -42,18 +39,14 @@ class ListField extends Component {
     
     return (
       <Paper elevation={4} className={classes.list}>
-        <CategoryList
-          onCreateItem={onCreateItem}
-          getNextStatesAsOperations={getNextStatesAsOperations}
+        <Category
+          scene="list"
+          mode="relation"
           categoryId={relation}
-          categoryLabel={label || relationLabel}
-          filterItemIds={this.statesObjectToArray(value)}
-          relationMode
-          relationFieldId={id}
-          editMode={!infoMode && !readonly}
-          tableMode={false}
-          showAvatar={false}
-          sendFormFieldChange={newFilterItemIds => {
+          itemIds={this.statesObjectToArray(value)}
+          title={label}
+          editable={!infoMode && !readonly}
+          onChange={newFilterItemIds => {
             sendFormFieldChange(id, this.statesArrayToObject(newFilterItemIds))
           }}
         />
@@ -86,3 +79,19 @@ const mapDispatchToProps = (dispatch, props) => {
 }
 
 export default connect(null, mapDispatchToProps)(ListField)
+
+/*
+<CategoryList
+          categoryId={relation}
+          categoryLabel={label || relationLabel}
+          filterItemIds={this.statesObjectToArray(value)}
+          relationMode
+          relationFieldId={id}
+          editMode={!infoMode && !readonly}
+          tableMode={false}
+          showAvatar={false}
+          sendFormFieldChange={newFilterItemIds => {
+            sendFormFieldChange(id, this.statesArrayToObject(newFilterItemIds))
+          }}
+        />
+*/

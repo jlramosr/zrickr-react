@@ -85,6 +85,7 @@ class Dashboard extends Component  {
   render = () => {
     const {
       appName,
+      categoriesPath,
       categories,
       isFetchingCategories,
       isReceivedCategories,
@@ -128,7 +129,7 @@ class Dashboard extends Component  {
           >
             {categories.map(category => (
               <GridListTile key={category.id} className={classes.gridTile} rows={this.computeColsRows().r}>
-                <Link key={category.id} to={`/${category.id}`}>
+                <Link key={category.id} to={`/${categoriesPath}/${category.id}`}>
                   <Card className={classes.card}>
                     <CardMedia
                       className={classes.cardMedia}
@@ -178,6 +179,7 @@ Dashboard.propTypes = {
 
 const mapStateToProps = ({ app, categories, interactions }) => ({
   appName: app.name,
+  categoriesPath: app.categoriesPath,
   categories: Object.values(categories.byId), 
   isFetchingCategories: categories.flow.isFetchingAll,
   isReceivedCategories: categories.flow.isReceivedAll,

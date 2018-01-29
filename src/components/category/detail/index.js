@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import { withRouter } from 'react-router'
 import PropTypes from 'prop-types'
 import { fetchItemIfNeeded } from '../../../actions/items'
 import { notify, removeOpenRelation, removeAllOpenRelations,closeRelations } from '../../../actions/interactions'
@@ -41,8 +42,13 @@ class CategoryItemDetail extends Component {
   }
 
   render = () => {
-    const { categoryStates, item } = this.props 
+    const { categoryStates, dialogMode, item } = this.props 
     const { editMode } = this.state
+
+    if (!item) {
+      return <NotFound text="Item Not Found" />
+    }
+
     const commonProps = {
       ...this.props,
       editMode,
@@ -52,11 +58,7 @@ class CategoryItemDetail extends Component {
       changeEditMode: this.changeEditMode
     }
 
-    if (!this.props.item) {
-      return <NotFound text="Item Not Found" />
-    }
-
-    if (this.props.dialogMode) {
+    if (dialogMode) {
       return <TabsView {...commonProps} />
     }
 
@@ -92,16 +94,15 @@ CategoryItemDetail.defaultProps = {
   dialogMode: false
 }
 
-const mapStateToProps = ({ categories, settings, fields, items, interactions }, props) => {
-  const categoryId = props.dialogMode ? props.activeCategoryId : props.categoryId
-  const itemId = props.dialogMode ? props.activeItemId : props.match.params.itemId
+const mapStateToProps = ({ categories, settings, fields, items, interactions, app }, props) => {
+  const { categoryId, itemId } = props
+  const { relations } = interactions
   const category = categories.byId[categoryId]
   const categorySettings = category.settings ? settings.byId[category.settings] : {}
-  const { relations } = interactions
   return {
     itemId,
+    categoriesPath: app.categoriesPath,
     categoryPrimaryFields: categorySettings.primaryFields,
-    categoryItemLabel: categorySettings.itemLabel,
     categoryStates: categorySettings.states,
     isFetchingSettings: settings.flow[categoryId].isFetching,
     fields: Object.values(fields.byId).filter(
@@ -120,10 +121,9 @@ const mapStateToProps = ({ categories, settings, fields, items, interactions }, 
 }
 
 const mapDispatchToProps = (dispatch, props) => {
-  const categoryId = props.dialogMode ? props.activeCategoryId : props.categoryId
-  const itemId = props.dialogMode ? props.activeItemId : props.match.params.itemId
+  const { categoryId, itemId } = props
   return {
-    fetchItemIfNeeded: () => dispatch(fetchItemIfNeeded(categoryId,itemId)),
+    fetchItemIfNeeded: () => dispatch(fetchItemIfNeeded(categoryId, itemId)),
     notify: (message, type) => dispatch(notify(message, type)),
     removeOpenRelation: index => dispatch(removeOpenRelation(index)),
     removeAllOpenRelations: () => dispatch(removeAllOpenRelations()),
@@ -131,4 +131,6 @@ const mapDispatchToProps = (dispatch, props) => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CategoryItemDetail)
+export default withRouter(
+  connect(mapStateToProps, mapDispatchToProps)(CategoryItemDetail)
+)

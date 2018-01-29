@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import HeaderLayout from '../../headerLayout'
 import Form from '../../form'
-import CategoryItemDetail from './'
+import Category from '../'
 import Dialog from '../../dialog/large'
 import ConfirmationDialog from '../../dialog/confirmation'
 import Menu from './../../menu'
@@ -81,9 +81,9 @@ class CategoryItemDetailHeader extends Component {
   }
 
   whenInfoModeWithoutChanges = () => {
-    const { history, changeEditMode, categoryId } = this.props
+    const { categoriesPath, categoryId, history, changeEditMode } = this.props
     if (this.state.checkWhenBack) {
-      history.push(`/${categoryId}`)
+      history.push(`/${categoriesPath}/${categoryId}`)
     } else {
       changeEditMode(false)
     }
@@ -119,9 +119,9 @@ class CategoryItemDetailHeader extends Component {
   render = () => {
     const {
       categoryId,
+      categoriesPath,
       itemId,
       title,
-      onCreateItem,
       onUpdateItem,
       categoryItemLabel,
       isReadonly,
@@ -151,10 +151,8 @@ class CategoryItemDetailHeader extends Component {
       anchorEl
     } = this.state
     const nextStatesOperations = getNextStatesAsOperations({
-      categoryId,
       itemId,
       itemValues: item,
-      categoryStates,
       itemTitle: title
     })
     const hiddenChangeStateOp = 
@@ -197,8 +195,6 @@ class CategoryItemDetailHeader extends Component {
             handleSubmit={this.updateItem}
             formRef={el => this.formElement = el}
             infoMode={!editMode}
-            onCreateItem={onCreateItem}
-            getNextStatesAsOperations={getNextStatesAsOperations}
             checks={[
               {handler:checkWhenInfoMode, when:'hasChanged', callback:this.whenInfoModeWithChanges},
               {handler:checkWhenBack, when:'hasChanged', callback:this.whenInfoModeWithChanges},
@@ -221,7 +217,7 @@ class CategoryItemDetailHeader extends Component {
             onClose={closeRelations}
             onExited={removeAllOpenRelations}
           >
-            <CategoryItemDetail
+            <Category
               dialogMode
               onUpdateItem={onUpdateItem}
               changeTab={this.changeTab}
@@ -234,7 +230,7 @@ class CategoryItemDetailHeader extends Component {
             message='Your changes have not been saved yet. Are you sure to want to continue?'
             onAccept={() => {
               if (this.state.checkWhenBack) {
-                history.push(`/${categoryId}`)
+                history.push(`/${categoriesPath}/${categoryId}`)
               } else {
                 document.dispatchEvent(new Event('restart-form'))
               }

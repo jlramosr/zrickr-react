@@ -1,5 +1,6 @@
 const initialAppState = {
-  name: 'ERP'
+  name: 'ERP',
+  categoriesPath: 'section'
 }
 
 const app = (state = initialAppState, action) => {

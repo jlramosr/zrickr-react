@@ -64,13 +64,16 @@ class App extends Component {
     }
   }
 
-  render = () => (
-    <Reboot>
-      {renderRoutes(this.props.route.routes)}
-      <Drawer />
-      <Notifier />
-    </Reboot>
-  )
+  render = () => {
+    const { route } = this.props
+    return (
+      <Reboot>
+        {renderRoutes(route.routes)}
+        <Drawer />
+        <Notifier />
+      </Reboot>
+    )
+  }
 }
 
 App.propTypes = {
@@ -83,11 +86,12 @@ App.propTypes = {
   /**
    * Get all categories from Redux store.
    */
+  
   fetchCategories: PropTypes.func.isRequired,
   fetchCategoriesIfNeeded: PropTypes.func.isRequired
 }
 
-const mapStateToProps = ({ interactions }, props) => ({ 
+const mapStateToProps = ({ interactions }) => ({
   windowSize: interactions.windowSize
 })
 

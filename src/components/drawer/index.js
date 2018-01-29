@@ -18,7 +18,7 @@ const styles = {
 
 class CustomDrawer extends Component {
   render = () => {
-    const { categories, open, close, classes } = this.props
+    const { categoriesPath, categories, open, close, classes } = this.props
 
     return (
       <Drawer open={open}>
@@ -31,7 +31,7 @@ class CustomDrawer extends Component {
         {categories.map(category => (
           <Link
             key={category.id}
-            to={`/${category.id}`}>
+            to={`/${categoriesPath}/${category.id}`}>
             <MenuItem className={classes.menuItem} onClick={close}>
               {category.label}
             </MenuItem>
@@ -49,13 +49,11 @@ CustomDrawer.propTypes = {
   classes: PropTypes.object.isRequired
 }
 
-const mapStateToProps = state => {
-  const { categories, interactions } = state
-  return {
-    categories: Object.values(categories.byId),
-    open: interactions.drawerOpen
-  }
-}
+const mapStateToProps = ({ app, categories, interactions }) => ({
+  categoriesPath: app.categoriesPath,
+  categories: Object.values(categories.byId),
+  open: interactions.drawerOpen
+})
 
 const mapDispatchToProps = dispatch => ({
   close: () => dispatch(toggleDrawer(false))

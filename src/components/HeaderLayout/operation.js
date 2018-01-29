@@ -33,15 +33,15 @@ const Action = props => {
 
   if (small || smallMode) {
     return (
-      <IconButton disabled={disabled} style={iconButtonStyle}>
-        <Icon aria-label={id} onClick={onClick} />
+      <IconButton disabled={disabled} style={iconButtonStyle} onClick={onClick}>
+        <Icon aria-label={id} />
       </IconButton>
     )
   }
 
   return (
     <Button disabled={disabled} style={buttonStyle} onClick={onClick}>
-      <Icon style={iconStyle} aria-label={id}/>
+      <Icon style={iconStyle} aria-label={id} />
       {transformIdToTitle(id)}
     </Button>
   )

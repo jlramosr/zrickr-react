@@ -86,13 +86,13 @@ let CategoryTableView = class extends Component {
   changeFiltering = filters => console.log(filters)
 
   rowClick = (event, itemId) => {
-    const { relationMode, openDetailDialog } = this.props
+    const { categoriesPath, relationMode, openDetailDialog } = this.props
     if (relationMode) {
       event.preventDefault()
       openDetailDialog(itemId)
     } else {
       const { categoryId, history } = this.props
-      history.push(`${categoryId}/${itemId}`)
+      history.push(`/${categoriesPath}/${categoryId}/${itemId}`)
     }
   }
 

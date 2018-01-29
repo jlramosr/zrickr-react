@@ -158,25 +158,31 @@ let CategoryAgendaView = class extends Component {
   }
 
   isReadonlyItem = id => {
+    const { categoryStates } = this.props
     const itemValues = this.getItemValues(id)
     if (!itemValues) {
       return false
     }
-    return this.props.categoryStates.readonly.includes(itemValues.state)
+    return categoryStates.readonly.includes(itemValues.state)
   }
 
   render = () => {
     const {
+      categoriesPath,
       categoryId,
-      settings,
+      primaryFields,
+      primaryFieldsSeparator,
+      secondaryFields,
+      secondaryFieldsSeparator,
+      color,
+      categoryStates,
       items,
       showAvatar,
       dialogMode,
       relationMode,
-      editMode,
+      editable,
       onRemoveItem,
       history,
-      categoryStates,
       getNextStatesAsOperations,
       toAddIds,
       toRemoveIds,
@@ -218,9 +224,9 @@ let CategoryAgendaView = class extends Component {
               const itemClassName = classes[
                 isMarkedForRemove ? 'markRemovedItem' : (isMarkedForAdd ? 'markAddedItem' : 'unmarkedItem')
               ]
-              const primaryInfo = getItemString(item, settings.primaryFields, settings.primaryFieldsSeparator) || ' '
+              const primaryInfo = getItemString(item, primaryFields, primaryFieldsSeparator) || ' '
               const firstLetter = primaryInfo[0]
-              const secondaryInfo = getItemString(item, settings.secondaryFields, settings.secondaryFieldsSeparator)
+              const secondaryInfo = getItemString(item, secondaryFields, secondaryFieldsSeparator)
               const showAvatarWithImage = showAvatar && item.image
               const showAvatarWithLetter = showAvatar && !item.image && firstLetter
               const statesList = categoryStates ? categoryStates.list : null
@@ -229,8 +235,8 @@ let CategoryAgendaView = class extends Component {
                 if (statesList) {
                   if  (item.state && statesList[item.state].color) {
                     colorAvatarWithLetter = statesList[item.state].color
-                  } else if (settings.color) {
-                    colorAvatarWithLetter = settings.color
+                  } else if (color) {
+                    colorAvatarWithLetter = color
                   }
                 } else {
                   colorAvatarWithLetter = getBackgroundAvatarLetter(firstLetter)
@@ -241,7 +247,7 @@ let CategoryAgendaView = class extends Component {
                 <div key={item.id} className={itemClassName}>
                   <Link
                     tabIndex={-1}
-                    to={`/${categoryId}/${item.id}`}
+                    to={`/${categoriesPath}/${categoryId}/${item.id}`}
                     onClick={event => this.onItemClick(event, item.id)}
                   >
                     <ListItem button={!isMarkedForRemove} disableRipple>
@@ -262,11 +268,11 @@ let CategoryAgendaView = class extends Component {
                         primary={primaryInfo}
                         secondary={secondaryInfo}
                       />
-                      {editMode &&
+                      {editable &&
                         <ListItemSecondaryAction>
                           <IconButton aria-label="Item Menu">
                             {!relationMode &&
-                              <MoreVert style={{display: !editMode ? 'none' : 'inherit'}}
+                              <MoreVert style={{display: !editable ? 'none' : 'inherit'}}
                                 onClick={event => this.handleMenuItemClick(event, item.id)}
                               />
                             }
@@ -305,38 +311,36 @@ let CategoryAgendaView = class extends Component {
           </ReactCSSTransitionGroup>
         </List>
 
-        {editMode && !relationMode &&
+        {editable && !relationMode &&
           <Menu
             anchorEl={anchorEl}
             open={Boolean(anchorEl)}
             onClose={this.handleMenuItemClose}
             operations={[
               {id:'view', icon:Subtitles, label: 'View', onClick:() => {
-                history.push(`/${categoryId}/${itemMenuClickedId}`)
+                history.push(`/${categoriesPath}/${categoryId}/${itemMenuClickedId}`)
                 this.setState({anchorEl: null})
               }},
               {id:'edit', hidden:this.isReadonlyItem(itemMenuClickedId), icon:Edit, label: 'Edit',
                 onClick:() => {
-                  history.replace(`/${categoryId}/${itemMenuClickedId}`, {editMode: true})
+                  history.replace(`/${categoriesPath}/${categoryId}/${itemMenuClickedId}`, {editable: true})
                   this.setState({anchorEl: null})
                 }
               },
               {id:'delete', icon:Delete, label: 'Delete', onClick:() => {
                 const item = items.find(item => item.id === itemMenuClickedId)
-                const title = getItemString(item, settings.primaryFields, settings.primaryFieldsSeparator)
+                const title = getItemString(item, primaryFields, primaryFieldsSeparator)
                 onRemoveItem(itemMenuClickedId, title)
                 this.setState({anchorEl: null})
               }},
               {id:'divider'},
               ...getNextStatesAsOperations({
-                categoryId,
                 itemId: itemMenuClickedId,
                 itemValues: this.getItemValues(itemMenuClickedId),
-                categoryStates,
                 itemTitle: getItemString(
                   this.getItemValues(itemMenuClickedId),
-                  settings.primaryFields,
-                  settings.primaryFieldsSeparator
+                  primaryFields,
+                  primaryFieldsSeparator
                 )
               })
             ]}
@@ -351,7 +355,6 @@ let CategoryAgendaView = class extends Component {
 CategoryAgendaView.propTypes = {
   classes: PropTypes.object.isRequired,
   categoryId: PropTypes.string.isRequired,
-  settings: PropTypes.object.isRequired,
   items: PropTypes.array.isRequired,
   showAvatar: PropTypes.bool,
   relationMode: PropTypes.bool,

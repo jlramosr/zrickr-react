@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import { withRouter } from 'react-router'
 import PropTypes from 'prop-types'
 import { fetchItems, fetchItemsIfNeeded } from '../../../actions/items'
 import HeaderLayout from '../../headerLayout'
+import Category from '../'
 import CategoryAgendaView from './agendaView'
 import CategoryTableView from './tableView'
 import { isEqual } from '../../../utils/helpers'
@@ -29,7 +31,7 @@ class CategoryList extends Component {
     foundItems: [],
     showNewDialog: false,
     showListDialog: false,
-    tableMode: false
+    tableView: false
   }
 
   componentWillMount = () => {
@@ -41,8 +43,8 @@ class CategoryList extends Component {
   }
 
   componentWillReceiveProps = nextProps => {
-    const { editMode, items } = nextProps
-    if (this.props.editMode !== editMode) {
+    const { editable, items } = nextProps
+    if (this.props.editable !== editable) {
       this.setState({tempAddItemIds:[], tempRemoveItemIds:[]})
     }
     if (!isEqual(this.props.items, items)) {
@@ -75,7 +77,7 @@ class CategoryList extends Component {
       const cleanQuery = removeDiacritics(searchQuery.trim())
       const match = new RegExp(escapeRegExp(cleanQuery), 'i')
       foundItems = items.filter(item => (
-        match.test(removeDiacritics(getItemString(item, this.props.settings.primaryFields)))
+        match.test(removeDiacritics(getItemString(item, this.props.categoryPrimaryFields)))
       ))
     }
     this.setState({ foundItems })
@@ -88,7 +90,7 @@ class CategoryList extends Component {
    * @returns {void}
 	 */
   changeView = view =>
-    this.setState({tableMode: view === 'table'})
+    this.setState({tableView: view === 'table'})
 
   /**
 	 * Open the a new item dialog, updating the state.
@@ -137,20 +139,20 @@ class CategoryList extends Component {
   }
 
   markAddRelations = markedItemIds => {
-    const { relationMode, filterItemIds, sendFormFieldChange } = this.props
+    const { relationMode, itemIds, sendFormFieldChange } = this.props
     if (relationMode) {
       const tempToAddIds = markedItemIds.map(id => ( {id, state:'added'} ))
-      sendFormFieldChange([...filterItemIds, ...tempToAddIds])
+      sendFormFieldChange([...itemIds, ...tempToAddIds])
       this.closeDialog()
     }
   }
 
   markRemoveRelations = markedItemIds => {
-    const { relationMode, filterItemIds, sendFormFieldChange } = this.props
+    const { relationMode, itemIds, sendFormFieldChange } = this.props
     if (relationMode) {
-      const addedStateIds = filterItemIds.filter(idState => idState.state === 'added')
+      const addedStateIds = itemIds.filter(idState => idState.state === 'added')
       const addedIds = addedStateIds.map(idState => idState.id)
-      const tempItemIds = filterItemIds.reduce((idStates, idState) => {
+      const tempItemIds = itemIds.reduce((idStates, idState) => {
         const isMarked = markedItemIds.includes(idState.id)
         if (addedIds.includes(idState.id) && isMarked) {
           return [...idStates]
@@ -165,9 +167,9 @@ class CategoryList extends Component {
   }
 
   unmarkRemoveRelations = unmarkedItemIds => {
-    const { relationMode, filterItemIds, sendFormFieldChange } = this.props
+    const { relationMode, itemIds, sendFormFieldChange } = this.props
     if (relationMode) {
-      const tempItemIds = filterItemIds.reduce((idStates, idState) => {
+      const tempItemIds = itemIds.reduce((idStates, idState) => {
         if (unmarkedItemIds.includes(idState.id)) {
           return [...idStates, {id: idState.id, state:true}]
         }
@@ -181,17 +183,16 @@ class CategoryList extends Component {
     const {
       categoryId,
       categoryLabel,
-      categoryItemLabel,
-      onCreateItem,
-      getNextStatesAsOperations,
+      title,
+      itemLabel,
       isFetchingSettings,
       isFetchingFields,
-      filterItemIds,
+      itemIds,
       isFetchingItems,
       isUpdating,
       operations,
       relationMode,
-      editMode,
+      editable,
       dialogMode,
       history
     } = this.props
@@ -200,12 +201,12 @@ class CategoryList extends Component {
       searchQuery,
       showNewDialog,
       showListDialog,
-      tableMode
+      tableView
     } = this.state
 
     let allFilterIds = null
-    if (filterItemIds) {
-      allFilterIds = (filterItemIds).reduce((ids, idState) => {
+    if (itemIds) {
+      allFilterIds = (itemIds).reduce((ids, idState) => {
         if (idState.id) { //idState = {id:2134, state:true}
           return [...ids, idState.id] 
         } //idState = 2134
@@ -213,10 +214,10 @@ class CategoryList extends Component {
       }, [])
     }
 
-    const toAddIds = (filterItemIds || []).filter(
+    const toAddIds = (itemIds || []).filter(
       idState => idState.state ? idState.state === 'added' : false
     ).map(idState => idState.id)
-    const toRemoveIds = (filterItemIds || []).filter(
+    const toRemoveIds = (itemIds || []).filter(
       idState => idState.state ? idState.state === 'removed' : false
     ).map(idState => idState.id)
 
@@ -240,9 +241,9 @@ class CategoryList extends Component {
         relative={relationMode}
         relativeHeight={relationMode ? 200 : null}
         secondaryToolbar={relationMode}
-        overflow={tableMode ? 'hidden' : 'auto'}
-        title={categoryLabel}
-        updateSearchQuery={!tableMode ? this.updateSearchQuery : null}
+        overflow={tableView ? 'hidden' : 'auto'}
+        title={title || categoryLabel}
+        updateSearchQuery={!tableView ? this.updateSearchQuery : null}
         loading={isFetchingSettings || isFetchingFields || isFetchingItems || isUpdating}
         operations={operations || [
           { 
@@ -261,7 +262,7 @@ class CategoryList extends Component {
             id: 'agenda',
             icon: ViewAgenda,
             description: 'Agenda View',
-            hidden: !tableMode,
+            hidden: !tableView,
             right: true,
             small: true,
             onClick: () => this.changeView('agenda')
@@ -270,31 +271,31 @@ class CategoryList extends Component {
             id:'table',
             icon:ViewList,
             description: 'Table View',
-            hidden: tableMode,
+            hidden: tableView,
             right: true,
             small: true,
             onClick: () => this.changeView('table')
           },
           {
-            id:`new${capitalize(categoryItemLabel || 'Item')}`,
+            id:`new${capitalize(itemLabel)}`,
             icon: Add,
             hidden: relationMode,
-            description: `New ${categoryItemLabel || 'Item'}`,
+            description: `New ${itemLabel}`,
             right: true,
             onClick: this.openNewDialog
           },
           {
             id:'addExistentItem',
             icon: AddCircle,
-            hidden: !relationMode || !editMode,
-            description: `Add ${categoryItemLabel || 'Item'} as relation`,
+            hidden: !relationMode || !editable,
+            description: `Add ${itemLabel} as relation`,
             right: true,
             onClick: this.openListDialog
           }
         ]}
       >
 
-        {tableMode ? 
+        {tableView ? 
           <CategoryTableView {...commonProps} /> : 
           <CategoryAgendaView {...commonProps} />
         }
@@ -305,12 +306,10 @@ class CategoryList extends Component {
           onClose={this.closeDialog}
         >
           <ItemNew
-            onCreateItem={onCreateItem}
-            getNextStatesAsOperations={getNextStatesAsOperations}
             closeDialog={this.closeDialog}
             history={history}
             categoryId={categoryId}
-            categoryItemLabel={categoryItemLabel}
+            categoryItemLabel={itemLabel}
           />
         </Dialog>
 
@@ -319,17 +318,14 @@ class CategoryList extends Component {
             open={showListDialog}
             onClose={this.closeDialog}
           >
-            <CategoryList
-              {...this.props}
-              filterItemIds={this.props.items.map(item => item.id).filter(itemId =>
+            <Category
+              scene="list"
+              mode="selection"
+              categoryId={categoryId}
+              itemIds={this.props.items.map(item => item.id).filter(itemId =>
                 !showingItems.map(item => item.id).includes(itemId)
               )}
               //TODO allItemIds get from redux
-              editMode={false}
-              tableMode={false}
-              relationMode={false}
-              showAvatar={false}
-              dialogMode
               markAddItems={this.markAddRelations}
               closeDialog={this.closeDialog}
             />
@@ -350,10 +346,6 @@ CategoryList.propTypes = {
    * Category label to show on header.
    */
   categoryLabel: PropTypes.string.isRequired,
-  /**
-   * Category settings like color, main fields to get the title of an item, etc.
-   */
-  settings: PropTypes.object,
   /**
    * All category fields. It only be shown fields with property 'view.table'.
    */
@@ -427,7 +419,7 @@ CategoryList.propTypes = {
   /**
    * Ids of items to filter. If it's null, then it will be showed all category items.
    */
-  filterItemIds: PropTypes.array,
+  itemIds: PropTypes.array,
   /**
    * All category items.
    */
@@ -460,11 +452,11 @@ CategoryList.propTypes = {
   /**
    * If items are shown firstly on a table. In other case, it will shown with agenda view.
    */
-  tableMode: PropTypes.bool,
+  tableView: PropTypes.bool,
   /**
    * If it's be able to change the state of list items.
    */
-  editMode: PropTypes.bool,
+  editable: PropTypes.bool,
   /**
    * If the list is shown such as an item can be selected in a dialog
    * (for instance, when it adds an item to a relation).
@@ -477,28 +469,44 @@ CategoryList.propTypes = {
 }
 
 CategoryList.defaultProps = {
-  settings: {},
   isFetchingSettings: false,
   fields: [],
   isFetchingFields: false,
-  filterItemIds: null,
+  itemIds: null,
   items: [],
   isFetchingItems: false,
   relationMode: false,
-  tableMode: true,
-  editMode: true,
+  tableView: false,
+  editable: false,
   dialogMode: false,
-  showAvatar: true
+  showAvatar: false
 }
 
-const mapStateToProps = ({ categories, settings, fields, items, interactions }, props) => {
+const mapStateToProps = ({ categories, settings, fields, items, interactions, app }, props) => {
   const categoryId = props.categoryId
   const category = categories.byId[categoryId]
+  const categoryLabel = categories.byId[categoryId].label
   const categorySettings = category.settings ? settings.byId[category.settings] : {}
+  const itemLabel = categorySettings.itemLabel || 'Item'
+  const { 
+    states,
+    primaryFields,
+    primaryFieldsSeparator,
+    secondaryFields,
+    secondaryFieldsSeparator,
+    color
+  } = categorySettings
+
   return {
-    categoryItemLabel: categorySettings.itemLabel,
-    categoryStates: categorySettings.states,
-    settings: categorySettings,
+    categoriesPath: app.categoriesPath,
+    categoryLabel,
+    categoryStates: states,
+    itemLabel,
+    primaryFields,
+    secondaryFields,
+    primaryFieldsSeparator,
+    secondaryFieldsSeparator,
+    color,
     isFetchingSettings: settings.flow[categoryId].isFetching,
     fields: Object.values(fields.byId).filter(field => category.fields.includes(field.id)),
     isFetchingFields: fields.flow[categoryId].isFetchingAll,
@@ -516,4 +524,6 @@ const mapDispatchToProps = (dispatch, props) => ({
   addOpenRelation: (categoryId, itemId) => dispatch(addOpenRelation(categoryId, itemId))
 })
 
-export default connect(mapStateToProps, mapDispatchToProps)(CategoryList)
+export default withRouter(
+  connect(mapStateToProps, mapDispatchToProps)(CategoryList)
+)

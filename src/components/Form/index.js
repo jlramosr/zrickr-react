@@ -253,7 +253,7 @@ class Form extends Component {
   }
 
   render = () => {
-    const { view, cols, readonly, infoMode, formRef, classes, onCreateItem, getNextStatesAsOperations } = this.props
+    const { view, cols, readonly, infoMode, formRef, classes } = this.props
     const { item } = this.state
 
     const formStyle = (cols, infoMode) => ({
@@ -316,8 +316,6 @@ class Form extends Component {
                 >
                   <Field
                     {...field}
-                    onCreateItem={onCreateItem}
-                    getNextStatesAsOperations={getNextStatesAsOperations}
                     required={isRequired}
                     readonly={isReadonly}
                     infoMode={infoMode}
