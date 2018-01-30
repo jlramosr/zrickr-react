@@ -5,6 +5,7 @@ import Category from '../'
 import Dialog from '../../dialog/large'
 import ConfirmationDialog from '../../dialog/confirmation'
 import Menu from './../../menu'
+import { capitalize } from './../../../utils/helpers'
 import ArrowBack from 'material-ui-icons/ArrowBack'
 import Check from 'material-ui-icons/Check'
 import Directions from 'material-ui-icons/Directions'
@@ -39,9 +40,9 @@ class CategoryItemDetailHeader extends Component {
   }
 
   updateItem = values => {
-    const { onUpdateItem, categoryId, itemId, title, changeEditMode } = this.props
-    return onUpdateItem(categoryId, itemId, values, title).then(() => {
-      changeEditMode(false)
+    const { onUpdateItem, itemId, title, changeView } = this.props
+    return onUpdateItem(itemId, values, title).then(() => {
+      changeView('info')
     })
   }
 
@@ -50,7 +51,7 @@ class CategoryItemDetailHeader extends Component {
   }
 
   onEditClick = () => {
-    this.props.changeEditMode(true)
+    this.props.changeView('edit')
   }
 
   onViewClick = () => {
@@ -81,11 +82,11 @@ class CategoryItemDetailHeader extends Component {
   }
 
   whenInfoModeWithoutChanges = () => {
-    const { categoriesPath, categoryId, history, changeEditMode } = this.props
+    const { categoriesPath, categoryId, history, changeView } = this.props
     if (this.state.checkWhenBack) {
       history.push(`/${categoriesPath}/${categoryId}`)
     } else {
-      changeEditMode(false)
+      changeView('info')
     }
     this.setState({checkWhenBack: false, checkWhenInfoMode: false, showWhenInfoModeDialog:false})
   }
@@ -122,8 +123,10 @@ class CategoryItemDetailHeader extends Component {
       categoriesPath,
       itemId,
       title,
+      view,
+      changeView,
       onUpdateItem,
-      categoryItemLabel,
+      itemLabel,
       isReadonly,
       categoryStates,
       isFetchingSettings,
@@ -134,8 +137,6 @@ class CategoryItemDetailHeader extends Component {
       getNextStatesAsOperations,
       isFetchingItem,
       isUpdating,
-      editMode,
-      changeEditMode,
       history,
       shouldShowRelations,
       closeRelations,
@@ -156,32 +157,32 @@ class CategoryItemDetailHeader extends Component {
       itemTitle: title
     })
     const hiddenChangeStateOp = 
-      editMode || !categoryStates || !Object.keys(categoryStates.list || {}).length
+      view === 'edit' || !categoryStates || !Object.keys(categoryStates.list || {}).length
     const disabledChangeStateOp =
       !nextStatesOperations.length
     const editDescription =
       isReadonly ? 
-        `It can not be edited because this ${categoryItemLabel} is ${itemState.label.toLowerCase()}` : 
+        `It can not be edited because this ${itemLabel} is ${itemState.label.toLowerCase()}` : 
         'Edit'
 
     return (
       <HeaderLayout
         title={title}
-        description={itemState ? `${categoryItemLabel} in state ${itemState.label}` : ''}
+        description={itemState ? `${capitalize(itemLabel)} in state ${itemState.label}` : ''}
         backgroundColor={itemState ? itemState.color : null}
         loading={isFetchingSettings || isFetchingFields || isFetchingItem || isUpdating }
         operations={[
           {id:'arrowBack', icon:ArrowBack, onClick:this.onBackClick},
           {id:'edit', icon:Edit, right:true, disabled:isReadonly,
             description: editDescription, descriptionWhenDisabled: true, 
-            hidden:editMode, onClick:this.onEditClick},
+            hidden:view==='edit', onClick:this.onEditClick},
           {id:'changeState', icon:Directions, right:true, hidden:hiddenChangeStateOp,
-            description: 'Change state', disabled: disabledChangeStateOp, onClick:this.onChangeStateClick},
+            description: 'Change state', disabled:disabledChangeStateOp, onClick:this.onChangeStateClick},
           {id:'view', icon:Subtitles, right:true, description:'View',
-            hidden:!editMode, onClick:this.onViewClick},
-          {id:'delete', icon:Delete, right:true, hidden:editMode,
+            hidden:view==='info', onClick:this.onViewClick},
+          {id:'delete', icon:Delete, right:true, hidden:view==='edit',
             description: 'Delete', onClick:this.onRemoveClick},
-          {id:'save', icon:Check, right:true, hidden:!editMode, description: 'Save',
+          {id:'save', icon:Check, right:true, hidden:view==='info', description: 'Save',
             disabled:!hasChanged || isUpdating, onClick:this.onCheckClick}
         ]}
       >
@@ -194,7 +195,7 @@ class CategoryItemDetailHeader extends Component {
             values={item}
             handleSubmit={this.updateItem}
             formRef={el => this.formElement = el}
-            infoMode={!editMode}
+            infoMode={view === 'info'}
             checks={[
               {handler:checkWhenInfoMode, when:'hasChanged', callback:this.whenInfoModeWithChanges},
               {handler:checkWhenBack, when:'hasChanged', callback:this.whenInfoModeWithChanges},
@@ -234,7 +235,7 @@ class CategoryItemDetailHeader extends Component {
               } else {
                 document.dispatchEvent(new Event('restart-form'))
               }
-              changeEditMode(false)
+              changeView('info')
             }}
             onClose={() => {
               this.setState({checkWhenBack: false, checkWhenInfoMode: false, showWhenInfoModeDialog: false})

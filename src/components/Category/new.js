@@ -50,14 +50,14 @@ class CategoryItemNew extends Component {
   }
 
   createItem = values => {
-    const { onCreateItem, categoryId, categoryPrimaryFields, closeDialog } = this.props
+    const { onCreateItem, primaryFields, closeDialog } = this.props
     const { itemState } = this.state
-    const title = getItemString(values, categoryPrimaryFields)
+    const title = getItemString(values, primaryFields)
     let valuesWithState = {...values}
     if (itemState) {
       valuesWithState = {...valuesWithState, state:itemState.id}
     }
-    return onCreateItem(categoryId, valuesWithState, title).then(() => {
+    return onCreateItem(valuesWithState, title).then(() => {
       closeDialog()
     })
   }
@@ -75,66 +75,64 @@ class CategoryItemNew extends Component {
   }
 
   renderDescription = () => {
-    const { categoryId, categoryItemLabel, categoryStates, getNextStatesAsOperations } = this.props
+    const { itemLabel, categoryStates, getNextStatesAsOperations } = this.props
     const { itemState, itemSelected, isPosibleChangeState } = this.state
     const statesList = categoryStates ? categoryStates.list : null
 
-    if (statesList && Object.keys(statesList).length) {
-      const { anchorEl } = this.state
-      const stateText = itemState ? itemState.label : 'without state'
-      return (
-        <React.Fragment>
-          <span>
-            {`This ${categoryItemLabel} will start ${itemState ? 'as ' : ' '}`}
-          </span>
-          <span
-            onClick={isPosibleChangeState ? this.handleStatesMenuClick : null}
-            style={isPosibleChangeState ?
-              {textDecorationLine: 'underline', cursor: 'pointer'} :
-              {}
-            }
-          >
-            {stateText}
-          </span>
-
-          {isPosibleChangeState && (
-            <React.Fragment>
-
-              <IconButton
-                disableRipple
-                style={{fontSize:16, marginLeft:4, marginBottom:1, height:16, width:16}}
-                color="inherit"
-                onClick={this.handleStatesMenuClick}
-              >
-                <Directions />
-              </IconButton>
-              
-              <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={this.handleStatesMenuClose}
-                horizontal="right"
-                onExited={() => {
-                  this.setState({
-                    itemState: itemSelected ? itemSelected : null
-                  })
-                }}
-                operations={
-                  getNextStatesAsOperations({
-                    itemValues: {state:itemState ? itemState.id : null},
-                    onSelected: this.onStateSelected
-                  })
-                }
-              />
-            </React.Fragment>
-          )}
-
-        </React.Fragment>
-      )
+    if (!(statesList && Object.keys(statesList).length)) {
+      return null
     }
 
+    const { anchorEl } = this.state
+    const stateText = itemState ? itemState.label : 'without state'
     return (
-      <React.Fragment></React.Fragment>
+      <React.Fragment>
+        <span>
+          {`This ${itemLabel} will start ${itemState ? 'as ' : ' '}`}
+        </span>
+        <span
+          onClick={isPosibleChangeState ? this.handleStatesMenuClick : null}
+          style={isPosibleChangeState ?
+            {textDecorationLine: 'underline', cursor: 'pointer'} :
+            {}
+          }
+        >
+          {stateText}
+        </span>
+
+        {isPosibleChangeState && (
+          <React.Fragment>
+
+            <IconButton
+              disableRipple
+              style={{fontSize:16, marginLeft:4, marginBottom:1, height:16, width:16}}
+              color="inherit"
+              onClick={this.handleStatesMenuClick}
+            >
+              <Directions />
+            </IconButton>
+            
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={this.handleStatesMenuClose}
+              horizontal="right"
+              onExited={() => {
+                this.setState({
+                  itemState: itemSelected ? itemSelected : null
+                })
+              }}
+              operations={
+                getNextStatesAsOperations({
+                  itemValues: {state:itemState ? itemState.id : null},
+                  onSelected: this.onStateSelected
+                })
+              }
+            />
+          </React.Fragment>
+        )}
+
+      </React.Fragment>
     )
 
   }
@@ -145,12 +143,12 @@ class CategoryItemNew extends Component {
       fields,
       isFetchingFields,
       isCreatingItem,
-      categoryItemLabel
+      itemLabel
     } = this.props
 
     return (
       <HeaderLayout
-        title={`New ${categoryItemLabel}`}
+        title={`New ${itemLabel}`}
         description={this.renderDescription()}
         loading={isFetchingFields || isCreatingItem}
         operations={[
@@ -179,16 +177,17 @@ CategoryItemNew.propTypes = {
   categoryId: PropTypes.string,
   isFetchingFields: PropTypes.bool,
   fields: PropTypes.array,
-  categoryItemLabel: PropTypes.string,
-  history: PropTypes.object
+  itemLabel: PropTypes.string
 }
 
 const mapStateToProps = ({ categories, fields, settings, items }, props) => {
   const categoryId = props.categoryId
   const category = categories.byId[categoryId]
   const categorySettings = category.settings ? settings.byId[category.settings] : {}
+  const itemLabel = categorySettings.itemLabel
   return {
-    categoryPrimaryFields: categorySettings.primaryFields,
+    itemLabel,
+    primaryFields: categorySettings.primaryFields,
     categoryStates: categorySettings.states,
     fields: Object.values(fields.byId).filter(field => category.fields.includes(field.id)),
     isFetchingFields: fields.flow[categoryId].isFetchingAll,

@@ -1,10 +1,12 @@
 /*eslint-disable no-eval*/
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import { withRouter } from 'react-router'
 import PropTypes from 'prop-types'
 import CategoryList from './list'
 import CategoryItemDetail from './detail'
 import CategoryItemNew from './new'
+import Dialog from '../dialog/large'
 import { createItem, updateItem, removeItem } from '../../actions/items'
 import { fetchCategoriesIfNeeded } from '../../actions/categories'
 import { fetchSettings, fetchSettingsIfNeeded } from '../../actions/settings'
@@ -47,11 +49,12 @@ class Category extends Component {
   }
 
   onCreateItem = (values, itemTitle=null) => {
-    const { categoriesPath, categoryId, createItem, notify, categoryItemLabel, history } = this.props
-    const infoItem = itemTitle ? itemTitle : categoryItemLabel
-    return createItem(categoryId, values).then(
+    const { createItem, notify, itemLabel, history, mode } = this.props
+    const infoItem = itemTitle ? itemTitle : itemLabel
+    return createItem(values).then(
       itemId => {
-        if (history.location.pathname === `/${categoryId}`) {
+        if (mode === 'normal') {
+          const { categoriesPath, categoryId } = this.props
           history.push(`/${categoriesPath}/${categoryId}/${itemId}`)
         }
         notify(`${infoItem} created succesfully`,'success')
@@ -73,10 +76,8 @@ class Category extends Component {
   }*/
 
   onUpdateItem = (itemId, values, itemTitle=null, itemAction=null) => {
-    const { categoryId, updateItem, categoryItemLabel, notify } = this.props
-    const infoItem = itemTitle ? itemTitle : categoryItemLabel
-    console.log(categoryId, itemId, values);
-    console.log(categoryId, itemId, values);
+    const { updateItem, itemLabel, notify } = this.props
+    const infoItem = itemTitle ? itemTitle : itemLabel
     return updateItem(itemId, values).then(
       () => {
         const action = itemAction ? itemAction : 'updated'
@@ -99,15 +100,15 @@ class Category extends Component {
   }
 
   removeItem = () => {
-    const { categoryItemLabel, removeItem, notify, match, history } = this.props
+    const { itemLabel, removeItem, notify, history, mode } = this.props
     const { activeItem } = this.state
     const { title, id } = activeItem
-    const categoryId = match.params.categoryId
-    const infoItem = title ? title : categoryItemLabel
+    const infoItem = title ? title : itemLabel
     return removeItem(id).then(
       () => {
-        if (history.location.pathname !== `/${categoryId}`) {
-          history.push(`/${categoryId}`)
+        if (mode === 'normal') {
+          const { categoryId, categoriesPath } = this.props
+          history.push(`/${categoriesPath}/${categoryId}`)
         }
         notify(`${infoItem} removed succesfully`, 'success')
       },
@@ -194,6 +195,22 @@ class Category extends Component {
     }
   }
 
+  confirmationDialog() {
+    const { activeItem } = this.state
+    return (
+      <ConfirmationDialog
+        open={activeItem.showDialog}
+        message={`Are you sure to want to remove ${activeItem.title}?`}
+        onAccept={() => {
+          this.removeItem()
+        }}
+        onClose={() => {
+          this.setState(this.initialState)
+        }}
+      />
+    )
+  }
+
   render = () => {
     const {
       categoriesReceived,
@@ -204,9 +221,11 @@ class Category extends Component {
       title,
       mode,
       editable,
-      onChange
+      open,
+      onChange,
+      onSelect,
+      onClose
     } = this.props
-    const { activeItem } = this.state
 
     const scene = this.props.scene || (itemId ? 'detail' : 'list')
 
@@ -223,55 +242,64 @@ class Category extends Component {
         categoryId,
         itemIds,
         onUpdateItem: this.onUpdateItem,
-        onRemoveItem: this.onRemoveItem,
         getNextStatesAsOperations: this.getNextStatesAsOperations
       }
       switch (mode) {
+        case 'normal':
+          return (
+            <React.Fragment>
+              <CategoryList {...commonListProps} showAvatar editable onRemoveItem={this.onRemoveItem} />
+              {this.confirmationDialog()}
+            </React.Fragment>
+          )
         case 'relation': 
           return <CategoryList {...commonListProps} relationMode title={title} editable={editable} onChange={onChange} />
         case 'selection':
-          return <CategoryList {...commonListProps} dialogMode />
+          return (
+            <Dialog open={open} onClose={onClose}>
+              <CategoryList {...commonListProps} dialogMode onSelect={onSelect} closeDialog={onClose} />
+            </Dialog>
+          )
         default:
-          return <CategoryList {...commonListProps} showAvatar editable />
+          return <CategoryList {...commonListProps} />
       }
     }
 
     if (scene === 'detail') {
-      return (
-        <CategoryItemDetail
-          categoryId={categoryId}
-          itemId={itemId}
-          getNextStatesAsOperations={this.getNextStatesAsOperations}
-        />
-      )
+      const commonDetailProps = {
+        categoryId,
+        itemId,
+        mode,
+        onUpdateItem: this.onUpdateItem,
+        getNextStatesAsOperations: this.getNextStatesAsOperations
+      }
+      switch (mode) {
+        case 'normal':
+          return (
+            <React.Fragment>
+              <CategoryItemDetail {...commonDetailProps} onRemoveItem={this.onRemoveItem} />
+              {this.confirmationDialog()}
+            </React.Fragment>
+          )
+        case 'tabs':
+          return <CategoryItemDetail {...commonDetailProps} />
+        default:
+          return <CategoryItemDetail {...commonDetailProps} />
+      }
     }
 
     if (scene === 'new') {
+      const commonNewProps = {
+        categoryId,
+        onCreateItem: this.onCreateItem,
+        getNextStatesAsOperations: this.getNextStatesAsOperations
+      }
       return (
-        <CategoryItemNew
-          categoryId={categoryId}
-          onCreateItem={this.onCreateItem}
-          getNextStatesAsOperations={this.getNextStatesAsOperations}
-        />
+        <Dialog fullScreen={mode === 'normal'} open={open} onClose={onClose}>
+          <CategoryItemNew {...commonNewProps} closeDialog={onClose} />
+        </Dialog>
       )
     }
-    
-    return (
-      <React.Fragment key={categoryId}> 
-        <div>hola {this.props.itemId}</div>
-
-        <ConfirmationDialog
-          open={activeItem.showDialog}
-          message={`Are you sure to want to remove ${activeItem.title}?`}
-          onAccept={() => {
-            this.removeItem()
-          }}
-          onClose={() => {
-            this.setState(this.initialState)
-          }}
-        />
-      </React.Fragment>
-    )
   }
 }
 
@@ -283,11 +311,13 @@ Category.propTypes = {
   mode: PropTypes.string,
   editable: PropTypes.bool,
   showAvatar: PropTypes.bool,
+  onChange: PropTypes.func,
+  onSelect: PropTypes.func,
 
   categories: PropTypes.array.isRequired,
   categoriesReceived: PropTypes.bool.isRequired,
   category: PropTypes.object,
-  categoryItemLabel: PropTypes.string,
+  itemLabel: PropTypes.string,
   fetchSettings: PropTypes.func.isRequired,
   fetchFields: PropTypes.func.isRequired
 
@@ -304,8 +334,7 @@ const mapStateToProps = ({ categories, settings, app }, props) => {
   const itemId = props.itemId || props.match ? props.match.params.itemId : undefined
   const category = categories.byId[categoryId]
   const categorySettings = category && category.settings ? settings.byId[category.settings] : {}
-  const itemLabel = categorySettings.itemLabel || ''
-  const categoryItemLabel = capitalize(itemLabel)
+  const itemLabel = capitalize(categorySettings.itemLabel || '')
   return {
     categories: Object.values(categories.byId),
     categoriesPath: app.categoriesPath,
@@ -313,7 +342,7 @@ const mapStateToProps = ({ categories, settings, app }, props) => {
     categoryId,
     categoryStates: categorySettings.states,
     category,
-    categoryItemLabel,
+    itemLabel,
     itemId
   }
 }
@@ -333,4 +362,6 @@ const mapDispatchToProps = (dispatch, props) => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Category)
+export default withRouter(
+  connect(mapStateToProps, mapDispatchToProps)(Category)
+)

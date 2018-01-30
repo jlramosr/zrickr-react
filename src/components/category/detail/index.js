@@ -11,21 +11,21 @@ import NotFound from '../../notFound'
 
 class CategoryItemDetail extends Component {
   state = {
-    editMode: false
+    view: 'info'
   }
 
   componentWillMount = () => {
     const { fetchItemIfNeeded, history } = this.props
     const historyState = history ? history.location.state : {}
     fetchItemIfNeeded() //this.props.fetchItem()
-    if (historyState && historyState.editMode) {
-      this.changeEditMode(true)
+    if (historyState) {
+      this.changeView(historyState.view || 'info')
     }
   }
 
   getTitle = () => {
     const { categoryPrimaryFields, item } = this.props
-    return item ? getItemString(item, categoryPrimaryFields) : ''
+    return getItemString(item, categoryPrimaryFields)
   }
 
   getCurrentState = () => {
@@ -37,13 +37,13 @@ class CategoryItemDetail extends Component {
     return null
   }
 
-  changeEditMode = editMode => {
-    this.setState({editMode})
+  changeView = view => {
+    this.setState({view})
   }
 
   render = () => {
-    const { categoryStates, dialogMode, item } = this.props 
-    const { editMode } = this.state
+    const { categoryStates, mode, item } = this.props 
+    const { view } = this.state
 
     if (!item) {
       return <NotFound text="Item Not Found" />
@@ -51,14 +51,14 @@ class CategoryItemDetail extends Component {
 
     const commonProps = {
       ...this.props,
-      editMode,
+      view,
       title: this.getTitle(),
       itemState: this.getCurrentState(),
       isReadonly: categoryStates && categoryStates.readonly.includes(item.state),
-      changeEditMode: this.changeEditMode
+      changeView: this.changeView
     }
 
-    if (dialogMode) {
+    if (mode === 'tabs') {
       return <TabsView {...commonProps} />
     }
 
@@ -99,9 +99,11 @@ const mapStateToProps = ({ categories, settings, fields, items, interactions, ap
   const { relations } = interactions
   const category = categories.byId[categoryId]
   const categorySettings = category.settings ? settings.byId[category.settings] : {}
+  const itemLabel = categorySettings.itemLabel || 'Item'
   return {
     itemId,
     categoriesPath: app.categoriesPath,
+    itemLabel,
     categoryPrimaryFields: categorySettings.primaryFields,
     categoryStates: categorySettings.states,
     isFetchingSettings: settings.flow[categoryId].isFetching,

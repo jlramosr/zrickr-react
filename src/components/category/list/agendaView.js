@@ -134,13 +134,13 @@ let CategoryAgendaView = class extends Component {
   }
 
   onItemClick(event, itemId) {
-    const { relationMode, dialogMode, openDetailDialog, markAddItems } = this.props
+    const { relationMode, dialogMode, openDetailDialog, onSelect } = this.props
     if (relationMode) {
       event.preventDefault()
       openDetailDialog(itemId)
     } else if (dialogMode) {
       event.preventDefault()
-      markAddItems([itemId])
+      onSelect([itemId])
     }
   }
 
@@ -323,7 +323,7 @@ let CategoryAgendaView = class extends Component {
               }},
               {id:'edit', hidden:this.isReadonlyItem(itemMenuClickedId), icon:Edit, label: 'Edit',
                 onClick:() => {
-                  history.replace(`/${categoriesPath}/${categoryId}/${itemMenuClickedId}`, {editable: true})
+                  history.replace(`/${categoriesPath}/${categoryId}/${itemMenuClickedId}`, {view: 'edit'})
                   this.setState({anchorEl: null})
                 }
               },

@@ -14,8 +14,6 @@ import Add from 'material-ui-icons/Add'
 import AddCircle from 'material-ui-icons/AddCircle'
 import ViewList from 'material-ui-icons/ViewList'
 import ViewAgenda from 'material-ui-icons/ViewAgenda'
-import ItemNew from './../new'
-import Dialog from '../../dialog/large'
 import { showRelations, addOpenRelation } from '../../../actions/interactions'
 import { capitalize } from './../../../utils/helpers'
 import { getItemString } from './../utils/helpers'
@@ -77,7 +75,7 @@ class CategoryList extends Component {
       const cleanQuery = removeDiacritics(searchQuery.trim())
       const match = new RegExp(escapeRegExp(cleanQuery), 'i')
       foundItems = items.filter(item => (
-        match.test(removeDiacritics(getItemString(item, this.props.categoryPrimaryFields)))
+        match.test(removeDiacritics(getItemString(item, this.props.primaryFields)))
       ))
     }
     this.setState({ foundItems })
@@ -139,16 +137,16 @@ class CategoryList extends Component {
   }
 
   markAddRelations = markedItemIds => {
-    const { relationMode, itemIds, sendFormFieldChange } = this.props
+    const { relationMode, itemIds, onChange } = this.props
     if (relationMode) {
       const tempToAddIds = markedItemIds.map(id => ( {id, state:'added'} ))
-      sendFormFieldChange([...itemIds, ...tempToAddIds])
+      onChange([...itemIds, ...tempToAddIds])
       this.closeDialog()
     }
   }
 
   markRemoveRelations = markedItemIds => {
-    const { relationMode, itemIds, sendFormFieldChange } = this.props
+    const { relationMode, itemIds, onChange } = this.props
     if (relationMode) {
       const addedStateIds = itemIds.filter(idState => idState.state === 'added')
       const addedIds = addedStateIds.map(idState => idState.id)
@@ -162,12 +160,12 @@ class CategoryList extends Component {
         }
         return [...idStates, idState]
       }, [])
-      sendFormFieldChange(tempItemIds)
+      onChange(tempItemIds)
     }
   }
 
   unmarkRemoveRelations = unmarkedItemIds => {
-    const { relationMode, itemIds, sendFormFieldChange } = this.props
+    const { relationMode, itemIds, onChange } = this.props
     if (relationMode) {
       const tempItemIds = itemIds.reduce((idStates, idState) => {
         if (unmarkedItemIds.includes(idState.id)) {
@@ -175,7 +173,7 @@ class CategoryList extends Component {
         }
         return [...idStates, idState]
       }, [])
-      sendFormFieldChange(tempItemIds)
+      onChange(tempItemIds)
     }
   }
   
@@ -193,8 +191,7 @@ class CategoryList extends Component {
       operations,
       relationMode,
       editable,
-      dialogMode,
-      history
+      dialogMode
     } = this.props
     const {
       foundItems,
@@ -295,41 +292,28 @@ class CategoryList extends Component {
         ]}
       >
 
-        {tableView ? 
-          <CategoryTableView {...commonProps} /> : 
-          <CategoryAgendaView {...commonProps} />
-        }
+        {tableView ? <CategoryTableView {...commonProps} /> : <CategoryAgendaView {...commonProps} />}
 
-        <Dialog
-          fullScreen={!dialogMode}
+        <Category
+          scene="new"
+          mode={dialogMode ? 'selection' : 'normal'}
+          categoryId={categoryId}
           open={showNewDialog}
           onClose={this.closeDialog}
-        >
-          <ItemNew
-            closeDialog={this.closeDialog}
-            history={history}
-            categoryId={categoryId}
-            categoryItemLabel={itemLabel}
-          />
-        </Dialog>
+        />
 
         {relationMode &&
-          <Dialog
+          <Category
+            scene="list"
+            mode="selection"
+            categoryId={categoryId}
+            itemIds={this.props.items.map(item => item.id).filter(itemId =>
+              !showingItems.map(item => item.id).includes(itemId)
+            )} //TODO allItemIds get from redux
             open={showListDialog}
+            onSelect={this.markAddRelations}
             onClose={this.closeDialog}
-          >
-            <Category
-              scene="list"
-              mode="selection"
-              categoryId={categoryId}
-              itemIds={this.props.items.map(item => item.id).filter(itemId =>
-                !showingItems.map(item => item.id).includes(itemId)
-              )}
-              //TODO allItemIds get from redux
-              markAddItems={this.markAddRelations}
-              closeDialog={this.closeDialog}
-            />
-          </Dialog>
+          />
         }
 
       </HeaderLayout>
