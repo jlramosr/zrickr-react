@@ -224,7 +224,9 @@ class Category extends Component {
       open,
       onChange,
       onSelect,
-      onClose
+      onChangeTab,
+      onClose,
+      onExited
     } = this.props
 
     const scene = this.props.scene || (itemId ? 'detail' : 'list')
@@ -239,6 +241,7 @@ class Category extends Component {
 
     if (scene === 'list') {
       const commonListProps = {
+        mode,
         categoryId,
         itemIds,
         onUpdateItem: this.onUpdateItem,
@@ -253,11 +256,11 @@ class Category extends Component {
             </React.Fragment>
           )
         case 'relation': 
-          return <CategoryList {...commonListProps} relationMode title={title} editable={editable} onChange={onChange} />
+          return <CategoryList {...commonListProps} title={title} editable={editable} onChange={onChange} />
         case 'selection':
           return (
             <Dialog open={open} onClose={onClose}>
-              <CategoryList {...commonListProps} dialogMode onSelect={onSelect} closeDialog={onClose} />
+              <CategoryList {...commonListProps} onSelect={onSelect} closeDialog={onClose} />
             </Dialog>
           )
         default:
@@ -281,8 +284,19 @@ class Category extends Component {
               {this.confirmationDialog()}
             </React.Fragment>
           )
-        case 'tabs':
-          return <CategoryItemDetail {...commonDetailProps} />
+        case 'tabs': {
+          const { activeIndex } = this.props
+          return (
+            <Dialog open={open} onClose={onClose} onExited={onExited}>
+              <CategoryItemDetail
+                {...commonDetailProps}
+                activeIndex={activeIndex}
+                onChangeTab={onChangeTab}
+                closeDialog={onClose}
+              />
+            </Dialog>
+          )
+        }
         default:
           return <CategoryItemDetail {...commonDetailProps} />
       }
@@ -305,28 +319,39 @@ class Category extends Component {
 
 Category.propTypes = {
 
+  scene: PropTypes.oneOf(['list', 'detail', 'new']),
+  mode: PropTypes.oneOf(['normal', 'relation', 'selection', 'tabs']),
   categoryId: PropTypes.string.isRequired,
   itemId: PropTypes.string,
-  scene: PropTypes.string,
-  mode: PropTypes.string,
+  itemIds: PropTypes.array,
+  title: PropTypes.string,
   editable: PropTypes.bool,
-  showAvatar: PropTypes.bool,
   onChange: PropTypes.func,
   onSelect: PropTypes.func,
+  open: PropTypes.bool,
+  onClose: PropTypes.func,
 
   categories: PropTypes.array.isRequired,
+  categoriesPath: PropTypes.string.isRequired,
   categoriesReceived: PropTypes.bool.isRequired,
+  categoryStates: PropTypes.object,
   category: PropTypes.object,
   itemLabel: PropTypes.string,
+  notify: PropTypes.func.isRequired,
+  createItem: PropTypes.func.isRequired,
+  updateItem: PropTypes.func.isRequired,
+  removeItem: PropTypes.func.isRequired,
+  fetchCategoriesIfNeeded: PropTypes.func.isRequired,
   fetchSettings: PropTypes.func.isRequired,
-  fetchFields: PropTypes.func.isRequired
+  fetchSettingsIfNeeded: PropTypes.func.isRequired,
+  fetchFields: PropTypes.func.isRequired,
+  fetchFieldsIfNeeded: PropTypes.func.isRequired
 
 }
 
 Category.defaultProps = {
   mode: 'normal',
-  editable: false,
-  showAvatar: false
+  editable: false
 }
 
 const mapStateToProps = ({ categories, settings, app }, props) => {

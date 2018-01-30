@@ -38,10 +38,10 @@ const styles = theme => ({
       paddingRight: theme.spacing.unit*8
     }
   },
-  dialogDense: {
+  selectionDense: {
     padding: theme.spacing.unit,
-    paddingTop: theme.spacing.unit*2,
-    paddingBottom: theme.spacing.unit*2
+    paddingTop: theme.spacing.unit,
+    paddingBottom: theme.spacing.unit
   },
   relationDense: {
     padding: theme.spacing.unit/2
@@ -120,7 +120,7 @@ const styles = theme => ({
   }
 })
 
-let CategoryAgendaView = class extends Component {
+class CategoryAgendaView extends Component {
   state = {
     itemMenuClickedId: null,
     anchorEl: null,
@@ -134,11 +134,11 @@ let CategoryAgendaView = class extends Component {
   }
 
   onItemClick(event, itemId) {
-    const { relationMode, dialogMode, openDetailDialog, onSelect } = this.props
-    if (relationMode) {
+    const { mode, openDetailDialog, onSelect } = this.props
+    if (mode === 'relation') {
       event.preventDefault()
       openDetailDialog(itemId)
-    } else if (dialogMode) {
+    } else if (mode === 'selection') {
       event.preventDefault()
       onSelect([itemId])
     }
@@ -178,8 +178,7 @@ let CategoryAgendaView = class extends Component {
       categoryStates,
       items,
       showAvatar,
-      dialogMode,
-      relationMode,
+      mode,
       editable,
       onRemoveItem,
       history,
@@ -193,14 +192,17 @@ let CategoryAgendaView = class extends Component {
     } = this.props
     const {anchorEl, itemMenuClickedId, isSearching } = this.state
 
+    const relationMode = mode === 'relation'
+    const selectionMode = mode === 'selection'
+
     return (
       <React.Fragment>
         <List
           classes={{
             padding: classes.padding,
-            dense: dialogMode ? classes.dialogDense : classes.relationDense
+            dense: selectionMode ? classes.selectionDense : classes.relationDense
           }}
-          dense={relationMode || dialogMode}
+          dense={mode !== 'normal'}
         >
           <ReactCSSTransitionGroup
             transitionName={{
@@ -228,7 +230,7 @@ let CategoryAgendaView = class extends Component {
               const firstLetter = primaryInfo[0]
               const secondaryInfo = getItemString(item, secondaryFields, secondaryFieldsSeparator)
               const showAvatarWithImage = showAvatar && item.image
-              const showAvatarWithLetter = showAvatar && !item.image && firstLetter
+              const showAvatarWithLetter = showAvatar && !item.image && (firstLetter && firstLetter !== '')
               const statesList = categoryStates ? categoryStates.list : null
               let colorAvatarWithLetter = theme.palette.primary.dark
               if (showAvatarWithLetter) {
@@ -353,17 +355,16 @@ let CategoryAgendaView = class extends Component {
 }
 
 CategoryAgendaView.propTypes = {
-  classes: PropTypes.object.isRequired,
+  mode: PropTypes.oneOf(['normal', 'relation', 'selection']).isRequired,
   categoryId: PropTypes.string.isRequired,
   items: PropTypes.array.isRequired,
   showAvatar: PropTypes.bool,
-  relationMode: PropTypes.bool,
-  openDetailDialog: PropTypes.func
+  openDetailDialog: PropTypes.func,
+  classes: PropTypes.object.isRequired
 }
 
 CategoryAgendaView.defaultProps = {
-  showAvatar: true,
-  relationMode: false
+  showAvatar: true
 }
 
 export default withStyles(styles, {withTheme: true})(CategoryAgendaView)

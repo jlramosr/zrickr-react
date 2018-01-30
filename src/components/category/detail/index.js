@@ -11,6 +11,9 @@ import NotFound from '../../notFound'
 
 class CategoryItemDetail extends Component {
   state = {
+    /**
+     * oneOf(['info', 'edit'])
+     */
     view: 'info'
   }
 
@@ -52,10 +55,10 @@ class CategoryItemDetail extends Component {
     const commonProps = {
       ...this.props,
       view,
+      changeView: this.changeView,
       title: this.getTitle(),
       itemState: this.getCurrentState(),
-      isReadonly: categoryStates && categoryStates.readonly.includes(item.state),
-      changeView: this.changeView
+      isReadonly: categoryStates && categoryStates.readonly.includes(item.state)
     }
 
     if (mode === 'tabs') {
@@ -68,30 +71,29 @@ class CategoryItemDetail extends Component {
 
 CategoryItemDetail.propTypes = {
   /**
-   * If it's shown in a dialog.
+   * Item mode. 'Normal' mode indicates list belongs to the main category, so it's shown
+   * in a normal view. When items are shown on dialogs
    */
-  dialogMode: PropTypes.bool,
+  mode: PropTypes.oneOf(['normal','tabs']).isRequired,
   /**
-   * Category id of the item in case of detail item is not shown in a tab of a dialog.
+   * Category id of the item.
    */
-  categoryId: PropTypes.string,
+  categoryId: PropTypes.string.isRequired,
   /**
-   * Category id of the item in case of detail item is shown in in a tab of a dialog.
+   * Id of current item.
    */
-  activeCategoryId: PropTypes.string,
-  /**
-   * Item id if it's shown in a dialog (if not, itemId will be caught from route).
-   */
-  activeItemId: PropTypes.string,
-  /**
-   * Fields of the category obtained from Redux Store.
-   */
+  itemId: PropTypes.string.isRequired,
+  onUpdateItem: PropTypes.func.isRequired,
+  onRemoveItem: PropTypes.func,
+  getNextStatesAsOperations: PropTypes.func.isRequired,
+
   fields: PropTypes.array.isRequired,
   openRelations: PropTypes.array.isRequired
+
 }
 
 CategoryItemDetail.defaultProps = {
-  dialogMode: false
+  
 }
 
 const mapStateToProps = ({ categories, settings, fields, items, interactions, app }, props) => {

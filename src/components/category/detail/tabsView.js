@@ -112,7 +112,7 @@ class CategoryItemDetailTabs extends Component {
           ...prevState.tabs, {
             title: nextProps.title,
             categoryItemLabel: nextProps.categoryItemLabel,
-            editMode: false,
+            view: 'info',
             hasChanged: false,
             values: null
           }
@@ -132,7 +132,7 @@ class CategoryItemDetailTabs extends Component {
       tabs:[{
         title: this.props.title,
         categoryItemLabel: this.props.categoryItemLabel,
-        editMode: false,
+        view: 'info',
         hasChanged: false,
         values: null
       }]
@@ -140,8 +140,8 @@ class CategoryItemDetailTabs extends Component {
   }
 
   updateItem = values => {
-    const { onUpdateItem, activeCategoryId, activeItemId, title } = this.props
-    return onUpdateItem(activeCategoryId, activeItemId, values, title).then(() => {
+    const { onUpdateItem, itemId, title } = this.props
+    return onUpdateItem(itemId, values, title).then(() => {
       this.whenInfoModeWithoutChanges()
     })
   }
@@ -153,7 +153,7 @@ class CategoryItemDetailTabs extends Component {
   onEditClick = () => {
     const tempTabs = this.state.tabs
     const { activeIndex } = this.props
-    tempTabs[activeIndex].editMode = true
+    tempTabs[activeIndex].view = 'edit'
     this.setState({tabs: tempTabs})
   }
 
@@ -208,7 +208,7 @@ class CategoryItemDetailTabs extends Component {
     const { tabs } = this.state
     const { activeIndex } = this.props
     //if (tabs[activeIndex]) {
-    tabs[activeIndex].editMode = false
+    tabs[activeIndex].view = 'info'
     tabs[activeIndex].hasChanged = false
     //}
     this.setState({tabs, checkWhenInfoMode: false, showWhenInfoModeDialog: false})
@@ -291,7 +291,7 @@ class CategoryItemDetailTabs extends Component {
       paddingTop: smallSize ? 4 : 1
     }
 
-    const editMode = tabs[activeIndex] ? tabs[activeIndex].editMode : false
+    const editView = tabs[activeIndex] ? tabs[activeIndex].view === 'edit' : false
     const disabledCheckIcon =
       isUpdating ||
       !(tabs[activeIndex] ? tabs[activeIndex].hasChanged : false) 
@@ -375,16 +375,16 @@ class CategoryItemDetailTabs extends Component {
           loading={isFetchingSettings || isFetchingFields || isFetchingItem || isUpdating }
           operations={[
             {id:'close', icon:Close, hidden:openRelations.length > 1, onClick:this.onCloseClick},
-            {id:'edit', icon:Edit, right:true, hidden:editMode, onClick:this.onEditClick},
-            {id:'view', icon:ChromeReaderMode, right:true, hidden:!editMode, onClick:this.onViewClick},
+            {id:'edit', icon:Edit, right:true, hidden:editView, onClick:this.onEditClick},
+            {id:'view', icon:ChromeReaderMode, right:true, hidden:!editView, onClick:this.onViewClick},
             {id:'save', icon:Check, right:true, disabled:disabledCheckIcon,
-              hidden:!editMode, onClick:this.onCheckClick}
+              hidden:!editView, onClick:this.onCheckClick}
           ]}
         >
           <Form
             cols={12}
             view="detail"
-            infoMode={!editMode}
+            infoMode={!editView}
             fields={fields}
             values={values}
             origValues={item}

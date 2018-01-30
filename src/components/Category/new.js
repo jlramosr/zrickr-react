@@ -173,11 +173,19 @@ class CategoryItemNew extends Component {
 
 
 CategoryItemNew.propTypes = {
+
+  categoryId: PropTypes.string.isRequired,
+  onCreateItem: PropTypes.func.isRequired,
+  getNextStatesAsOperations: PropTypes.func.isRequired,
   closeDialog: PropTypes.func.isRequired,
-  categoryId: PropTypes.string,
-  isFetchingFields: PropTypes.bool,
+
+  itemLabel: PropTypes.string,
+  primaryFields: PropTypes.array,
+  categoryStates: PropTypes.object,
   fields: PropTypes.array,
-  itemLabel: PropTypes.string
+  isFetchingFields: PropTypes.bool,
+  isCreatingItem: PropTypes.bool
+  
 }
 
 const mapStateToProps = ({ categories, fields, settings, items }, props) => {

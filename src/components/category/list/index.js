@@ -29,13 +29,16 @@ class CategoryList extends Component {
     foundItems: [],
     showNewDialog: false,
     showListDialog: false,
-    tableView: false
+    /**
+     * oneOf(['agenda', 'table'])
+     */
+    view: 'agenda'
   }
 
   componentWillMount = () => {
-    const { items, relationMode, fetchItemsIfNeeded } = this.props
+    const { items, mode, fetchItemsIfNeeded } = this.props
     if (fetchItemsIfNeeded) {
-      relationMode ? fetchItemsIfNeeded() : fetchItemsIfNeeded() //this.props.fetchItems()
+      mode === 'relation' ? fetchItemsIfNeeded() : fetchItemsIfNeeded() //this.props.fetchItems()
     }
     this.setState({ foundItems: items })
   }
@@ -88,7 +91,7 @@ class CategoryList extends Component {
    * @returns {void}
 	 */
   changeView = view =>
-    this.setState({tableView: view === 'table'})
+    this.setState({view})
 
   /**
 	 * Open the a new item dialog, updating the state.
@@ -115,8 +118,8 @@ class CategoryList extends Component {
 	 * @returns {void}
 	 */
   openDetailDialog = itemId => {
-    const { relationMode, categoryId, addOpenRelation, showRelations, isShowingRelations } = this.props
-    if (relationMode) {
+    const { mode, categoryId, addOpenRelation, showRelations, isShowingRelations } = this.props
+    if (mode === 'relation') {
       addOpenRelation(categoryId, itemId)
       if (!isShowingRelations) {
         showRelations()
@@ -137,8 +140,8 @@ class CategoryList extends Component {
   }
 
   markAddRelations = markedItemIds => {
-    const { relationMode, itemIds, onChange } = this.props
-    if (relationMode) {
+    const { mode, itemIds, onChange } = this.props
+    if (mode === 'relation') {
       const tempToAddIds = markedItemIds.map(id => ( {id, state:'added'} ))
       onChange([...itemIds, ...tempToAddIds])
       this.closeDialog()
@@ -146,8 +149,8 @@ class CategoryList extends Component {
   }
 
   markRemoveRelations = markedItemIds => {
-    const { relationMode, itemIds, onChange } = this.props
-    if (relationMode) {
+    const { mode, itemIds, onChange } = this.props
+    if (mode === 'relation') {
       const addedStateIds = itemIds.filter(idState => idState.state === 'added')
       const addedIds = addedStateIds.map(idState => idState.id)
       const tempItemIds = itemIds.reduce((idStates, idState) => {
@@ -165,8 +168,8 @@ class CategoryList extends Component {
   }
 
   unmarkRemoveRelations = unmarkedItemIds => {
-    const { relationMode, itemIds, onChange } = this.props
-    if (relationMode) {
+    const { mode, itemIds, onChange } = this.props
+    if (mode === 'relation') {
       const tempItemIds = itemIds.reduce((idStates, idState) => {
         if (unmarkedItemIds.includes(idState.id)) {
           return [...idStates, {id: idState.id, state:true}]
@@ -176,9 +179,18 @@ class CategoryList extends Component {
       onChange(tempItemIds)
     }
   }
+
+  view(props) {
+    const { view } = this.state
+    if (view === 'table') {
+      return <CategoryTableView {...props} />
+    } 
+    return <CategoryAgendaView {...props} />
+  }
   
   render = () => {
     const {
+      mode,
       categoryId,
       categoryLabel,
       title,
@@ -188,18 +200,17 @@ class CategoryList extends Component {
       itemIds,
       isFetchingItems,
       isUpdating,
-      operations,
-      relationMode,
-      editable,
-      dialogMode
+      editable
     } = this.props
     const {
       foundItems,
       searchQuery,
       showNewDialog,
       showListDialog,
-      tableView
+      view
     } = this.state
+
+    const relationMode = mode === 'relation'
 
     let allFilterIds = null
     if (itemIds) {
@@ -238,28 +249,28 @@ class CategoryList extends Component {
         relative={relationMode}
         relativeHeight={relationMode ? 200 : null}
         secondaryToolbar={relationMode}
-        overflow={tableView ? 'hidden' : 'auto'}
+        overflow={view === 'table' ? 'hidden' : 'auto'}
         title={title || categoryLabel}
-        updateSearchQuery={!tableView ? this.updateSearchQuery : null}
+        updateSearchQuery={view === 'agenda' ? this.updateSearchQuery : null}
         loading={isFetchingSettings || isFetchingFields || isFetchingItems || isUpdating}
-        operations={operations || [
+        operations={[
           { 
             id: 'arrowBack',
             icon: ArrowBack,
-            hidden: relationMode || dialogMode,
+            hidden: mode !== 'normal',
             to: '/'
           },
           { 
             id: 'close',
             icon: Close,
-            hidden: !dialogMode,
+            hidden: mode !== 'selection',
             onClick: this.props.closeDialog
           },
           {
             id: 'agenda',
             icon: ViewAgenda,
             description: 'Agenda View',
-            hidden: !tableView,
+            hidden: view === 'agenda',
             right: true,
             small: true,
             onClick: () => this.changeView('agenda')
@@ -268,7 +279,7 @@ class CategoryList extends Component {
             id:'table',
             icon:ViewList,
             description: 'Table View',
-            hidden: tableView,
+            hidden: view === 'table',
             right: true,
             small: true,
             onClick: () => this.changeView('table')
@@ -292,11 +303,11 @@ class CategoryList extends Component {
         ]}
       >
 
-        {tableView ? <CategoryTableView {...commonProps} /> : <CategoryAgendaView {...commonProps} />}
+        {this.view(commonProps)}
 
         <Category
           scene="new"
-          mode={dialogMode ? 'selection' : 'normal'}
+          mode={mode}
           categoryId={categoryId}
           open={showNewDialog}
           onClose={this.closeDialog}
@@ -322,10 +333,30 @@ class CategoryList extends Component {
 }
 
 CategoryList.propTypes = {
+
+  /**
+   * List mode. 'Normal' mode indicates list belongs to the main category, so it's shown
+   * in a normal view. When list is embedded in a item detail view, the mode is 'relation'.
+   * The selection mode shown a list in a dialog and one click on a item, produces an action.
+   */
+  mode: PropTypes.oneOf(['normal', 'relation', 'selection']).isRequired,
   /**
    * Unique indentifier of category. Available on parent element from route.
    */
   categoryId: PropTypes.string.isRequired,
+  /**
+   * Ids of items to filter. If it's null, then it will be showed all category items.
+   */
+  itemIds: PropTypes.array,
+  /**
+   * If it's be able to change the state of list items, including removing operation.
+   */
+  editable: PropTypes.bool,
+  /**
+   * If it should be shown avatar in agenda view.
+   */
+  showAvatar: PropTypes.bool,
+
   /**
    * Category label to show on header.
    */
@@ -401,10 +432,6 @@ CategoryList.propTypes = {
     }))
   })).isRequired,
   /**
-   * Ids of items to filter. If it's null, then it will be showed all category items.
-   */
-  itemIds: PropTypes.array,
-  /**
    * All category items.
    */
   items: PropTypes.array,
@@ -422,48 +449,22 @@ CategoryList.propTypes = {
    * It indicates if request to obtain items is still active. It's used to show
    * the loading spinner until request finalizes.
    */
-  isFetchingItems: PropTypes.bool,
-  /**
-   * Operations showed on the header. In other case, operations will be 'arrowBack' (left) and
-   * 'viewAgenda', 'viewTable' and 'addNewItem' or 'addExistentItem' (right).
-   */
-  operations: PropTypes.array,
-  /**
-   * It indicates if list is showed on a view inside to the other view (tipically a relation
-   * 'many-to-one' or 'many-to-many' of a category item).
-   */
-  relationMode: PropTypes.bool,
-  /**
-   * If items are shown firstly on a table. In other case, it will shown with agenda view.
-   */
-  tableView: PropTypes.bool,
-  /**
-   * If it's be able to change the state of list items.
-   */
-  editable: PropTypes.bool,
-  /**
-   * If the list is shown such as an item can be selected in a dialog
-   * (for instance, when it adds an item to a relation).
-   */
-  dialogMode: PropTypes.bool,
-  /**
-   * If it should be shown avatar in agenda view.
-   */
-  showAvatar: PropTypes.bool
+  isFetchingItems: PropTypes.bool
+
 }
 
 CategoryList.defaultProps = {
+
+  editable: false,
+  itemIds: null,
+
+  showAvatar: false,
   isFetchingSettings: false,
   fields: [],
   isFetchingFields: false,
-  itemIds: null,
   items: [],
-  isFetchingItems: false,
-  relationMode: false,
-  tableView: false,
-  editable: false,
-  dialogMode: false,
-  showAvatar: false
+  isFetchingItems: false
+
 }
 
 const mapStateToProps = ({ categories, settings, fields, items, interactions, app }, props) => {

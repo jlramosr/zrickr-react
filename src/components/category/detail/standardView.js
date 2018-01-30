@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import HeaderLayout from '../../headerLayout'
 import Form from '../../form'
 import Category from '../'
-import Dialog from '../../dialog/large'
 import ConfirmationDialog from '../../dialog/confirmation'
 import Menu from './../../menu'
 import { capitalize } from './../../../utils/helpers'
@@ -24,7 +23,6 @@ class CategoryItemDetailHeader extends Component {
     checkWhenInfoMode: false,
     checkWhenBack: false,
     hasChanged: false,
-    showStatesMenu: false,
     anchorEl: null
   }
 
@@ -70,11 +68,11 @@ class CategoryItemDetailHeader extends Component {
   }
 
   onChangeStateClick = event => {
-    this.setState({showStatesMenu: true, anchorEl: event.currentTarget})
+    this.setState({anchorEl: event.currentTarget})
   }
 
   handleStatesMenuClose = () => {
-    this.setState({showStatesMenu: false, anchorEl: null})
+    this.setState({anchorEl: null})
   }
 
   whenInfoModeWithChanges = () => {
@@ -125,7 +123,6 @@ class CategoryItemDetailHeader extends Component {
       title,
       view,
       changeView,
-      onUpdateItem,
       itemLabel,
       isReadonly,
       categoryStates,
@@ -148,7 +145,6 @@ class CategoryItemDetailHeader extends Component {
       checkWhenBack,
       showWhenInfoModeDialog,
       hasChanged,
-      showStatesMenu,
       anchorEl
     } = this.state
     const nextStatesOperations = getNextStatesAsOperations({
@@ -208,23 +204,22 @@ class CategoryItemDetailHeader extends Component {
 
           <Menu
             anchorEl={anchorEl}
-            open={showStatesMenu}
+            open={Boolean(anchorEl)}
             onClose={this.handleStatesMenuClose}
             operations={nextStatesOperations}
           />
 
-          <Dialog
+          <Category
+            scene="detail"
+            mode="tabs"
+            categoryId={relations.activeCategoryId}
+            itemId={relations.activeItemId}
             open={shouldShowRelations}
+            onChangeTab={this.changeTab}
             onClose={closeRelations}
             onExited={removeAllOpenRelations}
-          >
-            <Category
-              dialogMode
-              onUpdateItem={onUpdateItem}
-              changeTab={this.changeTab}
-              {...relations}
-            />
-          </Dialog>
+            {...relations}
+          />
 
           <ConfirmationDialog
             open={showWhenInfoModeDialog}

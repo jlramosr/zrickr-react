@@ -86,8 +86,8 @@ let CategoryTableView = class extends Component {
   changeFiltering = filters => console.log(filters)
 
   rowClick = (event, itemId) => {
-    const { categoriesPath, relationMode, openDetailDialog } = this.props
-    if (relationMode) {
+    const { categoriesPath, mode, openDetailDialog } = this.props
+    if (mode === 'relation') {
       event.preventDefault()
       openDetailDialog(itemId)
     } else {
@@ -116,8 +116,8 @@ let CategoryTableView = class extends Component {
       classes,
       fields,
       items,
-      relationMode,
-      editMode
+      mode,
+      editable
     } = this.props
     const { 
       tableSelectedIndexes,
@@ -133,8 +133,8 @@ let CategoryTableView = class extends Component {
       [...accumulator, {columnName: currentField.id, width: 100 * (currentField.views.table.ys || 1)}]
     ), [])
 
-    const allActionsAvailable =  !relationMode && editMode
-    const selectionActionAvailable = editMode
+    const allActionsAvailable =  mode !== 'relation' && editable
+    const selectionActionAvailable = editable
 
     return (
       <React.Fragment>
@@ -216,7 +216,7 @@ let CategoryTableView = class extends Component {
           }
           <VirtualTable
             height={1280}
-            allowColumnReordering={!relationMode}
+            allowColumnReordering={mode !== 'relation'}
             tableRowTemplate={({ children, row, tableRow }) => (
               <TableRow
                 hover
@@ -259,7 +259,7 @@ let CategoryTableView = class extends Component {
         <Snackbar
           anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
           open={Boolean(tableSelectedIndexes.length)}
-          className={relationMode ? classes.relativeSnackbar : classes.snackbar}            
+          className={mode === 'relation' ? classes.relativeSnackbar : classes.snackbar}            
           transitionDuration={{
             enter: 200,
             exit: 0
@@ -292,20 +292,16 @@ let CategoryTableView = class extends Component {
 }
 
 CategoryTableView.propTypes = {
-  classes: PropTypes.object.isRequired,
+  mode: PropTypes.oneOf(['normal', 'relation', 'selection']).isRequired,
   categoryId: PropTypes.string.isRequired,
-  settings: PropTypes.object.isRequired,
-  dense: PropTypes.bool,
-  history: PropTypes.object,
   items: PropTypes.array.isRequired,
-  fields: PropTypes.array.isRequired,
-  relationMode: PropTypes.bool,
-  openDetailDialog: PropTypes.func
+  showAvatar: PropTypes.bool,
+  openDetailDialog: PropTypes.func,
+  classes: PropTypes.object.isRequired
 }
 
 CategoryTableView.defaultProps = {
-  dense: false,
-  relationMode: false
+  
 }
 
 export default withStyles(styles)(CategoryTableView)
