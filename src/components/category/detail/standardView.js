@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import HeaderLayout from '../../headerLayout'
 import Form from '../../form'
-import Category from '../'
 import ConfirmationDialog from '../../dialog/confirmation'
 import Menu from './../../menu'
 import { capitalize } from './../../../utils/helpers'
@@ -14,11 +13,6 @@ import Delete from 'material-ui-icons/Delete'
 
 class CategoryItemDetailHeader extends Component {
   initialState = {
-    relations: {
-      activeIndex: -1,
-      activeCategoryId: '',
-      activeItemId: ''
-    },
     showWhenInfoModeDialog: false,
     checkWhenInfoMode: false,
     checkWhenBack: false,
@@ -29,12 +23,12 @@ class CategoryItemDetailHeader extends Component {
   state = this.initialState
   
   componentWillReceiveProps = nextProps => {
-    const newOpenRelations = nextProps.openRelations
+    /*const newOpenRelations = nextProps.openRelations
     const oldNumOpenRelations = this.props.openRelations.length
     const newNumOpenRelations = newOpenRelations.length
     if (newNumOpenRelations !== oldNumOpenRelations) {
       this.changeTab(newNumOpenRelations - 1, newOpenRelations)
-    }
+    }*/
   }
 
   updateItem = values => {
@@ -97,24 +91,6 @@ class CategoryItemDetailHeader extends Component {
     this.setState({hasChanged: false})
   }
 
-  changeTab = (activeTab, openRelations) => {
-    if (!openRelations) {
-      openRelations = this.props.openRelations
-    }
-    if (activeTab < 0) {
-      this.setState(this.initialState)
-    } else {
-      const relation = openRelations[activeTab]
-      this.setState({
-        relations: {
-          activeIndex: activeTab,
-          activeCategoryId: relation.categoryId,
-          activeItemId: relation.itemId
-        }
-      })
-    }
-  }
-
   render = () => {
     const {
       categoryId,
@@ -134,13 +110,9 @@ class CategoryItemDetailHeader extends Component {
       getNextStatesAsOperations,
       isFetchingItem,
       isUpdating,
-      history,
-      shouldShowRelations,
-      closeRelations,
-      removeAllOpenRelations
+      history
     } = this.props
     const {
-      relations,
       checkWhenInfoMode,
       checkWhenBack,
       showWhenInfoModeDialog,
@@ -207,18 +179,6 @@ class CategoryItemDetailHeader extends Component {
             open={Boolean(anchorEl)}
             onClose={this.handleStatesMenuClose}
             operations={nextStatesOperations}
-          />
-
-          <Category
-            scene="detail"
-            mode="tabs"
-            categoryId={relations.activeCategoryId}
-            itemId={relations.activeItemId}
-            open={shouldShowRelations}
-            onChangeTab={this.changeTab}
-            onClose={closeRelations}
-            onExited={removeAllOpenRelations}
-            {...relations}
           />
 
           <ConfirmationDialog

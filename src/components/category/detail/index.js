@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { withRouter } from 'react-router'
 import PropTypes from 'prop-types'
 import { fetchItemIfNeeded } from '../../../actions/items'
-import { notify, removeOpenRelation, removeAllOpenRelations,closeRelations } from '../../../actions/interactions'
+import { notify, changeActiveOpenRelation, changeOpenRelation, removeOpenRelation, closeRelations } from '../../../actions/interactions'
 import { getItemString } from '../utils/helpers'
 import StandardView from './standardView'
 import TabsView from './tabsView'
@@ -88,7 +88,7 @@ CategoryItemDetail.propTypes = {
   getNextStatesAsOperations: PropTypes.func.isRequired,
 
   fields: PropTypes.array.isRequired,
-  openRelations: PropTypes.array.isRequired
+  openRelations: PropTypes.object.isRequired
 
 }
 
@@ -98,7 +98,7 @@ CategoryItemDetail.defaultProps = {
 
 const mapStateToProps = ({ categories, settings, fields, items, interactions, app }, props) => {
   const { categoryId, itemId } = props
-  const { relations } = interactions
+  const { openRelations } = interactions
   const category = categories.byId[categoryId]
   const categorySettings = category.settings ? settings.byId[category.settings] : {}
   const itemLabel = categorySettings.itemLabel || 'Item'
@@ -117,9 +117,7 @@ const mapStateToProps = ({ categories, settings, fields, items, interactions, ap
     isFetchingItem: items.flow[categoryId].isFetchingItem,
     //itemReceived: items.flow[categoryId].isReceivedItem || items.flow[categoryId].errorFetchingItem
     isUpdating: items.flow[categoryId].isUpdating,
-    openRelations: relations.openRelations,
-    shouldShowRelations: relations.isShowing,
-    repeatedIndex: relations.repeatedIndex,
+    openRelations,
     windowSize: interactions.windowSize
   }
 }
@@ -129,8 +127,9 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     fetchItemIfNeeded: () => dispatch(fetchItemIfNeeded(categoryId, itemId)),
     notify: (message, type) => dispatch(notify(message, type)),
+    changeActiveOpenRelation: index => dispatch(changeActiveOpenRelation(index)),
+    changeOpenRelation: (index, values) => dispatch(changeOpenRelation(index, values)),
     removeOpenRelation: index => dispatch(removeOpenRelation(index)),
-    removeAllOpenRelations: () => dispatch(removeAllOpenRelations()),
     closeRelations: () => dispatch(closeRelations())
   }
 }

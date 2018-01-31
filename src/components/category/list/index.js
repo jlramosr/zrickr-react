@@ -14,7 +14,7 @@ import Add from 'material-ui-icons/Add'
 import AddCircle from 'material-ui-icons/AddCircle'
 import ViewList from 'material-ui-icons/ViewList'
 import ViewAgenda from 'material-ui-icons/ViewAgenda'
-import { showRelations, addOpenRelation } from '../../../actions/interactions'
+import { showRelations, addOpenRelation, removeAllOpenRelations } from '../../../actions/interactions'
 import { capitalize } from './../../../utils/helpers'
 import { getItemString } from './../utils/helpers'
 import escapeRegExp from 'escape-string-regexp'
@@ -29,6 +29,7 @@ class CategoryList extends Component {
     foundItems: [],
     showNewDialog: false,
     showListDialog: false,
+    showDetailDialog: false,
     /**
      * oneOf(['agenda', 'table'])
      */
@@ -59,6 +60,17 @@ class CategoryList extends Component {
 
   componentWillUnmount = () => {
     this._isMounted = false
+  }
+
+  onClickItem = (itemId, itemTitle='') => {
+    const { mode, categoriesPath, categoryId, history, onSelect } = this.props
+    if (mode === 'normal') {
+      history.push(`/${categoriesPath}/${categoryId}/${itemId}`)
+    } else if (mode === 'selection') {
+      onSelect([itemId])
+    } else if (mode === 'relation') {
+      this.openDetailDialog(itemId, itemTitle)
+    }
   }
 
   /**
@@ -117,13 +129,19 @@ class CategoryList extends Component {
    * @param {string} itemId Unique id of the item pertaining to the dialog
 	 * @returns {void}
 	 */
-  openDetailDialog = itemId => {
-    const { mode, categoryId, addOpenRelation, showRelations, isShowingRelations } = this.props
-    if (mode === 'relation') {
-      addOpenRelation(categoryId, itemId)
-      if (!isShowingRelations) {
-        showRelations()
-      }
+  openDetailDialog = (itemId, itemTitle) => {
+    const { categoryId, itemLabel, addOpenRelation, openRelations, showRelations } = this.props
+    const relation = {
+      categoryId,
+      itemId,
+      view: 'info',
+      title: itemTitle,
+      itemLabel
+    }
+    addOpenRelation(relation)
+    if (!openRelations.isShowing) {
+      this.setState({ showDetailDialog: true })
+      showRelations()
     }
   }
 
@@ -135,7 +153,7 @@ class CategoryList extends Component {
 	 */
   closeDialog = () => {
     if (this._isMounted) {
-      this.setState({ showNewDialog: false, showListDialog: false })
+      this.setState({ showNewDialog: false, showListDialog: false, showDetailDialog: false })
     }
   }
 
@@ -184,7 +202,10 @@ class CategoryList extends Component {
     const { view } = this.state
     if (view === 'table') {
       return <CategoryTableView {...props} />
-    } 
+    }
+    if (view === 'agenda') {
+      return <CategoryAgendaView {...props} />
+    }
     return <CategoryAgendaView {...props} />
   }
   
@@ -200,13 +221,16 @@ class CategoryList extends Component {
       itemIds,
       isFetchingItems,
       isUpdating,
-      editable
+      editable,
+      openRelations,
+      removeAllOpenRelations
     } = this.props
     const {
       foundItems,
       searchQuery,
       showNewDialog,
       showListDialog,
+      showDetailDialog,
       view
     } = this.state
 
@@ -236,13 +260,17 @@ class CategoryList extends Component {
     const commonProps = {
       ...this.props,
       items: showingItems,
+      onClickItem: this.onClickItem,
       searchQuery,
-      openDetailDialog: this.openDetailDialog,
       toAddIds,
       toRemoveIds,
       markRemoveItems: this.markRemoveRelations,
       unmarkRemoveItems: this.unmarkRemoveRelations
     }
+
+    const { activeIndex } = openRelations
+    const activeRelationItem = openRelations.list[activeIndex]
+    console.log("OPENRELATIONS EN LIST", openRelations)
 
     return (
       <HeaderLayout
@@ -305,15 +333,7 @@ class CategoryList extends Component {
 
         {this.view(commonProps)}
 
-        <Category
-          scene="new"
-          mode={mode}
-          categoryId={categoryId}
-          open={showNewDialog}
-          onClose={this.closeDialog}
-        />
-
-        {relationMode &&
+        {relationMode && editable &&
           <Category
             scene="list"
             mode="selection"
@@ -323,6 +343,28 @@ class CategoryList extends Component {
             )} //TODO allItemIds get from redux
             open={showListDialog}
             onSelect={this.markAddRelations}
+            onClose={this.closeDialog}
+          />
+        }
+
+        {relationMode && Boolean(openRelations.list.length) &&
+          <Category
+            scene="detail"
+            mode="tabs"
+            categoryId={activeRelationItem ? activeRelationItem.categoryId : null}
+            itemId={activeRelationItem ? activeRelationItem.itemId : null}
+            open={showDetailDialog}
+            onClose={this.closeDialog}
+            onExited={removeAllOpenRelations}
+          />
+        }
+
+        {!relationMode && editable &&
+          <Category
+            scene="new"
+            mode={mode}
+            categoryId={categoryId}
+            open={showNewDialog}
             onClose={this.closeDialog}
           />
         }
@@ -481,6 +523,7 @@ const mapStateToProps = ({ categories, settings, fields, items, interactions, ap
     secondaryFieldsSeparator,
     color
   } = categorySettings
+  const { openRelations } = interactions
 
   return {
     categoriesPath: app.categoriesPath,
@@ -498,7 +541,7 @@ const mapStateToProps = ({ categories, settings, fields, items, interactions, ap
     items: Object.values(items.byId).filter(item => category.items.includes(item.id)),
     isFetchingItems: items.flow[categoryId].isFetchingAll,
     isUpdating: items.flow[categoryId].isUpdating,
-    isShowingRelations: interactions.relations.isShowing
+    openRelations
   }
 }
 
@@ -506,7 +549,8 @@ const mapDispatchToProps = (dispatch, props) => ({
   fetchItems: () => dispatch(fetchItems(props.categoryId)),
   fetchItemsIfNeeded: () => dispatch(fetchItemsIfNeeded(props.categoryId)),
   showRelations: () => dispatch(showRelations()),
-  addOpenRelation: (categoryId, itemId) => dispatch(addOpenRelation(categoryId, itemId))
+  addOpenRelation: relation => dispatch(addOpenRelation(relation)),
+  removeAllOpenRelations: () => dispatch(removeAllOpenRelations())
 })
 
 export default withRouter(

@@ -81,6 +81,7 @@ const styles = theme => ({
 class CategoryItemDetailTabs extends Component {
   initialState = {
     tabs: [],
+    hoverTab: -1,
     nextTab: -1,
     removeTab: -1,
     checkWhenClose: false,
@@ -88,17 +89,13 @@ class CategoryItemDetailTabs extends Component {
     checkWhenInfoMode: false,
     showWhenInfoModeDialog: false,
     checkWhenChangeTab: false,
-    checkWhenRemoveTab: false,
-    
-    
-    
-    hoverTab: -1,
+    checkWhenRemoveTab: false
   }
 
   state = this.initialState
 
   componentWillReceiveProps = nextProps => {
-    /*const oldNumOpenRelations = this.props.openRelations.list.length
+    const oldNumOpenRelations = this.props.openRelations.list.length
     const newNumOpenRelations = nextProps.openRelations.list.length
     const diffNumRelations = newNumOpenRelations - oldNumOpenRelations
     const oldRepeatedIndex = this.props.repeatedIndex
@@ -127,11 +124,11 @@ class CategoryItemDetailTabs extends Component {
       let tabs = this.state.tabs
       tabs[newActiveIndex].title = newTitle
       this.setState({tabs})
-    }*/
+    }
   }
 
   componentDidMount = () => {
-    /*this.setState({
+    this.setState({
       tabs:[{
         title: this.props.title,
         categoryItemLabel: this.props.categoryItemLabel,
@@ -139,12 +136,12 @@ class CategoryItemDetailTabs extends Component {
         hasChanged: false,
         values: null
       }]
-    })*/
+    })
   }
 
   changeTab = (activeTab, openRelations) => {
-    /*this.props.changeOpenRelation()
-    if (!openRelations) {
+    this.props.changeOpenRelation()
+    /*if (!openRelations) {
       openRelations = this.props.openRelations
     }
     if (activeTab < 0) {
@@ -162,76 +159,92 @@ class CategoryItemDetailTabs extends Component {
   }
 
   updateItem = values => {
-    /*const { onUpdateItem, itemId, title } = this.props
+    const { onUpdateItem, itemId, title } = this.props
     return onUpdateItem(itemId, values, title).then(() => {
       this.whenInfoModeWithoutChanges()
-    })*/
+    })
   }
 
   onViewClick = () => {
-    /*this.setState({checkWhenInfoMode: true})*/
+    this.setState({checkWhenInfoMode: true})
   }
 
   onEditClick = () => {
-    /*const tempTabs = this.state.tabs
+    const tempTabs = this.state.tabs
     const { activeIndex } = this.props
     tempTabs[activeIndex].view = 'edit'
-    this.setState({tabs: tempTabs})*/
+    this.setState({tabs: tempTabs})
   }
 
   onCheckClick = () => {
-    /*this.formElement.dispatchEvent(
+    this.formElement.dispatchEvent(
       new Event('submit'), {bubbles:false}
-    )*/
+    )
   }
 
   onCloseClick = () => {
-    /*const hasEditionTabs = this.state.tabs.reduce((has,tab) => has || tab.hasChanged, false)
+    const hasEditionTabs = this.state.tabs.reduce((has,tab) => has || tab.hasChanged, false)
     if (hasEditionTabs) {
       this.setState({checkWhenClose:true})
     } else {
       this.whenAcceptClose()
-    }*/
+    }
+  }
+
+  onChangeTab = nextTab => {
+    this.setState({checkWhenChangeTab: true, nextTab})
+  }
+
+  onMouseMoveTab = index => {
+    this.setState({hoverTab: index})
+  }
+
+  onMouseLeaveTab = () => {
+    this.setState({hoverTab: -1})
+  }
+
+  onCloseTabClick = index => {
+    this.setState({checkWhenRemoveTab: true, removeTab: index})
   }
 
   whenDifferentValues = () => {
-    /*const { tabs } = this.state
+    const { tabs } = this.state
     tabs[this.props.activeIndex].hasChanged = true
-    this.setState({tabs})*/
+    this.setState({tabs})
   }
 
   whenSameValues = () => {
-    /*const { tabs } = this.state
+    const { tabs } = this.state
     tabs[this.props.activeIndex].hasChanged = false
-    this.setState({tabs})*/
+    this.setState({tabs})
   }
 
   whenInfoModeWithChanges = () => {
-    /*this.setState({showWhenInfoModeDialog: true})*/
+    this.setState({showWhenInfoModeDialog: true})
   }
 
   whenInfoModeWithoutChanges = () => {
-    /*const { tabs } = this.state
+    const { tabs } = this.state
     const { activeIndex } = this.props
     //if (tabs[activeIndex]) {
     tabs[activeIndex].view = 'info'
     tabs[activeIndex].hasChanged = false
     //}
-    this.setState({tabs, checkWhenInfoMode: false, showWhenInfoModeDialog: false})*/
+    this.setState({tabs, checkWhenInfoMode: false, showWhenInfoModeDialog: false})
   }
 
   whenClose = () => {
-    /*this.setState({showWhenCloseDialog: true})*/
+    this.setState({showWhenCloseDialog: true})
   }
 
   whenAcceptClose = () => {
-    /*this.setState({tabs: [], checkWhenClose: false, showWhenCloseDialog:false})
+    this.setState({tabs: [], checkWhenClose: false, showWhenCloseDialog:false})
     this.props.closeDialog()
-    this.props.closeRelations()*/
+    this.props.closeRelations()
   }
 
   whenChangeTab = values => {
-    /*const { tabs, nextTab, checkWhenRemoveTab } = this.state
+    const { tabs, nextTab, checkWhenRemoveTab } = this.state
     const { changeTab, activeIndex } = this.props
     if (!checkWhenRemoveTab) {
       if (values) {
@@ -243,13 +256,13 @@ class CategoryItemDetailTabs extends Component {
     }
     else {
       this.setState({checkWhenChangeTab: false, checkWhenRemoveTab: false, nextTab: -1, removeTab: -1})
-    }*/
+    }
   }
 
   whenRemoveTab = values => {
     //event.preventDefault()
     //event.stopPropagation()
-    /*const { activeIndex, removeOpenRelation } = this.props
+    const { activeIndex, removeOpenRelation } = this.props
     const { tabs, removeTab } = this.state
     let tempTabs = tabs
     if (values) {
@@ -260,27 +273,7 @@ class CategoryItemDetailTabs extends Component {
       ...tempTabs.slice(0,removeTab),
       ...tempTabs.slice(removeTab+1)
     ]
-    this.setState({tabs: tempTabs})*/
-  }
-
-
-
-  onCloseTabClick = index => {
-    this.props.removeOpenRelation(index)
-  }
-
-  onChangeTab = nextTab => {
-    const { changeActiveOpenRelation } = this.props
-    changeActiveOpenRelation(0)
-    /*this.setState({checkWhenChangeTab: true, nextTab})*/
-  }
-
-  onMouseMoveTab = index => {
-    this.setState({hoverTab: index})
-  }
-
-  onMouseLeaveTab = () => {
-    this.setState({hoverTab: -1})
+    this.setState({tabs: tempTabs})
   }
 
   render = () => {
@@ -297,6 +290,7 @@ class CategoryItemDetailTabs extends Component {
       classes
     } = this.props
     const {
+      tabs,
       checkWhenInfoMode, 
       showWhenInfoModeDialog, 
       showWhenCloseDialog,
@@ -305,10 +299,8 @@ class CategoryItemDetailTabs extends Component {
       checkWhenRemoveTab
     } = this.state
 
-    const { activeIndex, list } = openRelations
-    //console.log("OPENRELATIONS EN TABS", openRelations);
+    const { activeIndex } = openRelations
 
-    const tabs = list
     let values = item
     if (tabs[activeIndex] && tabs[activeIndex].values) {
       values = tabs[activeIndex].values
@@ -350,7 +342,8 @@ class CategoryItemDetailTabs extends Component {
                 scrollButtons="auto"
               >
                 {tabs.map((tab, index) => {
-                  const isVisibleIconCircle = tab.hasChanged
+                  const isVisibleIconCircle =
+                    tab.hasChanged
                   const isVisibleIconClose = 
                     !isVisibleIconCircle && 
                     (this.state.hoverTab === index || activeIndex === index)
@@ -363,7 +356,7 @@ class CategoryItemDetailTabs extends Component {
                         <React.Fragment>
                           <div className={classes.tabTextContainer}>
                             <div className={classes.tabTitle}>{tab.title}</div>
-                            <div className={classes.tabItemLabel}>({tab.itemLabel})</div>
+                            <div className={classes.tabItemLabel}>({tab.categoryItemLabel})</div>
                           </div>
                           <div className={classes.tabIconContainer}>
                             {isVisibleIconClose &&

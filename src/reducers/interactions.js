@@ -1,9 +1,11 @@
 import { UPDATE_WINDOW_SIZE } from '../actions/interactions'
 import { TOGGLE_DRAWER } from '../actions/interactions'
 import { NOTIFY } from '../actions/interactions'
-import { SHOW_RELATIONS } from '../actions/interactions'
-import { CLOSE_RELATIONS } from '../actions/interactions'
+import { SHOW_OPEN_RELATIONS } from '../actions/interactions'
+import { CLOSE_OPEN_RELATIONS } from '../actions/interactions'
 import { ADD_OPEN_RELATION } from '../actions/interactions'
+import { CHANGE_ACTIVE_OPEN_RELATION } from '../actions/interactions'
+import { CHANGE_OPEN_RELATION } from '../actions/interactions'
 import { REMOVE_OPEN_RELATION } from '../actions/interactions'
 import { REMOVE_ALL_OPEN_RELATIONS } from '../actions/interactions'
 
@@ -14,9 +16,10 @@ const initialInteractionsState = {
     message: '',
     type: ''
   },
-  relations: {
-    openRelations: [],
+  openRelations: {
+    list: [],
     isShowing: false,
+    activeIndex: -1,
     repeatedIndex: -1
   }
 }
@@ -41,67 +44,90 @@ const interactions = (state = initialInteractionsState, action) => {
           type: action.notificationType
         }
       }
-    case SHOW_RELATIONS:
+    case SHOW_OPEN_RELATIONS:
       return {
         ...state,
-        relations: {
-          ...state.relations,
+        openRelations: {
+          ...state.openRelations,
           isShowing: true
         }
       }
-    case CLOSE_RELATIONS:
+    case CLOSE_OPEN_RELATIONS:
       return {
         ...state,
-        relations: {
-          ...state.relations,
+        openRelations: {
+          ...state.openRelations,
           isShowing: false
         }
       }
     case ADD_OPEN_RELATION: {
-      const filter = state.relations.openRelations.filter(relation =>
+      const filter = state.openRelations.list.filter(relation =>
         (relation.categoryId === action.categoryId) && (relation.itemId === action.itemId)
       )
-      const index = state.relations.openRelations.indexOf(filter[0])
+      const index = state.openRelations.list.indexOf(filter[0])
       if (index > -1) {
         return {
           ...state,
-          relations: {
-            ...state.relations,
+          openRelations: {
+            ...state.openRelations,
+            activeIndex: index,
             repeatedIndex: index
           }
         }
       }
       return {
         ...state,
-        relations: {
-          ...state.relations,
-          openRelations: [
-            ...state.relations.openRelations, {
-              categoryId: action.categoryId,
-              itemId: action.itemId
-            }
+        openRelations: {
+          ...state.openRelations,
+          list: [
+            ...state.openRelations.list,
+            {...action.relation}
           ],
+          activeIndex: state.openRelations.list.length,
           repeatedIndex: -1
         }
       }
     }
+    case CHANGE_ACTIVE_OPEN_RELATION:
+      return {
+        ...state,
+        openRelations: {
+          ...state.openRelations,
+          activeIndex: action.index,
+          repeatedIndex: -1
+        }
+      }
+    case CHANGE_OPEN_RELATION: 
+      return {
+        ...state,
+        openRelations: {
+          ...state.openRelations,
+          list: [
+            ...state.openRelations.list.slice(0,action.index),
+            {...action.relation},
+            ...state.openRelations.list.slice(action.index+1)
+          ]
+        }
+      }
     case REMOVE_OPEN_RELATION:
       return {
         ...state,
-        relations: {
-          ...state.relations,
-          openRelations: [
-            ...state.relations.openRelations.slice(0,action.index),
-            ...state.relations.openRelations.slice(action.index+1)
+        openRelations: {
+          ...state.openRelations,
+          list: [
+            ...state.openRelations.list.slice(0,action.index),
+            ...state.openRelations.list.slice(action.index+1)
           ]
         }
       }
     case REMOVE_ALL_OPEN_RELATIONS:
       return {
         ...state,
-        relations: {
-          ...state.relations,
-          openRelations: []
+        openRelations: {
+          ...state.openRelations,
+          list: [],
+          activeIndex: -1,
+          repeatedIndex: -1
         }
       }
     default:

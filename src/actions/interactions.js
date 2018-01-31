@@ -1,9 +1,11 @@
 export const UPDATE_WINDOW_SIZE = 'UPDATE_WINDOW_SIZE'
 export const TOGGLE_DRAWER = 'TOGGLE_DRAWER'
 export const NOTIFY = 'NOTIFY'
-export const SHOW_RELATIONS = 'SHOW_RELATIONS'
-export const CLOSE_RELATIONS = 'CLOSE_RELATIONS'
+export const SHOW_OPEN_RELATIONS = 'SHOW_RELATIONS'
+export const CLOSE_OPEN_RELATIONS = 'CLOSE_RELATIONS'
 export const ADD_OPEN_RELATION = 'ADD_OPEN_RELATION'
+export const CHANGE_ACTIVE_OPEN_RELATION = 'CHANGE_ACTIVE_OPEN_RELATION'
+export const CHANGE_OPEN_RELATION = 'CHANGE_OPEN_RELATION'
 export const REMOVE_OPEN_RELATION = 'REMOVE_OPEN_RELATION'
 export const REMOVE_ALL_OPEN_RELATIONS = 'REMOVE_ALL_OPEN_RELATIONS'
 
@@ -24,17 +26,27 @@ export const notify = (message, type) => ({
 })
 
 export const showRelations = () => ({
-  type: SHOW_RELATIONS
+  type: SHOW_OPEN_RELATIONS
 })
 
 export const closeRelations = () => ({
-  type: CLOSE_RELATIONS
+  type: CLOSE_OPEN_RELATIONS
 })
 
-export const addOpenRelation = (categoryId, itemId) => ({
+export const addOpenRelation = relation => ({
   type: ADD_OPEN_RELATION,
-  categoryId,
-  itemId
+  relation
+})
+
+export const changeActiveOpenRelation = index => ({
+  type: CHANGE_ACTIVE_OPEN_RELATION,
+  index
+})
+
+export const changeOpenRelation = (index, relation) => ({
+  type: CHANGE_OPEN_RELATION,
+  index,
+  relation
 })
 
 export const removeOpenRelation = index => ({

@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Link } from 'react-router-dom'
 import List, { ListItem, ListItemSecondaryAction, ListItemText } from 'material-ui/List'
 import Divider from 'material-ui/Divider'
 import Avatar from 'material-ui/Avatar'
@@ -133,17 +132,6 @@ class CategoryAgendaView extends Component {
     })
   }
 
-  onItemClick(event, itemId) {
-    const { mode, openDetailDialog, onSelect } = this.props
-    if (mode === 'relation') {
-      event.preventDefault()
-      openDetailDialog(itemId)
-    } else if (mode === 'selection') {
-      event.preventDefault()
-      onSelect([itemId])
-    }
-  }
-
   getItemValues = id =>
     this.props.items.find(item => item.id === id)
 
@@ -180,6 +168,7 @@ class CategoryAgendaView extends Component {
       showAvatar,
       mode,
       editable,
+      onClickItem,
       onRemoveItem,
       history,
       getNextStatesAsOperations,
@@ -247,65 +236,66 @@ class CategoryAgendaView extends Component {
               
               return (
                 <div key={item.id} className={itemClassName}>
-                  <Link
-                    tabIndex={-1}
-                    to={`/${categoriesPath}/${categoryId}/${item.id}`}
-                    onClick={event => this.onItemClick(event, item.id)}
+                  <ListItem 
+                    button={!isMarkedForRemove}
+                    disableRipple
+                    onClick={event => {
+                      event.preventDefault()
+                      onClickItem(item.id, primaryInfo)
+                    }}
                   >
-                    <ListItem button={!isMarkedForRemove} disableRipple>
-                      {showAvatarWithImage &&
-                        <Avatar><Icon>{item.image}</Icon></Avatar>
-                      }
-                      {showAvatarWithLetter &&
-                        <Avatar style={{background: colorAvatarWithLetter}}>
-                          {firstLetter}
-                        </Avatar>
-                      }
-                      <ListItemText
-                        classes={{
-                          root: classes.itemText,
-                          primary: classes.itemTextContent,
-                          secondary: classes.itemTextContent
-                        }}
-                        primary={primaryInfo}
-                        secondary={secondaryInfo}
-                      />
-                      {editable &&
-                        <ListItemSecondaryAction>
-                          <IconButton aria-label="Item Menu">
-                            {!relationMode &&
-                              <MoreVert style={{display: !editable ? 'none' : 'inherit'}}
-                                onClick={event => this.handleMenuItemClick(event, item.id)}
-                              />
-                            }
-                            {relationMode && isMarkedForRemove &&
-                              <Reply
-                                onClick={event => {
-                                  event.preventDefault()
-                                  event.stopPropagation()  
-                                  unmarkRemoveItems([item.id])
-                                }}
-                              />
-                            }
-                            {relationMode && !isMarkedForRemove &&
-                              <Operation
-                                id="removeRelation"
-                                icon={RemoveCircle}
-                                small
-                                description="Remove relation"
-                                label="Remove relation"
-                                onClick={event => {
-                                  event.preventDefault()
-                                  event.stopPropagation()
-                                  markRemoveItems([item.id])
-                                }}
-                              />
-                            }
-                          </IconButton>
-                        </ListItemSecondaryAction>
-                      }
-                    </ListItem>
-                  </Link>
+                    {showAvatarWithImage &&
+                      <Avatar><Icon>{item.image}</Icon></Avatar>
+                    }
+                    {showAvatarWithLetter &&
+                      <Avatar style={{background: colorAvatarWithLetter}}>
+                        {firstLetter}
+                      </Avatar>
+                    }
+                    <ListItemText
+                      classes={{
+                        root: classes.itemText,
+                        primary: classes.itemTextContent,
+                        secondary: classes.itemTextContent
+                      }}
+                      primary={primaryInfo}
+                      secondary={secondaryInfo}
+                    />
+                    {editable &&
+                      <ListItemSecondaryAction>
+                        <IconButton aria-label="Item Menu">
+                          {!relationMode &&
+                            <MoreVert style={{display: !editable ? 'none' : 'inherit'}}
+                              onClick={event => this.handleMenuItemClick(event, item.id)}
+                            />
+                          }
+                          {relationMode && isMarkedForRemove &&
+                            <Reply
+                              onClick={event => {
+                                event.preventDefault()
+                                event.stopPropagation()  
+                                unmarkRemoveItems([item.id])
+                              }}
+                            />
+                          }
+                          {relationMode && !isMarkedForRemove &&
+                            <Operation
+                              id="removeRelation"
+                              icon={RemoveCircle}
+                              small
+                              description="Remove relation"
+                              label="Remove relation"
+                              onClick={event => {
+                                event.preventDefault()
+                                event.stopPropagation()
+                                markRemoveItems([item.id])
+                              }}
+                            />
+                          }
+                        </IconButton>
+                      </ListItemSecondaryAction>
+                    }
+                  </ListItem>
                   <Divider/>
                 </div>
               )
@@ -359,7 +349,6 @@ CategoryAgendaView.propTypes = {
   categoryId: PropTypes.string.isRequired,
   items: PropTypes.array.isRequired,
   showAvatar: PropTypes.bool,
-  openDetailDialog: PropTypes.func,
   classes: PropTypes.object.isRequired
 }
 

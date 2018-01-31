@@ -86,14 +86,7 @@ let CategoryTableView = class extends Component {
   changeFiltering = filters => console.log(filters)
 
   rowClick = (event, itemId) => {
-    const { categoriesPath, mode, openDetailDialog } = this.props
-    if (mode === 'relation') {
-      event.preventDefault()
-      openDetailDialog(itemId)
-    } else {
-      const { categoryId, history } = this.props
-      history.push(`/${categoriesPath}/${categoryId}/${itemId}`)
-    }
+    
   }
 
   getColumnsOfType = (fields, type) => {
@@ -296,7 +289,6 @@ CategoryTableView.propTypes = {
   categoryId: PropTypes.string.isRequired,
   items: PropTypes.array.isRequired,
   showAvatar: PropTypes.bool,
-  openDetailDialog: PropTypes.func,
   classes: PropTypes.object.isRequired
 }
 

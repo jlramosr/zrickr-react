@@ -224,7 +224,6 @@ class Category extends Component {
       open,
       onChange,
       onSelect,
-      onChangeTab,
       onClose,
       onExited
     } = this.props
@@ -285,13 +284,10 @@ class Category extends Component {
             </React.Fragment>
           )
         case 'tabs': {
-          const { activeIndex } = this.props
           return (
             <Dialog open={open} onClose={onClose} onExited={onExited}>
               <CategoryItemDetail
                 {...commonDetailProps}
-                activeIndex={activeIndex}
-                onChangeTab={onChangeTab}
                 closeDialog={onClose}
               />
             </Dialog>
@@ -356,7 +352,7 @@ Category.defaultProps = {
 
 const mapStateToProps = ({ categories, settings, app }, props) => {
   const categoryId = props.categoryId || props.match.params.categoryId
-  const itemId = props.itemId || props.match ? props.match.params.itemId : undefined
+  const itemId = props.itemId || (props.match ? props.match.params.itemId : undefined)
   const category = categories.byId[categoryId]
   const categorySettings = category && category.settings ? settings.byId[category.settings] : {}
   const itemLabel = capitalize(categorySettings.itemLabel || '')
