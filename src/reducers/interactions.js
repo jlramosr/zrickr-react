@@ -97,7 +97,7 @@ const interactions = (state = initialInteractionsState, action) => {
           repeatedIndex: -1
         }
       }
-    case CHANGE_OPEN_RELATION: 
+    case CHANGE_OPEN_RELATION:
       return {
         ...state,
         openRelations: {

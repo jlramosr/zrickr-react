@@ -14,7 +14,7 @@ class CategoryItemDetail extends Component {
     /**
      * oneOf(['info', 'edit'])
      */
-    view: 'info'
+    access: 'info'
   }
 
   componentWillMount = () => {
@@ -22,7 +22,7 @@ class CategoryItemDetail extends Component {
     const historyState = history ? history.location.state : {}
     fetchItemIfNeeded() //this.props.fetchItem()
     if (historyState) {
-      this.changeView(historyState.view || 'info')
+      this.changeAccess(historyState.access || 'info')
     }
   }
 
@@ -40,13 +40,20 @@ class CategoryItemDetail extends Component {
     return null
   }
 
-  changeView = view => {
-    this.setState({view})
+  changeAccess = access => {
+    this.setState({access})
+  }
+
+  changeCurrentRelation = newProps => {
+    const { changeOpenRelation, openRelations } = this.props
+    const activeIndex = openRelations.activeIndex
+    const relation = openRelations.list[activeIndex]
+    changeOpenRelation(activeIndex, {...relation, ...newProps})
   }
 
   render = () => {
     const { categoryStates, mode, item } = this.props 
-    const { view } = this.state
+    const { access } = this.state
 
     if (!item) {
       return <NotFound text="Item Not Found" />
@@ -54,27 +61,31 @@ class CategoryItemDetail extends Component {
 
     const commonProps = {
       ...this.props,
-      view,
-      changeView: this.changeView,
+      access,
+      changeAccess: this.changeAccess,
+      changeCurrentRelation: this.changeCurrentRelation,
       title: this.getTitle(),
       itemState: this.getCurrentState(),
       isReadonly: categoryStates && categoryStates.readonly.includes(item.state)
     }
 
-    if (mode === 'tabs') {
+    if (mode === 'normal') {
+      return <StandardView {...commonProps} />
+    } else if (mode === 'tabs') {
       return <TabsView {...commonProps} />
+    } else if (mode === 'temporal') {
+      return <StandardView {...commonProps} />
     }
 
-    return <StandardView {...commonProps} />
   }
 }
 
 CategoryItemDetail.propTypes = {
   /**
    * Item mode. 'Normal' mode indicates list belongs to the main category, so it's shown
-   * in a normal view. When items are shown on dialogs
+   * in a standard view.
    */
-  mode: PropTypes.oneOf(['normal','tabs']).isRequired,
+  mode: PropTypes.oneOf(['normal','tabs','temporal']).isRequired,
   /**
    * Category id of the item.
    */

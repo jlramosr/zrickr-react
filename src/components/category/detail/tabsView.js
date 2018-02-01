@@ -1,10 +1,7 @@
 import React, { Component } from 'react'
 import HeaderLayout from '../../headerLayout'
-import Form from '../../form'
+import Category from '../'
 import ConfirmationDialog from '../../dialog/confirmation'
-import Check from 'material-ui-icons/Check'
-import Edit from 'material-ui-icons/Edit'
-import ChromeReaderMode from 'material-ui-icons/ChromeReaderMode'
 import Tabs, { Tab } from 'material-ui/Tabs'
 import Close from 'material-ui-icons/Close'
 import FiberManualRecord from 'material-ui-icons/FiberManualRecord'
@@ -12,8 +9,8 @@ import { withStyles } from 'material-ui/styles'
 
 const styles = theme => ({
   spaceBetween: {
-    height: 6,
-    background: `linear-gradient(${theme.palette.primary.main}, ${theme.palette.primary.main})`
+    height: 4,
+    background: theme.palette.primary.main
   },
   tabs: {
     paddingBottom: 0,
@@ -90,9 +87,7 @@ class CategoryItemDetailTabs extends Component {
     checkWhenChangeTab: false,
     checkWhenRemoveTab: false,
     
-    
-    
-    hoverTab: -1,
+    hoverTab: -1
   }
 
   state = this.initialState
@@ -115,7 +110,7 @@ class CategoryItemDetailTabs extends Component {
           ...prevState.tabs, {
             title: nextProps.title,
             categoryItemLabel: nextProps.categoryItemLabel,
-            view: 'info',
+            access: 'info',
             hasChanged: false,
             values: null
           }
@@ -135,7 +130,7 @@ class CategoryItemDetailTabs extends Component {
       tabs:[{
         title: this.props.title,
         categoryItemLabel: this.props.categoryItemLabel,
-        view: 'info',
+        access: 'info',
         hasChanged: false,
         values: null
       }]
@@ -172,10 +167,10 @@ class CategoryItemDetailTabs extends Component {
     /*this.setState({checkWhenInfoMode: true})*/
   }
 
-  onEditClick = () => {
+  _onEditClick = () => {
     /*const tempTabs = this.state.tabs
     const { activeIndex } = this.props
-    tempTabs[activeIndex].view = 'edit'
+    tempTabs[activeIndex].access = 'edit'
     this.setState({tabs: tempTabs})*/
   }
 
@@ -185,7 +180,7 @@ class CategoryItemDetailTabs extends Component {
     )*/
   }
 
-  onCloseClick = () => {
+  _onCloseClick = () => {
     /*const hasEditionTabs = this.state.tabs.reduce((has,tab) => has || tab.hasChanged, false)
     if (hasEditionTabs) {
       this.setState({checkWhenClose:true})
@@ -214,7 +209,7 @@ class CategoryItemDetailTabs extends Component {
     /*const { tabs } = this.state
     const { activeIndex } = this.props
     //if (tabs[activeIndex]) {
-    tabs[activeIndex].view = 'info'
+    tabs[activeIndex].access = 'info'
     tabs[activeIndex].hasChanged = false
     //}
     this.setState({tabs, checkWhenInfoMode: false, showWhenInfoModeDialog: false})*/
@@ -263,16 +258,33 @@ class CategoryItemDetailTabs extends Component {
     this.setState({tabs: tempTabs})*/
   }
 
-
-
-  onCloseTabClick = index => {
-    this.props.removeOpenRelation(index)
+  componentDidMount = () => {
   }
 
-  onChangeTab = nextTab => {
-    const { changeActiveOpenRelation } = this.props
-    changeActiveOpenRelation(0)
-    /*this.setState({checkWhenChangeTab: true, nextTab})*/
+  onCloseClick = () => {
+    const { closeDialog, closeRelations } = this.props
+    closeDialog()
+    closeRelations()
+  }
+
+  onCloseTabClick = index => {
+    this.isRemovingTab = true
+    this.props.removeOpenRelation(index) //then onChangeTab
+  }
+
+  onChangeTab = tab => {
+    const { openRelations } = this.props
+    const { activeIndex } = openRelations
+    let nextTab = tab
+    if (this.isRemovingTab) {
+      if (tab <= activeIndex) {
+        nextTab = (activeIndex - 1) || 0
+      } else {
+        nextTab = activeIndex
+      }
+      this.isRemovingTab = false
+    }
+    this.props.changeActiveOpenRelation(nextTab)
   }
 
   onMouseMoveTab = index => {
@@ -285,45 +297,25 @@ class CategoryItemDetailTabs extends Component {
 
   render = () => {
     const {
-      title,
-      isFetchingSettings,
-      fields,
-      isFetchingFields,
-      item,
-      isFetchingItem,
-      isUpdating,
       openRelations,
       windowSize,
       classes
     } = this.props
     const {
-      checkWhenInfoMode, 
       showWhenInfoModeDialog, 
-      showWhenCloseDialog,
-      checkWhenClose,
-      checkWhenChangeTab,
-      checkWhenRemoveTab
+      showWhenCloseDialog
     } = this.state
 
     const { activeIndex, list } = openRelations
-    //console.log("OPENRELATIONS EN TABS", openRelations);
 
     const tabs = list
-    let values = item
-    if (tabs[activeIndex] && tabs[activeIndex].values) {
-      values = tabs[activeIndex].values
-    }
+    const currentRelation = tabs[activeIndex]
 
     const smallSize = windowSize === 'xs' || windowSize === 'sm'
     const tabsContainerStyle = {
       width:'100%',
       paddingTop: smallSize ? 4 : 1
     }
-
-    const editView = tabs[activeIndex] ? tabs[activeIndex].view === 'edit' : false
-    const disabledCheckIcon =
-      isUpdating ||
-      !(tabs[activeIndex] ? tabs[activeIndex].hasChanged : false) 
 
     return (
       <React.Fragment>
@@ -350,7 +342,7 @@ class CategoryItemDetailTabs extends Component {
                 scrollButtons="auto"
               >
                 {tabs.map((tab, index) => {
-                  const isVisibleIconCircle = tab.hasChanged
+                  const isVisibleIconCircle = tab.values
                   const isVisibleIconClose = 
                     !isVisibleIconCircle && 
                     (this.state.hoverTab === index || activeIndex === index)
@@ -395,40 +387,16 @@ class CategoryItemDetailTabs extends Component {
         >
         </HeaderLayout>
         
-        <div className={classes.spaceBetween}></div>
+        {tabs.length > 1 && <div className={classes.spaceBetween}></div>}
 
-        <HeaderLayout
-          key={activeIndex}
-          title={title}
-          loading={isFetchingSettings || isFetchingFields || isFetchingItem || isUpdating }
-          operations={[
-            {id:'close', icon:Close, hidden:openRelations.list.length > 1, onClick:this.onCloseClick},
-            {id:'edit', icon:Edit, right:true, hidden:editView, onClick:this.onEditClick},
-            {id:'view', icon:ChromeReaderMode, right:true, hidden:!editView, onClick:this.onViewClick},
-            {id:'save', icon:Check, right:true, disabled:disabledCheckIcon,
-              hidden:!editView, onClick:this.onCheckClick}
-          ]}
-        >
-          <Form
-            cols={12}
-            view="detail"
-            infoMode={!editView}
-            fields={fields}
-            values={values}
-            origValues={item}
-            handleSubmit={this.updateItem}
-            formRef={el => this.formElement = el}
-            checks={[
-              {handler:checkWhenClose, callback:this.whenClose},
-              {handler:checkWhenChangeTab, callback:this.whenChangeTab},
-              {handler:checkWhenRemoveTab, callback:this.whenRemoveTab},
-              {handler:checkWhenInfoMode, when:'hasChanged', callback:this.whenInfoModeWithChanges},
-              {handler:checkWhenInfoMode, when:'hasNotChanged', callback:this.whenInfoModeWithoutChanges},
-            ]}
-            onDifferentValues={this.whenDifferentValues}
-            onEqualValues={this.whenSameValues}
-          />
-        </HeaderLayout>
+        <Category
+          scene="detail"
+          mode="temporal"
+          categoryId={currentRelation.categoryId}
+          itemId={currentRelation.itemId}
+          onChange={this.onChangeForm}
+          onClose={this.onCloseClick}
+        />
 
         <ConfirmationDialog
           open={showWhenCloseDialog}

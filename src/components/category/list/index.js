@@ -134,7 +134,7 @@ class CategoryList extends Component {
     const relation = {
       categoryId,
       itemId,
-      view: 'info',
+      access: 'info',
       title: itemTitle,
       itemLabel
     }
@@ -270,7 +270,6 @@ class CategoryList extends Component {
 
     const { activeIndex } = openRelations
     const activeRelationItem = openRelations.list[activeIndex]
-    console.log("OPENRELATIONS EN LIST", openRelations)
 
     return (
       <HeaderLayout

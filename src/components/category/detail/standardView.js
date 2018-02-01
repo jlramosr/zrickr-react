@@ -5,6 +5,7 @@ import ConfirmationDialog from '../../dialog/confirmation'
 import Menu from './../../menu'
 import { capitalize } from './../../../utils/helpers'
 import ArrowBack from 'material-ui-icons/ArrowBack'
+import Close from 'material-ui-icons/Close'
 import Check from 'material-ui-icons/Check'
 import Directions from 'material-ui-icons/Directions'
 import Edit from 'material-ui-icons/Edit'
@@ -13,41 +14,67 @@ import Delete from 'material-ui-icons/Delete'
 
 class CategoryItemDetailHeader extends Component {
   initialState = {
-    showWhenInfoModeDialog: false,
-    checkWhenInfoMode: false,
-    checkWhenBack: false,
+    showDialog: false,
     hasChanged: false,
     anchorEl: null
   }
 
   state = this.initialState
-  
-  componentWillReceiveProps = nextProps => {
-    /*const newOpenRelations = nextProps.openRelations
-    const oldNumOpenRelations = this.props.openRelations.length
-    const newNumOpenRelations = newOpenRelations.length
-    if (newNumOpenRelations !== oldNumOpenRelations) {
-      this.changeTab(newNumOpenRelations - 1, newOpenRelations)
-    }*/
+
+  changeCurrentRelation = newProps => {
+    const { changeOpenRelation, openRelations } = this.props
+    const activeIndex = openRelations.activeIndex
+    const relation = openRelations.list[activeIndex]
+    changeOpenRelation(activeIndex, {...relation, ...newProps})
   }
 
   updateItem = values => {
-    const { onUpdateItem, itemId, title, changeView } = this.props
+    const { onUpdateItem, itemId, title, changeAccess } = this.props
     return onUpdateItem(itemId, values, title).then(() => {
-      changeView('info')
+      changeAccess('info')
     })
   }
 
   onBackClick = () => {
-    this.setState({checkWhenBack: true})
+    const { mode, categoriesPath, categoryId, history } = this.props
+    if (mode === 'normal') {
+      //this.setState({checkWhenBack: true})
+      if (!this.state.hasChanged) {
+        history.push(`/${categoriesPath}/${categoryId}`)
+      } else {
+        this.setState({showDialog: true})
+      }
+    }
+  }
+
+  onCloseClick = () => {
+    const { closeDialog } = this.props
+    if (closeDialog) {
+      closeDialog()
+    }
   }
 
   onEditClick = () => {
-    this.props.changeView('edit')
+    const { mode, changeAccess} = this.props
+    if (mode === 'normal') {
+      changeAccess('edit')
+    } else if (mode === 'temporal') {
+      this.changeCurrentRelation({access:'edit'})
+    }
   }
 
-  onViewClick = () => {
-    this.setState({checkWhenInfoMode: true})
+  onInfoClick = () => {
+    const { mode, changeAccess} = this.props
+    if (mode === 'normal') {
+      if (!this.state.hasChanged) {
+        changeAccess('info')
+      }   else {
+        this.setState({showDialog: true})
+      }
+    } else if (mode === 'temporal') {
+      this.changeCurrentRelation({access:'info'})
+    }
+    //this.setState({checkWhenInfoMode: true})
   }
 
   onRemoveClick = () => {
@@ -69,26 +96,18 @@ class CategoryItemDetailHeader extends Component {
     this.setState({anchorEl: null})
   }
 
-  whenInfoModeWithChanges = () => {
-    this.setState({showWhenInfoModeDialog: true})
-  }
-
-  whenInfoModeWithoutChanges = () => {
-    const { categoriesPath, categoryId, history, changeView } = this.props
-    if (this.state.checkWhenBack) {
-      history.push(`/${categoriesPath}/${categoryId}`)
-    } else {
-      changeView('info')
-    }
-    this.setState({checkWhenBack: false, checkWhenInfoMode: false, showWhenInfoModeDialog:false})
-  }
-
-  whenDifferentValues = () => {
+  onDifferentValues = () => {
     this.setState({hasChanged: true})
   }
 
-  whenSameValues = () => {
+  onEqualValues = () => {
     this.setState({hasChanged: false})
+  }
+
+  onChangeForm = values => {
+    if (this.props.mode === 'temporal') {
+      this.changeCurrentRelation({values})
+    }
   }
 
   render = () => {
@@ -97,8 +116,8 @@ class CategoryItemDetailHeader extends Component {
       categoriesPath,
       itemId,
       title,
-      view,
-      changeView,
+      mode,
+      access,
       itemLabel,
       isReadonly,
       categoryStates,
@@ -110,24 +129,32 @@ class CategoryItemDetailHeader extends Component {
       getNextStatesAsOperations,
       isFetchingItem,
       isUpdating,
+      openRelations,
       history
     } = this.props
     const {
-      checkWhenInfoMode,
-      checkWhenBack,
-      showWhenInfoModeDialog,
+      showDialog,
       hasChanged,
       anchorEl
     } = this.state
+
+    let valuesForm = item
+    let accessForm = access
+    if (mode === 'temporal') {
+      const { activeIndex, list } = openRelations
+      const tempValues = list[activeIndex].values
+      valuesForm = tempValues ? tempValues : item
+      accessForm = list[activeIndex].access
+    }
+
     const nextStatesOperations = getNextStatesAsOperations({
       itemId,
       itemValues: item,
       itemTitle: title
     })
     const hiddenChangeStateOp = 
-      view === 'edit' || !categoryStates || !Object.keys(categoryStates.list || {}).length
-    const disabledChangeStateOp =
-      !nextStatesOperations.length
+      accessForm === 'edit' || !categoryStates || !Object.keys(categoryStates.list || {}).length
+    const disabledChangeStateOp = !nextStatesOperations.length
     const editDescription =
       isReadonly ? 
         `It can not be edited because this ${itemLabel} is ${itemState.label.toLowerCase()}` : 
@@ -140,18 +167,61 @@ class CategoryItemDetailHeader extends Component {
         backgroundColor={itemState ? itemState.color : null}
         loading={isFetchingSettings || isFetchingFields || isFetchingItem || isUpdating }
         operations={[
-          {id:'arrowBack', icon:ArrowBack, onClick:this.onBackClick},
-          {id:'edit', icon:Edit, right:true, disabled:isReadonly,
-            description: editDescription, descriptionWhenDisabled: true, 
-            hidden:view==='edit', onClick:this.onEditClick},
-          {id:'changeState', icon:Directions, right:true, hidden:hiddenChangeStateOp,
-            description: 'Change state', disabled:disabledChangeStateOp, onClick:this.onChangeStateClick},
-          {id:'view', icon:Subtitles, right:true, description:'View',
-            hidden:view==='info', onClick:this.onViewClick},
-          {id:'delete', icon:Delete, right:true, hidden:view==='edit',
-            description: 'Delete', onClick:this.onRemoveClick},
-          {id:'save', icon:Check, right:true, hidden:view==='info', description: 'Save',
-            disabled:!hasChanged || isUpdating, onClick:this.onCheckClick}
+          {
+            id: 'arrowBack',
+            icon: ArrowBack,
+            hidden: mode !== 'normal',
+            onClick: this.onBackClick
+          },
+          {
+            id: 'close',
+            icon: Close,
+            hidden: mode !== 'temporal' || openRelations.list.length > 1,
+            onClick: this.onCloseClick
+          },
+          {
+            id: 'edit',
+            icon: Edit,
+            right: true,
+            disabled: isReadonly,
+            description: editDescription,
+            descriptionWhenDisabled: true, 
+            hidden: accessForm === 'edit',
+            onClick: this.onEditClick
+          },
+          {
+            id: 'info',
+            icon: Subtitles,
+            right: true,
+            description: 'view',
+            hidden: accessForm === 'info',
+            onClick: this.onInfoClick
+          },
+          {
+            id: 'changeState',
+            icon: Directions,
+            right: true,
+            hidden: hiddenChangeStateOp,
+            description: 'Change state',
+            disabled: disabledChangeStateOp,
+            onClick: this.onChangeStateClick
+          },
+          {
+            id:'delete',
+            icon: Delete,
+            right: true,
+            hidden: accessForm === 'edit' || mode !== 'normal',
+            description: 'Delete',
+            onClick: this.onRemoveClick
+          },
+          {
+            id: 'save',
+            icon: Check,
+            right: true,
+            hidden: accessForm === 'info',
+            description: 'Save',
+            disabled: !hasChanged || isUpdating, onClick:this.onCheckClick
+          }
         ]}
       >
         <React.Fragment>
@@ -160,18 +230,13 @@ class CategoryItemDetailHeader extends Component {
             readonly={isReadonly}
             view="detail"
             fields={fields}
-            values={item}
-            handleSubmit={this.updateItem}
+            values={valuesForm}
             formRef={el => this.formElement = el}
-            infoMode={view === 'info'}
-            checks={[
-              {handler:checkWhenInfoMode, when:'hasChanged', callback:this.whenInfoModeWithChanges},
-              {handler:checkWhenBack, when:'hasChanged', callback:this.whenInfoModeWithChanges},
-              {handler:checkWhenInfoMode, when:'hasNotChanged', callback:this.whenInfoModeWithoutChanges},
-              {handler:checkWhenBack, when:'hasNotChanged', callback:this.whenInfoModeWithoutChanges}
-            ]}
-            onDifferentValues={this.whenDifferentValues}
-            onEqualValues={this.whenSameValues}
+            infoMode={accessForm === 'info'}
+            handleSubmit={this.updateItem}
+            onChange={this.onChangeForm}
+            onDifferentValues={this.onDifferentValues}
+            onEqualValues={this.onEqualValues}
           />
 
           <Menu
@@ -182,18 +247,15 @@ class CategoryItemDetailHeader extends Component {
           />
 
           <ConfirmationDialog
-            open={showWhenInfoModeDialog}
+            open={showDialog}
             message='Your changes have not been saved yet. Are you sure to want to continue?'
             onAccept={() => {
-              if (this.state.checkWhenBack) {
+              if (mode === 'normal') {
                 history.push(`/${categoriesPath}/${categoryId}`)
-              } else {
-                document.dispatchEvent(new Event('restart-form'))
               }
-              changeView('info')
             }}
             onClose={() => {
-              this.setState({checkWhenBack: false, checkWhenInfoMode: false, showWhenInfoModeDialog: false})
+              this.setState({showDialog: false})
             }}
           />
 

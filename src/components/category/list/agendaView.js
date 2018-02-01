@@ -315,7 +315,7 @@ class CategoryAgendaView extends Component {
               }},
               {id:'edit', hidden:this.isReadonlyItem(itemMenuClickedId), icon:Edit, label: 'Edit',
                 onClick:() => {
-                  history.replace(`/${categoriesPath}/${categoryId}/${itemMenuClickedId}`, {view: 'edit'})
+                  history.replace(`/${categoriesPath}/${categoryId}/${itemMenuClickedId}`, {access: 'edit'})
                   this.setState({anchorEl: null})
                 }
               },

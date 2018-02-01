@@ -254,7 +254,7 @@ class Category extends Component {
               {this.confirmationDialog()}
             </React.Fragment>
           )
-        case 'relation': 
+        case 'relation':
           return <CategoryList {...commonListProps} title={title} editable={editable} onChange={onChange} />
         case 'selection':
           return (
@@ -283,16 +283,19 @@ class Category extends Component {
               {this.confirmationDialog()}
             </React.Fragment>
           )
-        case 'tabs': {
+        case 'tabs':
           return (
-            <Dialog open={open} onClose={onClose} onExited={onExited}>
+            <Dialog disableBackdropClick disableEscapeKeyDown open={open} onClose={onClose} onExited={onExited}>
               <CategoryItemDetail
                 {...commonDetailProps}
                 closeDialog={onClose}
               />
             </Dialog>
           )
-        }
+        case 'temporal':
+          return (
+            <CategoryItemDetail {...commonDetailProps} closeDialog={onClose} />
+          )
         default:
           return <CategoryItemDetail {...commonDetailProps} />
       }
@@ -316,7 +319,7 @@ class Category extends Component {
 Category.propTypes = {
 
   scene: PropTypes.oneOf(['list', 'detail', 'new']),
-  mode: PropTypes.oneOf(['normal', 'relation', 'selection', 'tabs']),
+  mode: PropTypes.oneOf(['normal', 'relation', 'selection', 'tabs', 'temporal']),
   categoryId: PropTypes.string.isRequired,
   itemId: PropTypes.string,
   itemIds: PropTypes.array,

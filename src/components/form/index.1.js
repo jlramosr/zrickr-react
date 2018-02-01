@@ -106,7 +106,6 @@ class Form extends Component {
   state = {
     item: null, //all complete item with simple fields and relations fields.
     isSubmitting: false,
-    isChanging: false,
     hasChanged: false
   }
 
@@ -117,13 +116,24 @@ class Form extends Component {
   }
 
   componentWillReceiveProps = nextProps => {
-    const { values, fields } = this.props
+    const { item } = this.state
+    const { checks, values, fields } = this.props
     if (!isEqual(values, nextProps.values)) {
       this.setState({
         item: new Item({fields, values: nextProps.values})
       })
       return
     }
+    checks.forEach((check, index) => {
+      const oldCheckHandler = check.handler
+      let newCheckHandler = nextProps.checks[index].handler
+      newCheckHandler = newCheckHandler === undefined ? true : newCheckHandler
+      const checkCallback = check.callback
+      const checkCondition = this.checkCondition(check.when)
+      if ((oldCheckHandler !== newCheckHandler) && newCheckHandler && checkCallback && (checkCondition !== false)) {
+        checkCallback(item.getValues())
+      }
+    })
   }
 
   componentDidMount() {
@@ -168,33 +178,23 @@ class Form extends Component {
    * @returns {void}
 	 */
   handleFieldChange = (fieldId, value) => {
-    let { item, isChanging, hasChanged } = this.state
-    const { onChange, origValues, values, onDifferentValues, onEqualValues } = this.props
+    let { item, hasChanged } = this.state
+    const { origValues, values, onDifferentValues, onEqualValues } = this.props
     item.setValue(fieldId, value)
     this.setState({item})
-
-    if (!isChanging) {
-      this.setState({isChanging: true})
-      setTimeout(() => {
-        const currentValues = item.getValues()
-        if (onChange) {
-          onChange(currentValues)
-        }
-        const isDifferentFromOrigin = !isEqual(currentValues, origValues || values)
-        if (!hasChanged && isDifferentFromOrigin) {
-          if (onDifferentValues) {
-            onDifferentValues()
-          }
-          this.setState({hasChanged: true})
-        }
-        if (hasChanged && !isDifferentFromOrigin) {
-          if (onEqualValues) {
-            onEqualValues()
-          }
-          this.setState({hasChanged: false})
-        }
-        this.setState({isChanging: false})
-      }, 100)
+    const currentValues = item.getValues()
+    const isDifferentFromOrigin = !isEqual(currentValues, origValues || values)
+    if (!hasChanged && isDifferentFromOrigin) {
+      if (onDifferentValues) {
+        onDifferentValues(currentValues)
+      }
+      this.setState({hasChanged: true})
+    }
+    if (hasChanged && !isDifferentFromOrigin) {
+      if (onEqualValues) {
+        onEqualValues()
+      }
+      this.setState({hasChanged: false})
     }
   }
   
@@ -229,6 +229,17 @@ class Form extends Component {
     this.setState({hasChanged: false, item: new Item({fields, values: origValues || values})})
     if (onEqualValues) {
       onEqualValues()
+    }
+  }
+
+  checkCondition = condition => {
+    switch (condition) {
+      case 'hasChanged':
+        return this.state.hasChanged
+      case 'hasNotChanged':
+        return !this.state.hasChanged
+      default:
+        return null
     }
   }
 
