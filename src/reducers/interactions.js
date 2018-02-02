@@ -61,9 +61,10 @@ const interactions = (state = initialInteractionsState, action) => {
         }
       }
     case ADD_OPEN_RELATION: {
-      const filter = state.openRelations.list.filter(relation =>
-        (relation.categoryId === action.categoryId) && (relation.itemId === action.itemId)
-      )
+      const filter = state.openRelations.list.filter(relation => {
+        const { categoryId, itemId } = action.relation
+        return (relation.categoryId === categoryId) && (relation.itemId === itemId)
+      })
       const index = state.openRelations.list.indexOf(filter[0])
       if (index > -1) {
         return {

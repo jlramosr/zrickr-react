@@ -13,19 +13,17 @@ import Subtitles from 'material-ui-icons/Subtitles'
 import Delete from 'material-ui-icons/Delete'
 
 class CategoryItemDetailHeader extends Component {
-  initialState = {
-    showDialog: false,
-    hasChanged: false,
-    anchorEl: null
-  }
-
-  state = this.initialState
-
-  changeCurrentRelation = newProps => {
-    const { changeOpenRelation, openRelations } = this.props
-    const activeIndex = openRelations.activeIndex
-    const relation = openRelations.list[activeIndex]
-    changeOpenRelation(activeIndex, {...relation, ...newProps})
+  constructor(props) {
+    super(props)
+    this.state = {
+      /** 
+       * for normal mode
+       */ 
+      hasChanged: false,
+      openDialog: false,
+      actionDialog: '',
+      anchorEl: null
+    }
   }
 
   updateItem = values => {
@@ -35,21 +33,30 @@ class CategoryItemDetailHeader extends Component {
     })
   }
 
+  changeCurrentRelation = newProps => {
+    const { mode, changeOpenRelation, openRelations } = this.props
+    if (mode === 'temporal') {
+      const activeIndex = openRelations.activeIndex
+      const relation = openRelations.list[activeIndex]
+      changeOpenRelation(activeIndex, {...relation, ...newProps})
+    }
+
+  }
+
   onBackClick = () => {
     const { mode, categoriesPath, categoryId, history } = this.props
     if (mode === 'normal') {
-      //this.setState({checkWhenBack: true})
       if (!this.state.hasChanged) {
         history.push(`/${categoriesPath}/${categoryId}`)
       } else {
-        this.setState({showDialog: true})
+        this.setState({openDialog: true, actionDialog:'update-back'})
       }
     }
   }
 
   onCloseClick = () => {
-    const { closeDialog } = this.props
-    if (closeDialog) {
+    const { closeDialog, mode } = this.props
+    if (mode === 'temporal' && closeDialog) {
       closeDialog()
     }
   }
@@ -64,22 +71,23 @@ class CategoryItemDetailHeader extends Component {
   }
 
   onInfoClick = () => {
-    const { mode, changeAccess} = this.props
+    const { mode, changeAccess, openRelations } = this.props
     if (mode === 'normal') {
-      if (!this.state.hasChanged) {
+      this.state.hasChanged ?
+        this.setState({openDialog: true, actionDialog: 'update-info'}) :
         changeAccess('info')
-      }   else {
-        this.setState({showDialog: true})
-      }
     } else if (mode === 'temporal') {
-      this.changeCurrentRelation({access:'info'})
+      const { activeIndex, list } = openRelations
+      list[activeIndex].tempValues ?
+        this.setState({openDialog: true, actionDialog: 'update-info'}) :
+        this.changeCurrentRelation({access:'info'})
     }
-    //this.setState({checkWhenInfoMode: true})
   }
 
   onRemoveClick = () => {
-    const { onRemoveItem, itemId, title } = this.props
-    onRemoveItem(itemId, title)
+    if (this.props.mode === 'normal') {
+      this.setState({openDialog: true, actionDialog: 'remove'})
+    }
   }
 
   onCheckClick = () => {
@@ -96,17 +104,25 @@ class CategoryItemDetailHeader extends Component {
     this.setState({anchorEl: null})
   }
 
+  onChangeForm = tempValues => {
+    if (this.props.mode === 'temporal') {
+      this.changeCurrentRelation({tempValues})
+    }
+  }
+
   onDifferentValues = () => {
-    this.setState({hasChanged: true})
+    const { mode } = this.props
+    if (mode === 'normal') {
+      this.setState({hasChanged: true})
+    }
   }
 
   onEqualValues = () => {
-    this.setState({hasChanged: false})
-  }
-
-  onChangeForm = values => {
-    if (this.props.mode === 'temporal') {
-      this.changeCurrentRelation({values})
+    const { mode } = this.props
+    if (mode === 'normal') {
+      this.setState({hasChanged: false})
+    } else if (mode === 'temporal') {
+      this.changeCurrentRelation({tempValues: null})
     }
   }
 
@@ -133,18 +149,25 @@ class CategoryItemDetailHeader extends Component {
       history
     } = this.props
     const {
-      showDialog,
-      hasChanged,
+      openDialog,
+      actionDialog,
       anchorEl
     } = this.state
 
-    let valuesForm = item
-    let accessForm = access
+    if (this.fieldEditor1)
+      console.log(this.fieldEditor1);
+
+    let formValues = item
+    let formAccess = access
+    let tempItem = null
+    let hasChanged = this.state.hasChanged
     if (mode === 'temporal') {
       const { activeIndex, list } = openRelations
-      const tempValues = list[activeIndex].values
-      valuesForm = tempValues ? tempValues : item
-      accessForm = list[activeIndex].access
+      tempItem = list[activeIndex]
+      const { tempValues, access } = tempItem
+      formValues = tempValues ? tempValues : item
+      hasChanged = tempValues ? true : false
+      formAccess = access
     }
 
     const nextStatesOperations = getNextStatesAsOperations({
@@ -153,10 +176,10 @@ class CategoryItemDetailHeader extends Component {
       itemTitle: title
     })
     const hiddenChangeStateOp = 
-      accessForm === 'edit' || !categoryStates || !Object.keys(categoryStates.list || {}).length
+      formAccess === 'edit' || !categoryStates || !Object.keys(categoryStates.list || {}).length
     const disabledChangeStateOp = !nextStatesOperations.length
     const editDescription =
-      isReadonly ? 
+      isReadonly ?
         `It can not be edited because this ${itemLabel} is ${itemState.label.toLowerCase()}` : 
         'Edit'
 
@@ -186,7 +209,7 @@ class CategoryItemDetailHeader extends Component {
             disabled: isReadonly,
             description: editDescription,
             descriptionWhenDisabled: true, 
-            hidden: accessForm === 'edit',
+            hidden: formAccess === 'edit',
             onClick: this.onEditClick
           },
           {
@@ -194,7 +217,7 @@ class CategoryItemDetailHeader extends Component {
             icon: Subtitles,
             right: true,
             description: 'view',
-            hidden: accessForm === 'info',
+            hidden: formAccess === 'info',
             onClick: this.onInfoClick
           },
           {
@@ -210,7 +233,7 @@ class CategoryItemDetailHeader extends Component {
             id:'delete',
             icon: Delete,
             right: true,
-            hidden: accessForm === 'edit' || mode !== 'normal',
+            hidden: formAccess === 'edit' || mode !== 'normal',
             description: 'Delete',
             onClick: this.onRemoveClick
           },
@@ -218,9 +241,10 @@ class CategoryItemDetailHeader extends Component {
             id: 'save',
             icon: Check,
             right: true,
-            hidden: accessForm === 'info',
+            hidden: formAccess === 'info',
             description: 'Save',
-            disabled: !hasChanged || isUpdating, onClick:this.onCheckClick
+            disabled: isUpdating || !hasChanged,
+            onClick:this.onCheckClick
           }
         ]}
       >
@@ -230,9 +254,11 @@ class CategoryItemDetailHeader extends Component {
             readonly={isReadonly}
             view="detail"
             fields={fields}
-            values={valuesForm}
+            values={formValues}
+            origValues={mode === 'temporal' ? item : null}
+            infoMode={formAccess === 'info'}
+            ref={fieldEditor1 => this.fieldEditor1 = fieldEditor1}
             formRef={el => this.formElement = el}
-            infoMode={accessForm === 'info'}
             handleSubmit={this.updateItem}
             onChange={this.onChangeForm}
             onDifferentValues={this.onDifferentValues}
@@ -247,15 +273,30 @@ class CategoryItemDetailHeader extends Component {
           />
 
           <ConfirmationDialog
-            open={showDialog}
-            message='Your changes have not been saved yet. Are you sure to want to continue?'
+            open={openDialog}
+            message={
+              actionDialog.startsWith('update') ? 
+                'Your changes have not been saved yet. Are you sure to want to continue?': 
+                `Are you sure you want to remove ${title}`
+            }
             onAccept={() => {
               if (mode === 'normal') {
-                history.push(`/${categoriesPath}/${categoryId}`)
+                if (actionDialog === 'update-back') {
+                  history.push(`/${categoriesPath}/${categoryId}`)
+                } else if (actionDialog === 'update-info') {
+                  document.dispatchEvent(new Event('restart-form'))
+                  this.props.changeAccess('info')
+                } else if (actionDialog === 'remove') {
+                  const { onRemoveItem, itemId, title } = this.props
+                  onRemoveItem(itemId, title)
+                }
+              } else if (mode === 'temporal' && actionDialog === 'update-info') {
+                document.dispatchEvent(new Event('restart-form'))
+                this.changeCurrentRelation({access: 'info', tempValues: null})
               }
             }}
             onClose={() => {
-              this.setState({showDialog: false})
+              this.setState({openDialog: false, actionDialog: ''})
             }}
           />
 

@@ -44,13 +44,6 @@ class CategoryItemDetail extends Component {
     this.setState({access})
   }
 
-  changeCurrentRelation = newProps => {
-    const { changeOpenRelation, openRelations } = this.props
-    const activeIndex = openRelations.activeIndex
-    const relation = openRelations.list[activeIndex]
-    changeOpenRelation(activeIndex, {...relation, ...newProps})
-  }
-
   render = () => {
     const { categoryStates, mode, item } = this.props 
     const { access } = this.state
@@ -63,7 +56,6 @@ class CategoryItemDetail extends Component {
       ...this.props,
       access,
       changeAccess: this.changeAccess,
-      changeCurrentRelation: this.changeCurrentRelation,
       title: this.getTitle(),
       itemState: this.getCurrentState(),
       isReadonly: categoryStates && categoryStates.readonly.includes(item.state)

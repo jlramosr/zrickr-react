@@ -333,7 +333,6 @@ Form.propTypes = {
   values: PropTypes.object.isRequired,
   handleSubmit: PropTypes.func.isRequired,
   formRef: PropTypes.func.isRequired,
-  checks: PropTypes.array,
   onDifferentValues: PropTypes.func,
   onEqualValues: PropTypes.func,
   classes: PropTypes.object.isRequired,
@@ -343,7 +342,6 @@ Form.propTypes = {
 Form.defaultProps = {
   cols: 10,
   infoMode: false,
-  checks: [],
   readonly: false
 }
 

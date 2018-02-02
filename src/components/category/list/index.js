@@ -134,6 +134,7 @@ class CategoryList extends Component {
     const relation = {
       categoryId,
       itemId,
+      tempValues: null,
       access: 'info',
       title: itemTitle,
       itemLabel
