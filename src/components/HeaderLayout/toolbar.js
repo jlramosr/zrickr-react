@@ -68,8 +68,7 @@ const styles = theme => ({
   mainInfoTitle: {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-    textTransform: 'capitalize'
+    whiteSpace: 'nowrap'
   },
   mainInfoDescription: {
     overflow: 'hidden',
@@ -94,7 +93,7 @@ const styles = theme => ({
     opacity: 0,
     zIndex: theme.zIndex.appBar+1,
     maxWidth: `calc(100% - ${theme.spacing.unit*10}px)`,
-    transition: theme.transitions.create(['background-color', 'opacity', 'max-width', 'width'], {
+    transition: theme.transitions.create('all', {
       duration: theme.transitions.duration.standard,
       easing: theme.transitions.easing.sharp
     })
@@ -245,12 +244,17 @@ class CustomToolbar extends Component {
           top: 0,
           left: 0,
           opacity: 1,
-          width: searchInputFocused ? '100%' : '90%',
-          maxWidth: searchInputFocused ? 300 : 240
+          width: searchInputFocused || relative ? '100%' : '90%',
+          maxWidth: searchInputFocused || relative ? 300 : 240
+        }
+        if (relative) {
+          searchBarComputedStyle = {
+            ...searchBarComputedStyle,
+            transition: 'none'
+          }
         }
       }
     }
-
 
     /* OPERATIONS */
     const leftOperations = operations.filter(operation => !operation.right)

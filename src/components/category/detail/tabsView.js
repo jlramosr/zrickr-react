@@ -76,17 +76,19 @@ const styles = theme => ({
 })
 
 class CategoryItemDetailTabs extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      hoverTab: -1
-    }
+  state = {
+    showCloseDialog: false,
+    hoverTab: -1
   }
 
   onCloseClick = () => {
-    const { closeDialog, closeRelations } = this.props
-    closeDialog()
-    closeRelations()
+    const { openRelations, closeDialog, closeRelations } = this.props
+    if (openRelations.list.find(relation => Boolean(relation.tempValues))) {
+      this.setState({showCloseDialog: true})
+    } else {
+      closeDialog()
+      closeRelations()
+    }
   }
 
   onCloseTabClick = index => {
@@ -118,20 +120,14 @@ class CategoryItemDetailTabs extends Component {
   }
 
   render = () => {
-    const {
-      openRelations,
-      windowSize,
-      classes
-    } = this.props
-    const {
-      showWhenInfoModeDialog, 
-      showWhenCloseDialog
-    } = this.state
+    const { openRelations, windowSize, classes } = this.props
+    const { showCloseDialog } = this.state
 
     const { activeIndex, list } = openRelations
 
     const tabs = list
-    const currentRelation = tabs[activeIndex]
+    const currentRelation = list[activeIndex]
+    console.log("HOLA", currentRelation, list);
 
     const smallSize = windowSize === 'xs' || windowSize === 'sm'
     const tabsContainerStyle = {
@@ -221,20 +217,14 @@ class CategoryItemDetailTabs extends Component {
         />
 
         <ConfirmationDialog
-          open={showWhenCloseDialog}
+          open={showCloseDialog}
           message='There are items that are not saving yet. Are you sure to want to continue?'
-          onAccept={this.whenAcceptClose}
-          onCancel={() => this.setState({checkWhenClose: false, showWhenCloseDialog:false})}
-        />
-
-        <ConfirmationDialog
-          open={showWhenInfoModeDialog}
-          message='Changes of current item have not been saved yet. Are you sure to want to continue?'
           onAccept={() => {
-            this.whenInfoModeWithoutChanges()
-            document.dispatchEvent(new Event('restart-form'))
+            const { closeDialog, closeRelations } = this.props
+            closeDialog()
+            closeRelations()
           }}
-          onCancel={() => this.setState({checkWhenInfoMode: false, showWhenInfoModeDialog:false})}
+          onClose={() => this.setState({showCloseDialog: false})}
         />
 
       </React.Fragment>

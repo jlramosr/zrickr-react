@@ -13,17 +13,14 @@ import Subtitles from 'material-ui-icons/Subtitles'
 import Delete from 'material-ui-icons/Delete'
 
 class CategoryItemDetailHeader extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      /** 
-       * for normal mode
-       */ 
-      hasChanged: false,
-      openDialog: false,
-      actionDialog: '',
-      anchorEl: null
-    }
+  state = {
+    /** 
+     * for normal mode
+     */ 
+    hasChanged: false,
+    openDialog: false,
+    actionDialog: '',
+    anchorEl: null
   }
 
   updateItem = values => {
@@ -55,9 +52,12 @@ class CategoryItemDetailHeader extends Component {
   }
 
   onCloseClick = () => {
-    const { closeDialog, mode } = this.props
-    if (mode === 'temporal' && closeDialog) {
-      closeDialog()
+    const { mode, openRelations, closeDialog } = this.props
+    if (mode === 'temporal') {
+      const { activeIndex, list } = openRelations
+      list[activeIndex].tempValues ?
+        this.setState({openDialog: true, actionDialog:'update-back'}) :
+        closeDialog()
     }
   }
 
@@ -85,9 +85,8 @@ class CategoryItemDetailHeader extends Component {
   }
 
   onRemoveClick = () => {
-    if (this.props.mode === 'normal') {
-      this.setState({openDialog: true, actionDialog: 'remove'})
-    }
+    const { onRemoveItem, itemId, title } = this.props
+    onRemoveItem(itemId, title)
   }
 
   onCheckClick = () => {
@@ -146,6 +145,7 @@ class CategoryItemDetailHeader extends Component {
       isFetchingItem,
       isUpdating,
       openRelations,
+      closeDialog,
       history
     } = this.props
     const {
@@ -153,9 +153,6 @@ class CategoryItemDetailHeader extends Component {
       actionDialog,
       anchorEl
     } = this.state
-
-    if (this.fieldEditor1)
-      console.log(this.fieldEditor1);
 
     let formValues = item
     let formAccess = access
@@ -257,7 +254,6 @@ class CategoryItemDetailHeader extends Component {
             values={formValues}
             origValues={mode === 'temporal' ? item : null}
             infoMode={formAccess === 'info'}
-            ref={fieldEditor1 => this.fieldEditor1 = fieldEditor1}
             formRef={el => this.formElement = el}
             handleSubmit={this.updateItem}
             onChange={this.onChangeForm}
@@ -274,11 +270,7 @@ class CategoryItemDetailHeader extends Component {
 
           <ConfirmationDialog
             open={openDialog}
-            message={
-              actionDialog.startsWith('update') ? 
-                'Your changes have not been saved yet. Are you sure to want to continue?': 
-                `Are you sure you want to remove ${title}`
-            }
+            message={'Your changes have not been saved yet. Are you sure to want to continue?'}
             onAccept={() => {
               if (mode === 'normal') {
                 if (actionDialog === 'update-back') {
@@ -286,13 +278,14 @@ class CategoryItemDetailHeader extends Component {
                 } else if (actionDialog === 'update-info') {
                   document.dispatchEvent(new Event('restart-form'))
                   this.props.changeAccess('info')
-                } else if (actionDialog === 'remove') {
-                  const { onRemoveItem, itemId, title } = this.props
-                  onRemoveItem(itemId, title)
                 }
-              } else if (mode === 'temporal' && actionDialog === 'update-info') {
-                document.dispatchEvent(new Event('restart-form'))
-                this.changeCurrentRelation({access: 'info', tempValues: null})
+              } else if (mode === 'temporal') {
+                if (actionDialog === 'update-info') {
+                  document.dispatchEvent(new Event('restart-form'))
+                  this.changeCurrentRelation({access: 'info', tempValues: null})
+                } else if (actionDialog === 'update-back') {
+                  closeDialog()
+                }
               }
             }}
             onClose={() => {

@@ -35,10 +35,10 @@ class ConfirmationDialog extends Component {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => this.handleClose('cancel')} color="primary">
+          <Button onClick={() => this.handleClose('cancel')} color="primary" autoFocus>
             No
           </Button>
-          <Button onClick={() => this.handleClose('accept')} color="primary" autoFocus>
+          <Button onClick={() => this.handleClose('accept')} color="primary">
             Yes
           </Button>
         </DialogActions>

@@ -19,8 +19,7 @@ const initialInteractionsState = {
   openRelations: {
     list: [],
     isShowing: false,
-    activeIndex: -1,
-    repeatedIndex: -1
+    activeIndex: -1
   }
 }
 
@@ -71,8 +70,7 @@ const interactions = (state = initialInteractionsState, action) => {
           ...state,
           openRelations: {
             ...state.openRelations,
-            activeIndex: index,
-            repeatedIndex: index
+            activeIndex: index
           }
         }
       }
@@ -84,8 +82,7 @@ const interactions = (state = initialInteractionsState, action) => {
             ...state.openRelations.list,
             {...action.relation}
           ],
-          activeIndex: state.openRelations.list.length,
-          repeatedIndex: -1
+          activeIndex: state.openRelations.list.length
         }
       }
     }
@@ -94,8 +91,7 @@ const interactions = (state = initialInteractionsState, action) => {
         ...state,
         openRelations: {
           ...state.openRelations,
-          activeIndex: action.index,
-          repeatedIndex: -1
+          activeIndex: action.index
         }
       }
     case CHANGE_OPEN_RELATION:
@@ -127,8 +123,7 @@ const interactions = (state = initialInteractionsState, action) => {
         openRelations: {
           ...state.openRelations,
           list: [],
-          activeIndex: -1,
-          repeatedIndex: -1
+          activeIndex: -1
         }
       }
     default:

@@ -278,7 +278,7 @@ class CategoryList extends Component {
         relativeHeight={relationMode ? 200 : null}
         secondaryToolbar={relationMode}
         overflow={view === 'table' ? 'hidden' : 'auto'}
-        title={title || categoryLabel}
+        title={`${capitalize(title || categoryLabel)}`}
         updateSearchQuery={view === 'agenda' ? this.updateSearchQuery : null}
         loading={isFetchingSettings || isFetchingFields || isFetchingItems || isUpdating}
         operations={[
@@ -359,7 +359,7 @@ class CategoryList extends Component {
           />
         }
 
-        {!relationMode && editable &&
+        {!relationMode &&
           <Category
             scene="new"
             mode={mode}

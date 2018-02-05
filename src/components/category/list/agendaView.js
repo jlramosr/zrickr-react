@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import List, { ListItem, ListItemSecondaryAction, ListItemText } from 'material-ui/List'
 import Divider from 'material-ui/Divider'
 import Avatar from 'material-ui/Avatar'
-import Operation from '../../headerLayout/operation'
+import Tooltip from 'material-ui/Tooltip'
 import RemoveCircle from 'material-ui-icons/RemoveCircle'
 import Reply from 'material-ui-icons/Reply'
 import MoreVert from 'material-ui-icons/MoreVert'
@@ -183,6 +183,7 @@ class CategoryAgendaView extends Component {
 
     const relationMode = mode === 'relation'
     const selectionMode = mode === 'selection'
+    const showDense = mode !== 'normal'
 
     return (
       <React.Fragment>
@@ -191,7 +192,7 @@ class CategoryAgendaView extends Component {
             padding: classes.padding,
             dense: selectionMode ? classes.selectionDense : classes.relationDense
           }}
-          dense={mode !== 'normal'}
+          dense={showDense}
         >
           <ReactCSSTransitionGroup
             transitionName={{
@@ -236,13 +237,14 @@ class CategoryAgendaView extends Component {
               
               return (
                 <div key={item.id} className={itemClassName}>
-                  <ListItem 
+                  <ListItem
                     button={!isMarkedForRemove}
                     disableRipple
                     onClick={event => {
                       event.preventDefault()
                       onClickItem(item.id, primaryInfo)
                     }}
+                    dense={showDense}
                   >
                     {showAvatarWithImage &&
                       <Avatar><Icon>{item.image}</Icon></Avatar>
@@ -262,7 +264,7 @@ class CategoryAgendaView extends Component {
                       secondary={secondaryInfo}
                     />
                     {editable &&
-                      <ListItemSecondaryAction>
+                      <ListItemSecondaryAction style={{paddingTop: showDense ? 3 : 0}}>
                         <IconButton aria-label="Item Menu">
                           {!relationMode &&
                             <MoreVert style={{display: !editable ? 'none' : 'inherit'}}
@@ -270,27 +272,22 @@ class CategoryAgendaView extends Component {
                             />
                           }
                           {relationMode && isMarkedForRemove &&
-                            <Reply
-                              onClick={event => {
+                            <Tooltip title="Keep relation" placement="left" enterDelay={1000} leaveDelay={0}>
+                              <Reply onClick={event => {
                                 event.preventDefault()
                                 event.stopPropagation()  
                                 unmarkRemoveItems([item.id])
-                              }}
-                            />
+                              }}/>
+                            </Tooltip>
                           }
                           {relationMode && !isMarkedForRemove &&
-                            <Operation
-                              id="removeRelation"
-                              icon={RemoveCircle}
-                              small
-                              description="Remove relation"
-                              label="Remove relation"
-                              onClick={event => {
+                            <Tooltip title="Remove relation" placement="left" enterDelay={1000} leaveDelay={0}>
+                              <RemoveCircle onClick={event => {
                                 event.preventDefault()
                                 event.stopPropagation()
                                 markRemoveItems([item.id])
-                              }}
-                            />
+                              }}/>
+                            </Tooltip>
                           }
                         </IconButton>
                       </ListItemSecondaryAction>

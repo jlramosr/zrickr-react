@@ -12,6 +12,7 @@ class LargeDialog extends Component {
       windowSize,
       children,
       fullScreen,
+      dispatch,
       classes,
       ...rest
     } = this.props

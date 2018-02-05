@@ -117,10 +117,10 @@ class Form extends Component {
   }
 
   componentWillReceiveProps = nextProps => {
-    const { values, fields } = this.props
-    if (!isEqual(values, nextProps.values)) {
+    const { values, fields } = nextProps
+    if (!isEqual(this.props.values, values) || !isEqual(this.props.fields, fields)) {
       this.setState({
-        item: new Item({fields, values: nextProps.values})
+        item: new Item({fields, values})
       })
       return
     }
