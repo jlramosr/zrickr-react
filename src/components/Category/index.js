@@ -240,9 +240,9 @@ class Category extends Component {
 
     if (scene === 'list') {
       const commonListProps = {
-        mode,
         categoryId,
         itemIds,
+        mode,
         onUpdateItem: this.onUpdateItem,
         getNextStatesAsOperations: this.getNextStatesAsOperations
       }
