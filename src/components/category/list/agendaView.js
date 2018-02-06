@@ -60,6 +60,13 @@ const styles = theme => ({
       duration: 600
     })
   },
+  activeItem: {
+    background: theme.palette.secondary.extraLight,
+    transition: theme.transitions.create('background', {
+      easing: theme.transitions.easing.easeOut,
+      duration: 600
+    })
+  },
   markAddedItem: {
     background: theme.palette.success.light,
     opacity: 0.95
@@ -126,6 +133,36 @@ class CategoryAgendaView extends Component {
     isSearching: false
   }
 
+  clickLatency = 500
+
+  onTapDown = (event, itemId) => {
+    const { mode, activeIds, addActiveId } = this.props
+    const massiveSelection = Boolean(activeIds.length)
+    this.itemPressedMoment = Date.now()
+    if (mode !== 'relation' && !massiveSelection) {
+      setTimeout(() => {
+        if (this.itemPressedMoment) {
+          addActiveId(itemId)
+          this.itemPressedMoment = null
+        }
+      }, this.clickLatency)
+    }
+  }
+
+  onTapUp = (event, itemId, primaryInfo) => {
+    const { mode, onClickItem, activeIds, addActiveId } = this.props
+    const massiveSelection = Boolean(activeIds.length)
+    const isClick = Date.now() - this.itemPressedMoment < this.clickLatency
+    if (mode === 'relation') {
+      onClickItem(itemId)
+    } else if (isClick && !massiveSelection) {
+      onClickItem(itemId, primaryInfo)
+    } else if (this.itemPressedMoment) {
+      addActiveId(itemId)
+    } 
+    this.itemPressedMoment = null
+  }
+
   componentWillReceiveProps = nextProps => {
     this.setState({
       isSearching: this.props.searchQuery !== nextProps.searchQuery
@@ -168,10 +205,10 @@ class CategoryAgendaView extends Component {
       showAvatar,
       mode,
       editable,
-      onClickItem,
       onRemoveItem,
       history,
       getNextStatesAsOperations,
+      activeIds,
       toAddIds,
       toRemoveIds,
       markRemoveItems,
@@ -182,7 +219,7 @@ class CategoryAgendaView extends Component {
     const {anchorEl, itemMenuClickedId, isSearching } = this.state
 
     const relationMode = mode === 'relation'
-    const selectionMode = mode === 'selection'
+    const selectionMode = mode === 'election'
     const showDense = mode !== 'normal'
 
     return (
@@ -211,11 +248,21 @@ class CategoryAgendaView extends Component {
             transitionAppearTimeout={200}
           >
             {items.map(item => {
-              const isMarkedForAdd = toAddIds ? toAddIds.includes(item.id) : false
-              const isMarkedForRemove = toRemoveIds ? toRemoveIds.includes(item.id) : false
-              const itemClassName = classes[
-                isMarkedForRemove ? 'markRemovedItem' : (isMarkedForAdd ? 'markAddedItem' : 'unmarkedItem')
-              ]
+              let isMarkedForRemove = false
+              let itemClassName = classes.unmarkedItem
+              if (mode !== 'relation') {
+                if (activeIds.includes(item.id)) {
+                  itemClassName = classes.activeItem
+                }
+              } else {
+                if (toRemoveIds && toRemoveIds.includes(item.id)) {
+                  isMarkedForRemove = true
+                  itemClassName = classes.isMarkedForRemove
+                } else if (toAddIds && toAddIds.includes(item.id)) {
+                  itemClassName = classes.markAddedItem
+                } 
+              }
+
               const primaryInfo = getItemString(item, primaryFields, primaryFieldsSeparator) || ' '
               const firstLetter = primaryInfo[0]
               const secondaryInfo = getItemString(item, secondaryFields, secondaryFieldsSeparator)
@@ -240,10 +287,10 @@ class CategoryAgendaView extends Component {
                   <ListItem
                     button={!isMarkedForRemove}
                     disableRipple
-                    onClick={event => {
-                      event.preventDefault()
-                      onClickItem(item.id, primaryInfo)
-                    }}
+                    onMouseDown={event => this.onTapDown(event, item.id)}
+                    onMouseUp={event => this.onTapUp(event, item.id, primaryInfo)}
+                    onTouchStart={event => this.onTapDown(event, item.id)}
+                    onTouchEnd={event => this.onTapUp(event, item.id, primaryInfo)}
                     dense={showDense}
                   >
                     {showAvatarWithImage &&
@@ -342,7 +389,7 @@ class CategoryAgendaView extends Component {
 }
 
 CategoryAgendaView.propTypes = {
-  mode: PropTypes.oneOf(['normal', 'relation', 'selection']).isRequired,
+  mode: PropTypes.oneOf(['normal', 'relation', 'election']).isRequired,
   categoryId: PropTypes.string.isRequired,
   items: PropTypes.array.isRequired,
   showAvatar: PropTypes.bool,

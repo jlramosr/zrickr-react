@@ -102,7 +102,7 @@ class CategoryItemDetailTabs extends Component {
     let nextTab = tab
     if (this.isRemovingTab) {
       if (tab <= activeIndex) {
-        nextTab = (activeIndex - 1) || 0
+        nextTab = activeIndex > 0 ? activeIndex - 1 : 0
       } else {
         nextTab = activeIndex
       }
@@ -127,7 +127,6 @@ class CategoryItemDetailTabs extends Component {
 
     const tabs = list
     const currentRelation = list[activeIndex]
-    console.log("HOLA", currentRelation, list);
 
     const smallSize = windowSize === 'xs' || windowSize === 'sm'
     const tabsContainerStyle = {
@@ -207,14 +206,16 @@ class CategoryItemDetailTabs extends Component {
         
         {tabs.length > 1 && <div className={classes.spaceBetween}></div>}
 
-        <Category
-          scene="detail"
-          mode="temporal"
-          categoryId={currentRelation.categoryId}
-          itemId={currentRelation.itemId}
-          onChange={this.onChangeForm}
-          onClose={this.onCloseClick}
-        />
+        {currentRelation &&
+          <Category
+            scene="detail"
+            mode="temporal"
+            categoryId={currentRelation.categoryId}
+            itemId={currentRelation.itemId}
+            onChange={this.onChangeForm}
+            onClose={this.onCloseClick}
+          />
+        }
 
         <ConfirmationDialog
           open={showCloseDialog}

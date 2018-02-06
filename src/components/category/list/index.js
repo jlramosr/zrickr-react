@@ -14,11 +14,42 @@ import Add from 'material-ui-icons/Add'
 import AddCircle from 'material-ui-icons/AddCircle'
 import ViewList from 'material-ui-icons/ViewList'
 import ViewAgenda from 'material-ui-icons/ViewAgenda'
+import Delete from 'material-ui-icons/Delete'
+import Snackbar from 'material-ui/Snackbar'
+import Button from 'material-ui/Button'
+import IconButton from 'material-ui/IconButton'
 import { showRelations, addOpenRelation, removeAllOpenRelations } from '../../../actions/interactions'
 import { capitalize } from './../../../utils/helpers'
 import { getItemString } from './../utils/helpers'
 import escapeRegExp from 'escape-string-regexp'
 import removeDiacritics from 'remove-diacritics'
+import { withStyles } from 'material-ui/styles'
+
+const styles = theme => ({
+  snackbar: {
+    top: 0,
+    left: 0,
+    right: 0,
+    display: 'flex',
+    overflow: 'hidden',
+    minHeight: theme.standards.toolbarHeights.mobilePortrait,
+    [`${theme.breakpoints.up('xs')} and (orientation: landscape)`]: {
+      minHeight: theme.standards.toolbarHeights.mobileLandscape
+    },
+    [theme.breakpoints.up('sm')]: {
+      minHeight: theme.standards.toolbarHeights.tabletDesktop
+    }
+  },
+  relativeSnackbar: {
+
+  },
+  snackbarContent: {
+    width: '100%',
+    flex: 1,
+    maxWidth: 'inherit',
+    flexWrap: 'inherit'
+  }
+})
 
 /**
  * A list with category items, showed in table or agenda shape.
@@ -27,6 +58,7 @@ class CategoryList extends Component {
   state = {
     searchQuery: '',
     foundItems: [],
+    activeIds: [],
     showNewDialog: false,
     showListDialog: false,
     showDetailDialog: false,
@@ -39,7 +71,7 @@ class CategoryList extends Component {
   componentWillMount = () => {
     const { items, mode, fetchItemsIfNeeded } = this.props
     if (fetchItemsIfNeeded) {
-      mode === 'relation' ? fetchItemsIfNeeded() : fetchItemsIfNeeded() //this.props.fetchItems()
+      mode === 'relation' ? fetchItemsIfNeeded() : this.props.fetchItems() //fetchItemsIfNeeded()
     }
     this.setState({ foundItems: items })
   }
@@ -62,11 +94,24 @@ class CategoryList extends Component {
     this._isMounted = false
   }
 
+  addActiveId = itemId => {
+    this.setState(prevState => {
+      let activeIds = prevState.activeIds
+      const index = activeIds.findIndex(id => id === itemId)
+      if (index < 0) {
+        activeIds = [...activeIds, itemId]
+      } else {
+        activeIds.splice(index, 1)
+      }
+      return {activeIds}
+    })
+  }
+
   onClickItem = (itemId, itemTitle='') => {
     const { mode, categoriesPath, categoryId, history, onSelect } = this.props
     if (mode === 'normal') {
       history.push(`/${categoriesPath}/${categoryId}/${itemId}`)
-    } else if (mode === 'selection') {
+    } else if (mode === 'election') {
       onSelect([itemId])
     } else if (mode === 'relation') {
       this.openDetailDialog(itemId, itemTitle)
@@ -224,11 +269,13 @@ class CategoryList extends Component {
       isUpdating,
       editable,
       openRelations,
-      removeAllOpenRelations
+      removeAllOpenRelations,
+      classes
     } = this.props
     const {
-      foundItems,
       searchQuery,
+      foundItems,
+      activeIds,
       showNewDialog,
       showListDialog,
       showDetailDialog,
@@ -247,6 +294,10 @@ class CategoryList extends Component {
       }, [])
     }
 
+    const showingItems = Object.values(foundItems).filter(item => (
+      allFilterIds ? allFilterIds.includes(item.id) : true
+    ))
+
     const toAddIds = (itemIds || []).filter(
       idState => idState.state ? idState.state === 'added' : false
     ).map(idState => idState.id)
@@ -254,19 +305,21 @@ class CategoryList extends Component {
       idState => idState.state ? idState.state === 'removed' : false
     ).map(idState => idState.id)
 
-    const showingItems = Object.values(foundItems).filter(item => (
-      allFilterIds ? allFilterIds.includes(item.id) : true
-    ))
 
     const commonProps = {
       ...this.props,
-      items: showingItems,
-      onClickItem: this.onClickItem,
-      searchQuery,
+
+      addActiveId: this.addActiveId,
+      activeIds,
+
       toAddIds,
       toRemoveIds,
       markRemoveItems: this.markRemoveRelations,
-      unmarkRemoveItems: this.unmarkRemoveRelations
+      unmarkRemoveItems: this.unmarkRemoveRelations,
+
+      items: showingItems,
+      searchQuery,
+      onClickItem: this.onClickItem
     }
 
     const { activeIndex } = openRelations
@@ -291,7 +344,7 @@ class CategoryList extends Component {
           { 
             id: 'close',
             icon: Close,
-            hidden: mode !== 'selection',
+            hidden: mode !== 'election',
             onClick: this.props.closeDialog
           },
           {
@@ -336,7 +389,7 @@ class CategoryList extends Component {
         {relationMode && editable &&
           <Category
             scene="list"
-            mode="selection"
+            mode="election"
             categoryId={categoryId}
             itemIds={this.props.items.map(item => item.id).filter(itemId =>
               !showingItems.map(item => item.id).includes(itemId)
@@ -369,6 +422,37 @@ class CategoryList extends Component {
           />
         }
 
+        <Snackbar
+          anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+          open={Boolean(activeIds.length)}
+          className={mode === 'relation' ? classes.relativeSnackbar : classes.snackbar}            
+          transitionDuration={{
+            enter: 200,
+            exit: 0
+          }}
+          SnackbarContentProps={{
+            className: classes.snackbarContent
+          }}
+          message={
+            <span>
+              {activeIds.length} selected
+            </span>
+          }
+          action={[
+            <Button key="undo" color="accent" dense onClick={this.handleRequestClose}>
+              UNDO
+            </Button>,
+            <IconButton
+              key="close"
+              aria-label="Close"
+              color="inherit"
+              onClick={this.handleRequestClose}
+            >
+              <Delete />
+            </IconButton>
+          ]}
+        />
+
       </HeaderLayout>
     )
   }
@@ -379,9 +463,9 @@ CategoryList.propTypes = {
   /**
    * List mode. 'Normal' mode indicates list belongs to the main category, so it's shown
    * in a normal view. When list is embedded in a item detail view, the mode is 'relation'.
-   * The selection mode shown a list in a dialog and one click on a item, produces an action.
+   * The election mode shown a list in a dialog and one click on a item, produces an action.
    */
-  mode: PropTypes.oneOf(['normal', 'relation', 'selection']).isRequired,
+  mode: PropTypes.oneOf(['normal', 'relation', 'election']).isRequired,
   /**
    * Unique indentifier of category. Available on parent element from route.
    */
@@ -554,5 +638,7 @@ const mapDispatchToProps = (dispatch, props) => ({
 })
 
 export default withRouter(
-  connect(mapStateToProps, mapDispatchToProps)(CategoryList)
+  withStyles(styles)(
+    connect(mapStateToProps, mapDispatchToProps)(CategoryList)
+  )
 )

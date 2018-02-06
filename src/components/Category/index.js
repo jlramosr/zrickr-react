@@ -256,7 +256,7 @@ class Category extends Component {
           )
         case 'relation':
           return <CategoryList {...commonListProps} title={title} editable={editable} onChange={onChange} />
-        case 'selection':
+        case 'election':
           return (
             <Dialog open={open} onClose={onClose}>
               <CategoryList {...commonListProps} onSelect={onSelect} closeDialog={onClose} />
@@ -319,7 +319,7 @@ class Category extends Component {
 Category.propTypes = {
 
   scene: PropTypes.oneOf(['list', 'detail', 'new']),
-  mode: PropTypes.oneOf(['normal', 'relation', 'selection', 'tabs', 'temporal']),
+  mode: PropTypes.oneOf(['normal', 'relation', 'election', 'tabs', 'temporal']),
   categoryId: PropTypes.string.isRequired,
   itemId: PropTypes.string,
   itemIds: PropTypes.array,

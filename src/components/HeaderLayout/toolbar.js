@@ -322,7 +322,7 @@ class CustomToolbar extends Component {
     
     return (
       <AppBar position="static" className={classes.appBar} style={appBarComputedStyle}>
-        <Toolbar className={classes.appBar} style={toolbarComputedStyle}>
+        <Toolbar disableGutters={smallMode} className={classes.appBar} style={toolbarComputedStyle}>
 
           <div className={classes.leftOperations}>
             <Operations
