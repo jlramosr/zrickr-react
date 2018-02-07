@@ -1,9 +1,10 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+import { renderRoutes } from 'react-router-config'
 import { MuiThemeProvider } from 'material-ui/styles'
 import { Provider } from 'react-redux'
 import { ConnectedRouter } from 'react-router-redux'
-import { renderRoutes } from 'react-router-config'
+//import PendingNavDataLoader from './pendingNavDataLoader'
 import store, { history } from './store'
 import routes from './routes'
 import theme from './theme'
@@ -14,7 +15,10 @@ ReactDOM.render(
   <MuiThemeProvider theme={theme}>
     <Provider store={store}>
       <ConnectedRouter history={history}>
-        {renderRoutes(routes)}
+        {
+          //<PendingNavDataLoader routes={routes} />*/
+          renderRoutes(routes)
+        }
       </ConnectedRouter>
     </Provider>
   </MuiThemeProvider>,

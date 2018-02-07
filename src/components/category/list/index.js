@@ -269,8 +269,7 @@ class CategoryList extends Component {
       isUpdating,
       editable,
       openRelations,
-      removeAllOpenRelations,
-      classes
+      removeAllOpenRelations
     } = this.props
     const {
       searchQuery,
@@ -305,9 +304,9 @@ class CategoryList extends Component {
       idState => idState.state ? idState.state === 'removed' : false
     ).map(idState => idState.id)
 
-
+    const { classes, ...rest } = this.props
     const commonProps = {
-      ...this.props,
+      ...rest,
 
       addActiveId: this.addActiveId,
       activeIds,

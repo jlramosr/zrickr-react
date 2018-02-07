@@ -47,21 +47,54 @@ const styles = theme => ({
   },
   itemText: {
     overflow: 'hidden',
-    whiteSpace: 'nowrap'
+    whiteSpace: 'nowrap',
+    pointerEvents: 'none'
   },
   itemTextContent: {
     overflow: 'hidden',
-    textOverflow: 'ellipsis'
+    textOverflow: 'ellipsis',
+    pointerEvents: 'none'
   },
-  unmarkedItem: {
+  defaultItem: {
     background: theme.palette.white,
     transition: theme.transitions.create('background', {
       easing: theme.transitions.easing.easeOut,
       duration: 600
-    })
+    }),
+    '& :hover': {
+      background: theme.palette.grey.light
+    },
+    '& :active': {
+      background: theme.palette.grey.light
+    }
   },
   activeItem: {
     background: theme.palette.secondary.extraLight,
+    transition: theme.transitions.create('background', {
+      easing: theme.transitions.easing.easeOut,
+      duration: 600
+    }),
+    '& :hover': {
+      background: theme.palette.secondary.extraLight
+    },
+    '& :active': {
+      background: theme.palette.secondary.extraLight
+    }
+  },
+  inactiveItem: {
+    background: theme.palette.white,
+    '& :hover': {
+      background: theme.palette.white,
+      [`${theme.breakpoints.up('md')}`]: {
+        background: theme.palette.grey.light
+      }
+    },
+    '& :active': {
+      background: theme.palette.grey.light
+    }
+  },
+  menuActiveItem: {
+    background: theme.palette.grey.light,
     transition: theme.transitions.create('background', {
       easing: theme.transitions.easing.easeOut,
       duration: 600
@@ -133,34 +166,33 @@ class CategoryAgendaView extends Component {
     isSearching: false
   }
 
-  clickLatency = 500
-
-  onTapDown = (event, itemId) => {
-    const { mode, activeIds, addActiveId } = this.props
-    const massiveSelection = Boolean(activeIds.length)
-    this.itemPressedMoment = Date.now()
-    if (mode !== 'relation' && !massiveSelection) {
-      setTimeout(() => {
-        if (this.itemPressedMoment) {
-          addActiveId(itemId)
-          this.itemPressedMoment = null
-        }
-      }, this.clickLatency)
+  onItemTapDown = itemId => {
+    if (!this.itemPressedId) {
+      const { mode, activeIds, addActiveId } = this.props
+      const massiveSelection = Boolean(activeIds.length)
+      this.itemPressedId = itemId
+      if (mode !== 'relation' && !massiveSelection) {
+        setTimeout(() => {
+          if (this.itemPressedId) {
+            addActiveId(this.itemPressedId)
+            this.itemPressedId = null
+          }
+        }, 1000)
+      }
     }
   }
 
-  onTapUp = (event, itemId, primaryInfo) => {
+  onItemClick = (itemId, primaryInfo) => {
     const { mode, onClickItem, activeIds, addActiveId } = this.props
     const massiveSelection = Boolean(activeIds.length)
-    const isClick = Date.now() - this.itemPressedMoment < this.clickLatency
     if (mode === 'relation') {
       onClickItem(itemId)
-    } else if (isClick && !massiveSelection) {
+    } else if (!massiveSelection) {
       onClickItem(itemId, primaryInfo)
-    } else if (this.itemPressedMoment) {
+    } else {
       addActiveId(itemId)
-    } 
-    this.itemPressedMoment = null
+    }
+    this.itemPressedId = null
   }
 
   componentWillReceiveProps = nextProps => {
@@ -172,14 +204,18 @@ class CategoryAgendaView extends Component {
   getItemValues = id =>
     this.props.items.find(item => item.id === id)
 
-  handleMenuItemClick = (event, itemId) => {
+  onMenuItemClick = (event, itemId) => {
     event.preventDefault()
     event.stopPropagation()
     this.setState({ anchorEl: event.currentTarget, itemMenuClickedId: itemId })
   }
 
-  handleMenuItemClose = () => {
+  onMenuItemClose = () => {
     this.setState({ anchorEl: null })
+  }
+
+  onMenuItemExited = () => {
+    this.setState({ itemMenuClickedId: null })
   }
 
   isReadonlyItem = id => {
@@ -225,6 +261,8 @@ class CategoryAgendaView extends Component {
     return (
       <React.Fragment>
         <List
+          onTouchMove={() => this.itemPressedId = null}
+          onTouchEnd={() => this.itemPressedId = null}
           classes={{
             padding: classes.padding,
             dense: selectionMode ? classes.selectionDense : classes.relationDense
@@ -249,15 +287,21 @@ class CategoryAgendaView extends Component {
           >
             {items.map(item => {
               let isMarkedForRemove = false
-              let itemClassName = classes.unmarkedItem
+              let itemClassName = classes.defaultItem
               if (mode !== 'relation') {
-                if (activeIds.includes(item.id)) {
-                  itemClassName = classes.activeItem
+                if (itemMenuClickedId === item.id) {
+                  itemClassName = classes.menuActiveItem
+                } else if (activeIds.length) {
+                  if (activeIds.includes(item.id)) {
+                    itemClassName = classes.activeItem
+                  } else {
+                    itemClassName = classes.inactiveItem
+                  }
                 }
               } else {
                 if (toRemoveIds && toRemoveIds.includes(item.id)) {
                   isMarkedForRemove = true
-                  itemClassName = classes.isMarkedForRemove
+                  itemClassName = classes.markRemovedItem
                 } else if (toAddIds && toAddIds.includes(item.id)) {
                   itemClassName = classes.markAddedItem
                 } 
@@ -281,18 +325,26 @@ class CategoryAgendaView extends Component {
                   colorAvatarWithLetter = getBackgroundAvatarLetter(firstLetter)
                 }    
               }
+
+              let propsListItem = {
+                dense: showDense,
+                tabIndex: -1
+              }
+              if (!isMarkedForRemove) {
+                propsListItem = {
+                  ...propsListItem,
+                  disableRipple: true,
+                  button: true,
+                  onMouseEnter: () => this.itemHoverId = item.id,
+                  onMouseDown: () => this.onItemTapDown(item.id),
+                  onTouchStart: () => this.onItemTapDown(item.id),
+                  onClick: () => this.onItemClick(item.id, primaryInfo)
+                }
+              }
               
               return (
                 <div key={item.id} className={itemClassName}>
-                  <ListItem
-                    button={!isMarkedForRemove}
-                    disableRipple
-                    onMouseDown={event => this.onTapDown(event, item.id)}
-                    onMouseUp={event => this.onTapUp(event, item.id, primaryInfo)}
-                    onTouchStart={event => this.onTapDown(event, item.id)}
-                    onTouchEnd={event => this.onTapUp(event, item.id, primaryInfo)}
-                    dense={showDense}
-                  >
+                  <ListItem {...propsListItem}>
                     {showAvatarWithImage &&
                       <Avatar><Icon>{item.image}</Icon></Avatar>
                     }
@@ -310,12 +362,12 @@ class CategoryAgendaView extends Component {
                       primary={primaryInfo}
                       secondary={secondaryInfo}
                     />
-                    {editable &&
+                    {editable && !activeIds.length &&
                       <ListItemSecondaryAction style={{paddingTop: showDense ? 3 : 0}}>
                         <IconButton aria-label="Item Menu">
                           {!relationMode &&
                             <MoreVert style={{display: !editable ? 'none' : 'inherit'}}
-                              onClick={event => this.handleMenuItemClick(event, item.id)}
+                              onClick={event => this.onMenuItemClick(event, item.id)}
                             />
                           }
                           {relationMode && isMarkedForRemove &&
@@ -351,7 +403,8 @@ class CategoryAgendaView extends Component {
           <Menu
             anchorEl={anchorEl}
             open={Boolean(anchorEl)}
-            onClose={this.handleMenuItemClose}
+            onClose={this.onMenuItemClose}
+            onExited={this.onMenuItemExited}
             operations={[
               {id:'view', icon:Subtitles, label: 'View', onClick:() => {
                 history.push(`/${categoriesPath}/${categoryId}/${itemMenuClickedId}`)

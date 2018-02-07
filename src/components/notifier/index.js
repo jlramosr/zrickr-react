@@ -32,7 +32,7 @@ const styles = theme => ({
     background: theme.palette.error.main
   },
   contentInfo: {
-    background: theme.palette.grey[900]
+    background: theme.palette.grey.dark
   }
 })
 

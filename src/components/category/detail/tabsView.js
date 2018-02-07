@@ -22,7 +22,7 @@ const styles = theme => ({
     marginBottom: 16
   },
   tab: {
-    color: theme.palette.grey[500],
+    color: theme.palette.grey.main,
     height: '100%',
     marginLeft: 2,
     marginRight: 2

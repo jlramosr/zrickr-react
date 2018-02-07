@@ -72,7 +72,7 @@ const requiredStyle = theme => ({
 
 const readonlyStyle = theme => ({
   cursor: 'default',
-  background: theme.palette.grey[200] 
+  background: theme.palette.grey.light 
 })
 
 const infoStyle = theme => ({
@@ -81,7 +81,7 @@ const infoStyle = theme => ({
   border: 0,
   background: 'transparent',
   fontSize: 14,
-  color: theme.palette.grey[700],
+  color: theme.palette.grey.dark,
   borderBottom: `1px solid ${theme.palette.primary.main}`,
   cursor: 'default',
   transition: theme.transitions.create('background', {
@@ -237,7 +237,7 @@ const stylesTemp = theme => ({
     color: theme.palette.primary.main
   },
   inputSwitchDisabled: {
-    color: theme.palette.grey[500]
+    color: theme.palette.grey.main
   },
   inputList: {
   },

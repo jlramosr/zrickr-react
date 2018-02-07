@@ -3,6 +3,7 @@ import { createMuiTheme } from 'material-ui/styles'
 let theme = createMuiTheme({
   standards: {
     colors: {
+      white: '#FFFFFF',
       primary: {
         'extraLight': '#FAFCF7',
         'light': '#DCEDC8',
@@ -12,7 +13,7 @@ let theme = createMuiTheme({
         'contrastText': 'rgba(255, 255, 255, 1)'
       },
       secondary: {
-        'extraLight': '#FFEEDB',
+        'extraLight': '#FFEFDF',
         'light': '#FDD3A5',
         'main': '#FF9800',
         'dark': '#F57C00',
@@ -31,6 +32,10 @@ let theme = createMuiTheme({
         'contrastText': 'rgba(255, 255, 255, 1)'      
       },
       grey: {
+        'light': '#EEEEEE',
+        'main': '#9E9E9E',
+        'dark': '#424242',
+        'contrastText': 'rgba(255, 255, 255, 1)',
         '50': '#FAFAFA',
         '100': '#F5F5F5',
         '200': '#EEEEEE',

@@ -114,9 +114,9 @@ class CategoryItemNew extends Component {
             
             <Menu
               anchorEl={anchorEl}
+              horizontal="right"
               open={Boolean(anchorEl)}
               onClose={this.handleStatesMenuClose}
-              horizontal="right"
               onExited={() => {
                 this.setState({
                   itemState: itemSelected ? itemSelected : null
