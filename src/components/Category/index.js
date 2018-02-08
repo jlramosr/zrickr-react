@@ -57,7 +57,7 @@ class Category extends Component {
           const { categoriesPath, categoryId } = this.props
           history.push(`/${categoriesPath}/${categoryId}/${itemId}`)
         }
-        notify(`${infoItem} created succesfully`,'success')
+        notify(`${infoItem} has been created`,'success')
       },
       error => {
         notify(`Error creating ${infoItem}: ${error}`,'error')
@@ -81,7 +81,7 @@ class Category extends Component {
     return updateItem(itemId, values).then(
       () => {
         const action = itemAction ? itemAction : 'updated'
-        notify(`${infoItem} ${action} succesfully`, 'success')
+        notify(`${infoItem} has been ${action}`, 'success')
       },
       error => {
         notify(`Error updating ${infoItem}: ${error}`, 'error')
@@ -110,7 +110,7 @@ class Category extends Component {
           const { categoryId, categoriesPath } = this.props
           history.push(`/${categoriesPath}/${categoryId}`)
         }
-        notify(`${infoItem} removed succesfully`, 'success')
+        notify(`${infoItem} removed`, 'success')
       },
       error => {
         notify(`Error removing ${infoItem}: ${error}`, 'error')

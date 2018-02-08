@@ -15,9 +15,8 @@ import { withStyles } from 'material-ui/styles'
 class App extends Component {
 
   componentDidMount = () => {
-    window.addEventListener('resize', () =>
-      this.resize(this.props.theme)
-    )
+    window.addEventListener('resize', this.resize)
+    window.addEventListener('contextmenu', this.cancelContextMenu)
     this.resize(this.props.theme)
   }
 
@@ -35,9 +34,8 @@ class App extends Component {
   }
 
   componentWillUnmount = () => {
-    window.removeEventListener('resize', () =>
-      this.resize(this.props.theme)
-    )
+    window.removeEventListener('resize', this.resize)
+    window.removeEventListener('contextmenu', this.cancelContextMenu)
   }
 
   /**
@@ -46,9 +44,9 @@ class App extends Component {
    * @param {object} theme The theme with breakpoints variables.
    * @returns {void}
 	 */ 
-  resize = theme => {
+  resize = () => {
     const width = window.innerWidth
-    const { windowSize, updateWindowSize } = this.props
+    const { theme, windowSize, updateWindowSize } = this.props
     let size = 'xs'
     if (width >= theme.breakpoints.width('xl')) {
       size = 'xl'
@@ -62,6 +60,10 @@ class App extends Component {
     if (size !== windowSize) {
       updateWindowSize(size)
     }
+  }
+
+  cancelContextMenu = event => {
+    event.preventDefault()
   }
 
   render = () => {

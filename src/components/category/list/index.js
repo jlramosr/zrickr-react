@@ -40,14 +40,14 @@ const styles = theme => ({
       minHeight: theme.standards.toolbarHeights.tabletDesktop
     }
   },
-  relativeSnackbar: {
-
-  },
   snackbarContent: {
     width: '100%',
     flex: 1,
     maxWidth: 'inherit',
     flexWrap: 'inherit'
+  },
+  snackbarContentMessage: {
+    padding: 0
   }
 })
 
@@ -105,6 +105,10 @@ class CategoryList extends Component {
       }
       return {activeIds}
     })
+  }
+
+  removeActiveIds = () => {
+    this.setState({activeIds: []})
   }
 
   onClickItem = (itemId, itemTitle='') => {
@@ -309,6 +313,7 @@ class CategoryList extends Component {
       ...rest,
 
       addActiveId: this.addActiveId,
+      removeActiveIds: this.removeActiveIds,
       activeIds,
 
       toAddIds,
@@ -424,29 +429,32 @@ class CategoryList extends Component {
         <Snackbar
           anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
           open={Boolean(activeIds.length)}
-          className={mode === 'relation' ? classes.relativeSnackbar : classes.snackbar}            
+          className={classes.snackbar}            
           transitionDuration={{
             enter: 200,
             exit: 0
           }}
           SnackbarContentProps={{
-            className: classes.snackbarContent
+            classes: {
+              root: classes.snackbarContent,
+              message: classes.snackbarContentMessage
+            }
           }}
           message={
-            <span>
-              {activeIds.length} selected
-            </span>
+            <React.Fragment>
+              <IconButton key="close" aria-label="Close" color="inherit" onClick={this.removeActiveIds} >
+                <Close />
+              </IconButton>
+              <span>
+                {activeIds.length} selected
+              </span>
+            </React.Fragment>
           }
           action={[
             <Button key="undo" color="accent" dense onClick={this.handleRequestClose}>
               UNDO
             </Button>,
-            <IconButton
-              key="close"
-              aria-label="Close"
-              color="inherit"
-              onClick={this.handleRequestClose}
-            >
+            <IconButton key="delete" color="contrast" aria-label="Delete" onClick={this.handleRequestClose}>
               <Delete />
             </IconButton>
           ]}

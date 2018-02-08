@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import ReactDOM from 'react-dom'
 import List, { ListItem, ListItemSecondaryAction, ListItemText } from 'material-ui/List'
 import Divider from 'material-ui/Divider'
 import Avatar from 'material-ui/Avatar'
@@ -12,6 +13,8 @@ import IconButton from 'material-ui/IconButton'
 import Edit from 'material-ui-icons/Edit'
 import Subtitles from 'material-ui-icons/Subtitles'
 import Delete from 'material-ui-icons/Delete'
+import Done from 'material-ui-icons/Done'
+import { isTouchDevice } from './../../../utils/helpers'
 import { getItemString, getBackgroundAvatarLetter } from './../utils/helpers'
 import Menu from './../../menu'
 import { withStyles } from 'material-ui/styles'
@@ -166,8 +169,21 @@ class CategoryAgendaView extends Component {
     isSearching: false
   }
 
-  onItemTapDown = itemId => {
-    if (!this.itemPressedId) {
+  onItemClick = (itemId, primaryInfo) => {
+    const { mode, onClickItem, activeIds, addActiveId } = this.props
+    const massiveSelection = Boolean(activeIds.length)
+    if (mode === 'relation') {
+      onClickItem(itemId)
+    } else if (!massiveSelection) {
+      onClickItem(itemId, primaryInfo)
+    } else if (!this.firstActiveId) {
+      addActiveId(itemId)
+    }
+  }
+
+  onItemMouseDown = (event, itemId) => {
+    this.firstActiveId = false
+    if (event.button === 0) { //mouse left button
       const { mode, activeIds, addActiveId } = this.props
       const massiveSelection = Boolean(activeIds.length)
       this.itemPressedId = itemId
@@ -176,23 +192,33 @@ class CategoryAgendaView extends Component {
           if (this.itemPressedId) {
             addActiveId(this.itemPressedId)
             this.itemPressedId = null
+            this.firstActiveId = true
           }
-        }, 1000)
+        }, 300)
       }
     }
   }
 
-  onItemClick = (itemId, primaryInfo) => {
-    const { mode, onClickItem, activeIds, addActiveId } = this.props
-    const massiveSelection = Boolean(activeIds.length)
-    if (mode === 'relation') {
-      onClickItem(itemId)
-    } else if (!massiveSelection) {
-      onClickItem(itemId, primaryInfo)
-    } else {
-      addActiveId(itemId)
-    }
+  onItemMouseUp = () => {
     this.itemPressedId = null
+  }
+
+  //https://developer.mozilla.org/es/docs/Web/Events/contextmenu
+  onItemContextMenu = (event, itemId) => {
+    event.preventDefault()
+    const button = event.button
+    if (button === 0) { //touch action
+      this.props.addActiveId(itemId) 
+    } else if (button === 2) { //right button mouse action
+      this.anchorTop = event.clientY
+      this.anchorLeft = event.clientX
+      this.setState({ anchorEl: ReactDOM.findDOMNode(document.getElementById('root')), itemMenuClickedId: itemId })
+    }
+  }
+
+  onAvatarClick = (event, itemId) => {
+    event.stopPropagation()
+    this.props.addActiveId(itemId)
   }
 
   componentWillReceiveProps = nextProps => {
@@ -205,8 +231,9 @@ class CategoryAgendaView extends Component {
     this.props.items.find(item => item.id === id)
 
   onMenuItemClick = (event, itemId) => {
-    event.preventDefault()
     event.stopPropagation()
+    this.anchorLeft = 0
+    this.anchorTop = 0
     this.setState({ anchorEl: event.currentTarget, itemMenuClickedId: itemId })
   }
 
@@ -261,8 +288,6 @@ class CategoryAgendaView extends Component {
     return (
       <React.Fragment>
         <List
-          onTouchMove={() => this.itemPressedId = null}
-          onTouchEnd={() => this.itemPressedId = null}
           classes={{
             padding: classes.padding,
             dense: selectionMode ? classes.selectionDense : classes.relationDense
@@ -335,9 +360,10 @@ class CategoryAgendaView extends Component {
                   ...propsListItem,
                   disableRipple: true,
                   button: true,
-                  onMouseEnter: () => this.itemHoverId = item.id,
-                  onMouseDown: () => this.onItemTapDown(item.id),
-                  onTouchStart: () => this.onItemTapDown(item.id),
+                  onContextMenu: event => this.onItemContextMenu(event, item.id),
+                  onMouseDown: event => this.onItemMouseDown(event, item.id),
+                  onMouseUp: this.onItemMouseUp,
+                  //onTouchStart: event => this.onItemTapDown(event, item.id),
                   onClick: () => this.onItemClick(item.id, primaryInfo)
                 }
               }
@@ -346,11 +372,13 @@ class CategoryAgendaView extends Component {
                 <div key={item.id} className={itemClassName}>
                   <ListItem {...propsListItem}>
                     {showAvatarWithImage &&
-                      <Avatar><Icon>{item.image}</Icon></Avatar>
+                      <Avatar onClick={event => this.onAvatarClick(event, item.id)}>
+                        {activeIds.includes(item.id) ? <Done style={{background: 'transparent'}} /> : <Icon>{item.image}</Icon>}
+                      </Avatar>
                     }
                     {showAvatarWithLetter &&
-                      <Avatar style={{background: colorAvatarWithLetter}}>
-                        {firstLetter}
+                      <Avatar onClick={event => this.onAvatarClick(event, item.id)} style={{background: colorAvatarWithLetter}}>
+                        {activeIds.includes(item.id) ? <Done style={{background: 'transparent'}} /> : firstLetter}
                       </Avatar>
                     }
                     <ListItemText
@@ -362,7 +390,7 @@ class CategoryAgendaView extends Component {
                       primary={primaryInfo}
                       secondary={secondaryInfo}
                     />
-                    {editable && !activeIds.length &&
+                    {isTouchDevice() && editable && !activeIds.length &&
                       <ListItemSecondaryAction style={{paddingTop: showDense ? 3 : 0}}>
                         <IconButton aria-label="Item Menu">
                           {!relationMode &&
@@ -401,8 +429,10 @@ class CategoryAgendaView extends Component {
 
         {editable && !relationMode &&
           <Menu
-            anchorEl={anchorEl}
             open={Boolean(anchorEl)}
+            anchorEl={anchorEl}
+            offsetTop={this.anchorTop || null}
+            offsetLeft={this.anchorLeft || null}
             onClose={this.onMenuItemClose}
             onExited={this.onMenuItemExited}
             operations={[

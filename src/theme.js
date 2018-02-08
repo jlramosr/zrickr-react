@@ -54,8 +54,8 @@ let theme = createMuiTheme({
       }
     },
     toolbarHeights: {
-      mobilePortrait: 56,
       mobileLandscape: 48,
+      mobilePortrait: 56,
       tabletDesktop: 64
     },
     tableRowHeight: 26,

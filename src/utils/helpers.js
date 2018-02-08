@@ -29,6 +29,10 @@ export const getDifferences = (item1, item2) => {
   ), diffs)
 }
 
+export const isTouchDevice = () => {
+  return 'ontouchstart' in window || navigator.msMaxTouchPoints > 0
+}
+
 export const getInfo = (fieldNames=[], item) => {
   const info = fieldNames
     .reduce((accumulator, currentField) => 

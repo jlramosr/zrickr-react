@@ -66,17 +66,20 @@ const renderIcon = icon => {
 }
 
 let CustomMenu = props => {
-  const { operations, vertical, horizontal, classes, ...restProps } = props
+  const { operations, vertical, horizontal, classes, offsetTop, offsetLeft, ...restProps } = props
   const filteredOperations = operations.filter(operation => !operation.hidden)
-
   return (
     <Menu
       elevation={4}
-      transformOrigin={{ 
+      transformOrigin={{
         vertical: vertical === 'bottom' ? 'top' : 'bottom', 
         horizontal: horizontal === 'left' ? 'right' : 'left'}
       }
       classes={{paper: classes.menu}}
+      style={{
+        top: offsetTop ? `calc(-50% + ${offsetTop}px)` : 0,
+        left: offsetLeft || 0
+      }}
       {...restProps}
     >
       {filteredOperations.map((operation, index) => {
@@ -114,6 +117,8 @@ CustomMenu.propTypes = {
   classes: PropTypes.object.isRequired,
   onClose: PropTypes.func,
   anchorEl: PropTypes.object,
+  offsetTop: PropTypes.number,
+  offsetLeft: PropTypes.number,
   vertical: PropTypes.string,
   horizontal: PropTypes.string,
   operations: PropTypes.arrayOf(PropTypes.shape({
