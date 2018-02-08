@@ -77,6 +77,7 @@ let CustomMenu = props => {
       }
       classes={{paper: classes.menu}}
       style={{
+        zIndex: 3000,
         top: offsetTop ? `calc(-50% + ${offsetTop}px)` : 0,
         left: offsetLeft || 0
       }}

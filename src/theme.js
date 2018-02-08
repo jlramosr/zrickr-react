@@ -13,7 +13,7 @@ let theme = createMuiTheme({
         'contrastText': 'rgba(255, 255, 255, 1)'
       },
       secondary: {
-        'extraLight': '#FFEFDF',
+        'extraLight': '#FDF2E5',
         'light': '#FDD3A5',
         'main': '#FF9800',
         'dark': '#F57C00',

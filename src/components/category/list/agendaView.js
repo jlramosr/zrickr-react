@@ -32,12 +32,12 @@ const styles = theme => ({
     },
     [`${theme.breakpoints.up('md')}`]: {
       paddingBottom: theme.spacing.unit*3,
-      paddingLeft: theme.spacing.unit*4,
-      paddingRight: theme.spacing.unit*4
-    },
-    [`${theme.breakpoints.up('lg')}`]: {
       paddingLeft: theme.spacing.unit*8,
       paddingRight: theme.spacing.unit*8
+    },
+    [`${theme.breakpoints.up('lg')}`]: {
+      paddingLeft: theme.spacing.unit*16,
+      paddingRight: theme.spacing.unit*16
     }
   },
   selectionDense: {
@@ -169,28 +169,37 @@ class CategoryAgendaView extends Component {
     isSearching: false
   }
 
+  componentWillReceiveProps = nextProps => {
+    this.setState({
+      isSearching: this.props.searchQuery !== nextProps.searchQuery
+    })
+  }
+
+  getItemValues = id =>
+    this.props.items.find(item => item.id === id)
+
   onItemClick = (itemId, primaryInfo) => {
-    const { mode, onClickItem, activeIds, addActiveId } = this.props
+    const { mode, onClickItem, activeIds, spliceActiveId } = this.props
     const massiveSelection = Boolean(activeIds.length)
     if (mode === 'relation') {
       onClickItem(itemId)
     } else if (!massiveSelection) {
       onClickItem(itemId, primaryInfo)
     } else if (!this.firstActiveId) {
-      addActiveId(itemId)
+      spliceActiveId(itemId)
     }
   }
 
   onItemMouseDown = (event, itemId) => {
     this.firstActiveId = false
     if (event.button === 0) { //mouse left button
-      const { mode, activeIds, addActiveId } = this.props
+      const { mode, activeIds, spliceActiveId } = this.props
       const massiveSelection = Boolean(activeIds.length)
       this.itemPressedId = itemId
       if (mode !== 'relation' && !massiveSelection) {
         setTimeout(() => {
           if (this.itemPressedId) {
-            addActiveId(this.itemPressedId)
+            spliceActiveId(this.itemPressedId)
             this.itemPressedId = null
             this.firstActiveId = true
           }
@@ -206,29 +215,23 @@ class CategoryAgendaView extends Component {
   //https://developer.mozilla.org/es/docs/Web/Events/contextmenu
   onItemContextMenu = (event, itemId) => {
     event.preventDefault()
-    const button = event.button
-    if (button === 0) { //touch action
-      this.props.addActiveId(itemId) 
-    } else if (button === 2) { //right button mouse action
-      this.anchorTop = event.clientY
-      this.anchorLeft = event.clientX
-      this.setState({ anchorEl: ReactDOM.findDOMNode(document.getElementById('root')), itemMenuClickedId: itemId })
+    const { activeIds, spliceActiveId } = this.props
+    if (!activeIds.length) {
+      const button = event.button
+      if (button === 0) { //touch action
+        spliceActiveId(itemId) 
+      } else if (button === 2) { //right button mouse action
+        this.anchorTop = event.clientY
+        this.anchorLeft = event.clientX
+        this.setState({ anchorEl: ReactDOM.findDOMNode(document.getElementById('root')), itemMenuClickedId: itemId })
+      }
     }
   }
 
   onAvatarClick = (event, itemId) => {
     event.stopPropagation()
-    this.props.addActiveId(itemId)
+    this.props.spliceActiveId(itemId)
   }
-
-  componentWillReceiveProps = nextProps => {
-    this.setState({
-      isSearching: this.props.searchQuery !== nextProps.searchQuery
-    })
-  }
-
-  getItemValues = id =>
-    this.props.items.find(item => item.id === id)
 
   onMenuItemClick = (event, itemId) => {
     event.stopPropagation()
@@ -329,7 +332,7 @@ class CategoryAgendaView extends Component {
                   itemClassName = classes.markRemovedItem
                 } else if (toAddIds && toAddIds.includes(item.id)) {
                   itemClassName = classes.markAddedItem
-                } 
+                }
               }
 
               const primaryInfo = getItemString(item, primaryFields, primaryFieldsSeparator) || ' '
@@ -360,17 +363,16 @@ class CategoryAgendaView extends Component {
                   ...propsListItem,
                   disableRipple: true,
                   button: true,
-                  onContextMenu: event => this.onItemContextMenu(event, item.id),
+                  onClick: () => this.onItemClick(item.id, primaryInfo),
                   onMouseDown: event => this.onItemMouseDown(event, item.id),
                   onMouseUp: this.onItemMouseUp,
-                  //onTouchStart: event => this.onItemTapDown(event, item.id),
-                  onClick: () => this.onItemClick(item.id, primaryInfo)
+                  onContextMenu: event => this.onItemContextMenu(event, item.id)
                 }
               }
               
               return (
-                <div key={item.id} className={itemClassName}>
-                  <ListItem {...propsListItem}>
+                <div key={item.id}>
+                  <ListItem className={itemClassName} {...propsListItem}>
                     {showAvatarWithImage &&
                       <Avatar onClick={event => this.onAvatarClick(event, item.id)}>
                         {activeIds.includes(item.id) ? <Done style={{background: 'transparent'}} /> : <Icon>{item.image}</Icon>}
@@ -390,30 +392,32 @@ class CategoryAgendaView extends Component {
                       primary={primaryInfo}
                       secondary={secondaryInfo}
                     />
-                    {isTouchDevice() && editable && !activeIds.length &&
-                      <ListItemSecondaryAction style={{paddingTop: showDense ? 3 : 0}}>
+                    {editable && !activeIds.length &&
+                      <ListItemSecondaryAction style={{paddingTop: showDense ? 2 : 0}}>
                         <IconButton aria-label="Item Menu">
-                          {!relationMode &&
-                            <MoreVert style={{display: !editable ? 'none' : 'inherit'}}
-                              onClick={event => this.onMenuItemClick(event, item.id)}
-                            />
+                          {isTouchDevice() && !relationMode && editable &&
+                            <MoreVert onClick={event => this.onMenuItemClick(event, item.id)} />
                           }
                           {relationMode && isMarkedForRemove &&
                             <Tooltip title="Keep relation" placement="left" enterDelay={1000} leaveDelay={0}>
-                              <Reply onClick={event => {
-                                event.preventDefault()
-                                event.stopPropagation()  
-                                unmarkRemoveItems([item.id])
-                              }}/>
+                              <Reply
+                                onClick={event => {
+                                  event.preventDefault()
+                                  event.stopPropagation()  
+                                  unmarkRemoveItems([item.id])
+                                }}
+                              />
                             </Tooltip>
                           }
                           {relationMode && !isMarkedForRemove &&
                             <Tooltip title="Remove relation" placement="left" enterDelay={1000} leaveDelay={0}>
-                              <RemoveCircle onClick={event => {
-                                event.preventDefault()
-                                event.stopPropagation()
-                                markRemoveItems([item.id])
-                              }}/>
+                              <RemoveCircle
+                                onClick={event => {
+                                  event.preventDefault()
+                                  event.stopPropagation()
+                                  markRemoveItems([item.id])
+                                }}
+                              />
                             </Tooltip>
                           }
                         </IconButton>

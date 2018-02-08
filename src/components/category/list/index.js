@@ -16,8 +16,10 @@ import ViewList from 'material-ui-icons/ViewList'
 import ViewAgenda from 'material-ui-icons/ViewAgenda'
 import Delete from 'material-ui-icons/Delete'
 import Snackbar from 'material-ui/Snackbar'
-import Button from 'material-ui/Button'
 import IconButton from 'material-ui/IconButton'
+import Directions from 'material-ui-icons/Directions'
+import SelectAll from 'material-ui-icons/SelectAll'
+import Menu from './../../menu'
 import { showRelations, addOpenRelation, removeAllOpenRelations } from '../../../actions/interactions'
 import { capitalize } from './../../../utils/helpers'
 import { getItemString } from './../utils/helpers'
@@ -48,6 +50,9 @@ const styles = theme => ({
   },
   snackbarContentMessage: {
     padding: 0
+  },
+  snackbarIconDisabled: {
+    color: theme.palette.grey.main
   }
 })
 
@@ -57,32 +62,37 @@ const styles = theme => ({
 class CategoryList extends Component {
   state = {
     searchQuery: '',
-    foundItems: [],
+    showingItems: [],
     activeIds: [],
+    nextStatesOperations: [],
     showNewDialog: false,
     showListDialog: false,
     showDetailDialog: false,
     /**
      * oneOf(['agenda', 'table'])
      */
-    view: 'agenda'
+    view: 'agenda',
+    anchorEl: null
   }
 
   componentWillMount = () => {
-    const { items, mode, fetchItemsIfNeeded } = this.props
+    const { mode, fetchItemsIfNeeded } = this.props
     if (fetchItemsIfNeeded) {
       mode === 'relation' ? fetchItemsIfNeeded() : this.props.fetchItems() //fetchItemsIfNeeded()
     }
-    this.setState({ foundItems: items })
+    this.updateShowingItems({searchQuery: ''})
   }
 
   componentWillReceiveProps = nextProps => {
-    const { editable, items } = nextProps
+    const { editable, items, itemIds } = nextProps
     if (this.props.editable !== editable) {
       this.setState({tempAddItemIds:[], tempRemoveItemIds:[]})
     }
     if (!isEqual(this.props.items, items)) {
-      this.updateFoundItems({items})
+      this.updateShowingItems({items})
+    }
+    if (!isEqual(this.props.itemIds, itemIds)) {
+      this.updateShowingItems({itemIds})
     }
   }
 
@@ -94,21 +104,100 @@ class CategoryList extends Component {
     this._isMounted = false
   }
 
-  addActiveId = itemId => {
+  /**
+	 * Update the state with the new search string indicated by the user.
+	 * @public
+   * @param {string} searchQuery The string.
+   * @returns {void}
+	 */
+  updateSearchQuery = searchQuery => {
+    this.setState({ searchQuery })
+    this.updateShowingItems({searchQuery})
+  }
+
+  updateShowingItems = ({searchQuery=this.state.searchQuery, items=this.props.items, itemIds=this.props.itemIds}) => {
+    const { primaryFields } = this.props
+    let foundItems = items
+    let allFilterIds = null
+    if (searchQuery) {
+      const cleanQuery = removeDiacritics(searchQuery.trim())
+      const match = new RegExp(escapeRegExp(cleanQuery), 'i')
+      foundItems = items.filter(item => (
+        match.test(removeDiacritics(getItemString(item, primaryFields)))
+      ))
+    }
+    if (itemIds) {
+      allFilterIds = (itemIds).reduce((ids, idState) => {
+        if (idState.id) { //idState = {id:2134, state:true}
+          return [...ids, idState.id] 
+        } //idState = 2134
+        return [...ids, idState] 
+      }, [])
+    }
+    const showingItems = Object.values(foundItems).filter(item => (
+      allFilterIds ? allFilterIds.includes(item.id) : true
+    ))
+    this.setState({ showingItems })
+  }
+
+  onChangeStateMenu = event => {
+    this.setState({anchorEl: event.currentTarget})
+  }
+
+  handleStatesMenuClose = () => {
+    this.setState({anchorEl: null})
+  }
+
+  getCommonStates = itemIds => {
+    if (!itemIds || (itemIds && !itemIds.length)) {
+      return []
+    }
+    const { getNextStatesAsOperations, items } = this.props
+    let states = null
+    for (const itemId of itemIds) {
+      const nextStatesItem = getNextStatesAsOperations({
+        itemId,
+        itemValues: items.find(item => item.id === itemId)
+      })
+      const nextStatesItemIds = nextStatesItem.map(state => state.id)
+      if (!states) {
+        states = [...nextStatesItem]
+      }
+      if (!states.length) {
+        break
+      }
+      states = states.filter(state => nextStatesItemIds.includes(state.id))
+    }
+    return states || []
+  }
+
+  spliceActiveId = itemId => {
     this.setState(prevState => {
       let activeIds = prevState.activeIds
+      let nextStatesOperations = prevState.nextStatesOperations
       const index = activeIds.findIndex(id => id === itemId)
+
       if (index < 0) {
+        // add item id.
         activeIds = [...activeIds, itemId]
       } else {
+        // remove item id.
         activeIds.splice(index, 1)
       }
-      return {activeIds}
+      nextStatesOperations = this.getCommonStates(activeIds)
+      
+      return {activeIds, nextStatesOperations}
     })
   }
 
-  removeActiveIds = () => {
-    this.setState({activeIds: []})
+  addAllActiveIds = () => {
+    const { showingItems } = this.state
+    const showingItemsIds = showingItems.map(item => item.id)
+    this.setState({activeIds: showingItemsIds, nextStatesOperations: this.getCommonStates(showingItemsIds)})
+  }
+
+  removeAllActiveIds = () => {
+    this.setState({activeIds: [], nextStatesOperations: []})
   }
 
   onClickItem = (itemId, itemTitle='') => {
@@ -120,29 +209,6 @@ class CategoryList extends Component {
     } else if (mode === 'relation') {
       this.openDetailDialog(itemId, itemTitle)
     }
-  }
-
-  /**
-	 * Update the state with the new search string indicated by the user.
-	 * @public
-   * @param {string} searchQuery The string.
-   * @returns {void}
-	 */
-  updateSearchQuery = searchQuery => {
-    this.setState({ searchQuery })
-    this.updateFoundItems({searchQuery})
-  }
-
-  updateFoundItems = ({searchQuery=this.state.searchQuery, items=this.props.items}) => {
-    let foundItems = items
-    if (searchQuery) {
-      const cleanQuery = removeDiacritics(searchQuery.trim())
-      const match = new RegExp(escapeRegExp(cleanQuery), 'i')
-      foundItems = items.filter(item => (
-        match.test(removeDiacritics(getItemString(item, this.props.primaryFields)))
-      ))
-    }
-    this.setState({ foundItems })
   }
 
   /**
@@ -277,29 +343,17 @@ class CategoryList extends Component {
     } = this.props
     const {
       searchQuery,
-      foundItems,
+      showingItems,
       activeIds,
+      nextStatesOperations,
       showNewDialog,
       showListDialog,
       showDetailDialog,
-      view
+      view,
+      anchorEl
     } = this.state
 
     const relationMode = mode === 'relation'
-
-    let allFilterIds = null
-    if (itemIds) {
-      allFilterIds = (itemIds).reduce((ids, idState) => {
-        if (idState.id) { //idState = {id:2134, state:true}
-          return [...ids, idState.id] 
-        } //idState = 2134
-        return [...ids, idState] 
-      }, [])
-    }
-
-    const showingItems = Object.values(foundItems).filter(item => (
-      allFilterIds ? allFilterIds.includes(item.id) : true
-    ))
 
     const toAddIds = (itemIds || []).filter(
       idState => idState.state ? idState.state === 'added' : false
@@ -312,8 +366,8 @@ class CategoryList extends Component {
     const commonProps = {
       ...rest,
 
-      addActiveId: this.addActiveId,
-      removeActiveIds: this.removeActiveIds,
+      spliceActiveId: this.spliceActiveId,
+      removeAllActiveIds: this.removeAllActiveIds,
       activeIds,
 
       toAddIds,
@@ -442,7 +496,7 @@ class CategoryList extends Component {
           }}
           message={
             <React.Fragment>
-              <IconButton key="close" aria-label="Close" color="inherit" onClick={this.removeActiveIds} >
+              <IconButton key="close" aria-label="Close" color="inherit" onClick={this.removeAllActiveIds} >
                 <Close />
               </IconButton>
               <span>
@@ -451,14 +505,45 @@ class CategoryList extends Component {
             </React.Fragment>
           }
           action={[
-            <Button key="undo" color="accent" dense onClick={this.handleRequestClose}>
-              UNDO
-            </Button>,
-            <IconButton key="delete" color="contrast" aria-label="Delete" onClick={this.handleRequestClose}>
+            <IconButton
+              disabled={activeIds.length === showingItems.length}
+              key="selectAll"
+              color="contrast"
+              classes={{disabled: classes.snackbarIconDisabled}}
+              aria-label="Select All"
+              onClick={this.addAllActiveIds}
+            >
+              <SelectAll />
+            </IconButton>,
+            <IconButton
+              disabled={!nextStatesOperations.length}
+              key="changeState"
+              color="contrast"
+              classes={{disabled: classes.snackbarIconDisabled}}
+              aria-label="Change State"
+              onClick={this.onChangeStateMenu}
+            >
+              <Directions />
+            </IconButton>,
+            <IconButton
+              key="delete"
+              color="contrast"
+              aria-label="Delete"
+              onClick={this.removeAllActiveIds}
+            >
               <Delete />
             </IconButton>
           ]}
         />
+
+        {Boolean(activeIds.length) && 
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={this.handleStatesMenuClose}
+            operations={nextStatesOperations}
+          />
+        }
 
       </HeaderLayout>
     )
