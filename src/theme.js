@@ -1,6 +1,6 @@
 import { createMuiTheme } from 'material-ui/styles'
 
-let theme = createMuiTheme({
+const theme = createMuiTheme({
   standards: {
     colors: {
       white: '#FFFFFF',
@@ -70,12 +70,32 @@ let theme = createMuiTheme({
   }
 })
   
-theme = {
+export default {
   ...theme,
+  palette: {
+    ...theme.palette,
+    ...theme.standards.colors
+  },
+  typography: {
+    ...theme.typography,
+    fontFamily: theme.standards.fontFamily
+  },
+  mixins: {
+    ...theme.mixins,
+    toolbar: {
+      minHeight: theme.standards.toolbarHeights.mobilePortrait,
+      [`${theme.breakpoints.up('xs')} and (orientation: landscape)`]: {
+        minHeight: theme.standards.toolbarHeights.mobileLandscape
+      },
+      [theme.breakpoints.up('sm')]: {
+        minHeight: theme.standards.toolbarHeights.tabletDesktop
+      }
+    }
+  },
   overrides: {
     ...theme.overrides,
 
-    
+    /* GENERAL */
     MuiAppBar: {
       root: {
         paddingTop: 0,
@@ -93,8 +113,8 @@ theme = {
       }
     },
 
-
-    GridLayout: {
+    /* TABLE */
+    /*GridLayout: {
       headingPanel: {
         background: theme.standards.colors.secondary[100],
         fontSize: 14,
@@ -175,8 +195,9 @@ theme = {
         paddingBottom: 2,
         color: theme.standards.colors.primary[900]
       }
-    },
+    },*/
 
+    /* LISTS */
     MuiList: {
       root: {
         padding: 0
@@ -201,28 +222,5 @@ theme = {
         lineHeight: theme.standards.listCellDense.lineHeight
       }
     }
-  },
-
-  palette: {
-    ...theme.palette,
-    ...theme.standards.colors
-  },
-  typography: {
-    ...theme.typography,
-    fontFamily: theme.standards.fontFamily
-  },
-  mixins: {
-    ...theme.mixins,
-    toolbar: {
-      minHeight: theme.standards.toolbarHeights.mobilePortrait,
-      [`${theme.breakpoints.up('xs')} and (orientation: landscape)`]: {
-        minHeight: theme.standards.toolbarHeights.mobileLandscape
-      },
-      [theme.breakpoints.up('sm')]: {
-        minHeight: theme.standards.toolbarHeights.tabletDesktop
-      }
-    }
   }
 }
-
-export default theme

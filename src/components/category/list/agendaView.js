@@ -179,27 +179,27 @@ class CategoryAgendaView extends Component {
     this.props.items.find(item => item.id === id)
 
   onItemClick = (itemId, primaryInfo) => {
-    const { mode, onClickItem, activeIds, spliceActiveId } = this.props
+    const { mode, onClickItem, activeIds, changeActiveIds } = this.props
     const massiveSelection = Boolean(activeIds.length)
     if (mode === 'relation') {
       onClickItem(itemId)
     } else if (!massiveSelection) {
       onClickItem(itemId, primaryInfo)
     } else if (!this.firstActiveId) {
-      spliceActiveId(itemId)
+      changeActiveIds(itemId)
     }
   }
 
   onItemMouseDown = (event, itemId) => {
     this.firstActiveId = false
     if (event.button === 0) { //mouse left button
-      const { mode, activeIds, spliceActiveId } = this.props
+      const { mode, activeIds, changeActiveIds } = this.props
       const massiveSelection = Boolean(activeIds.length)
       this.itemPressedId = itemId
       if (mode !== 'relation' && !massiveSelection) {
         setTimeout(() => {
           if (this.itemPressedId) {
-            spliceActiveId(this.itemPressedId)
+            changeActiveIds(this.itemPressedId)
             this.itemPressedId = null
             this.firstActiveId = true
           }
@@ -215,11 +215,11 @@ class CategoryAgendaView extends Component {
   //https://developer.mozilla.org/es/docs/Web/Events/contextmenu
   onItemContextMenu = (event, itemId) => {
     event.preventDefault()
-    const { activeIds, spliceActiveId } = this.props
+    const { activeIds, changeActiveIds } = this.props
     if (!activeIds.length) {
       const button = event.button
       if (button === 0) { //touch action
-        spliceActiveId(itemId) 
+        changeActiveIds(itemId) 
       } else if (button === 2) { //right button mouse action
         this.anchorTop = event.clientY
         this.anchorLeft = event.clientX
@@ -230,7 +230,7 @@ class CategoryAgendaView extends Component {
 
   onAvatarClick = (event, itemId) => {
     event.stopPropagation()
-    this.props.spliceActiveId(itemId)
+    this.props.changeActiveIds(itemId)
   }
 
   onMenuItemClick = (event, itemId) => {

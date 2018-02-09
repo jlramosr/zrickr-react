@@ -71,7 +71,7 @@ class CategoryList extends Component {
     /**
      * oneOf(['agenda', 'table'])
      */
-    view: 'agenda',
+    view: 'table',
     anchorEl: null
   }
 
@@ -171,20 +171,17 @@ class CategoryList extends Component {
     return states || []
   }
 
-  spliceActiveId = itemId => {
+  changeActiveIds = value => {
     this.setState(prevState => {
       let activeIds = prevState.activeIds
-      let nextStatesOperations = prevState.nextStatesOperations
-      const index = activeIds.findIndex(id => id === itemId)
 
-      if (index < 0) {
-        // add item id.
-        activeIds = [...activeIds, itemId]
+      if (Array.isArray(value)) {
+        activeIds = [...value]
       } else {
-        // remove item id.
-        activeIds.splice(index, 1)
+        const index = activeIds.findIndex(id => id === value)
+        index < 0 ? activeIds = [...activeIds, value] : activeIds.splice(index, 1)
       }
-      nextStatesOperations = this.getCommonStates(activeIds)
+      const nextStatesOperations = this.getCommonStates(activeIds)
       
       return {activeIds, nextStatesOperations}
     })
@@ -366,7 +363,7 @@ class CategoryList extends Component {
     const commonProps = {
       ...rest,
 
-      spliceActiveId: this.spliceActiveId,
+      changeActiveIds: this.changeActiveIds,
       removeAllActiveIds: this.removeAllActiveIds,
       activeIds,
 
@@ -505,16 +502,18 @@ class CategoryList extends Component {
             </React.Fragment>
           }
           action={[
-            <IconButton
-              disabled={activeIds.length === showingItems.length}
-              key="selectAll"
-              color="contrast"
-              classes={{disabled: classes.snackbarIconDisabled}}
-              aria-label="Select All"
-              onClick={this.addAllActiveIds}
-            >
-              <SelectAll />
-            </IconButton>,
+            mode === 'agenda' ?
+              <IconButton
+                disabled={activeIds.length === showingItems.length}
+                key="selectAll"
+                color="contrast"
+                classes={{disabled: classes.snackbarIconDisabled}}
+                aria-label="Select All"
+                onClick={this.addAllActiveIds}
+              >
+                <SelectAll />
+              </IconButton> :
+              <div key="selectAll"></div>,
             <IconButton
               disabled={!nextStatesOperations.length}
               key="changeState"
