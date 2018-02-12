@@ -12,6 +12,7 @@ export const CREATE_CATEGORY_ITEM = 'CREATE_CATEGORY_ITEM'
 export const UPDATING_CATEGORY_ITEM = 'UPDATING_CATEGORY_ITEM'
 export const UPDATING_CATEGORY_ITEM_ERROR = 'UPDATING_CATEGORY_ITEM_ERROR'
 export const UPDATE_CATEGORY_ITEM = 'UPDATE_CATEGORY_ITEM'
+export const UPDATE_CATEGORY_ITEMS = 'UPDATE_CATEGORY_ITEMS'
 export const REMOVING_CATEGORY_ITEM = 'REMOVING_CATEGORY_ITEM'
 export const REMOVING_CATEGORY_ITEM_ERROR = 'REMOVING_CATEGORY_ITEM_ERROR'
 export const REMOVE_CATEGORY_ITEM = 'REMOVE_CATEGORY_ITEM'
@@ -108,6 +109,14 @@ const _updateItemAction = (categoryId, itemId, item) => ({
   item
 })
 
+const _updateItemsAction = (categoryId, itemIds, values) => ({
+  type: UPDATE_CATEGORY_ITEMS,
+  updatedItemAt: Date.now(),
+  categoryId,
+  itemIds,
+  values
+})
+
 const _removingItemAction = (categoryId, itemId) => ({
   type: REMOVING_CATEGORY_ITEM,
   categoryId,
@@ -184,10 +193,18 @@ const _shouldUpdateItem = (state, categoryId) => {
   return true
 }
 
+const _shouldUpdateItems = (state, categoryId) => {
+  const { items } = state
+  if (items && items.flow[categoryId] && items.flow[categoryId].isUpdating) {
+    return false
+  }
+  return true
+}
+
 const _fetchItems = categoryId => dispatch => {
   dispatch(_receivingItemsAction(categoryId))
   const params = {
-    collection: 'categories_items',
+    mainCollectionId: 'categories_items',
     collectionId: categoryId
   }
   return API('firebase').fetch(params)
@@ -205,7 +222,7 @@ const _fetchItems = categoryId => dispatch => {
 const _fetchItem = (categoryId, itemId) => dispatch => {
   dispatch(_receivingItemAction(categoryId))
   const params = {
-    collection: 'categories_items',
+    mainCollectionId: 'categories_items',
     collectionId: categoryId,
     documentId: itemId
   }
@@ -225,10 +242,10 @@ const _createItem = (categoryId, item) => dispatch => {
   dispatch(_creatingItemAction(categoryId))
   const newItem = {createdAt: Date.now(), ...convertArraysToObject(item)}
   const params = {
-    collection: 'categories_items',
+    mainCollectionId: 'categories_items',
     collectionId: categoryId,
-    generateDocumentId: true,
-    document: newItem
+    isNew: true,
+    values: newItem
   }
   return new Promise((resolve, reject) => {
     API('firebase').update(params).then(
@@ -248,10 +265,10 @@ const _updateItem = (categoryId, itemId, item) => dispatch => {
   dispatch(_updatingItemAction(categoryId))
   const updatedItem = {...convertArraysToObject(item), updatedAt: Date.now()}
   const params = {
-    collection: 'categories_items',
+    mainCollectionId: 'categories_items',
     collectionId: categoryId,
     documentId: itemId,
-    document: updatedItem
+    values: updatedItem
   }
   
   return new Promise((resolve, reject) => {
@@ -268,13 +285,38 @@ const _updateItem = (categoryId, itemId, item) => dispatch => {
   })
 }
 
+const _updateItems = (categoryId, itemIds, values) => dispatch => {
+  dispatch(_updatingItemAction(categoryId))
+  const newValues = {...convertArraysToObject(values), updatedAt: Date.now()}
+  const params = {
+    mainCollectionId: 'categories_items',
+    collectionId: categoryId,
+    isMassive: true,
+    documentIds: itemIds,
+    values: newValues
+  }
+  
+  return new Promise((resolve, reject) => {
+    API('firebase').update(params).then(
+      documentIds => {
+        dispatch(_updateItemsAction(categoryId, documentIds, newValues))
+        resolve(documentIds)
+      },
+      error => {
+        dispatch(_errorUpdatingItemAction(categoryId, error))
+        reject(`An error occurred updating items of ${categoryId}:`, error)
+      }
+    )
+  })
+}
+
 const _removeItem = (categoryId, itemId) => dispatch => {
   dispatch(_removingItemAction(categoryId))
   const params = {
-    collection: 'categories_items',
+    mainCollectionId: 'categories_items',
     collectionId: categoryId,
     documentId: itemId,
-    document: null
+    values: null
   }
   return new Promise((resolve, reject) => {
     API('firebase').update(params).then(
@@ -341,6 +383,15 @@ export const updateItem = (categoryId, itemId, item) => {
   return (dispatch, getState) => {
     if (_shouldUpdateItem(getState(), categoryId)) {
       return dispatch(_updateItem(categoryId, itemId, item))
+    }
+    return _reject()
+  }
+}
+
+export const updateItems = (categoryId, itemIds, values) => {
+  return (dispatch, getState) => {
+    if (_shouldUpdateItems(getState(), categoryId)) {
+      return dispatch(_updateItems(categoryId, itemIds, values))
     }
     return _reject()
   }

@@ -17,35 +17,65 @@ const database = firebase.database()
 export default class firebaseAPI {
 
   static fetch =
-  ({collection, collectionId='', documentId=''}) => {
-    let ref = database.ref(collection)
+  ({mainCollectionId, collectionId='', documentId=''}) => {
+    let ref = database.ref(mainCollectionId)
     if (collectionId) ref = ref.child(collectionId)
     if (documentId) ref = ref.child(documentId)
     return new Promise((resolve, reject) => {
       ref.once('value').then(snapshot =>
         snapshot.val() ?
           resolve(snapshot.val()) :
-          reject(`Attempted to access to ${collection}/${collectionId}/${documentId}`)
+          reject(`Attempted to access to ${mainCollectionId}/${collectionId}/${documentId}`)
       )
     })
   }
 
   static update = 
-  ({collection, collectionId='', generateDocumentId=false, documentId='', document}) => {
-    const ref = database.ref().child(collection)
-    const _collectionId = collectionId ? `${collectionId}/` : ''
-    const _documentId = documentId || (generateDocumentId ? ref.push().key : '')
-    const path = `${_collectionId}${_documentId}`
+  ({mainCollectionId, collectionId='', isNew=false, isMassive=false, documentId='', documentIds=[], values}) => {
+    const ref = database.ref().child(mainCollectionId)
+    let pathCollection = ''
+    if (collectionId){
+      pathCollection = `${collectionId}/`
+    }
+
     return new Promise((resolve, reject) => {
-      let updates = {}
-      if (path) {
-        updates[`${path}`] = document
+
+      if (!isMassive && !isNew && (!documentId || typeof documentId !== 'string')) {
+        reject(`Attempted to access to ${mainCollectionId}/${pathCollection}/ with incorrect documentId: ${documentId}`)
+        return
       }
-      ref.update(Object.keys(updates).length ? updates : document).then(() => {
-        resolve(_documentId)
-      }).catch(() => {
-        reject(`Attempted to access to ${collection}/${_collectionId}/${_documentId}`)
-      })
+      if (isMassive && (!documentIds || !Array.isArray(documentIds) || !documentIds.length)) {
+        reject(`Attempted to access to ${mainCollectionId}/${pathCollection}/ with incorrect documentIds: ${documentIds}`)
+        return
+      }
+
+      if (!isMassive) {
+        let pathDocument = ''
+        let updates = {}
+        if (isNew) {
+          pathDocument = ref.push().key
+        } else if (!isMassive) {
+          pathDocument = documentId
+        }
+        updates[`${pathCollection}${pathDocument}`] = values
+        ref.update(updates).then(() => {
+          resolve(pathDocument)
+        }).catch(() => {
+          reject(`Attempted to access to ${mainCollectionId}/${pathCollection}/${documentId}`)
+        })
+
+      } else {
+        let sets = {}
+        documentIds.forEach(documentId => {
+          sets[`${pathCollection}${documentId}`] = values
+        })
+        ref.set(sets).then(() => {
+          resolve(documentIds)
+        }).catch(() => {
+          reject(`Attempted to access to ${mainCollectionId}/${pathCollection}/${documentId}`)
+        })
+      }
+
     })
   }
 }

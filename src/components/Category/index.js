@@ -6,7 +6,7 @@ import PropTypes from 'prop-types'
 import CategoryList from './list'
 import CategoryItemDetail from './detail'
 import CategoryItemNew from './new'
-import { createItem, updateItem, removeItem } from '../../actions/items'
+import { createItem, updateItem, updateItems, removeItem } from '../../actions/items'
 import { fetchCategoriesIfNeeded } from '../../actions/categories'
 import { fetchSettings, fetchSettingsIfNeeded } from '../../actions/settings'
 import { fetchFields, fetchFieldsIfNeeded } from '../../actions/fields'
@@ -85,6 +85,19 @@ class Category extends Component {
       },
       error => {
         notify(`Error updating ${infoItem}: ${error}`, 'error')
+      }
+    )
+  }
+
+  onUpdateItems = (itemIds, values, itemAction=null) => {
+    const { updateItems, itemLabel, notify } = this.props
+    return updateItems(itemIds, values).then(
+      () => {
+        const action = itemAction ? itemAction : 'updated'
+        notify(`${itemLabel} has been ${action}`, 'success')
+      },
+      error => {
+        notify(`Error updating ${itemLabel}: ${error}`, 'error')
       }
     )
   }
@@ -244,6 +257,7 @@ class Category extends Component {
         itemIds,
         mode,
         onUpdateItem: this.onUpdateItem,
+        onUpdateItems: this.onUpdateItems,
         getNextStatesAsOperations: this.getNextStatesAsOperations
       }
       switch (mode) {
@@ -339,6 +353,7 @@ Category.propTypes = {
   notify: PropTypes.func.isRequired,
   createItem: PropTypes.func.isRequired,
   updateItem: PropTypes.func.isRequired,
+  updateItems: PropTypes.func.isRequired,
   removeItem: PropTypes.func.isRequired,
   fetchCategoriesIfNeeded: PropTypes.func.isRequired,
   fetchSettings: PropTypes.func.isRequired,
@@ -377,6 +392,7 @@ const mapDispatchToProps = (dispatch, props) => {
     notify: (message, type) => dispatch(notify(message, type)),
     createItem: values => dispatch(createItem(categoryId, values)),
     updateItem: (itemId, values) => dispatch(updateItem(categoryId, itemId, values)),
+    updateItems: (itemIds, values) => dispatch(updateItems(categoryId, itemIds, values)),
     removeItem: itemId => dispatch(removeItem(categoryId, itemId)),
     fetchCategoriesIfNeeded: () => dispatch(fetchCategoriesIfNeeded()),
     fetchSettings: () => dispatch(fetchSettings(categoryId)),

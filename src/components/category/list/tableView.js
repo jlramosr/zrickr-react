@@ -11,7 +11,21 @@ import {
   GroupingPanel, DragDropProvider, TableColumnReordering, Toolbar
 } from '@devexpress/dx-react-grid-material-ui'
 import { isObject } from '../../../utils/helpers'
+import { getItemString } from './../utils/helpers'
 import { withStyles } from 'material-ui/styles'
+
+const styles = theme => ({
+  row: {
+    cursor: 'pointer',
+    height: 32,
+    '&:hover': {
+      background: theme.palette.grey.light
+    }
+  },
+
+  cell: {
+  }
+})
 
 const getCellValue = value => {
   if (isObject(value)) {
@@ -30,10 +44,6 @@ const getColumns = (fields=[]) => {
 }
 
 const getRowId = row => row.id
-
-const Cell = props => {
-  return <VirtualTable.Cell {...props} />
-}
 
 const CurrencyFormatter = ({ value }) =>
   <b style={{ color: 'darkblue' }}>${value}</b>
@@ -55,13 +65,6 @@ const DateTypeProvider = props => (
   />
 )
 
-const styles = theme => ({
-  row: {
-    cursor: 'pointer',
-    height: theme.standards.tableRowHeight
-  }
-})
-
 class CategoryTableView extends Component {
   state = {
     columns: getColumns(this.props.fields),
@@ -74,67 +77,112 @@ class CategoryTableView extends Component {
     ]
   }
 
+  renderRow = props => {
+    const { primaryFields, primaryFieldsSeparator, classes } = this.props
+    const { row } = props
+    const primaryInfo = getItemString(row, primaryFields, primaryFieldsSeparator) || ' '
+    return <VirtualTable.Row
+      onClick={() => this.props.onItemClick(row.id, primaryInfo)}
+      className={classes.row}
+      {...props}
+    />
+  }
+
+  renderCell = props => {
+    const { classes } = this.props
+    return <VirtualTable.Cell className={classes.cell} {...props} />
+  }
+
   changeSelection = selection => {
     this.setState({ selection })
     this.props.changeActiveIds(selection)
   }
 
   render = () => {
-    const { items, mode, editable, classes } = this.props
+    const { items, mode, editable } = this.props
     const { columns, dateColumns, currencyColumns, selection, tableColumnExtensions } = this.state
 
     const allActionsAvailable =  mode !== 'relation' && editable
-    const selectionActionAvailable = editable
+    const selectionActionAvailable = mode !== 'relation'
 
     return (
       <Grid rows={items} columns={columns} getRowId={getRowId}>
-        <DragDropProvider />
-
+        {allActionsAvailable &&
+          <DragDropProvider />
+        }
+        
         <CurrencyTypeProvider for={currencyColumns} />
         <DateTypeProvider for={dateColumns} />
 
-        <FilteringState
-          /*defaultFilters={[{ columnName: '12344', value: 'Infinis' }]}*/
-        />
+        {allActionsAvailable &&
+          <FilteringState
+            /*defaultFilters={[{ columnName: '12344', value: 'Infinis' }]}*/
+          />
+        }
         <SortingState
           defaultSorting={[
             { columnName: '12330', direction: 'asc' },
             { columnName: '12331', direction: 'asc' }
           ]}
         />
-        <GroupingState
-          /*defaultGrouping={[{ columnName: '12330' }]}
-          defaultExpandedGroups={['EnviroCare Max']}*/
-        />
-        <SelectionState
-          selection={selection}
-          onSelectionChange={this.changeSelection}
-        />
 
-        <IntegratedFiltering />
+        {allActionsAvailable &&
+          <GroupingState
+            /*defaultGrouping={[{ columnName: '12330' }]}
+            defaultExpandedGroups={['EnviroCare Max']}*/
+          />
+        }
+        
+        {selectionActionAvailable && 
+          <SelectionState
+            selection={selection}
+            onSelectionChange={this.changeSelection}
+          />
+        }
+
         <IntegratedSorting />
-        <IntegratedGrouping />
-        <IntegratedSelection />
+        {allActionsAvailable &&
+          <IntegratedFiltering />
+        }
+        {allActionsAvailable &&
+          <IntegratedGrouping />
+        }
+        {selectionActionAvailable &&
+          <IntegratedSelection />
+        }
 
         <VirtualTable
           columnExtensions={tableColumnExtensions}
-          cellComponent={Cell}
-          estimatedHeight={20}
+          rowComponent={this.renderRow}
+          cellComponent={this.renderCell}
         />
         <TableHeaderRow showSortingControls />
-        <TableColumnReordering defaultOrder={columns.map(column => column.name)} />
-        <TableFilterRow />
-        <TableSelection showSelectAll />
-        <TableGroupRow />
-        <Toolbar />
-        <GroupingPanel showSortingControls />
+
+        {allActionsAvailable &&
+          <TableColumnReordering defaultOrder={columns.map(column => column.name)} />
+        }
+        {allActionsAvailable &&
+          <TableFilterRow />
+        }
+        {allActionsAvailable &&
+          <TableGroupRow />
+        }
+        {selectionActionAvailable &&
+          <TableSelection showSelectAll />
+        }
+        {allActionsAvailable &&
+          <Toolbar />
+        }
+        {allActionsAvailable &&
+          <GroupingPanel showSortingControls />
+        }
       </Grid>
     )
   }
 }
 
 CategoryTableView.propTypes = {
-  mode: PropTypes.oneOf(['normal', 'relation', 'selection']).isRequired,
+  mode: PropTypes.oneOf(['normal', 'relation', 'election']).isRequired,
   categoryId: PropTypes.string.isRequired,
   items: PropTypes.array.isRequired,
   classes: PropTypes.object.isRequired

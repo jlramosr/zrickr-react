@@ -27,7 +27,7 @@ const _receiveSettingsAction = (categoryId, settingsId, settings) => ({
 const _fetchSettings = categoryId => dispatch => {
   dispatch(_receivingSettingsAction(categoryId))
   const params = {
-    collection: 'categories_settings',
+    mainCollectionId: 'categories_settings',
     collectionId: categoryId
   }
   return API('firebase').fetch(params)

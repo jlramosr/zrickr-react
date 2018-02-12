@@ -19,6 +19,7 @@ import Snackbar from 'material-ui/Snackbar'
 import IconButton from 'material-ui/IconButton'
 import Directions from 'material-ui-icons/Directions'
 import SelectAll from 'material-ui-icons/SelectAll'
+import PlaylistAddCheck from 'material-ui-icons/PlaylistAddCheck'
 import Menu from './../../menu'
 import { showRelations, addOpenRelation, removeAllOpenRelations } from '../../../actions/interactions'
 import { capitalize } from './../../../utils/helpers'
@@ -197,7 +198,7 @@ class CategoryList extends Component {
     this.setState({activeIds: [], nextStatesOperations: []})
   }
 
-  onClickItem = (itemId, itemTitle='') => {
+  onItemClick = (itemId, itemTitle='') => {
     const { mode, categoriesPath, categoryId, history, onSelect } = this.props
     if (mode === 'normal') {
       history.push(`/${categoriesPath}/${categoryId}/${itemId}`)
@@ -374,11 +375,64 @@ class CategoryList extends Component {
 
       items: showingItems,
       searchQuery,
-      onClickItem: this.onClickItem
+      onItemClick: this.onItemClick
     }
 
     const { activeIndex } = openRelations
     const activeRelationItem = openRelations.list[activeIndex]
+
+    let snackbarActions = []
+    if (mode === 'normal') {
+      snackbarActions = [
+        <IconButton
+          disabled={!nextStatesOperations.length}
+          key="changeState"
+          color="contrast"
+          classes={{disabled: classes.snackbarIconDisabled}}
+          aria-label="Change State"
+          onClick={() => {
+            this.props.onUpdateItems(activeIds, {state: 'emitido'})
+            //this.onChangeStateMenu
+          }}
+        >
+          <Directions />
+        </IconButton>,
+        <IconButton
+          key="delete"
+          color="contrast"
+          aria-label="Delete"
+          onClick={this.removeAllActiveIds}
+        >
+          <Delete />
+        </IconButton>
+      ]
+      if (view === 'agenda') {
+        snackbarActions = [
+          <IconButton
+            disabled={activeIds.length === showingItems.length}
+            key="selectAll"
+            color="contrast"
+            classes={{disabled: classes.snackbarIconDisabled}}
+            aria-label="Select All"
+            onClick={this.addAllActiveIds}
+          >
+            <SelectAll />
+          </IconButton>,
+          ...snackbarActions
+        ]
+      }
+    } else if (mode === 'election') {
+      snackbarActions = [
+        <IconButton
+          key="choose"
+          color="contrast"
+          aria-label="Choose"
+          onClick={() => this.props.onSelect(activeIds)}
+        >
+          <PlaylistAddCheck />
+        </IconButton>
+      ]
+    }
 
     return (
       <HeaderLayout
@@ -501,38 +555,7 @@ class CategoryList extends Component {
               </span>
             </React.Fragment>
           }
-          action={[
-            mode === 'agenda' ?
-              <IconButton
-                disabled={activeIds.length === showingItems.length}
-                key="selectAll"
-                color="contrast"
-                classes={{disabled: classes.snackbarIconDisabled}}
-                aria-label="Select All"
-                onClick={this.addAllActiveIds}
-              >
-                <SelectAll />
-              </IconButton> :
-              <div key="selectAll"></div>,
-            <IconButton
-              disabled={!nextStatesOperations.length}
-              key="changeState"
-              color="contrast"
-              classes={{disabled: classes.snackbarIconDisabled}}
-              aria-label="Change State"
-              onClick={this.onChangeStateMenu}
-            >
-              <Directions />
-            </IconButton>,
-            <IconButton
-              key="delete"
-              color="contrast"
-              aria-label="Delete"
-              onClick={this.removeAllActiveIds}
-            >
-              <Delete />
-            </IconButton>
-          ]}
+          action={snackbarActions}
         />
 
         {Boolean(activeIds.length) && 

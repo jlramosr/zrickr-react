@@ -12,6 +12,7 @@ import { CREATE_CATEGORY_ITEM } from '../actions/items'
 import { UPDATING_CATEGORY_ITEM } from '../actions/items'
 import { UPDATING_CATEGORY_ITEM_ERROR } from '../actions/items'
 import { UPDATE_CATEGORY_ITEM } from '../actions/items'
+import { UPDATE_CATEGORY_ITEMS } from '../actions/items'
 import { REMOVING_CATEGORY_ITEM } from '../actions/items'
 import { REMOVING_CATEGORY_ITEM_ERROR } from '../actions/items'
 import { REMOVE_CATEGORY_ITEM } from '../actions/items'
@@ -223,6 +224,19 @@ const byId = (state = initialByIdState, action) => {
           ...action.item
         }
       }
+    case UPDATE_CATEGORY_ITEMS: {
+      console.log("HOLA", action);
+      return {
+        ...state,
+        ...action.itemIds.reduce((items, itemId) => ({
+          ...items,
+          [itemId]: {
+            ...state.itemId,
+            ...action.values
+          }
+        }),{})
+      }
+    }
     case REMOVE_CATEGORY_ITEM: {
       let {[action.itemId]: deleted, ...newState} = state
       return newState

@@ -179,12 +179,12 @@ class CategoryAgendaView extends Component {
     this.props.items.find(item => item.id === id)
 
   onItemClick = (itemId, primaryInfo) => {
-    const { mode, onClickItem, activeIds, changeActiveIds } = this.props
+    const { mode, onItemClick, activeIds, changeActiveIds } = this.props
     const massiveSelection = Boolean(activeIds.length)
     if (mode === 'relation') {
-      onClickItem(itemId)
+      onItemClick(itemId, primaryInfo)
     } else if (!massiveSelection) {
-      onClickItem(itemId, primaryInfo)
+      onItemClick(itemId, primaryInfo)
     } else if (!this.firstActiveId) {
       changeActiveIds(itemId)
     }

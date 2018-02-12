@@ -27,7 +27,7 @@ const _receiveFieldsAction = (categoryId, fields) => ({
 const _fetchFields = categoryId => dispatch => {
   dispatch(_receivingFieldsAction(categoryId))
   const params = {
-    collection: 'categories_fields',
+    mainCollectionId: 'categories_fields',
     collectionId: categoryId
   }
   return API('firebase').fetch(params)
