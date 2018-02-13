@@ -50,14 +50,14 @@ class CategoryItemNew extends Component {
   }
 
   createItem = values => {
-    const { onCreateItem, primaryFields, closeDialog } = this.props
+    const { onCreateItems, primaryFields, closeDialog } = this.props
     const { itemState } = this.state
     const title = getItemString(values, primaryFields)
     let valuesWithState = {...values}
     if (itemState) {
       valuesWithState = {...valuesWithState, state:itemState.id}
     }
-    return onCreateItem(valuesWithState, title).then(() => {
+    return onCreateItems(valuesWithState, title).then(() => {
       closeDialog()
     })
   }
@@ -175,7 +175,7 @@ class CategoryItemNew extends Component {
 CategoryItemNew.propTypes = {
 
   categoryId: PropTypes.string.isRequired,
-  onCreateItem: PropTypes.func.isRequired,
+  onCreateItems: PropTypes.func.isRequired,
   getNextStatesAsOperations: PropTypes.func.isRequired,
   closeDialog: PropTypes.func.isRequired,
 
@@ -199,7 +199,7 @@ const mapStateToProps = ({ categories, fields, settings, items }, props) => {
     categoryStates: categorySettings.states,
     fields: Object.values(fields.byId).filter(field => category.fields.includes(field.id)),
     isFetchingFields: fields.flow[categoryId].isFetchingAll,
-    isCreatingItem: items.flow[categoryId].isUpdating
+    isCreatingItem: items.flow[categoryId].isChanging
   }
 }
 

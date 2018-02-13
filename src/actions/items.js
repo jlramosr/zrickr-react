@@ -6,16 +6,15 @@ export const RECEIVE_CATEGORY_ITEMS = 'RECEIVE_CATEGORY_ITEMS'
 export const RECEIVING_CATEGORY_ITEM = 'RECEIVING_CATEGORY_ITEM'
 export const RECEIVING_CATEGORY_ITEM_ERROR = 'RECEIVING_CATEGORY_ITEM_ERROR'
 export const RECEIVE_CATEGORY_ITEM = 'RECEIVE_CATEGORY_ITEM'
-export const CREATING_CATEGORY_ITEM = 'CREATING_CATEGORY_ITEM'
-export const CREATING_CATEGORY_ITEM_ERROR = 'CREATING_CATEGORY_ITEM_ERROR'
-export const CREATE_CATEGORY_ITEM = 'CREATE_CATEGORY_ITEM'
-export const UPDATING_CATEGORY_ITEM = 'UPDATING_CATEGORY_ITEM'
-export const UPDATING_CATEGORY_ITEM_ERROR = 'UPDATING_CATEGORY_ITEM_ERROR'
-export const UPDATE_CATEGORY_ITEM = 'UPDATE_CATEGORY_ITEM'
+export const CREATING_CATEGORY_ITEMS = 'CREATING_CATEGORY_ITEMS'
+export const CREATING_CATEGORY_ITEMS_ERROR = 'CREATING_CATEGORY_ITEMS_ERROR'
+export const CREATE_CATEGORY_ITEMS = 'CREATE_CATEGORY_ITEMS'
+export const UPDATING_CATEGORY_ITEMS = 'UPDATING_CATEGORY_ITEMS'
+export const UPDATING_CATEGORY_ITEMS_ERROR = 'UPDATING_CATEGORY_ITEMS_ERROR'
 export const UPDATE_CATEGORY_ITEMS = 'UPDATE_CATEGORY_ITEMS'
-export const REMOVING_CATEGORY_ITEM = 'REMOVING_CATEGORY_ITEM'
-export const REMOVING_CATEGORY_ITEM_ERROR = 'REMOVING_CATEGORY_ITEM_ERROR'
-export const REMOVE_CATEGORY_ITEM = 'REMOVE_CATEGORY_ITEM'
+export const REMOVING_CATEGORY_ITEMS = 'REMOVING_CATEGORY_ITEMS'
+export const REMOVING_CATEGORY_ITEMS_ERROR = 'REMOVING_CATEGORY_ITEMS_ERROR'
+export const REMOVE_CATEGORY_ITEMS = 'REMOVE_CATEGORY_ITEMS'
 
 const convertArraysToObject = item => {
   for (const fieldKey of Object.keys(item)) {
@@ -29,39 +28,39 @@ const convertArraysToObject = item => {
   return item
 } 
 
-const _receivingItemsAction = categoryId => ({
+const receivingItemsAction = categoryId => ({
   type: RECEIVING_CATEGORY_ITEMS,
   fetchedAllAt: Date.now(),
   categoryId
 })
 
-const _errorReceivingItemsAction = (categoryId, error) => ({
+const errorReceivingItemsAction = (categoryId, error) => ({
   type: RECEIVING_CATEGORY_ITEMS_ERROR,
   error: `${Date.now()} ${error}`,
   categoryId
 })
 
-const _receiveItemsAction = (categoryId, items) => ({
+const receiveItemsAction = (categoryId, items) => ({
   type: RECEIVE_CATEGORY_ITEMS,
   receivedAllAt: Date.now(),
   categoryId,
   items
 })
 
-const _receivingItemAction = (categoryId, itemId) => ({
+const receivingItemAction = (categoryId, itemId) => ({
   type: RECEIVING_CATEGORY_ITEM,
   fetchedItemAt: Date.now(),
   categoryId,
   itemId
 })
 
-const _errorReceivingItemAction = (categoryId, error) => ({
+const errorReceivingItemAction = (categoryId, error) => ({
   type: RECEIVING_CATEGORY_ITEM_ERROR,
   error: `${Date.now()} ${error}`,
   categoryId
 })
 
-const _receiveItemAction = (categoryId, itemId, item) => ({
+const receiveItemAction = (categoryId, itemId, item) => ({
   type: RECEIVE_CATEGORY_ITEM,
   receivedItemAt: Date.now(),
   categoryId,
@@ -69,47 +68,38 @@ const _receiveItemAction = (categoryId, itemId, item) => ({
   item
 })
 
-const _creatingItemAction = categoryId => ({
-  type: CREATING_CATEGORY_ITEM,
+const creatingItemAction = categoryId => ({
+  type: CREATING_CATEGORY_ITEMS,
   categoryId
 })
 
-const _errorCreatingItemAction = (categoryId, error) => ({
-  type: CREATING_CATEGORY_ITEM_ERROR,
+const errorCreatingItemAction = (categoryId, error) => ({
+  type: CREATING_CATEGORY_ITEMS_ERROR,
   error: `${Date.now()} ${error}`,
   categoryId
 })
 
-const _createItemAction = (categoryId, itemId, item) => ({
-  type: CREATE_CATEGORY_ITEM,
+const createItemsAction = (categoryId, itemIds, values) => ({
+  type: CREATE_CATEGORY_ITEMS,
   createdItemAt: Date.now(),
   categoryId,
-  itemId,
-  item
+  itemIds,
+  values
 })
 
-const _updatingItemAction = (categoryId, itemId) => ({
-  type: UPDATING_CATEGORY_ITEM,
-  categoryId,
-  itemId
+const updatingItemsAction = categoryId => ({
+  type: UPDATING_CATEGORY_ITEMS,
+  categoryId
 })
 
-const _errorUpdatingItemAction = (categoryId, itemId, error) => ({
-  type: UPDATING_CATEGORY_ITEM_ERROR,
+const errorUpdatingItemsAction = (categoryId, itemIds, error) => ({
+  type: UPDATING_CATEGORY_ITEMS_ERROR,
   error: `${Date.now()} ${error}`,
   categoryId,
-  itemId
+  itemIds
 })
 
-const _updateItemAction = (categoryId, itemId, item) => ({
-  type: UPDATE_CATEGORY_ITEM,
-  updatedItemAt: Date.now(),
-  categoryId,
-  itemId,
-  item
-})
-
-const _updateItemsAction = (categoryId, itemIds, values) => ({
+const updateItemsAction = (categoryId, itemIds, values) => ({
   type: UPDATE_CATEGORY_ITEMS,
   updatedItemAt: Date.now(),
   categoryId,
@@ -117,27 +107,27 @@ const _updateItemsAction = (categoryId, itemIds, values) => ({
   values
 })
 
-const _removingItemAction = (categoryId, itemId) => ({
-  type: REMOVING_CATEGORY_ITEM,
+const removingItemsAction = (categoryId, itemIds) => ({
+  type: REMOVING_CATEGORY_ITEMS,
   categoryId,
-  itemId
+  itemIds
 })
 
-const _errorRemovingItemAction = (categoryId, itemId, error) => ({
-  type: REMOVING_CATEGORY_ITEM_ERROR,
+const errorRemovingItemsAction = (categoryId, itemIds, error) => ({
+  type: REMOVING_CATEGORY_ITEMS_ERROR,
   error: `${Date.now()} ${error}`,
   categoryId,
-  itemId
+  itemIds
 })
 
-const _removeItemAction = (categoryId, itemId) => ({
-  type: REMOVE_CATEGORY_ITEM,
+const removeItemsAction = (categoryId, itemIds) => ({
+  type: REMOVE_CATEGORY_ITEMS,
   deletedItemAt: Date.now(),
   categoryId,
-  itemId
+  itemIds
 })
 
-const _shouldFetchItems = (state, categoryId) => {
+const shouldFetchItems = (state, categoryId) => {
   const { items } = state
   if (items && items.flow[categoryId] && items.flow[categoryId].isFetchingAll) {
     return false
@@ -145,7 +135,7 @@ const _shouldFetchItems = (state, categoryId) => {
   return true
 }
 
-const _shouldFetchItemsIfNeeded = (state, categoryId) => {
+const shouldFetchItemsIfNeeded = (state, categoryId) => {
   const { items } = state
   if (!items) {
     return true
@@ -159,7 +149,7 @@ const _shouldFetchItemsIfNeeded = (state, categoryId) => {
   return !items.flow[categoryId].isReceivedAll
 }
 
-const _shouldFetchItem = (state, categoryId) => {
+const shouldFetchItem = (state, categoryId) => {
   const { items } = state
   if (items && items.flow[categoryId] && items.flow[categoryId].isFetchingItem) {
     return false
@@ -167,7 +157,7 @@ const _shouldFetchItem = (state, categoryId) => {
   return true
 }
 
-const _shouldFetchItemIfNeeded = (state, categoryId, itemId) => {
+const shouldFetchItemIfNeeded = (state, categoryId, itemId) => {
   const { categories, items } = state
   if (!categories) {
     return true
@@ -185,24 +175,16 @@ const _shouldFetchItemIfNeeded = (state, categoryId, itemId) => {
   return false
 }
 
-const _shouldUpdateItem = (state, categoryId) => {
+const shouldUpdateItems = (state, categoryId) => {
   const { items } = state
-  if (items && items.flow[categoryId] && items.flow[categoryId].isUpdating) {
-    return false
-  }
-  return true
-}
-
-const _shouldUpdateItems = (state, categoryId) => {
-  const { items } = state
-  if (items && items.flow[categoryId] && items.flow[categoryId].isUpdating) {
+  if (items && items.flow[categoryId] && items.flow[categoryId].isChanging) {
     return false
   }
   return true
 }
 
 const _fetchItems = categoryId => dispatch => {
-  dispatch(_receivingItemsAction(categoryId))
+  dispatch(receivingItemsAction(categoryId))
   const params = {
     mainCollectionId: 'categories_items',
     collectionId: categoryId
@@ -210,17 +192,17 @@ const _fetchItems = categoryId => dispatch => {
   return API('firebase').fetch(params)
     .then(
       items => {
-        dispatch(_receiveItemsAction(categoryId, items || {}))
+        dispatch(receiveItemsAction(categoryId, items || {}))
       },
       error => {
         console.error(`An error occurred fetching items of ${categoryId}:`, error)
-        dispatch(_errorReceivingItemsAction(categoryId, error))
+        dispatch(errorReceivingItemsAction(categoryId, error))
       }
     )
 }
 
 const _fetchItem = (categoryId, itemId) => dispatch => {
-  dispatch(_receivingItemAction(categoryId))
+  dispatch(receivingItemAction(categoryId))
   const params = {
     mainCollectionId: 'categories_items',
     collectionId: categoryId,
@@ -229,179 +211,105 @@ const _fetchItem = (categoryId, itemId) => dispatch => {
   return API('firebase').fetch(params)
     .then(
       item => {
-        dispatch(_receiveItemAction(categoryId, itemId, item || {}))
+        dispatch(receiveItemAction(categoryId, itemId, item || {}))
       },
       error => {
-        console.error(`An error occurred fetching item ${itemId} of ${categoryId}:`, error)
-        dispatch(_errorReceivingItemAction(categoryId, error))
+        console.error(error)
+        dispatch(errorReceivingItemAction(categoryId, error))
       }
     )
 }
 
-const _createItem = (categoryId, item) => dispatch => {
-  dispatch(_creatingItemAction(categoryId))
-  const newItem = {createdAt: Date.now(), ...convertArraysToObject(item)}
+const _createItems = (categoryId, values, quantity) => dispatch => {
+  dispatch(creatingItemAction(categoryId))
+  const newValues = {createdAt: Date.now(), ...convertArraysToObject(values)}
   const params = {
     mainCollectionId: 'categories_items',
     collectionId: categoryId,
-    isNew: true,
-    values: newItem
+    values: newValues,
+    quantity
   }
   return new Promise((resolve, reject) => {
-    API('firebase').update(params).then(
-      documentId => {
-        dispatch(_createItemAction(categoryId, documentId, newItem))
-        resolve(documentId)
+    API('firebase').create(params).then(
+      documentIds => {
+        dispatch(createItemsAction(categoryId, documentIds, newValues))
+        resolve(documentIds)
       },
       error => {
-        dispatch(_errorCreatingItemAction(categoryId, error))
-        reject(`An error occurred creating item of ${categoryId}:`, error)
-      }
-    )
-  })
-}
-
-const _updateItem = (categoryId, itemId, item) => dispatch => {
-  dispatch(_updatingItemAction(categoryId))
-  const updatedItem = {...convertArraysToObject(item), updatedAt: Date.now()}
-  const params = {
-    mainCollectionId: 'categories_items',
-    collectionId: categoryId,
-    documentId: itemId,
-    values: updatedItem
-  }
-  
-  return new Promise((resolve, reject) => {
-    API('firebase').update(params).then(
-      documentId => {
-        dispatch(_updateItemAction(categoryId, documentId, updatedItem))
-        resolve(documentId)
-      },
-      error => {
-        dispatch(_errorUpdatingItemAction(categoryId, error))
-        reject(`An error occurred updating item ${itemId} of ${categoryId}:`, error)
+        console.error(error)
+        dispatch(errorCreatingItemAction(categoryId, error))
+        reject(error)
       }
     )
   })
 }
 
 const _updateItems = (categoryId, itemIds, values) => dispatch => {
-  dispatch(_updatingItemAction(categoryId))
+  dispatch(updatingItemsAction(categoryId))
   const newValues = {...convertArraysToObject(values), updatedAt: Date.now()}
   const params = {
     mainCollectionId: 'categories_items',
     collectionId: categoryId,
-    isMassive: true,
     documentIds: itemIds,
     values: newValues
   }
-  
   return new Promise((resolve, reject) => {
     API('firebase').update(params).then(
       documentIds => {
-        dispatch(_updateItemsAction(categoryId, documentIds, newValues))
+        dispatch(updateItemsAction(categoryId, documentIds, newValues))
         resolve(documentIds)
       },
       error => {
-        dispatch(_errorUpdatingItemAction(categoryId, error))
-        reject(`An error occurred updating items of ${categoryId}:`, error)
+        console.error(error)
+        dispatch(errorUpdatingItemsAction(categoryId, error))
+        reject(error)
       }
     )
   })
 }
 
-const _removeItem = (categoryId, itemId) => dispatch => {
-  dispatch(_removingItemAction(categoryId))
+const _removeItems = (categoryId, itemIds) => dispatch => {
+  dispatch(removingItemsAction(categoryId))
   const params = {
     mainCollectionId: 'categories_items',
     collectionId: categoryId,
-    documentId: itemId,
-    values: null
+    documentIds: itemIds
   }
   return new Promise((resolve, reject) => {
-    API('firebase').update(params).then(
+    API('firebase').remove(params).then(
       documentId => {
-        dispatch(_removeItemAction(categoryId, documentId))
+        dispatch(removeItemsAction(categoryId, documentId))
         resolve(documentId)
       },
       error => {
-        dispatch(_errorRemovingItemAction(categoryId, itemId, error))
-        reject(`An error occurred deleting item ${itemId} of ${categoryId}:`, error)
+        console.error(error)
+        dispatch(errorRemovingItemsAction(categoryId, itemIds, error))
+        reject(`An error occurred deleting item ${itemIds} of ${categoryId}:`, error)
       }
     )
   })
 }
 
-const _reject = errorMessage => {
-  return new Promise((resolve, reject) =>
-    reject(errorMessage || 'Another process is currently in progress')
-  )
-}
+const refuseTask = errorMessage =>
+  new Promise((resolve, reject) => reject(errorMessage || 'Another process is currently in progress'))
 
-export const fetchItems = categoryId => {
-  return (dispatch, getState) => {
-    if (_shouldFetchItems(getState(), categoryId)) {
-      return dispatch(_fetchItems(categoryId))
-    }
-  }
-}
+export const fetchItems = categoryId => (dispatch, getState) =>
+  shouldFetchItems(getState(), categoryId) ? dispatch(_fetchItems(categoryId)) : null
 
-export const fetchItemsIfNeeded = categoryId => {
-  return (dispatch, getState) => {
-    if (_shouldFetchItemsIfNeeded(getState(), categoryId)) {
-      return dispatch(_fetchItems(categoryId))
-    }
-  }
-}
+export const fetchItemsIfNeeded = categoryId => (dispatch, getState) =>
+  shouldFetchItemsIfNeeded(getState(), categoryId) ? dispatch(_fetchItems(categoryId)) : null
 
-export const fetchItem = (categoryId, itemId) => {
-  return (dispatch, getState) => {
-    if (_shouldFetchItem(getState(), categoryId, itemId)) {
-      return dispatch(_fetchItem(categoryId, itemId))
-    }
-  }
-}
+export const fetchItem = (categoryId, itemId) => (dispatch, getState) =>
+  shouldFetchItem(getState(), categoryId, itemId) ? dispatch(_fetchItem(categoryId, itemId)) : null
 
-export const fetchItemIfNeeded = (categoryId, itemId) => {
-  return (dispatch, getState) => {
-    if (_shouldFetchItemIfNeeded(getState(), categoryId, itemId)) {
-      return dispatch(_fetchItem(categoryId, itemId))
-    }
-  }
-}
+export const fetchItemIfNeeded = (categoryId, itemId) => (dispatch, getState) =>
+  shouldFetchItemIfNeeded(getState(), categoryId, itemId) ? dispatch(_fetchItem(categoryId, itemId)) : null
 
-export const createItem = (categoryId, item) => {
-  return (dispatch, getState) => {
-    if (_shouldUpdateItem(getState(), categoryId)) {
-      return dispatch(_createItem(categoryId, item))
-    }
-    return _reject()
-  }
-}
+export const createItems = (categoryId, values, quantity) => (dispatch, getState) =>
+  shouldUpdateItems(getState(), categoryId) ? dispatch(_createItems(categoryId, values, quantity)) : refuseTask()
 
-export const updateItem = (categoryId, itemId, item) => {
-  return (dispatch, getState) => {
-    if (_shouldUpdateItem(getState(), categoryId)) {
-      return dispatch(_updateItem(categoryId, itemId, item))
-    }
-    return _reject()
-  }
-}
+export const updateItems = (categoryId, itemIds, values) => (dispatch, getState) =>
+  shouldUpdateItems(getState(), categoryId) ? dispatch(_updateItems(categoryId, itemIds, values)) : refuseTask()
 
-export const updateItems = (categoryId, itemIds, values) => {
-  return (dispatch, getState) => {
-    if (_shouldUpdateItems(getState(), categoryId)) {
-      return dispatch(_updateItems(categoryId, itemIds, values))
-    }
-    return _reject()
-  }
-}
-
-export const removeItem = (categoryId, item) => {
-  return (dispatch, getState) => {
-    if (_shouldUpdateItem(getState(), categoryId)) {
-      return dispatch(_removeItem(categoryId, item))
-    }
-    return _reject()
-  }
-}
+export const removeItems = (categoryId, itemIds) => (dispatch, getState) =>
+  shouldUpdateItems(getState(), categoryId) ? dispatch(_removeItems(categoryId, itemIds)) : refuseTask()

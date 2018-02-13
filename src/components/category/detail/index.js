@@ -86,8 +86,8 @@ CategoryItemDetail.propTypes = {
    * Id of current item.
    */
   itemId: PropTypes.string.isRequired,
-  onUpdateItem: PropTypes.func.isRequired,
-  onRemoveItem: PropTypes.func,
+  onUpdateItems: PropTypes.func.isRequired,
+  onRemoveItems: PropTypes.func,
   getNextStatesAsOperations: PropTypes.func.isRequired,
 
   fields: PropTypes.array.isRequired,
@@ -119,7 +119,7 @@ const mapStateToProps = ({ categories, settings, fields, items, interactions, ap
     item: category.items && category.items.includes(itemId) ? items.byId[itemId] : null,
     isFetchingItem: items.flow[categoryId].isFetchingItem,
     //itemReceived: items.flow[categoryId].isReceivedItem || items.flow[categoryId].errorFetchingItem
-    isUpdating: items.flow[categoryId].isUpdating,
+    isChanging: items.flow[categoryId].isChanging,
     openRelations,
     windowSize: interactions.windowSize
   }

@@ -6,7 +6,7 @@ import PropTypes from 'prop-types'
 import CategoryList from './list'
 import CategoryItemDetail from './detail'
 import CategoryItemNew from './new'
-import { createItem, updateItem, updateItems, removeItem } from '../../actions/items'
+import { createItems, updateItems, removeItems } from '../../actions/items'
 import { fetchCategoriesIfNeeded } from '../../actions/categories'
 import { fetchSettings, fetchSettingsIfNeeded } from '../../actions/settings'
 import { fetchFields, fetchFieldsIfNeeded } from '../../actions/fields'
@@ -18,8 +18,8 @@ import NotFound from '../notFound'
 
 class Category extends Component {
   initialState = {
-    activeItem: {
-      id: null,
+    activeItems: {
+      ids: null,
       categoryId: null,
       title: '',
       values: null,
@@ -48,10 +48,10 @@ class Category extends Component {
     }*/
   }
 
-  onCreateItem = (values, itemTitle=null) => {
-    const { createItem, notify, itemLabel, history, mode } = this.props
+  onCreateItems = (values, itemTitle=null, quantity=1) => {
+    const { createItems, notify, itemLabel, history, mode } = this.props
     const infoItem = itemTitle ? itemTitle : itemLabel
-    return createItem(values).then(
+    return createItems(values, quantity).then(
       itemId => {
         if (mode === 'normal') {
           const { categoriesPath, categoryId } = this.props
@@ -65,7 +65,7 @@ class Category extends Component {
     )
   }
 
-  /*onUpdateItem = (categoryId, itemId, values, itemTitle=null) => {
+  /*onUpdateItems = (categoryId, itemId, values, itemTitle=null) => {
     this.setState({
       action: 'update',
       activeCategoryId: categoryId,
@@ -75,26 +75,13 @@ class Category extends Component {
     })
   }*/
 
-  onUpdateItem = (itemId, values, itemTitle=null, itemAction=null) => {
-    const { updateItem, itemLabel, notify } = this.props
-    const infoItem = itemTitle ? itemTitle : itemLabel
-    return updateItem(itemId, values).then(
-      () => {
-        const action = itemAction ? itemAction : 'updated'
-        notify(`${infoItem} has been ${action}`, 'success')
-      },
-      error => {
-        notify(`Error updating ${infoItem}: ${error}`, 'error')
-      }
-    )
-  }
-
-  onUpdateItems = (itemIds, values, itemAction=null) => {
+  onUpdateItems = (itemIds, values, itemTitle=null, itemAction=null) => {
     const { updateItems, itemLabel, notify } = this.props
+    const infoItem = itemTitle ? itemTitle : itemLabel
     return updateItems(itemIds, values).then(
       () => {
         const action = itemAction ? itemAction : 'updated'
-        notify(`${itemLabel} has been ${action}`, 'success')
+        notify(`${infoItem} has been ${action}`, 'success')
       },
       error => {
         notify(`Error updating ${itemLabel}: ${error}`, 'error')
@@ -102,22 +89,22 @@ class Category extends Component {
     )
   }
 
-  onRemoveItem = (itemId, itemTitle=null) => {
-    const activeItem = {
-      id: itemId,
+  onRemoveItems = (itemIds, itemTitle=null) => {
+    const activeItems = {
+      ids: itemIds,
       title: itemTitle,
       action: 'remove',
       showDialog: true
     }
-    this.setState({activeItem})
+    this.setState({activeItems})
   }
 
-  removeItem = () => {
-    const { itemLabel, removeItem, notify, history, mode } = this.props
-    const { activeItem } = this.state
-    const { title, id } = activeItem
+  removeItems = () => {
+    const { itemLabel, removeItems, notify, history, mode } = this.props
+    const { activeItems } = this.state
+    const { title, ids } = activeItems
     const infoItem = title ? title : itemLabel
-    return removeItem(id).then(
+    return removeItems(ids).then(
       () => {
         if (mode === 'normal') {
           const { categoryId, categoriesPath } = this.props
@@ -199,7 +186,7 @@ class Category extends Component {
         const actions = newState.onEnter.split(';')
         actions.forEach(action => eval(action.replace('[','newValues[')))
       }
-      this.onUpdateItem(
+      this.onUpdateItems(
         itemId,
         newValues,
         itemTitle,
@@ -209,13 +196,13 @@ class Category extends Component {
   }
 
   confirmationDialog() {
-    const { activeItem } = this.state
+    const { activeItems } = this.state
     return (
       <ConfirmationDialog
-        open={activeItem.showDialog}
-        message={`Are you sure to want to remove ${activeItem.title}?`}
+        open={activeItems.showDialog}
+        message={`Are you sure to want to remove ${activeItems.title}?`}
         onAccept={() => {
-          this.removeItem()
+          this.removeItems()
         }}
         onClose={() => {
           this.setState(this.initialState)
@@ -256,7 +243,6 @@ class Category extends Component {
         categoryId,
         itemIds,
         mode,
-        onUpdateItem: this.onUpdateItem,
         onUpdateItems: this.onUpdateItems,
         getNextStatesAsOperations: this.getNextStatesAsOperations
       }
@@ -264,7 +250,7 @@ class Category extends Component {
         case 'normal':
           return (
             <React.Fragment>
-              <CategoryList {...commonListProps} showAvatar editable onRemoveItem={this.onRemoveItem} />
+              <CategoryList {...commonListProps} showAvatar editable onRemoveItems={this.onRemoveItems} />
               {this.confirmationDialog()}
             </React.Fragment>
           )
@@ -286,14 +272,14 @@ class Category extends Component {
         categoryId,
         itemId,
         mode,
-        onUpdateItem: this.onUpdateItem,
+        onUpdateItems: this.onUpdateItems,
         getNextStatesAsOperations: this.getNextStatesAsOperations
       }
       switch (mode) {
         case 'normal':
           return (
             <React.Fragment>
-              <CategoryItemDetail {...commonDetailProps} onRemoveItem={this.onRemoveItem} />
+              <CategoryItemDetail {...commonDetailProps} onRemoveItems={this.onRemoveItems} />
               {this.confirmationDialog()}
             </React.Fragment>
           )
@@ -318,7 +304,7 @@ class Category extends Component {
     if (scene === 'new') {
       const commonNewProps = {
         categoryId,
-        onCreateItem: this.onCreateItem,
+        onCreateItems: this.onCreateItems,
         getNextStatesAsOperations: this.getNextStatesAsOperations
       }
       return (
@@ -351,10 +337,9 @@ Category.propTypes = {
   category: PropTypes.object,
   itemLabel: PropTypes.string,
   notify: PropTypes.func.isRequired,
-  createItem: PropTypes.func.isRequired,
-  updateItem: PropTypes.func.isRequired,
+  createItems: PropTypes.func.isRequired,
   updateItems: PropTypes.func.isRequired,
-  removeItem: PropTypes.func.isRequired,
+  removeItems: PropTypes.func.isRequired,
   fetchCategoriesIfNeeded: PropTypes.func.isRequired,
   fetchSettings: PropTypes.func.isRequired,
   fetchSettingsIfNeeded: PropTypes.func.isRequired,
@@ -390,10 +375,9 @@ const mapDispatchToProps = (dispatch, props) => {
   const categoryId = props.categoryId || props.match.params.categoryId
   return {
     notify: (message, type) => dispatch(notify(message, type)),
-    createItem: values => dispatch(createItem(categoryId, values)),
-    updateItem: (itemId, values) => dispatch(updateItem(categoryId, itemId, values)),
+    createItems: (values, quantity) => dispatch(createItems(categoryId, values, quantity)),
     updateItems: (itemIds, values) => dispatch(updateItems(categoryId, itemIds, values)),
-    removeItem: itemId => dispatch(removeItem(categoryId, itemId)),
+    removeItems: itemId => dispatch(removeItems(categoryId, itemId)),
     fetchCategoriesIfNeeded: () => dispatch(fetchCategoriesIfNeeded()),
     fetchSettings: () => dispatch(fetchSettings(categoryId)),
     fetchSettingsIfNeeded: () => dispatch(fetchSettingsIfNeeded(categoryId)),

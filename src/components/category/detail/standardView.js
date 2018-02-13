@@ -24,8 +24,8 @@ class CategoryItemDetailHeader extends Component {
   }
 
   updateItem = values => {
-    const { onUpdateItem, itemId, title, changeAccess } = this.props
-    return onUpdateItem(itemId, values, title).then(() => {
+    const { onUpdateItems, itemId, title, changeAccess } = this.props
+    return onUpdateItems(itemId, values, title).then(() => {
       changeAccess('info')
     })
   }
@@ -85,8 +85,8 @@ class CategoryItemDetailHeader extends Component {
   }
 
   onRemoveClick = () => {
-    const { onRemoveItem, itemId, title } = this.props
-    onRemoveItem(itemId, title)
+    const { onRemoveItems, itemId, title } = this.props
+    onRemoveItems(itemId, title)
   }
 
   onCheckClick = () => {
@@ -143,7 +143,7 @@ class CategoryItemDetailHeader extends Component {
       itemState,
       getNextStatesAsOperations,
       isFetchingItem,
-      isUpdating,
+      isChanging,
       openRelations,
       closeDialog,
       history
@@ -185,7 +185,7 @@ class CategoryItemDetailHeader extends Component {
         title={title}
         description={itemState ? `${capitalize(itemLabel)} in state ${itemState.label}` : ''}
         backgroundColor={itemState ? itemState.color : null}
-        loading={isFetchingSettings || isFetchingFields || isFetchingItem || isUpdating }
+        loading={isFetchingSettings || isFetchingFields || isFetchingItem || isChanging }
         operations={[
           {
             id: 'arrowBack',
@@ -240,7 +240,7 @@ class CategoryItemDetailHeader extends Component {
             right: true,
             hidden: formAccess === 'info',
             description: 'Save',
-            disabled: isUpdating || !hasChanged,
+            disabled: isChanging || !hasChanged,
             onClick:this.onCheckClick
           }
         ]}

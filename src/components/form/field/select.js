@@ -89,7 +89,7 @@ class SelectField extends Component {
       isFetchingSettings,
       isFetchingFields,
       isFetchingItems,
-      isUpdating,
+      isChanging,
       classes
     } = this.props
     const options = this.getOptions()
@@ -116,7 +116,7 @@ class SelectField extends Component {
           disabled={readonly || infoMode}
           placeholder=""
           arrowRenderer={infoMode ? null : multi ? this.arrowMultiRenderer : undefined}
-          isLoading={isFetchingSettings || isFetchingFields || isFetchingItems || isUpdating}
+          isLoading={isFetchingSettings || isFetchingFields || isFetchingItems || isChanging}
           options={options}
           optionRenderer={OptionRenderer}
           value={valuesSelected}
@@ -170,7 +170,7 @@ const mapStateToProps = ({ categories, settings, fields, items }, props) => {
       isFetchingFields: fields.flow[categoryId].isFetchingAll,
       items: Object.values(items.byId).filter(item => category.items.includes(item.id)),
       isFetchingItems: items.flow[categoryId].isFetchingAll,
-      isUpdating: items.flow[categoryId].isUpdating
+      isChanging: items.flow[categoryId].isChanging
     }
   }
   return {}

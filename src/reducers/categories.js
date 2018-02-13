@@ -6,8 +6,8 @@ import { RECEIVE_CATEGORY_SETTINGS } from '../actions/settings'
 import { RECEIVE_CATEGORY_FIELDS } from '../actions/fields'
 import { RECEIVE_CATEGORY_ITEMS } from '../actions/items'
 import { RECEIVE_CATEGORY_ITEM } from '../actions/items'
-import { CREATE_CATEGORY_ITEM } from '../actions/items'
-import { REMOVE_CATEGORY_ITEM } from '../actions/items'
+import { CREATE_CATEGORY_ITEMS } from '../actions/items'
+import { REMOVE_CATEGORY_ITEMS } from '../actions/items'
 
 const initialFlowState = {
   isFetchingAll: false,
@@ -107,21 +107,24 @@ const byId = (state = initialByIdState, action) => {
             )
         }
       }
-    case CREATE_CATEGORY_ITEM:
+    case CREATE_CATEGORY_ITEMS:
       return {
         ...state,
         [action.categoryId]: {
           ...state[action.categoryId],
-          items: [...state[action.categoryId].items || [], action.itemId]
+          items: [
+            ...state[action.categoryId].items || [],
+            Array.isArray(action.itemIds) ? [...action.itemIds] : action.itemIds
+          ]
         }
       }
-    case REMOVE_CATEGORY_ITEM:
+    case REMOVE_CATEGORY_ITEMS:
       return {
         ...state,
         [action.categoryId]: {
           ...state[action.categoryId],
-          items: state[action.categoryId].items.filter(
-            itemId => itemId !== action.itemId
+          items: state[action.categoryId].items.filter(itemId => 
+            !action.itemIds.includes(itemId)
           )
         }
       }

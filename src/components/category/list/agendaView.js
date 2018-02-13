@@ -271,7 +271,7 @@ class CategoryAgendaView extends Component {
       showAvatar,
       mode,
       editable,
-      onRemoveItem,
+      onRemoveItems,
       history,
       getNextStatesAsOperations,
       activeIds,
@@ -453,7 +453,7 @@ class CategoryAgendaView extends Component {
               {id:'delete', icon:Delete, label: 'Delete', onClick:() => {
                 const item = items.find(item => item.id === itemMenuClickedId)
                 const title = getItemString(item, primaryFields, primaryFieldsSeparator)
-                onRemoveItem(itemMenuClickedId, title)
+                onRemoveItems(itemMenuClickedId, title)
                 this.setState({anchorEl: null})
               }},
               {id:'divider'},

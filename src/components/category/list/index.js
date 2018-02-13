@@ -72,14 +72,14 @@ class CategoryList extends Component {
     /**
      * oneOf(['agenda', 'table'])
      */
-    view: 'table',
+    view: 'agenda',
     anchorEl: null
   }
 
   componentWillMount = () => {
     const { mode, fetchItemsIfNeeded } = this.props
     if (fetchItemsIfNeeded) {
-      mode === 'relation' ? fetchItemsIfNeeded() : this.props.fetchItems() //fetchItemsIfNeeded()
+      mode === 'relation' ? fetchItemsIfNeeded() : fetchItemsIfNeeded()
     }
     this.updateShowingItems({searchQuery: ''})
   }
@@ -333,8 +333,10 @@ class CategoryList extends Component {
       isFetchingSettings,
       isFetchingFields,
       itemIds,
+      onUpdateItems,
+      onRemoveItems,
       isFetchingItems,
-      isUpdating,
+      isChanging,
       editable,
       openRelations,
       removeAllOpenRelations
@@ -391,7 +393,9 @@ class CategoryList extends Component {
           classes={{disabled: classes.snackbarIconDisabled}}
           aria-label="Change State"
           onClick={() => {
-            this.props.onUpdateItems(activeIds, {state: 'emitido'})
+            onUpdateItems(activeIds, {state: 'emitido'}).then(() => {
+              this.removeAllActiveIds()
+            })
             //this.onChangeStateMenu
           }}
         >
@@ -401,7 +405,9 @@ class CategoryList extends Component {
           key="delete"
           color="contrast"
           aria-label="Delete"
-          onClick={this.removeAllActiveIds}
+          onClick={() => {
+            onRemoveItems(activeIds)
+          }}
         >
           <Delete />
         </IconButton>
@@ -442,7 +448,7 @@ class CategoryList extends Component {
         overflow={view === 'table' ? 'hidden' : 'auto'}
         title={`${capitalize(title || categoryLabel)}`}
         updateSearchQuery={view === 'agenda' ? this.updateSearchQuery : null}
-        loading={isFetchingSettings || isFetchingFields || isFetchingItems || isUpdating}
+        loading={isFetchingSettings || isFetchingFields || isFetchingItems || isChanging}
         operations={[
           { 
             id: 'arrowBack',
@@ -738,7 +744,7 @@ const mapStateToProps = ({ categories, settings, fields, items, interactions, ap
     isFetchingFields: fields.flow[categoryId].isFetchingAll,
     items: Object.values(items.byId).filter(item => category.items.includes(item.id)),
     isFetchingItems: items.flow[categoryId].isFetchingAll,
-    isUpdating: items.flow[categoryId].isUpdating,
+    isChanging: items.flow[categoryId].isChanging,
     openRelations
   }
 }

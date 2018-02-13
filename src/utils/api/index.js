@@ -9,11 +9,8 @@ export default (api='local') => {
         getCollection: ajaxAPI.getCollection,
         getDocument: ajaxAPI.getDocument
       }
-    case 'firebase': 
-      return {
-        fetch: firebaseAPI.fetch,
-        update: firebaseAPI.update
-      }
+    case 'firebase':
+      return firebaseAPI
     default: 
       return {
         getCollection: localAPI.getCollection,
