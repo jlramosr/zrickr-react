@@ -453,7 +453,10 @@ class CategoryAgendaView extends Component {
               {id:'delete', icon:Delete, label: 'Delete', onClick:() => {
                 const item = items.find(item => item.id === itemMenuClickedId)
                 const title = getItemString(item, primaryFields, primaryFieldsSeparator)
-                onRemoveItems(itemMenuClickedId, title)
+                onRemoveItems({
+                  itemIds: itemMenuClickedId,
+                  title
+                })
                 this.setState({anchorEl: null})
               }},
               {id:'divider'},

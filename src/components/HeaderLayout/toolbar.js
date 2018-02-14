@@ -83,15 +83,14 @@ const styles = theme => ({
 
   /* Search */
   searchBar: {
-    display: 'flex',
+    display: 'none',
     justifyContent: 'center',
     alignItems: 'center',
     position: 'absolute',
     width: 0,
     top: theme.spacing.unit*1.5,
     left: theme.spacing.unit*2,
-    opacity: 0,
-    zIndex: theme.zIndex.appBar+1,
+    zIndex: theme.zIndex.appBar,
     maxWidth: `calc(100% - ${theme.spacing.unit*10}px)`,
     transition: theme.transitions.create('all', {
       duration: theme.transitions.duration.standard,
@@ -235,15 +234,15 @@ class CustomToolbar extends Component {
         searchBarComputedStyle = {
           ...searchBarComputedStyle,
           width: '100%',
-          opacity: 1
+          display: 'flex'
         }
       } else {
         searchBarComputedStyle = {
           ...searchBarComputedStyle,
           position: 'relative',
+          display: 'flex',
           top: 0,
           left: 0,
-          opacity: 1,
           width: searchInputFocused || relative ? '100%' : '90%',
           maxWidth: searchInputFocused || relative ? 300 : 240
         }

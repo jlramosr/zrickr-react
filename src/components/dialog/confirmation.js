@@ -30,7 +30,7 @@ class ConfirmationDialog extends Component {
         transition={Transition}
       >
         <DialogContent>
-          <DialogContentText>
+          <DialogContentText style={{overflow: 'hidden', textOverflow: 'ellipsis'}}>
             {message}
           </DialogContentText>
         </DialogContent>

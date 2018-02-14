@@ -11,7 +11,6 @@ import { fetchCategoriesIfNeeded } from '../../actions/categories'
 import { fetchSettings, fetchSettingsIfNeeded } from '../../actions/settings'
 import { fetchFields, fetchFieldsIfNeeded } from '../../actions/fields'
 import { notify } from '../../actions/interactions'
-import { capitalize } from '../../utils/helpers'
 import Dialog from '../dialog/large'
 import ConfirmationDialog from '../dialog/confirmation'
 import NotFound from '../notFound'
@@ -48,53 +47,65 @@ class Category extends Component {
     }*/
   }
 
-  onCreateItems = (values, itemTitle=null, quantity=1) => {
+  onCreateItems = ({values, title=null, quantity=1, successCallback=null}) => {
     const { createItems, notify, itemLabel, history, mode } = this.props
-    const infoItem = itemTitle ? itemTitle : itemLabel
     return createItems(values, quantity).then(
       itemId => {
         if (mode === 'normal') {
           const { categoriesPath, categoryId } = this.props
           history.push(`/${categoriesPath}/${categoryId}/${itemId}`)
         }
-        notify(`${infoItem} has been created`,'success')
+        if (successCallback) {
+          successCallback()
+        }
+        notify(`${title ? title : `The ${itemLabel}`} has been created`,'success')
       },
       error => {
-        notify(`Error creating ${infoItem}: ${error}`,'error')
+        notify(`Error creating ${title ? title : `the ${itemLabel}`}: ${error}`,'error')
       }
     )
   }
 
-  /*onUpdateItems = (categoryId, itemId, values, itemTitle=null) => {
-    this.setState({
-      action: 'update',
-      activeCategoryId: categoryId,
-      activeItem: values,
-      activeItemId: itemId,
-      activeItemTitle: itemTitle
-    })
-  }*/
-
-  onUpdateItems = (itemIds, values, itemTitle=null, itemAction=null) => {
-    const { updateItems, itemLabel, notify } = this.props
-    const infoItem = itemTitle ? itemTitle : itemLabel
-    return updateItems(itemIds, values).then(
-      () => {
-        const action = itemAction ? itemAction : 'updated'
-        notify(`${infoItem} has been ${action}`, 'success')
-      },
-      error => {
-        notify(`Error updating ${itemLabel}: ${error}`, 'error')
-      }
-    )
-  }
-
-  onRemoveItems = (itemIds, itemTitle=null) => {
+  onUpdateItems = ({itemIds, values, withConfirmation=false, action=null, title=null, successCallback=null}) => {
     const activeItems = {
       ids: itemIds,
-      title: itemTitle,
+      values,
+      title,
+      action,
+      showDialog: withConfirmation,
+      successCallback
+    }
+    if (withConfirmation) {
+      this.setState({activeItems})
+    } else {
+      this.updateItems(activeItems)
+    }
+  }
+
+  updateItems = (activeItems=this.state.activeItems) => {
+    const { updateItems, itemLabel, notify } = this.props
+    const { title, ids, action, values, successCallback } = activeItems
+    return updateItems(ids, values).then(
+      () => {
+        const infoAction = action ? action : 'updated'
+        if (successCallback) {
+          successCallback()
+        }
+        notify(`${title ? title : `The ${itemLabel}`} has been ${infoAction}`, 'success')
+      },
+      error => {
+        notify(`Error updating ${title ? title : `the ${itemLabel}`}: ${error}`, 'error')
+      }
+    )
+  }
+
+  onRemoveItems = ({itemIds, title=null, successCallback=null}) => {
+    const activeItems = {
+      ids: itemIds,
+      title,
       action: 'remove',
-      showDialog: true
+      showDialog: true,
+      successCallback
     }
     this.setState({activeItems})
   }
@@ -102,18 +113,20 @@ class Category extends Component {
   removeItems = () => {
     const { itemLabel, removeItems, notify, history, mode } = this.props
     const { activeItems } = this.state
-    const { title, ids } = activeItems
-    const infoItem = title ? title : itemLabel
+    const { title, ids, successCallback } = activeItems
     return removeItems(ids).then(
       () => {
         if (mode === 'normal') {
           const { categoryId, categoriesPath } = this.props
           history.push(`/${categoriesPath}/${categoryId}`)
         }
-        notify(`${infoItem} removed`, 'success')
+        if (successCallback) {
+          successCallback()
+        }
+        notify(`${title ? title : `The ${itemLabel}`} have been removed`, 'success')
       },
       error => {
-        notify(`Error removing ${infoItem}: ${error}`, 'error')
+        notify(`Error removing ${title ? title : `the ${itemLabel}`}: ${error}`, 'error')
       }
     )
   }
@@ -186,23 +199,28 @@ class Category extends Component {
         const actions = newState.onEnter.split(';')
         actions.forEach(action => eval(action.replace('[','newValues[')))
       }
-      this.onUpdateItems(
-        itemId,
-        newValues,
-        itemTitle,
-        newState.label.toLowerCase()
-      )
+      this.onUpdateItems({
+        itemIds: itemId,
+        values: newValues,
+        title: itemTitle,
+        action: newState.label.toLowerCase()
+      })
     }
   }
 
   confirmationDialog() {
     const { activeItems } = this.state
+    const { title, action, ids, showDialog } = activeItems
     return (
       <ConfirmationDialog
-        open={activeItems.showDialog}
-        message={`Are you sure to want to remove ${activeItems.title}?`}
+        open={showDialog}
+        message={`Are you sure to want to ${action} ${
+          Array.isArray(ids) ?
+            `${title ? title.toLowerCase() : 'all these items'}` :
+            (title || `this ${this.props.itemLabel}`)
+        }?`}
         onAccept={() => {
-          this.removeItems()
+          action === 'remove' ? this.removeItems() : this.updateItems()
         }}
         onClose={() => {
           this.setState(this.initialState)
@@ -358,7 +376,7 @@ const mapStateToProps = ({ categories, settings, app }, props) => {
   const itemId = props.itemId || (props.match ? props.match.params.itemId : undefined)
   const category = categories.byId[categoryId]
   const categorySettings = category && category.settings ? settings.byId[category.settings] : {}
-  const itemLabel = capitalize(categorySettings.itemLabel || '')
+  const itemLabel = categorySettings.itemLabel || ''
   return {
     categories: Object.values(categories.byId),
     categoriesPath: app.categoriesPath,

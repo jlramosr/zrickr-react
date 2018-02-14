@@ -105,8 +105,6 @@ const styles = theme => ({
 class Form extends Component {
   state = {
     item: null, //all complete item with simple fields and relations fields.
-    isSubmitting: false,
-    isChanging: false,
     hasChanged: false
   }
 
@@ -168,13 +166,13 @@ class Form extends Component {
    * @returns {void}
 	 */
   handleFieldChange = (fieldId, value) => {
-    let { item, isChanging, hasChanged } = this.state
+    let { item, hasChanged } = this.state
     const { onChange, origValues, values, onDifferentValues, onEqualValues } = this.props
     item.setValue(fieldId, value)
     this.setState({item})
 
-    if (!isChanging) {
-      this.setState({isChanging: true})
+    if (!this.isChanging) {
+      this.isChanging = true
       setTimeout(() => {
         const currentValues = item.getValues()
         if (onChange) {
@@ -193,7 +191,7 @@ class Form extends Component {
           }
           this.setState({hasChanged: false})
         }
-        this.setState({isChanging: false})
+        this.isChanging = false
       }, 100)
     }
   }
@@ -206,26 +204,19 @@ class Form extends Component {
 	 */  
   handleSubmit = event => {
     event.stopPropagation()
-    if (!this.state.isSubmitting) {
-      this.setState({isSubmitting: true})
+    if (!this.isSubmitting) {
+      this.isSubmitting = true
       const { item } = this.state
-      const { fields, handleSubmit, onEqualValues } = this.props
+      const { fields, onSubmit } = this.props
       const itemSubmit = new Item({fields, values: item.getValues()})
       itemSubmit.cleanRelations()
-      handleSubmit(itemSubmit.getValues()).then(() => {
-        if (this._isMounted) {
-          const item = new Item({fields, values: this.props.values})
-          this.setState({item, hasChanged: false, isSubmitting: false})
-          if (onEqualValues) {
-            onEqualValues()
-          }
-        }
-      })
+      onSubmit(itemSubmit.getValues())
     }
   }
 
   restartForm = () => {
     const { fields, values, origValues, onEqualValues } = this.props
+    this.isSubmitting = false
     this.setState({hasChanged: false, item: new Item({fields, values: origValues || values})})
     if (onEqualValues) {
       onEqualValues()
@@ -331,7 +322,7 @@ Form.propTypes = {
   view: PropTypes.string.isRequired,
   fields: PropTypes.array.isRequired,
   values: PropTypes.object.isRequired,
-  handleSubmit: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
   formRef: PropTypes.func.isRequired,
   onDifferentValues: PropTypes.func,
   onEqualValues: PropTypes.func,

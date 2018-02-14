@@ -57,8 +57,10 @@ class CategoryItemNew extends Component {
     if (itemState) {
       valuesWithState = {...valuesWithState, state:itemState.id}
     }
-    return onCreateItems(valuesWithState, title).then(() => {
-      closeDialog()
+    return onCreateItems({
+      values: valuesWithState,
+      title,
+      successCallback: closeDialog
     })
   }
 
@@ -163,7 +165,7 @@ class CategoryItemNew extends Component {
           view="detail"
           fields={fields}
           values={{}}
-          handleSubmit={this.createItem}
+          onSubmit={this.createItem}
           formRef={el => this.formElement = el}
         />
       </HeaderLayout>

@@ -26,6 +26,7 @@ import { capitalize } from './../../../utils/helpers'
 import { getItemString } from './../utils/helpers'
 import escapeRegExp from 'escape-string-regexp'
 import removeDiacritics from 'remove-diacritics'
+import pluralize from 'pluralize'
 import { withStyles } from 'material-ui/styles'
 
 const styles = theme => ({
@@ -393,8 +394,10 @@ class CategoryList extends Component {
           classes={{disabled: classes.snackbarIconDisabled}}
           aria-label="Change State"
           onClick={() => {
-            onUpdateItems(activeIds, {state: 'emitido'}).then(() => {
-              this.removeAllActiveIds()
+            onUpdateItems({
+              itemIds: activeIds,
+              values: {state: 'emitido'},
+              successCallback: this.removeAllActiveIds
             })
             //this.onChangeStateMenu
           }}
@@ -406,7 +409,11 @@ class CategoryList extends Component {
           color="contrast"
           aria-label="Delete"
           onClick={() => {
-            onRemoveItems(activeIds)
+            onRemoveItems({
+              itemIds: activeIds,
+              title: `All selected ${pluralize(itemLabel)}`,
+              successCallback: this.removeAllActiveIds
+            })
           }}
         >
           <Delete />
@@ -740,9 +747,9 @@ const mapStateToProps = ({ categories, settings, fields, items, interactions, ap
     secondaryFieldsSeparator,
     color,
     isFetchingSettings: settings.flow[categoryId].isFetching,
-    fields: Object.values(fields.byId).filter(field => category.fields.includes(field.id)),
+    fields: Object.values(fields.byId).filter(field => field && category.fields.includes(field.id)),
     isFetchingFields: fields.flow[categoryId].isFetchingAll,
-    items: Object.values(items.byId).filter(item => category.items.includes(item.id)),
+    items: Object.values(items.byId).filter(item => item && category.items.includes(item.id)),
     isFetchingItems: items.flow[categoryId].isFetchingAll,
     isChanging: items.flow[categoryId].isChanging,
     openRelations

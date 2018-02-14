@@ -31,16 +31,23 @@ const Action = props => {
     marginRight:4
   }
 
-  if (small || smallMode) {
+  const isSmall = small || smallMode
+  const buttonProps = {
+    disabled,
+    onClick,
+    style: isSmall ? iconButtonStyle : buttonStyle
+  }
+
+  if (isSmall) {
     return (
-      <IconButton disabled={disabled} style={iconButtonStyle} onClick={onClick}>
+      <IconButton {...buttonProps}>
         <Icon aria-label={id} />
       </IconButton>
     )
   }
 
   return (
-    <Button disabled={disabled} style={buttonStyle} onClick={onClick}>
+    <Button {...buttonProps}>
       <Icon style={iconStyle} aria-label={id} />
       {transformIdToTitle(id)}
     </Button>
@@ -52,32 +59,35 @@ const Operation = props => {
   const showDescription = 
     description && ((disabled && descriptionWhenDisabled) || (small || smallMode))
 
-  return (
-    <div hidden={hidden}>
-      {to ? (
-        <Link to={to}>
-          <Action {...props} />
-        </Link> 
-      ) : (
-        showDescription ? (
-          <Tooltip
-            title={description}
-            placement="left"
-            disableTriggerTouch
-            disableTriggerFocus
-            enterDelay={1000}
-            leaveDelay={0}
-          >
-            <div>
-              <Action {...props} />
-            </div>
-          </Tooltip>
-        ) : (
-          <Action {...props} />
-        )
-      )}
-    </div>
-  )
+  if (hidden) {
+    return <div hidden></div>
+  }
+
+  if (to) {
+    return (
+      <Link to={to}>
+        <Action {...props} />
+      </Link> 
+    )
+  }
+
+  if (showDescription) {
+    return (
+      <Tooltip
+        title={description}
+        placement="left"
+        disableTriggerTouch
+        disableTriggerFocus
+        enterDelay={1000}
+        leaveDelay={0}
+      >
+        <Action {...props} />
+      </Tooltip>
+    )
+  }
+
+  return <Action {...props} />
+
 }
 
 Operation.propTypes = {

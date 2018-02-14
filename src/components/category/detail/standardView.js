@@ -25,8 +25,14 @@ class CategoryItemDetailHeader extends Component {
 
   updateItem = values => {
     const { onUpdateItems, itemId, title, changeAccess } = this.props
-    return onUpdateItems(itemId, values, title).then(() => {
-      changeAccess('info')
+    return onUpdateItems({
+      itemIds: itemId,
+      values,
+      title,
+      successCallback: () => {
+        changeAccess('info')
+        document.dispatchEvent(new Event('restart-form'))
+      }
     })
   }
 
@@ -86,12 +92,15 @@ class CategoryItemDetailHeader extends Component {
 
   onRemoveClick = () => {
     const { onRemoveItems, itemId, title } = this.props
-    onRemoveItems(itemId, title)
+    onRemoveItems({
+      itemIds: itemId,
+      title
+    })
   }
 
   onCheckClick = () => {
     this.formElement.dispatchEvent(
-      new Event('submit'),{bubbles:false}
+      new Event('submit'), {bubbles:false}
     )
   }
 
@@ -241,7 +250,7 @@ class CategoryItemDetailHeader extends Component {
             hidden: formAccess === 'info',
             description: 'Save',
             disabled: isChanging || !hasChanged,
-            onClick:this.onCheckClick
+            onClick: this.onCheckClick
           }
         ]}
       >
@@ -255,7 +264,7 @@ class CategoryItemDetailHeader extends Component {
             origValues={mode === 'temporal' ? item : null}
             infoMode={formAccess === 'info'}
             formRef={el => this.formElement = el}
-            handleSubmit={this.updateItem}
+            onSubmit={this.updateItem}
             onChange={this.onChangeForm}
             onDifferentValues={this.onDifferentValues}
             onEqualValues={this.onEqualValues}
