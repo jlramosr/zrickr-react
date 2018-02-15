@@ -92,7 +92,7 @@ export default class firebaseAPI {
         Object.keys(values).forEach(key => {
           updates[`${pathCollection}/${documentId}/${key}`] = values[key]
         })
-      }) 
+      })
       ref.update(updates).then(() => {
         resolve(documentIds)
       }).catch(() => {

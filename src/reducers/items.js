@@ -239,6 +239,7 @@ const byId = (state = initialByIdState, action) => {
       } : {
         ...state,
         [action.itemIds]: {
+          ...state[action.itemIds],
           ...action.values
         }
       }

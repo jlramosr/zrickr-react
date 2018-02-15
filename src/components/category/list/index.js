@@ -65,7 +65,7 @@ class CategoryList extends Component {
   state = {
     searchQuery: '',
     showingItems: [],
-    activeIds: [],
+    selectedIds: [],
     nextStatesOperations: [],
     showNewDialog: false,
     showListDialog: false,
@@ -142,6 +142,9 @@ class CategoryList extends Component {
     this.setState({ showingItems })
   }
 
+  getItem = id =>
+    this.props.items.find(item => item.id === id)
+
   onChangeStateMenu = event => {
     this.setState({anchorEl: event.currentTarget})
   }
@@ -154,14 +157,18 @@ class CategoryList extends Component {
     if (!itemIds || (itemIds && !itemIds.length)) {
       return []
     }
-    const { getNextStatesAsOperations, items } = this.props
+    const { getNextStatesAsOperations, itemLabel} = this.props
     let states = null
     for (const itemId of itemIds) {
+      const item = this.getItem(itemId)
       const nextStatesItem = getNextStatesAsOperations({
-        itemId,
-        itemValues: items.find(item => item.id === itemId)
+        stateId: item.state || null,
+        itemIdsToUpdate: itemIds,
+        title:  `All selected ${pluralize(itemLabel)}`,
+        onSuccess: this.removeAllSelected
       })
       const nextStatesItemIds = nextStatesItem.map(state => state.id)
+      console.log(itemId, nextStatesItemIds)
       if (!states) {
         states = [...nextStatesItem]
       }
@@ -173,30 +180,33 @@ class CategoryList extends Component {
     return states || []
   }
 
-  changeActiveIds = value => {
+  changeSelectedIds = value => {
     this.setState(prevState => {
-      let activeIds = prevState.activeIds
+      let selectedIds = prevState.selectedIds
 
       if (Array.isArray(value)) {
-        activeIds = [...value]
+        selectedIds = [...value]
       } else {
-        const index = activeIds.findIndex(id => id === value)
-        index < 0 ? activeIds = [...activeIds, value] : activeIds.splice(index, 1)
+        const index = selectedIds.findIndex(id => id === value)
+        index < 0 ? selectedIds = [...selectedIds, value] : selectedIds.splice(index, 1)
       }
-      const nextStatesOperations = this.getCommonStates(activeIds)
+      const nextStatesOperations = this.getCommonStates(selectedIds)
       
-      return {activeIds, nextStatesOperations}
+      return {selectedIds, nextStatesOperations}
     })
   }
 
-  addAllActiveIds = () => {
+  addAllAsSelected = () => {
     const { showingItems } = this.state
     const showingItemsIds = showingItems.map(item => item.id)
-    this.setState({activeIds: showingItemsIds, nextStatesOperations: this.getCommonStates(showingItemsIds)})
+    this.setState({
+      selectedIds: showingItemsIds,
+      nextStatesOperations: this.getCommonStates(showingItemsIds)
+    })
   }
 
-  removeAllActiveIds = () => {
-    this.setState({activeIds: [], nextStatesOperations: []})
+  removeAllSelected = () => {
+    this.setState({selectedIds: [], nextStatesOperations: []})
   }
 
   onItemClick = (itemId, itemTitle='') => {
@@ -334,7 +344,6 @@ class CategoryList extends Component {
       isFetchingSettings,
       isFetchingFields,
       itemIds,
-      onUpdateItems,
       onRemoveItems,
       isFetchingItems,
       isChanging,
@@ -345,7 +354,7 @@ class CategoryList extends Component {
     const {
       searchQuery,
       showingItems,
-      activeIds,
+      selectedIds,
       nextStatesOperations,
       showNewDialog,
       showListDialog,
@@ -367,10 +376,9 @@ class CategoryList extends Component {
     const commonProps = {
       ...rest,
 
-      changeActiveIds: this.changeActiveIds,
-      removeAllActiveIds: this.removeAllActiveIds,
-      activeIds,
-
+      selectedIds,
+      changeSelectedIds: this.changeSelectedIds,
+      
       toAddIds,
       toRemoveIds,
       markRemoveItems: this.markRemoveRelations,
@@ -378,6 +386,7 @@ class CategoryList extends Component {
 
       items: showingItems,
       searchQuery,
+      getItem: this.getItem,
       onItemClick: this.onItemClick
     }
 
@@ -393,14 +402,7 @@ class CategoryList extends Component {
           color="contrast"
           classes={{disabled: classes.snackbarIconDisabled}}
           aria-label="Change State"
-          onClick={() => {
-            onUpdateItems({
-              itemIds: activeIds,
-              values: {state: 'emitido'},
-              successCallback: this.removeAllActiveIds
-            })
-            //this.onChangeStateMenu
-          }}
+          onClick={this.onChangeStateMenu}
         >
           <Directions />
         </IconButton>,
@@ -410,9 +412,9 @@ class CategoryList extends Component {
           aria-label="Delete"
           onClick={() => {
             onRemoveItems({
-              itemIds: activeIds,
+              itemIds: selectedIds,
               title: `All selected ${pluralize(itemLabel)}`,
-              successCallback: this.removeAllActiveIds
+              successCallback: this.removeAllSelected
             })
           }}
         >
@@ -422,12 +424,12 @@ class CategoryList extends Component {
       if (view === 'agenda') {
         snackbarActions = [
           <IconButton
-            disabled={activeIds.length === showingItems.length}
+            disabled={selectedIds.length === showingItems.length}
             key="selectAll"
             color="contrast"
             classes={{disabled: classes.snackbarIconDisabled}}
             aria-label="Select All"
-            onClick={this.addAllActiveIds}
+            onClick={this.addAllAsSelected}
           >
             <SelectAll />
           </IconButton>,
@@ -440,7 +442,7 @@ class CategoryList extends Component {
           key="choose"
           color="contrast"
           aria-label="Choose"
-          onClick={() => this.props.onSelect(activeIds)}
+          onClick={() => this.props.onSelect(selectedIds)}
         >
           <PlaylistAddCheck />
         </IconButton>
@@ -546,7 +548,7 @@ class CategoryList extends Component {
 
         <Snackbar
           anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-          open={Boolean(activeIds.length)}
+          open={Boolean(selectedIds.length)}
           className={classes.snackbar}            
           transitionDuration={{
             enter: 200,
@@ -560,18 +562,18 @@ class CategoryList extends Component {
           }}
           message={
             <React.Fragment>
-              <IconButton key="close" aria-label="Close" color="inherit" onClick={this.removeAllActiveIds} >
+              <IconButton key="close" aria-label="Close" color="inherit" onClick={this.removeAllSelected} >
                 <Close />
               </IconButton>
               <span>
-                {activeIds.length} selected
+                {selectedIds.length} selected
               </span>
             </React.Fragment>
           }
           action={snackbarActions}
         />
 
-        {Boolean(activeIds.length) && 
+        {Boolean(selectedIds.length) && 
           <Menu
             anchorEl={anchorEl}
             open={Boolean(anchorEl)}

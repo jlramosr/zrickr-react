@@ -81,7 +81,9 @@ const Operation = props => {
         enterDelay={1000}
         leaveDelay={0}
       >
-        <Action {...props} />
+        <div>
+          <Action {...props} />
+        </div>
       </Tooltip>
     )
   }

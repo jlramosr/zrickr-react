@@ -17,7 +17,7 @@ import NotFound from '../notFound'
 
 class Category extends Component {
   initialState = {
-    activeItems: {
+    actuatedItems: {
       ids: null,
       categoryId: null,
       title: '',
@@ -67,7 +67,7 @@ class Category extends Component {
   }
 
   onUpdateItems = ({itemIds, values, withConfirmation=false, action=null, title=null, successCallback=null}) => {
-    const activeItems = {
+    const actuatedItems = {
       ids: itemIds,
       values,
       title,
@@ -76,15 +76,16 @@ class Category extends Component {
       successCallback
     }
     if (withConfirmation) {
-      this.setState({activeItems})
+      this.setState({actuatedItems})
     } else {
-      this.updateItems(activeItems)
+      this.updateItems(actuatedItems)
     }
   }
 
-  updateItems = (activeItems=this.state.activeItems) => {
+  updateItems = (actuatedItems=this.state.actuatedItems) => {
     const { updateItems, itemLabel, notify } = this.props
-    const { title, ids, action, values, successCallback } = activeItems
+    const { title, ids, action, values, successCallback } = actuatedItems
+
     return updateItems(ids, values).then(
       () => {
         const infoAction = action ? action : 'updated'
@@ -100,20 +101,20 @@ class Category extends Component {
   }
 
   onRemoveItems = ({itemIds, title=null, successCallback=null}) => {
-    const activeItems = {
+    const actuatedItems = {
       ids: itemIds,
       title,
       action: 'remove',
       showDialog: true,
       successCallback
     }
-    this.setState({activeItems})
+    this.setState({actuatedItems})
   }
 
   removeItems = () => {
     const { itemLabel, removeItems, notify, history, mode } = this.props
-    const { activeItems } = this.state
-    const { title, ids, successCallback } = activeItems
+    const { actuatedItems } = this.state
+    const { title, ids, successCallback } = actuatedItems
     return removeItems(ids).then(
       () => {
         if (mode === 'normal') {
@@ -131,86 +132,105 @@ class Category extends Component {
     )
   }
 
-  /* It Transforms an array of states on array to put into a menu */ 
-  getNextStatesAsOperations = ({ itemId, itemValues, onSelected, ...rest }) => {
+  getNextStates = ({stateId=undefined, isNew=true}) => {
     const { categoryStates } = this.props
-    const currentStateId = itemValues ? itemValues.state : null
     const statesList = categoryStates ? categoryStates.list : null
-    let currentState = null
-    let nextIds = []
-    if (statesList) {
-      currentState = currentStateId ? statesList[currentStateId] : null
-      if (!itemId || !currentState) {
-        nextIds = Object.keys(statesList).filter(id => 
-          statesList[id].initial && id !== currentStateId
-        )
-      } else {
-        nextIds = currentState && currentState.nexts ? currentState.nexts : []
-      }
+    let nextStatesIds = []
+
+    if (!statesList) {
+      return []
     }
 
-    let nextStates = nextIds.map(id => ({id, ...statesList[id]}))
-    const addWithoutState =
-      categoryStates &&
-      categoryStates.required === false &&
-      currentState
+    if (!stateId) {
+      nextStatesIds = Object.keys(statesList).filter(id => statesList[id].initial)
+    } else if (isNew) {
+      nextStatesIds = Object.keys(statesList).filter(id => 
+        statesList[id].initial && id !== stateId
+      )
+    } else {
+      const stateInfo = statesList[stateId]
+      nextStatesIds = stateInfo && stateInfo.nexts ? stateInfo.nexts : []
+    }
+
+    const addWithoutState = categoryStates.required === false && stateId
+    let nextStates = nextStatesIds.map(id => ({id, ...statesList[id]}))
+
     if (addWithoutState) {
       nextStates = [...nextStates, {
-        label: 'Liberado',
-        actionLabel: 'Reiniciar',
+        label: 'Detached',
+        actionLabel: 'Detach',
         icon: 'undo'
       }] 
     }
 
+    return nextStates
+  }
+
+  /* It Transforms an array of states on array to put into a menu 
+     rest = title, onSuccess
+  */
+  getNextStatesAsOperations = ({ stateId=undefined, itemIdsToUpdate=null, onChange=null, ...rest }) => {
+    const { categoryStates } = this.props
+    const currentState = categoryStates.list[stateId]
+
+    const isNew =  !itemIdsToUpdate
+
+    let nextStates = this.getNextStates({stateId, isNew})
+    
     return nextStates.map(nextState => {
       const { label, actionLabel, icon } = nextState
-      return {id:label, icon, label:itemId ? actionLabel : label, onClick:() => {
-        if (itemId) {
-          this.changeState({
-            itemId,
-            itemValues,
-            currentState,
-            newState: nextState,
-            ...rest
-          })
+      return {
+        id: label,
+        icon,
+        label: isNew ? label : actionLabel,
+        onClick: () => {
+          if (!isNew) {
+            this.changeState({
+              itemIds: itemIdsToUpdate,
+              currentState,
+              nextState,
+              ...rest
+            })
+          }
+          if (onChange) {
+            onChange(nextState.id ? nextState : null)
+          }
         }
-        if (onSelected) {
-          onSelected(nextState.id ? nextState : null)
-        }
-      }}
+      }
     })
   }
 
   /*jslint evil: true */
-  changeState = ({ itemId, itemValues, currentState, newState, itemTitle }) => {
-    if (newState) {
-      const newValues = {
-        ...itemValues,
-        state: newState.id
-      }
-      if (!newState.id) {
-        delete newValues.state
+  changeState = ({ itemIds, currentState, nextState, title, onSuccess }) => {
+    if (nextState) {
+      let newValues = {}
+      if (!nextState.id) {
+        delete nextState.state
       }
       if (currentState && currentState.onExit) {
         const actions = currentState.onExit.split(';')
         actions.forEach(action => eval(action.replace('[','newValues[')))
       }
-      if (newState.onEnter) {
-        const actions = newState.onEnter.split(';')
+      if (nextState.onEnter) {
+        const actions = nextState.onEnter.split(';')
         actions.forEach(action => eval(action.replace('[','newValues[')))
       }
       this.onUpdateItems({
-        itemIds: itemId,
-        values: newValues,
-        title: itemTitle,
-        action: newState.label.toLowerCase()
+        itemIds,
+        values: {
+          ...newValues,
+          state: nextState.id || null
+        },
+        title,
+        action: nextState ? nextState.label.toLowerCase() : 'changed',
+        successCallback: onSuccess
       })
     }
   }
 
   confirmationDialog() {
-    const { activeItems } = this.state
-    const { title, action, ids, showDialog } = activeItems
+    const { actuatedItems } = this.state
+    const { title, action, ids, showDialog } = actuatedItems
     return (
       <ConfirmationDialog
         open={showDialog}

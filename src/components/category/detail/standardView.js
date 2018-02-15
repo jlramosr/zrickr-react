@@ -177,9 +177,9 @@ class CategoryItemDetailHeader extends Component {
     }
 
     const nextStatesOperations = getNextStatesAsOperations({
-      itemId,
-      itemValues: item,
-      itemTitle: title
+      itemIdsToUpdate: itemId,
+      stateId: item.state,
+      title
     })
     const hiddenChangeStateOp = 
       formAccess === 'edit' || !categoryStates || !Object.keys(categoryStates.list || {}).length

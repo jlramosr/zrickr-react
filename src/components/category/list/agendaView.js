@@ -71,7 +71,7 @@ const styles = theme => ({
       background: theme.palette.grey.light
     }
   },
-  activeItem: {
+  selectedItem: {
     background: theme.palette.secondary.extraLight,
     transition: theme.transitions.create('background', {
       easing: theme.transitions.easing.easeOut,
@@ -84,7 +84,7 @@ const styles = theme => ({
       background: theme.palette.secondary.extraLight
     }
   },
-  inactiveItem: {
+  deselectedItem: {
     background: theme.palette.white,
     '& :hover': {
       background: theme.palette.white,
@@ -164,7 +164,7 @@ const styles = theme => ({
 
 class CategoryAgendaView extends Component {
   state = {
-    itemMenuClickedId: null,
+    itemMenuId: null,
     anchorEl: null,
     isSearching: false
   }
@@ -175,31 +175,28 @@ class CategoryAgendaView extends Component {
     })
   }
 
-  getItemValues = id =>
-    this.props.items.find(item => item.id === id)
-
   onItemClick = (itemId, primaryInfo) => {
-    const { mode, onItemClick, activeIds, changeActiveIds } = this.props
-    const massiveSelection = Boolean(activeIds.length)
+    const { mode, onItemClick, selectedIds, changeSelectedIds } = this.props
+    const massiveSelection = Boolean(selectedIds.length)
     if (mode === 'relation') {
       onItemClick(itemId, primaryInfo)
     } else if (!massiveSelection) {
       onItemClick(itemId, primaryInfo)
     } else if (!this.firstActiveId) {
-      changeActiveIds(itemId)
+      changeSelectedIds(itemId)
     }
   }
 
   onItemMouseDown = (event, itemId) => {
     this.firstActiveId = false
     if (event.button === 0) { //mouse left button
-      const { mode, activeIds, changeActiveIds } = this.props
-      const massiveSelection = Boolean(activeIds.length)
+      const { mode, selectedIds, changeSelectedIds } = this.props
+      const massiveSelection = Boolean(selectedIds.length)
       this.itemPressedId = itemId
       if (mode !== 'relation' && !massiveSelection) {
         setTimeout(() => {
           if (this.itemPressedId) {
-            changeActiveIds(this.itemPressedId)
+            changeSelectedIds(this.itemPressedId)
             this.itemPressedId = null
             this.firstActiveId = true
           }
@@ -215,29 +212,29 @@ class CategoryAgendaView extends Component {
   //https://developer.mozilla.org/es/docs/Web/Events/contextmenu
   onItemContextMenu = (event, itemId) => {
     event.preventDefault()
-    const { activeIds, changeActiveIds } = this.props
-    if (!activeIds.length) {
+    const { selectedIds, changeSelectedIds } = this.props
+    if (!selectedIds.length) {
       const button = event.button
       if (button === 0) { //touch action
-        changeActiveIds(itemId) 
+        changeSelectedIds(itemId) 
       } else if (button === 2) { //right button mouse action
         this.anchorTop = event.clientY
         this.anchorLeft = event.clientX
-        this.setState({ anchorEl: ReactDOM.findDOMNode(document.getElementById('root')), itemMenuClickedId: itemId })
+        this.setState({ anchorEl: ReactDOM.findDOMNode(document.getElementById('root')), itemMenuId: itemId })
       }
     }
   }
 
   onAvatarClick = (event, itemId) => {
     event.stopPropagation()
-    this.props.changeActiveIds(itemId)
+    this.props.changeSelectedIds(itemId)
   }
 
   onMenuItemClick = (event, itemId) => {
     event.stopPropagation()
     this.anchorLeft = 0
     this.anchorTop = 0
-    this.setState({ anchorEl: event.currentTarget, itemMenuClickedId: itemId })
+    this.setState({ anchorEl: event.currentTarget, itemMenuId: itemId })
   }
 
   onMenuItemClose = () => {
@@ -245,12 +242,12 @@ class CategoryAgendaView extends Component {
   }
 
   onMenuItemExited = () => {
-    this.setState({ itemMenuClickedId: null })
+    this.setState({ itemMenuId: null })
   }
 
   isReadonlyItem = id => {
-    const { categoryStates } = this.props
-    const itemValues = this.getItemValues(id)
+    const { categoryStates, getItem } = this.props
+    const itemValues = getItem(id)
     if (!itemValues) {
       return false
     }
@@ -265,6 +262,7 @@ class CategoryAgendaView extends Component {
       primaryFieldsSeparator,
       secondaryFields,
       secondaryFieldsSeparator,
+      getItem,
       color,
       categoryStates,
       items,
@@ -274,7 +272,7 @@ class CategoryAgendaView extends Component {
       onRemoveItems,
       history,
       getNextStatesAsOperations,
-      activeIds,
+      selectedIds,
       toAddIds,
       toRemoveIds,
       markRemoveItems,
@@ -282,11 +280,15 @@ class CategoryAgendaView extends Component {
       theme,
       classes
     } = this.props
-    const {anchorEl, itemMenuClickedId, isSearching } = this.state
+    const {anchorEl, itemMenuId, isSearching } = this.state
 
     const relationMode = mode === 'relation'
     const selectionMode = mode === 'election'
     const showDense = mode !== 'normal'
+
+    const itemMenu = getItem(itemMenuId)
+    const itemMenuState = itemMenu && itemMenu.state ? itemMenu.state : null
+    const itemMenuTitle = getItemString(itemMenu, primaryFields, primaryFieldsSeparator)
 
     return (
       <React.Fragment>
@@ -317,13 +319,13 @@ class CategoryAgendaView extends Component {
               let isMarkedForRemove = false
               let itemClassName = classes.defaultItem
               if (mode !== 'relation') {
-                if (itemMenuClickedId === item.id) {
+                if (itemMenuId === item.id) {
                   itemClassName = classes.menuActiveItem
-                } else if (activeIds.length) {
-                  if (activeIds.includes(item.id)) {
-                    itemClassName = classes.activeItem
+                } else if (selectedIds.length) {
+                  if (selectedIds.includes(item.id)) {
+                    itemClassName = classes.selectedItem
                   } else {
-                    itemClassName = classes.inactiveItem
+                    itemClassName = classes.deselectedItem
                   }
                 }
               } else {
@@ -375,12 +377,12 @@ class CategoryAgendaView extends Component {
                   <ListItem className={itemClassName} {...propsListItem}>
                     {showAvatarWithImage &&
                       <Avatar onClick={event => this.onAvatarClick(event, item.id)}>
-                        {activeIds.includes(item.id) ? <Done style={{background: 'transparent'}} /> : <Icon>{item.image}</Icon>}
+                        {selectedIds.includes(item.id) ? <Done style={{background: 'transparent'}} /> : <Icon>{item.image}</Icon>}
                       </Avatar>
                     }
                     {showAvatarWithLetter &&
                       <Avatar onClick={event => this.onAvatarClick(event, item.id)} style={{background: colorAvatarWithLetter}}>
-                        {activeIds.includes(item.id) ? <Done style={{background: 'transparent'}} /> : firstLetter}
+                        {selectedIds.includes(item.id) ? <Done style={{background: 'transparent'}} /> : firstLetter}
                       </Avatar>
                     }
                     <ListItemText
@@ -392,7 +394,7 @@ class CategoryAgendaView extends Component {
                       primary={primaryInfo}
                       secondary={secondaryInfo}
                     />
-                    {editable && !activeIds.length &&
+                    {editable && !selectedIds.length &&
                       <ListItemSecondaryAction style={{paddingTop: showDense ? 2 : 0}}>
                         <IconButton aria-label="Item Menu">
                           {isTouchDevice() && !relationMode && editable &&
@@ -441,33 +443,29 @@ class CategoryAgendaView extends Component {
             onExited={this.onMenuItemExited}
             operations={[
               {id:'view', icon:Subtitles, label: 'View', onClick:() => {
-                history.push(`/${categoriesPath}/${categoryId}/${itemMenuClickedId}`)
+                history.push(`/${categoriesPath}/${categoryId}/${itemMenuId}`)
                 this.setState({anchorEl: null})
               }},
-              {id:'edit', hidden:this.isReadonlyItem(itemMenuClickedId), icon:Edit, label: 'Edit',
+              {id:'edit', hidden:this.isReadonlyItem(itemMenuId), icon:Edit, label: 'Edit',
                 onClick:() => {
-                  history.replace(`/${categoriesPath}/${categoryId}/${itemMenuClickedId}`, {access: 'edit'})
+                  history.replace(`/${categoriesPath}/${categoryId}/${itemMenuId}`, {access: 'edit'})
                   this.setState({anchorEl: null})
                 }
               },
               {id:'delete', icon:Delete, label: 'Delete', onClick:() => {
-                const item = items.find(item => item.id === itemMenuClickedId)
+                const item = getItem(itemMenuId)
                 const title = getItemString(item, primaryFields, primaryFieldsSeparator)
                 onRemoveItems({
-                  itemIds: itemMenuClickedId,
+                  itemIds: itemMenuId,
                   title
                 })
                 this.setState({anchorEl: null})
               }},
               {id:'divider'},
               ...getNextStatesAsOperations({
-                itemId: itemMenuClickedId,
-                itemValues: this.getItemValues(itemMenuClickedId),
-                itemTitle: getItemString(
-                  this.getItemValues(itemMenuClickedId),
-                  primaryFields,
-                  primaryFieldsSeparator
-                )
+                stateId: itemMenuState,
+                itemIdsToUpdate: itemMenuId,
+                title: itemMenuTitle
               })
             ]}
           />

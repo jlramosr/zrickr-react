@@ -95,7 +95,7 @@ class CategoryTableView extends Component {
 
   changeSelection = selection => {
     this.setState({ selection })
-    this.props.changeActiveIds(selection)
+    this.props.changeSelectedIds(selection)
   }
 
   render = () => {

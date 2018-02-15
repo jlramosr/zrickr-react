@@ -126,8 +126,8 @@ class CategoryItemNew extends Component {
               }}
               operations={
                 getNextStatesAsOperations({
-                  itemValues: {state:itemState ? itemState.id : null},
-                  onSelected: this.onStateSelected
+                  onChange: this.onStateSelected,
+                  itemIdsToUpdate: null
                 })
               }
             />
