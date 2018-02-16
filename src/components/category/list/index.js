@@ -168,7 +168,6 @@ class CategoryList extends Component {
         onSuccess: this.removeAllSelected
       })
       const nextStatesItemIds = nextStatesItem.map(state => state.id)
-      console.log(itemId, nextStatesItemIds)
       if (!states) {
         states = [...nextStatesItem]
       }

@@ -77,6 +77,12 @@ class CategoryTableView extends Component {
     ]
   }
 
+  componentWillReceiveProps = nextProps => {
+    if (this.props.selectedIds !== nextProps.selectedIds) {
+      this.setState({selection: nextProps.selectedIds})
+    }
+  }
+
   renderRow = props => {
     const { primaryFields, primaryFieldsSeparator, classes } = this.props
     const { row } = props

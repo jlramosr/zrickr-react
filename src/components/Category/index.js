@@ -402,7 +402,7 @@ const mapStateToProps = ({ categories, settings, app }, props) => {
     categoriesPath: app.categoriesPath,
     categoriesReceived: categories.flow.isReceivedAll,
     categoryId,
-    categoryStates: categorySettings.states,
+    categoryStates: categorySettings.states || {},
     category,
     itemLabel,
     itemId
