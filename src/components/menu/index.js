@@ -12,12 +12,12 @@ const styles = {
   item: {
     padding: 4,
     paddingLeft: 12,
-    paddingRight: 16
+    paddingRight: 36
   },
   icon: {
     width: 16,
     height: 16,
-    marginRight: 8
+    marginRight: 12
   },
   labelContainer: {
     padding: 0

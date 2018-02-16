@@ -171,7 +171,8 @@ class Category extends Component {
   */
   getNextStatesAsOperations = ({ stateId=undefined, itemIdsToUpdate=null, onChange=null, ...rest }) => {
     const { categoryStates } = this.props
-    const currentState = categoryStates.list[stateId]
+    const statesList = categoryStates ? categoryStates.list : null
+    const currentState = statesList ? statesList[stateId] : null
 
     const isNew =  !itemIdsToUpdate
 
