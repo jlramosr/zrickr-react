@@ -27,10 +27,10 @@ const _receiveFieldsAction = (categoryId, fields) => ({
 const _fetchFields = categoryId => dispatch => {
   dispatch(_receivingFieldsAction(categoryId))
   const params = {
-    mainCollectionId: 'categories_fields',
+    mainCollectionId: process.env.REACT_APP_FIELDS_URL,
     collectionId: categoryId
   }
-  return API('firebase').fetch(params)
+  return API(process.env.REACT_APP_FIELDS_SOURCE).fetch(params)
     .then(
       fields => {
         dispatch(_receiveFieldsAction(categoryId, fields) || {})

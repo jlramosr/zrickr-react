@@ -27,10 +27,10 @@ const _receiveSettingsAction = (categoryId, settingsId, settings) => ({
 const _fetchSettings = categoryId => dispatch => {
   dispatch(_receivingSettingsAction(categoryId))
   const params = {
-    mainCollectionId: 'categories_settings',
+    mainCollectionId: process.env.REACT_APP_SETTINGS_URL,
     collectionId: categoryId
   }
-  return API('firebase').fetch(params)
+  return API(process.env.REACT_APP_SETTINGS_SOURCE).fetch(params)
     .then(
       settings => {
         const settingsId = Object.keys(settings)[0]

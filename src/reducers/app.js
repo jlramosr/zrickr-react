@@ -1,5 +1,5 @@
 const initialAppState = {
-  name: 'ERP',
+  name: process.env.REACT_APP_NAME,
   categoriesPath: 'section'
 }
 

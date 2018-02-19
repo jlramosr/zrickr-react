@@ -186,10 +186,10 @@ const shouldUpdateItems = (state, categoryId) => {
 const _fetchItems = categoryId => dispatch => {
   dispatch(receivingItemsAction(categoryId))
   const params = {
-    mainCollectionId: 'categories_items',
+    mainCollectionId: process.env.REACT_APP_ITEMS_URL,
     collectionId: categoryId
   }
-  return API('firebase').fetch(params)
+  return API(process.env.REACT_APP_ITEMS_SOURCE).fetch(params)
     .then(
       items => {
         dispatch(receiveItemsAction(categoryId, items || {}))
@@ -204,11 +204,11 @@ const _fetchItems = categoryId => dispatch => {
 const _fetchItem = (categoryId, itemId) => dispatch => {
   dispatch(receivingItemAction(categoryId))
   const params = {
-    mainCollectionId: 'categories_items',
+    mainCollectionId: process.env.REACT_APP_ITEMS_URL,
     collectionId: categoryId,
     documentId: itemId
   }
-  return API('firebase').fetch(params)
+  return API(process.env.REACT_APP_ITEMS_SOURCE).fetch(params)
     .then(
       item => {
         dispatch(receiveItemAction(categoryId, itemId, item || {}))
@@ -224,13 +224,13 @@ const _createItems = (categoryId, values, quantity) => dispatch => {
   dispatch(creatingItemAction(categoryId))
   const newValues = {createdAt: Date.now(), ...convertArraysToObject(values)}
   const params = {
-    mainCollectionId: 'categories_items',
+    mainCollectionId: process.env.REACT_APP_ITEMS_URL,
     collectionId: categoryId,
     values: newValues,
     quantity
   }
   return new Promise((resolve, reject) => {
-    API('firebase').create(params).then(
+    API(process.env.REACT_APP_ITEMS_SOURCE).create(params).then(
       documentIds => {
         dispatch(createItemsAction(categoryId, documentIds, newValues))
         resolve(documentIds)
@@ -248,13 +248,13 @@ const _updateItems = (categoryId, itemIds, values) => dispatch => {
   dispatch(updatingItemsAction(categoryId))
   const newValues = {...convertArraysToObject(values), updatedAt: Date.now()}
   const params = {
-    mainCollectionId: 'categories_items',
+    mainCollectionId: process.env.REACT_APP_ITEMS_URL,
     collectionId: categoryId,
     documentIds: itemIds,
     values: newValues
   }
   return new Promise((resolve, reject) => {
-    API('firebase').update(params).then(
+    API(process.env.REACT_APP_ITEMS_SOURCE).update(params).then(
       documentIds => {
         dispatch(updateItemsAction(categoryId, documentIds, newValues))
         resolve(documentIds)
@@ -271,12 +271,12 @@ const _updateItems = (categoryId, itemIds, values) => dispatch => {
 const _removeItems = (categoryId, itemIds) => dispatch => {
   dispatch(removingItemsAction(categoryId))
   const params = {
-    mainCollectionId: 'categories_items',
+    mainCollectionId: process.env.REACT_APP_ITEMS_URL,
     collectionId: categoryId,
     documentIds: itemIds
   }
   return new Promise((resolve, reject) => {
-    API('firebase').remove(params).then(
+    API(process.env.REACT_APP_ITEMS_SOURCE).remove(params).then(
       documentId => {
         dispatch(removeItemsAction(categoryId, documentId))
         resolve(documentId)

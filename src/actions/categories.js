@@ -25,9 +25,9 @@ const _receiveCategoriesAction = categories => ({
 const _fetchCategories = () => dispatch => {
   dispatch(_receivingCategoriesAction())
   const params = {
-    mainCollectionId: 'categories'
+    mainCollectionId: process.env.REACT_APP_CATEGORIES_URL
   }
-  return API('firebase').fetch(params)
+  return API(process.env.REACT_APP_CATEGORIES_SOURCE).fetch(params)
     .then(
       categories => {
         dispatch(_receiveCategoriesAction(categories || {}))

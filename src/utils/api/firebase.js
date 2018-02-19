@@ -1,20 +1,47 @@
 const firebase = require('firebase/app')
 require('firebase/database')
+require('firebase/auth')
+
+const enviroment = process.env
+const {
+  REACT_APP_API_KEY,
+  REACT_APP_AUTH_DOMAIN,
+  REACT_APP_PROJECT_ID,
+  REACT_APP_DATABASE_URL,
+  REACT_APP_STORAGE_URL,
+  REACT_APP_MESSAGING_SENDER_ID
+} = enviroment
 
 const config = {
-  apiKey: 'AIzaSyDoZ6V5LUCN2AZ-DvbDx4S8JoHhBKgIeMw',
-  authDomain: 'tinyerp-1017.firebaseapp.com',
-  databaseURL: 'https://tinyerp-1017.firebaseio.com',
-  projectId: 'tinyerp-1017',
-  storageBucket: 'tinyerp-1017.appspot.com',
-  messagingSenderId: '326927970961'
+  apiKey: REACT_APP_API_KEY,
+  authDomain: REACT_APP_AUTH_DOMAIN,
+  projectId: REACT_APP_PROJECT_ID,
+  databaseURL: REACT_APP_DATABASE_URL,
+  storageBucket: REACT_APP_STORAGE_URL,
+  messagingSenderId: REACT_APP_MESSAGING_SENDER_ID
 }
 
 firebase.initializeApp(config)
 
 const database = firebase.database()
+const auth = firebase.auth()
 
 export default class firebaseAPI {
+
+  static getUser = () => {
+    return firebase.auth().onAuthStateChanged(user => {
+      return user
+    })
+  }
+
+  static createUser = (email, password) =>
+    auth.createUserWithEmailAndPassword(email, password);
+
+  static signInPassword = (email, password) =>
+    auth.signInWithEmailAndPassword(email, password)
+
+  static signOut = () =>
+    auth.signOut()
 
   static fetch = ({mainCollectionId, collectionId='', documentId=''}) =>
     new Promise((resolve, reject) => {

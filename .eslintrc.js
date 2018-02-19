@@ -2,6 +2,7 @@ module.exports = {
     "parser": "./node_modules/babel-eslint",
     "env": {
         "browser": true,
+        "node": true,
         "commonjs": true,
         "es6": true
     },

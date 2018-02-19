@@ -25,7 +25,6 @@ import { showRelations, addOpenRelation, removeAllOpenRelations } from '../../..
 import { capitalize } from './../../../utils/helpers'
 import { getItemString } from './../utils/helpers'
 import escapeRegExp from 'escape-string-regexp'
-import removeDiacritics from 'remove-diacritics'
 import pluralize from 'pluralize'
 import { withStyles } from 'material-ui/styles'
 
@@ -122,10 +121,10 @@ class CategoryList extends Component {
     let foundItems = items
     let allFilterIds = null
     if (searchQuery) {
-      const cleanQuery = removeDiacritics(searchQuery.trim())
+      const cleanQuery = searchQuery.trim()
       const match = new RegExp(escapeRegExp(cleanQuery), 'i')
       foundItems = items.filter(item => (
-        match.test(removeDiacritics(getItemString(item, primaryFields)))
+        match.test(getItemString(item, primaryFields))
       ))
     }
     if (itemIds) {

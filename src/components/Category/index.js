@@ -37,15 +37,15 @@ class Category extends Component {
     this.props.fetchFieldsIfNeeded()
   }
 
-  componentDidUpdate = prevProps => {
-    /* If multi-user */
-    /*const prevPath = prevProps.location.pathname
+  /*componentDidUpdate = prevProps => {
+     If multi-user
+    const prevPath = prevProps.location.pathname
     const currentPath = this.props.location.pathname
     if (prevPath !== currentPath) {
       this.props.fetchSettingsIfNeeded()
       this.props.fetchFieldsIfNeeded()
-    }*/
-  }
+    }
+}*/
 
   onCreateItems = ({values, title=null, quantity=1, successCallback=null}) => {
     const { createItems, notify, itemLabel, history, mode } = this.props
