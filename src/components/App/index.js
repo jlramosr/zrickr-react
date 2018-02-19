@@ -3,7 +3,6 @@ import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { updateWindowSize } from '../../actions/interactions'
 import { fetchCategories, fetchCategoriesIfNeeded } from '../../actions/categories'
-import { renderRoutes } from 'react-router-config'
 import Drawer from '../drawer'
 import { withStyles } from 'material-ui/styles'
 
@@ -65,12 +64,8 @@ class App extends Component {
   }
 
   render = () => {
-    const { route } = this.props
     return (
-      <React.Fragment>
-        {renderRoutes(route.routes)}
-        <Drawer />
-      </React.Fragment>
+      <Drawer />
     )
   }
 }
@@ -79,13 +74,11 @@ App.propTypes = {
   /**
    * Info with all the app routes and rendered components for every one of them.
    * @see See [GitHub](https://github.com/ReactTraining/react-router/tree/master/packages/react-router-config)
-   * to know how it generates
+   * to know how it generates.
    */
-  route: PropTypes.object.isRequired,
   /**
    * Get all categories from Redux store.
    */
-  
   fetchCategories: PropTypes.func.isRequired,
   fetchCategoriesIfNeeded: PropTypes.func.isRequired
 }

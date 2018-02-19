@@ -2,67 +2,55 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import Reboot from 'material-ui/Reboot'
-import { renderRoutes } from 'react-router-config'
-import routes from '../../routes'
+import renderRoutes from '../../routes'
 //<PendingNavDataLoader routes={routes} />*/
 import Notifier from '../notifier'
+import { setAuthUser } from '../../actions/app'
 import { withStyles } from 'material-ui/styles'
-import API from '../../utils/api'
 
 /**
  * Core component
  */
 class Core extends Component {
-  state = {
-    auth: null
-  }
 
   componentDidMount() {
-    const auth = API(process.env.REACT_APP_ITEMS_SOURCE).getUser()
-    if (auth) {
-      this.setState({auth})
-    }
+    this.props.setAuthUser()
   }
 
-  render = () => {
+  render = () => (
+    <Reboot>
+      {renderRoutes(this.props.authUser)}
+      <Notifier />
+      {process.env.NODE_ENV === 'development' &&
+        <div style={{
+          position:'absolute',
+          top:2,
+          left:2,
+          color:'#fff',
+          background: '#000',
+          padding: '2px 8px',
+          fontSize: 10,
+          zIndex:5000
+        }}>
+          DEV MODE
+        </div>
+      }
+    </Reboot>
+  )
 
-    if (!this.state.user) {
-      return (
-        <div>hola</div>
-      )
-    }
-
-    return (
-      <Reboot>
-        {renderRoutes(routes)}
-        <Notifier />
-        {process.env.NODE_ENV === 'development' &&
-          <div style={{
-            position:'absolute',
-            top:2,
-            left:2,
-            color:'#fff',
-            background: '#000',
-            padding: '2px 8px',
-            fontSize: 10,
-            zIndex:5000
-          }}>
-            DEV MODE
-          </div>
-        }
-      </Reboot>
-    )
-  }
 }
 
 Core.propTypes = {
-  
+  route: PropTypes.object.isRequired
 }
 
-const mapStateToProps = ({ interactions }) => ({
+const mapStateToProps = ({ app, router }) => ({
+  authUser: app.authUser,
+  route: router.location
 })
 
 const mapDispatchToProps = dispatch => ({
+  setAuthUser: () => dispatch(setAuthUser())
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(

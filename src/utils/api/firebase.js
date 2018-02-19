@@ -29,16 +29,43 @@ const auth = firebase.auth()
 export default class firebaseAPI {
 
   static getUser = () => {
-    return firebase.auth().onAuthStateChanged(user => {
-      return user
+    return new Promise(resolve => {
+      firebase.auth().onAuthStateChanged(user => {
+        resolve(user)
+      })
     })
   }
 
-  static createUser = (email, password) =>
+  static createUserWithPassword = (email, password) =>
     auth.createUserWithEmailAndPassword(email, password);
 
-  static signInPassword = (email, password) =>
+  static signInWithPassword = (email, password) =>
     auth.signInWithEmailAndPassword(email, password)
+
+  static signInWithProvider = providerName => {
+    let provider = auth.GoogleAuthProvider()
+    if (providerName === 'google') {
+      provider = auth.GoogleAuthProvider()
+    }
+    return new Promise((resolve, reject) => {
+      auth.signInWithPopup(provider).then(result => {
+        // This gives you a Google Access Token. You can use it to access the Google API.
+        const token = result.credential.accessToken
+        // The signed-in user info.
+        const user = result.user
+        resolve({user, token})
+        // ...
+      }).catch(error => {
+        const errorCode = error.code
+        const errorMessage = error.message
+        // The email of the user's account used.
+        const email = error.email
+        // The firebase.auth.AuthCredential type that was used.
+        const credential = error.credential
+        reject({errorCode, errorMessage, email, credential})
+      })
+    })
+  }
 
   static signOut = () =>
     auth.signOut()
