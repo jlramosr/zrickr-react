@@ -28,13 +28,7 @@ const auth = firebase.auth()
 
 export default class firebaseAPI {
 
-  static getUser = () => {
-    return new Promise(resolve => {
-      firebase.auth().onAuthStateChanged(user => {
-        resolve(user)
-      })
-    })
-  }
+  static fetchAuthUser = callback => auth.onAuthStateChanged(callback)
 
   static createUserWithPassword = (email, password) =>
     auth.createUserWithEmailAndPassword(email, password);
@@ -43,9 +37,9 @@ export default class firebaseAPI {
     auth.signInWithEmailAndPassword(email, password)
 
   static signInWithProvider = providerName => {
-    let provider = auth.GoogleAuthProvider()
+    let provider = new firebase.auth.GoogleAuthProvider()
     if (providerName === 'google') {
-      provider = auth.GoogleAuthProvider()
+      provider = new firebase.auth.GoogleAuthProvider()
     }
     return new Promise((resolve, reject) => {
       auth.signInWithPopup(provider).then(result => {
@@ -53,7 +47,7 @@ export default class firebaseAPI {
         const token = result.credential.accessToken
         // The signed-in user info.
         const user = result.user
-        resolve({user, token})
+        resolve(user, token)
         // ...
       }).catch(error => {
         const errorCode = error.code

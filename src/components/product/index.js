@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { withStyles } from 'material-ui/styles'
+import { settingAuthUser, setAuthUser } from '../../actions/app'
 import API from '../../utils/api'
 
 const styles = theme => ({
@@ -16,20 +17,20 @@ const initialState = {
 class Product extends Component  {
   state = { ...initialState}
 
-  onSubmit = event => {
-    console.log("SUBMIT!!!");
+  onSignIn = event => {
     const { email, password} = this.state
-    const { history } = this.props
+    const { history, settingAuthUser } = this.props
 
-    API('firebase').signInWithPassword(email, password)
+    settingAuthUser()
+
+    API(process.env.REACT_APP_AUTH_SOURCE).signInWithProvider('google')
       .then(() => {
-        this.setState(() => ({ ...initialState }))
-        //history.push(routes.HOME);
-        console.log('VIVA')
+        API(process.env.REACT_APP_AUTH_SOURCE).fetchAuthUser(authUser => {
+          setAuthUser(authUser)
+        })
       })
       .catch(error => {
         //this.setState(byPropKey('error', error))
-        console.log('MAL', error)
       })
 
     event.preventDefault()
@@ -40,7 +41,7 @@ class Product extends Component  {
     const isInvalid = false // password === '' || email === ''
 
     return (
-      <button disabled={isInvalid} onClick={this.onSubmit}>
+      <button disabled={isInvalid} onClick={this.onSignIn}>
         Sign In
       </button>
     )
@@ -54,7 +55,8 @@ const mapStateToProps = ({ interactions }) => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-
+  settingAuthUser: () => dispatch(settingAuthUser()),
+  setAuthUser: authUser => dispatch(setAuthUser(authUser))
 })
 
 export default connect(mapStateToProps,mapDispatchToProps)(

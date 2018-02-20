@@ -4,7 +4,7 @@ import defaultConfig from '@redux-offline/redux-offline/lib/defaults'
 import { routerReducer, routerMiddleware } from 'react-router-redux'
 import thunk from 'redux-thunk'
 import createHistory from 'history/createBrowserHistory'
-//import createActionBuffer from 'redux-action-buffer'
+import createActionBuffer from 'redux-action-buffer'
 //import logger from 'redux-logger'
 import app from './reducers/app'
 import categories from './reducers/categories'
@@ -16,7 +16,7 @@ import interactions from './reducers/interactions'
 const offlineConfig = {
   ...defaultConfig,
   persistOptions: {
-    blacklist: ['interactions'],
+    blacklist: ['interactions', 'router'],
     keyPrefix: 'reduxPersist:'
   }
 }
@@ -36,13 +36,14 @@ const reducer = combineReducers({
 })
 
 const enhancer = composeEnhancers(
+  offline(offlineConfig),
   applyMiddleware(
     thunk,
     routerMiddleware(history),
-    //createActionBuffer('persist/REHYDRATE'),
+    createActionBuffer('persist/REHYDRATE'),
     //logger
   ),
-  offline(offlineConfig),
+  
 )
 
 export default createStore(reducer, undefined, enhancer)
