@@ -28,7 +28,9 @@ const auth = firebase.auth()
 
 export default class firebaseAPI {
 
-  static fetchAuthUser = callback => auth.onAuthStateChanged(callback)
+  static fetchAuthUser = callback => 
+    //OBSERVATOR - it executes always auth changes.
+    auth.onAuthStateChanged(callback)
 
   static createUserWithPassword = (email, password) =>
     auth.createUserWithEmailAndPassword(email, password);
@@ -61,8 +63,15 @@ export default class firebaseAPI {
     })
   }
 
-  static signOut = () =>
-    auth.signOut()
+  static signOut = () => {
+    return new Promise((resolve, reject) => {
+      auth.signOut().then(() => {
+        resolve()
+      }).catch(() => {
+        reject()
+      })
+    })
+  }
 
   static fetch = ({mainCollectionId, collectionId='', documentId=''}) =>
     new Promise((resolve, reject) => {

@@ -1,30 +1,17 @@
-import React, { Component } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
-import { withStyles } from 'material-ui/styles'
+import PropTypes from 'prop-types'
+import LoggedIn from './loggedIn'
+import LoggedOut from './loggedOut'
 
-const styles = theme => ({
-
-})
-
-class Account extends Component  {
-  render = () => {
-    return (
-      <div>accountaccountaccountaccountaccountaccountaccount</div>
-    )
-  }
-}
+let Account = props => props.user ? <LoggedIn {...props} /> : <LoggedOut {...props} />
 
 Account.propTypes = {
+  user: PropTypes.object
 }
 
-const mapStateToProps = ({ interactions }) => ({
-
+const mapStateToProps = ({ app }) => ({
+  user: app.session.user
 })
 
-const mapDispatchToProps = dispatch => ({
-
-})
-
-export default connect(mapStateToProps,mapDispatchToProps)(
-  withStyles(styles)(Account)
-)
+export default connect(mapStateToProps)(Account)

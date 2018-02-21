@@ -3,7 +3,7 @@ import { SET_AUTH_USER } from '../actions/app'
 
 const initialAppState = {
   name: process.env.REACT_APP_NAME,
-  categoriesPath: 'section',
+  categoriesPath: process.env.REACT_APP_CATEGORIES_PATH,
   session: {
     user: null,
     token: null,

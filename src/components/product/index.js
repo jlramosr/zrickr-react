@@ -1,64 +1,91 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import PropTypes from 'prop-types'
 import { withStyles } from 'material-ui/styles'
-import { settingAuthUser, setAuthUser } from '../../actions/app'
-import API from '../../utils/api'
 
 const styles = theme => ({
-
+  root: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'strecht'
+  },
+  header: {
+    display: 'flex',
+    alignItems: 'center',
+    background: theme.palette.primary.main,
+    width: '100%',
+    height: 60,
+    color: '#fff',
+    fontSize: 26,
+    padding: 8
+  },
+  title: {
+    flex: 1,
+    color: '#fff',
+    fontSize: 26
+  },
+  signIn: {
+    fontSize: 14
+  },
+  contentHeadline: {
+    height: 160,
+    width: '100%',
+    background: theme.palette.secondary.extraLight,
+    margin: '0 auto'
+  },
+  contentDescription: {
+    display: 'flex',
+    flex: 1,
+    margin: '0 auto'
+  },
+  footer: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: '#ddd',
+    width: '100%',
+    height: 40
+  }
 })
 
-const initialState = {
-  email: '',
-  password: '',
-  error: null
-}
-
 class Product extends Component  {
-  state = { ...initialState}
-
-  onSignIn = event => {
-    const { email, password} = this.state
-    const { history, settingAuthUser } = this.props
-
-    settingAuthUser()
-
-    API(process.env.REACT_APP_AUTH_SOURCE).signInWithProvider('google')
-      .then(() => {
-        API(process.env.REACT_APP_AUTH_SOURCE).fetchAuthUser(authUser => {
-          setAuthUser(authUser)
-        })
-      })
-      .catch(error => {
-        //this.setState(byPropKey('error', error))
-      })
-
-    event.preventDefault()
-  }
 
   render = () => {
-    const { email, password, error } = this.state
-    const isInvalid = false // password === '' || email === ''
+    const { appName, classes, history } = this.props
 
     return (
-      <button disabled={isInvalid} onClick={this.onSignIn}>
-        Sign In
-      </button>
+      <section className={classes.root}>
+        <header className={classes.header}>
+          <span className={classes.title}>{appName}</span>
+          <button className={classes.signIn} onClick={() => { history.push('/account') }}>
+            Sign In
+          </button>
+        </header>
+        <section className={classes.contentHeadline}>
+          <span>{process.env.REACT_APP_HEADLINE}</span>
+        </section>
+        <section className={classes.contentDescription}>
+          <span>Description</span>
+        </section>
+        <footer className={classes.footer}>
+          <p>&copy;{new Date().getFullYear()} {appName}</p>
+        </footer>
+      </section>
     )
   }
 }
 
 Product.propTypes = {
+  appName: PropTypes.string.isRequired,
+  history: PropTypes.object.isRequired,
+  classes: PropTypes.object.isRequired 
 }
 
-const mapStateToProps = ({ interactions }) => ({
+const mapStateToProps = ({ app }) => ({
+  appName: app.name
 })
 
-const mapDispatchToProps = dispatch => ({
-  settingAuthUser: () => dispatch(settingAuthUser()),
-  setAuthUser: authUser => dispatch(setAuthUser(authUser))
-})
-
-export default connect(mapStateToProps,mapDispatchToProps)(
+export default connect(mapStateToProps, null)(
   withStyles(styles)(Product)
 )

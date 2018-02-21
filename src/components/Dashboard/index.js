@@ -85,6 +85,7 @@ class Dashboard extends Component  {
   render = () => {
     const {
       appName,
+      user,
       categoriesPath,
       categories,
       isFetchingCategories,
@@ -117,7 +118,9 @@ class Dashboard extends Component  {
         loading={isFetchingCategories}
         operations={[
           {id:'menu', icon:MenuIcon, onClick:() => toggleDrawer(!drawerOpen)},
-          {id:'account', icon:AccountCircle, right:true, small:true}
+          user && user.photoURL
+            ? {id:'account', image:user.photoURL, right: true, small:true, to:'/account'}
+            : {id:'account', icon:AccountCircle, right:true, small:true}
         ]}
       >
         <div className={classes.gridContainer}>
@@ -179,6 +182,7 @@ Dashboard.propTypes = {
 
 const mapStateToProps = ({ app, categories, interactions }) => ({
   appName: app.name,
+  user: app.session.user,
   categoriesPath: app.categoriesPath,
   categories: Object.values(categories.byId), 
   isFetchingCategories: categories.flow.isFetchingAll,

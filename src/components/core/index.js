@@ -4,7 +4,6 @@ import PropTypes from 'prop-types'
 import Reboot from 'material-ui/Reboot'
 import { setAuthUser } from '../../actions/app'
 import renderRoutes from '../../routes'
-
 import Notifier from '../notifier'
 import API from '../../utils/api'
 
@@ -12,7 +11,7 @@ const renderDevMode = () =>
   <div style={{
     position:'absolute',
     top:2,
-    right:2,
+    left:2,
     color:'#fff',
     background: '#000',
     padding: '2px 8px',
@@ -28,10 +27,8 @@ const renderDevMode = () =>
 class Core extends Component {
 
   componentDidMount = () => {
-    const { setAuthUser } = this.props
-
     API(process.env.REACT_APP_AUTH_SOURCE).fetchAuthUser(authUser => {
-      setAuthUser(authUser)
+      this.props.setAuthUser(authUser) //observator.
     })
   }
 
@@ -47,10 +44,6 @@ class Core extends Component {
     const { isSettingAuthUser, authUser } = this.props
     const logged = Boolean(authUser)
 
-    console.log(
-      'CORE', "isSetting", isSettingAuthUser, "logged", logged, "authUser", authUser
-    )
-
     if (isSettingAuthUser) {
       return (
         <div>
@@ -59,10 +52,6 @@ class Core extends Component {
       )
     }
 
-
-    console.log(
-      'CORE', "isSetting", isSettingAuthUser, "logged", logged, "authUser", authUser
-    )
     return (
       <Reboot>
         {renderRoutes(logged)}

@@ -8,7 +8,21 @@ import Tooltip from 'material-ui/Tooltip'
 const transformIdToTitle = id => id.replace(/([A-Z])/g, ' $1')
 
 const Action = props => {
-  const { id, to, icon, color, smallMode, small, disabled, onClick } = props
+
+  const { id, image, to, icon, color, smallMode, small, disabled, onClick } = props
+
+  if (image) {
+    const imageStyle = {
+      borderRadius: '50%',
+      width: 32,
+      height: 32,
+      marginTop: 4,
+      marginRight: 2,
+      marginLeft: 2
+    }
+    return <img alt={id} src={image} style={imageStyle} />
+  }
+
   const Icon = icon
 
   const iconButtonStyle = {
@@ -94,7 +108,8 @@ const Operation = props => {
 
 Operation.propTypes = {
   id: PropTypes.string.isRequired,
-  icon: PropTypes.func.isRequired,
+  icon: PropTypes.func,
+  image: PropTypes.string,
   color: PropTypes.string,
   hidden: PropTypes.bool,
   disabled: PropTypes.bool,

@@ -2,13 +2,15 @@ import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
-import { toggleDrawer } from '../../actions/interactions'
+import { toggleDrawer, notify } from '../../actions/interactions'
+import { settingAuthUser, setAuthUser } from '../../actions/app'
 import { withStyles } from 'material-ui/styles'
 import Drawer from 'material-ui/Drawer'
 import { MenuItem } from 'material-ui/Menu'
 import Divider from 'material-ui/Divider'
 import IconButton from 'material-ui/IconButton'
 import ChevronLeftIcon from 'material-ui-icons/ChevronLeft'
+import API from '../../utils/api'
 
 const styles = {
   menuItem: {
@@ -17,11 +19,37 @@ const styles = {
 }
 
 class CustomDrawer extends Component {
+
+  onSignOut = event => {
+    event.preventDefault()
+    const { settingAuthUser, close} = this.props
+    const authSource = process.env.REACT_APP_AUTH_SOURCE
+
+    settingAuthUser()
+
+    API(authSource).signOut()
+      .then(() => {
+        close()
+        notify('You have succesfully logged out', 'error')
+      })
+      .catch(error => {
+        notify(error, 'error')
+      })
+      .finally(() => {
+        /*API(authSource).fetchAuthUser(authUser => {
+          setAuthUser(authUser)
+        })*/
+      })
+  }
+
   render = () => {
     const { categoriesPath, categories, open, close, classes } = this.props
 
     return (
       <Drawer open={open}>
+        <button onClick={this.onSignOut}>
+          Sign Out
+        </button>
         <React.Fragment>
           <IconButton onClick={close}>
             <ChevronLeftIcon />
@@ -56,7 +84,9 @@ const mapStateToProps = ({ app, categories, interactions }) => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-  close: () => dispatch(toggleDrawer(false))
+  close: () => dispatch(toggleDrawer(false)),
+  settingAuthUser: () => dispatch(settingAuthUser()),
+  setAuthUser: authUser => dispatch(setAuthUser(authUser))
 })
 
 export default connect(mapStateToProps,mapDispatchToProps)(

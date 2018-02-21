@@ -13,12 +13,12 @@ import NotFound from './components/notFound'
 export default logged => {
 
   if (logged) {
+    //<Redirect exact from="/product" to="/dashboard" />
     return (
       <React.Fragment>
         <Route path="*" component={App} />
         <Switch>
           <Redirect exact from="/" to="/dashboard" />
-          <Redirect exact from="/product" to="/dashboard" />
           <Route exact path="/dashboard" component={Dashboard} />
           <Redirect from="/dashboard" to="/dashboard" />
           <Route exact path="/account" component={Account} />
