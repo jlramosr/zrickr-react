@@ -1,5 +1,5 @@
 module.exports = {
-    "parser": "./node_modules/babel-eslint",
+    "parser": "babel-eslint",
     "env": {
         "browser": true,
         "node": true,
@@ -54,4 +54,4 @@ module.exports = {
             { "ignoreRestSiblings": true }
         ]
     }
-};
+}
