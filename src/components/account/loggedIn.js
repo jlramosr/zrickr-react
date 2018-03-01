@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import HeaderLayout from 'reactjspain-header-layout'
+import HeaderLayout from '../headerLayout'
 import Form from '../form'
 import ArrowBack from 'material-ui-icons/ArrowBack'
 import Check from 'material-ui-icons/Check'

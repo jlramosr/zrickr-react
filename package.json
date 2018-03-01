@@ -1,6 +1,6 @@
 {
   "name": "tinyerp",
-  "version": "0.9.1",
+  "version": "0.10.0",
   "author": "Jose Ramos <jlramosr@gmail.com> (http://joseramos.info)",
   "private": true,
   "dependencies": {
@@ -29,7 +29,6 @@
     "react-select": "^1.2.1",
     "react-styleguidist": "^6.1.0",
     "react-virtualized-select": "^3.1.1",
-    "reactjspain-header-layout": "^0.1.0",
     "redux": "^3.7.2",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.2.0",

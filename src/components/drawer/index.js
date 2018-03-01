@@ -5,12 +5,11 @@ import PropTypes from 'prop-types'
 import { toggleDrawer, notify } from '../../actions/interactions'
 import { settingAuthUser, setAuthUser } from '../../actions/app'
 import { withStyles } from 'material-ui/styles'
-
+import Drawer from 'material-ui/Drawer'
 import { MenuItem } from 'material-ui/Menu'
 import Divider from 'material-ui/Divider'
 import IconButton from 'material-ui/IconButton'
 import ChevronLeftIcon from 'material-ui-icons/ChevronLeft'
-import Drawer from 'reactjspain-drawer'
 import API from '../../utils/api'
 
 const styles = {
@@ -47,7 +46,26 @@ class CustomDrawer extends Component {
     const { categoriesPath, categories, open, close, classes } = this.props
 
     return (
-      <Drawer open={open} sections={categories} />
+      <Drawer open={open}>
+        <button onClick={this.onSignOut}>
+          Sign Out
+        </button>
+        <React.Fragment>
+          <IconButton onClick={close}>
+            <ChevronLeftIcon />
+          </IconButton>
+        </React.Fragment>
+        <Divider />
+        {categories.map(category => (
+          <Link
+            key={category.id}
+            to={`/${categoriesPath}/${category.id}`}>
+            <MenuItem className={classes.menuItem} onClick={close}>
+              {category.label}
+            </MenuItem>
+          </Link>
+        ))}
+      </Drawer>
     )
   }
 }
