@@ -69,7 +69,7 @@ class Product extends Component  {
           <span>Description</span>
         </section>
         <footer className={classes.footer}>
-          <p>&copy;{new Date().getFullYear()} {appName}</p>
+          <p>{appName}</p>
         </footer>
       </section>
     )
